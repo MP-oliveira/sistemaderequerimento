@@ -1,6 +1,7 @@
 import express from 'express';
 import { register, login, getProfile } from '../controllers/AuthController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
+import { supabase } from '../config/supabaseClient.js';
 
 const router = express.Router();
 

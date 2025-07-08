@@ -14,7 +14,11 @@ const generateToken = (userId, role) => {
 // 📝 CADASTRO DE USUÁRIO
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role = 'LIDER' } = req.body;
+    // Logs de depuração para ambiente e chave
+    console.log('🔑 SUPABASE_URL:', process.env.SUPABASE_URL);
+    console.log('🔑 SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY);
+
+    const { name, email, password, role } = req.body;
 
     // Validações básicas
     if (!name || !email || !password) {
@@ -23,6 +27,11 @@ export const register = async (req, res) => {
         message: 'Nome, email e senha são obrigatórios'
       });
     }
+
+    // Valores permitidos para o ENUM
+    const allowedRoles = ['LIDER', 'PASTOR', 'ADM', 'SEC', 'AUDIOVISUAL'];
+    // Se não vier role, usa 'LIDER'. Se vier, valida.
+    const userRole = allowedRoles.includes(role) ? role : 'LIDER';
 
     // Verificar se email já existe
     const { data: existingUser } = await supabase
@@ -48,7 +57,7 @@ export const register = async (req, res) => {
         full_name: name,
         email,
         password_hash: hashedPassword,
-        role,
+        role: userRole,
         is_active: true
       }])
       .select()
@@ -56,11 +65,11 @@ export const register = async (req, res) => {
 
     if (error) {
       console.error('Erro ao criar usuário no Supabase:', error);
-      // Retorna um erro mais detalhado em desenvolvimento
+      // Logar o erro completo para depuração
       return res.status(400).json({
         success: false,
         message: 'Não foi possível criar o usuário.',
-        ...(process.env.NODE_ENV === 'development' && { error: { message: error.message, details: error.details } })
+        error: error
       });
     }
 
@@ -86,7 +95,7 @@ export const register = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Ocorreu um erro inesperado no servidor.',
-      ...(process.env.NODE_ENV === 'development' && { error: error.message })
+      error: error.message
     });
   }
 };
