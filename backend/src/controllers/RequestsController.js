@@ -1,4 +1,6 @@
 import { supabase } from '../config/supabaseClient.js';
+// Importar função de log do histórico do inventário
+import { logInventoryHistory } from './ InventoryController.js';
 
 // Criar uma nova requisição
 export const createRequest = async (req, res) => {
@@ -115,6 +117,48 @@ export const executeRequest = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Apenas Secretaria ou Audiovisual podem executar requisições.' });
     }
     const { id } = req.params;
+    // Buscar itens da requisição
+    const { data: requestItems, error: errorItems } = await supabase
+      .from('request_items')
+      .select('*')
+      .eq('request_id', id);
+    if (errorItems) {
+      return res.status(400).json({ success: false, message: 'Erro ao buscar itens da requisição.', error: errorItems.message });
+    }
+    // Atualizar inventário para cada item
+    for (const reqItem of requestItems) {
+      if (!reqItem.inventory_id || !reqItem.quantity_requested) continue;
+      // Buscar item do inventário
+      const { data: inv, error: errInv } = await supabase
+        .from('inventory')
+        .select('*')
+        .eq('id', reqItem.inventory_id)
+        .single();
+      if (errInv || !inv) continue;
+      const novaQuantidade = inv.quantity_available - reqItem.quantity_requested;
+      const novoStatus = novaQuantidade <= 0 ? 'INDISPONIVEL' : inv.status;
+      // Atualizar inventário
+      await supabase
+        .from('inventory')
+        .update({
+          quantity_available: novaQuantidade < 0 ? 0 : novaQuantidade,
+          status: novoStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reqItem.inventory_id);
+      // Registrar histórico
+      await logInventoryHistory({
+        inventory_id: reqItem.inventory_id,
+        user_id: req.user.userId,
+        action: 'USO_REQUISICAO',
+        status_anterior: inv.status,
+        status_novo: novoStatus,
+        quantidade_anterior: inv.quantity_available,
+        quantidade_nova: novaQuantidade < 0 ? 0 : novaQuantidade,
+        observacao: `Item usado na execução da requisição ${id}`
+      });
+    }
+    // Atualizar status da requisição
     const { data: request, error } = await supabase
       .from('requests')
       .update({
@@ -128,7 +172,7 @@ export const executeRequest = async (req, res) => {
     if (error || !request) {
       return res.status(400).json({ success: false, message: 'Erro ao executar requisição.', error: error?.message });
     }
-    res.json({ success: true, message: 'Requisição executada.', data: request });
+    res.json({ success: true, message: 'Requisição executada e inventário atualizado.', data: request });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
