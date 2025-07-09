@@ -1,0 +1,23 @@
+.dashboard-container {
+  padding: 32px;
+}
+
+.dashboard-container h1 {
+  margin-bottom: 8px;
+}
+
+.dashboard-container nav {
+  margin-top: 24px;
+}
+
+.dashboard-container a {
+  margin-right: 16px;
+  color: #2d8cff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.dashboard-container a:hover {
+  color: #174ea6;
+} 

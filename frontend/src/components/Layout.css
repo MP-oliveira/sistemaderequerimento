@@ -1,0 +1,15 @@
+.main-content {
+  margin-left: 220px;
+  margin-top: 56px;
+  padding: 32px;
+  min-height: calc(100vh - 56px);
+  background: #f5f6fa;
+  transition: margin-left 0.2s;
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 60px;
+    padding: 16px 4px;
+  }
+} 

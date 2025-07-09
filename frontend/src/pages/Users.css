@@ -1,0 +1,33 @@
+.users-page {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px #0001;
+  padding: 32px 24px 40px 24px;
+}
+
+.users-page h1 {
+  margin-bottom: 24px;
+  text-align: center;
+  color: #2d8cff;
+}
+
+.users-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.users-error {
+  color: #ff4d4f;
+  margin: 12px 0 0 0;
+  text-align: center;
+  font-weight: 500;
+}
+
+@media (max-width: 700px) {
+  .users-page {
+    padding: 16px 4px 24px 4px;
+  }
+} 
