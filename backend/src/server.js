@@ -7,6 +7,8 @@ import { testConnection } from './config/supabaseClient.js';
 
 // Importar rotas
 import authRoutes from './routes/authRoutes.js';
+import userRouts from './routes/userRouts.js';
+import requestsRoutes from './routes/requestsRoutes.js';
 
 dotenv.config();
 
@@ -57,6 +59,12 @@ app.get('/test-connection', async (req, res) => {
 
 // 🔐 Rotas de autenticação
 app.use('/api/auth', authRoutes);
+
+// �� Rotas de usuários
+app.use('/api/users', userRouts);
+
+// 📦 Rotas de requisições
+app.use('/api/requests', requestsRoutes);
 
 // Middleware para rotas não encontradas
 app.use('*', (req, res) => {
