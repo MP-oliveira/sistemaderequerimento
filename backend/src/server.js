@@ -9,6 +9,8 @@ import { testConnection } from './config/supabaseClient.js';
 import authRoutes from './routes/authRoutes.js';
 import userRouts from './routes/userRouts.js';
 import requestsRoutes from './routes/requestsRoutes.js';
+import requestItemsRoutes from './routes/requestItemsRoutes.js';
+import inventoryRoutes from './routes/inventoryRoutes.js';
 
 dotenv.config();
 
@@ -65,6 +67,11 @@ app.use('/api/users', userRouts);
 
 // 📦 Rotas de requisições
 app.use('/api/requests', requestsRoutes);
+
+// 📦 Rotas de itens de requisição
+app.use('/api/request-items', requestItemsRoutes);
+// 📦 Rotas de inventário
+app.use('/api/inventory', inventoryRoutes);
 
 // Middleware para rotas não encontradas
 app.use('*', (req, res) => {
