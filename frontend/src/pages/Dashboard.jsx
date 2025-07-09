@@ -97,7 +97,7 @@ export default function Dashboard() {
         
         <div className="dashboard-stats">
           <div className="stat-card">
-            <h3>Requisições</h3>
+            <h3>Requerimentos</h3>
             <p className="stat-number">12</p>
             <p className="stat-label">Este mês</p>
           </div>
@@ -125,47 +125,56 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <div className="calendar-grid">
-          <div className="calendar-weekdays">
-            <div className="weekday">Dom</div>
-            <div className="weekday">Seg</div>
-            <div className="weekday">Ter</div>
-            <div className="weekday">Qua</div>
-            <div className="weekday">Qui</div>
-            <div className="weekday">Sex</div>
-            <div className="weekday">Sáb</div>
+        {loading ? (
+          <div className="calendar-loading">
+            <div className="loading-spinner"></div>
+            <p>Carregando eventos...</p>
           </div>
-          
-          <div className="calendar-days">
-            {days.map((day, index) => (
-              <div 
-                key={index} 
-                className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''}`}
-              >
-                <span className="day-number">{day.date.getDate()}</span>
-                {day.events.length > 0 && (
-                  <div className="day-events">
-                    {day.events.slice(0, 2).map(event => (
-                      <div key={event.id} className="event-dot" title={event.titulo}>
-                        •
+        ) : (
+          <>
+            <div className="calendar-grid">
+              <div className="calendar-weekdays">
+                <div className="weekday">Dom</div>
+                <div className="weekday">Seg</div>
+                <div className="weekday">Ter</div>
+                <div className="weekday">Qua</div>
+                <div className="weekday">Qui</div>
+                <div className="weekday">Sex</div>
+                <div className="weekday">Sáb</div>
+              </div>
+              
+              <div className="calendar-days">
+                {days.map((day, index) => (
+                  <div 
+                    key={index} 
+                    className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''}`}
+                  >
+                    <span className="day-number">{day.date.getDate()}</span>
+                    {day.events.length > 0 && (
+                      <div className="day-events">
+                        {day.events.slice(0, 2).map(event => (
+                          <div key={event.id} className="event-dot" title={event.titulo}>
+                            •
+                          </div>
+                        ))}
+                        {day.events.length > 2 && (
+                          <div className="event-more">+{day.events.length - 2}</div>
+                        )}
                       </div>
-                    ))}
-                    {day.events.length > 2 && (
-                      <div className="event-more">+{day.events.length - 2}</div>
                     )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        <div className="calendar-legend">
-          <div className="legend-item">
-            <div className="legend-dot"></div>
-            <span>Eventos da Igreja</span>
-          </div>
-        </div>
+            <div className="calendar-legend">
+              <div className="legend-item">
+                <div className="legend-dot"></div>
+                <span>Eventos da Igreja</span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

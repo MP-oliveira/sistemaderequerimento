@@ -13,7 +13,13 @@ export function AuthProvider({ children }) {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({ ...payload, token });
+        setUser({ 
+          id: payload.userId,
+          nome: payload.name || 'Usuário',
+          email: payload.email,
+          role: payload.role,
+          token 
+        });
       } catch {
         setUser(null);
       }
@@ -24,8 +30,18 @@ export function AuthProvider({ children }) {
   const login = async ({ email, password }) => {
     const data = await authService.login({ email, password });
     console.log('Login backend response:', data);
-    // Supondo que o backend retorna user e token
-    setUser({ ...data.user, token: data.token });
+    
+    // O backend retorna data.user com os dados do usuário
+    const userData = {
+      id: data.user.id,
+      nome: data.user.name,
+      email: data.user.email,
+      role: data.user.role,
+      token: data.token
+    };
+    
+    setUser(userData);
+    return userData;
   };
 
   const logout = () => {

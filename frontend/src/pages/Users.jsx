@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Table from '../components/Table';
@@ -14,6 +16,8 @@ const PAPEL_OPTIONS = [
 ];
 
 export default function Users() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [listError, setListError] = useState('');
@@ -26,16 +30,33 @@ export default function Users() {
   const [loadingForm, setLoadingForm] = useState(false);
 
   useEffect(() => {
+    // Verificar se está logado
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    // Verificar se é administrador
+    if (user.role !== 'ADM') {
+      setListError('Acesso negado. Apenas administradores podem gerenciar usuários.');
+      return;
+    }
+    
     buscarUsuarios();
-  }, []);
+  }, [user, navigate]);
 
   const buscarUsuarios = async () => {
     setLoading(true);
     setListError('');
     try {
       const res = await listarUsuarios();
-      setUsuarios(res.data || []);
+      setUsuarios(res.data || res || []);
     } catch (err) {
+      if (err.message.includes('Sessão expirada')) {
+        logout();
+        navigate('/login');
+        return;
+      }
       setListError(err.message || 'Erro ao buscar usuários');
     }
     setLoading(false);
@@ -59,10 +80,27 @@ export default function Users() {
       setSenha('');
       buscarUsuarios();
     } catch (err) {
+      if (err.message.includes('Sessão expirada')) {
+        logout();
+        navigate('/login');
+        return;
+      }
       setFormError(err.message || 'Erro ao criar usuário');
     }
     setLoadingForm(false);
   };
+
+  // Se não for administrador, mostrar mensagem
+  if (user && user.role !== 'ADM') {
+    return (
+      <div className="users-page">
+        <div className="card users-card">
+          <h1>Acesso Negado</h1>
+          <p>Apenas administradores podem gerenciar usuários.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="users-page">
@@ -120,9 +158,9 @@ export default function Users() {
         ) : (
           <Table
             columns={[
-              { key: 'nome', label: 'Nome' },
+              { key: 'full_name', label: 'Nome' },
               { key: 'email', label: 'E-mail' },
-              { key: 'papel', label: 'Papel' },
+              { key: 'role', label: 'Papel' },
             ]}
             data={usuarios}
             emptyMessage="Nenhum usuário encontrado."

@@ -1,4 +1,115 @@
-import { supabase } from '../config/supabaseClient.js';
+import { supabase, supabaseAdmin } from '../config/supabaseClient.js';
+
+// Criar novo usuário (apenas para administradores)
+export const createUser = async (req, res) => {
+  try {
+    console.log('🔍 createUser - Iniciando criação de usuário');
+    console.log('🔍 createUser - Usuário autenticado:', req.user);
+    
+    // Verifica se o usuário é ADM
+    if (!req.user || req.user.role !== 'ADM') {
+      console.log('❌ createUser - Acesso negado. Usuário não é ADM');
+      return res.status(403).json({
+        success: false,
+        message: 'Acesso negado. Apenas administradores podem criar usuários.'
+      });
+    }
+
+    const { nome, email, papel, senha } = req.body;
+    console.log('🔍 createUser - Dados recebidos:', { nome, email, papel, senha: senha ? '***' : 'undefined' });
+
+    // Validações
+    if (!nome || !email || !papel || !senha) {
+      console.log('❌ createUser - Campos obrigatórios faltando');
+      return res.status(400).json({
+        success: false,
+        message: 'Todos os campos são obrigatórios: nome, email, papel, senha'
+      });
+    }
+
+    // Verificar se o email já existe
+    console.log('🔍 createUser - Verificando se email já existe');
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existingUser) {
+      console.log('❌ createUser - Email já cadastrado');
+      return res.status(400).json({
+        success: false,
+        message: 'E-mail já cadastrado'
+      });
+    }
+
+    // Verificar se temos o cliente admin
+    if (!supabaseAdmin) {
+      console.log('❌ createUser - Cliente admin não disponível');
+      return res.status(500).json({
+        success: false,
+        message: 'Erro de configuração do servidor. Contate o administrador.'
+      });
+    }
+
+    console.log('🔍 createUser - Criando usuário no Supabase Auth');
+    // Criar usuário no Supabase Auth usando o cliente admin
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: senha,
+      email_confirm: true
+    });
+
+    if (authError) {
+      console.log('❌ createUser - Erro ao criar usuário no Auth:', authError);
+      return res.status(400).json({
+        success: false,
+        message: 'Erro ao criar usuário',
+        error: authError.message
+      });
+    }
+
+    console.log('🔍 createUser - Usuário criado no Auth, inserindo na tabela users');
+    // Inserir dados adicionais na tabela users
+    const { data: user, error: dbError } = await supabase
+      .from('users')
+      .insert({
+        id: authUser.user.id,
+        full_name: nome,
+        email: email,
+        role: papel,
+        is_active: true
+      })
+      .select('id, full_name, email, role, is_active, created_at')
+      .single();
+
+    if (dbError) {
+      console.log('❌ createUser - Erro ao inserir na tabela users:', dbError);
+      // Se falhar ao inserir na tabela, remover o usuário do auth
+      await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
+      return res.status(400).json({
+        success: false,
+        message: 'Erro ao criar usuário no banco de dados',
+        error: dbError.message
+      });
+    }
+
+    console.log('✅ createUser - Usuário criado com sucesso:', user);
+    res.status(201).json({
+      success: true,
+      message: 'Usuário criado com sucesso',
+      data: user
+    });
+
+  } catch (error) {
+    console.error('❌ createUser - Erro interno:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
+};
 
 // Listar todos os usuários (apenas para administradores)
 export const listUsers = async (req, res) => {

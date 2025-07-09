@@ -8,6 +8,7 @@ dotenv.config();
 console.log('🔍 Debug das variáveis de ambiente:');
 console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
 console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'DEFINIDA' : 'NÃO DEFINIDA');
+console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'DEFINIDA' : 'NÃO DEFINIDA');
 console.log('Diretório atual:', process.cwd());
 
 // Verificar se as variáveis de ambiente estão definidas
@@ -18,7 +19,7 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
   throw new Error('Variáveis de ambiente SUPABASE_URL e SUPABASE_ANON_KEY são obrigatórias');
 }
 
-// Criar o cliente Supabase
+// Criar o cliente Supabase para operações normais
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY,
@@ -30,6 +31,25 @@ const supabase = createClient(
     }
   }
 );
+
+// Criar o cliente Supabase para operações admin (se service role key estiver disponível)
+let supabaseAdmin = null;
+if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  supabaseAdmin = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: false,
+        detectSessionInUrl: false
+      }
+    }
+  );
+  console.log('✅ Cliente admin do Supabase criado com sucesso!');
+} else {
+  console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY não definida. Operações admin podem não funcionar.');
+}
 
 // Função para testar a conexão
 const testConnection = async () => {
@@ -54,5 +74,6 @@ const testConnection = async () => {
 
 export {
   supabase,
+  supabaseAdmin,
   testConnection
 };

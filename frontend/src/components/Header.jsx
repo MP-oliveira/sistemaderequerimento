@@ -14,7 +14,7 @@ export default function Header() {
       </div>
       
       <div className="header-center">
-        <h1 className="header-title">Sistema de Requisições</h1>
+        <h1 className="header-title">Sistema de Requerimentos</h1>
       </div>
       
       <div className="header-right">

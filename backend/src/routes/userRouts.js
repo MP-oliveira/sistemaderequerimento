@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  createUser,
   listUsers,
   getUser,
   updateUser,
@@ -9,6 +10,9 @@ import {
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
+
+// Rota protegida: criar novo usuário (apenas ADM)
+router.post('/', authenticateToken, createUser);
 
 // Rota protegida: listar todos os usuários (apenas ADM)
 router.get('/', authenticateToken, listUsers);
