@@ -1,22 +1,37 @@
 .users-page {
-  max-width: 600px;
+  max-width: 100vw;
   margin: 0 auto;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 16px #0001;
-  padding: 32px 24px 40px 24px;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
 }
 
-.users-page h1 {
-  margin-bottom: 24px;
-  text-align: center;
-  color: #2d8cff;
+.users-card {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.users-list-card {
+  max-width: 900px;
+  margin: 32px auto 0 auto;
 }
 
 .users-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.users-form h1 {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.users-list-card h2 {
+  margin-bottom: 16px;
+  text-align: center;
 }
 
 .users-error {
@@ -24,6 +39,34 @@
   margin: 12px 0 0 0;
   text-align: center;
   font-weight: 500;
+}
+
+/* Novas classes para substituir estilos inline */
+.users-success-msg {
+  color: #2d8cff;
+  margin-top: 12px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.users-submit-btn {
+  border: none;
+  cursor: pointer;
+  padding: 18px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  outline: none;
+  margin: 0 4px;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: var(--ibva-yellow);
+  color: var(--ibva-blue);
+  margin-left: 33%;
+}
+
+.users-loading {
+  text-align: center;
+  color: #888;
 }
 
 @media (max-width: 700px) {

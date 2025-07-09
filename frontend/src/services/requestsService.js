@@ -1,13 +1,18 @@
-const API_URL = 'http://localhost:3000'; // Ajuste para a URL real do backend
+const API_URL = 'http://localhost:3000';
+
+function getAuthHeaders() {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
 
 export async function criarRequisicao({ descricao, data, itens }) {
   try {
-    const response = await fetch(`${API_URL}/requests`, {
+    const response = await fetch(`${API_URL}/api/requests`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Adicione o token de autenticação se necessário
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ descricao, data, itens }),
     });
     if (!response.ok) {
@@ -22,11 +27,14 @@ export async function criarRequisicao({ descricao, data, itens }) {
 
 export async function listarRequisicoes() {
   try {
-    const response = await fetch(`${API_URL}/requests`);
+    const response = await fetch(`${API_URL}/api/requests`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       throw new Error('Erro ao buscar requisições');
     }
-    return await response.json();
+    const data = await response.json();
+    return data.data || data;
   } catch (err) {
     throw err;
   }

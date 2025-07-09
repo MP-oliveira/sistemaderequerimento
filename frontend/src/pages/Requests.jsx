@@ -68,7 +68,14 @@ export default function Requests() {
     }
     setLoading(true);
     try {
-      await criarRequisicao({ descricao, data, itens });
+      await criarRequisicao({
+        descricao,
+        data,
+        itens: itens.map(item => ({
+          id: item.id,
+          quantidade: item.quantidade
+        }))
+      });
       setSuccessMsg('Requisição enviada com sucesso!');
       setDescricao('');
       setData('');
@@ -82,74 +89,77 @@ export default function Requests() {
 
   return (
     <div className="requests-page">
-      <h1>Nova Requisição</h1>
-      <form className="requests-form" onSubmit={handleSubmit}>
-        <Input
-          label="Descrição"
-          placeholder="Motivo ou detalhes da requisição"
-          value={descricao}
-          onChange={e => setDescricao(e.target.value)}
-          required
-        />
-        <Input
-          label="Data de uso"
-          type="date"
-          value={data}
-          onChange={e => setData(e.target.value)}
-          required
-        />
-        <div className="requests-items-header">
-          <span>Itens da requisição</span>
-          <Button type="button" variant="primary" size="sm" onClick={() => setShowModal(true)}>
-            + Adicionar Item
+      <div className="card requests-form-card">
+        <h1 className="requests-form-title">Nova Requisição</h1>
+        <form className="requests-form" onSubmit={handleSubmit}>
+          <Input
+            label="Descrição"
+            placeholder="Motivo ou detalhes da requisição"
+            value={descricao}
+            onChange={e => setDescricao(e.target.value)}
+            required
+          />
+          <Input
+            label="Data de uso"
+            type="date"
+            value={data}
+            onChange={e => setData(e.target.value)}
+            required
+          />
+          <div className="requests-items-header">
+            <span>Itens da requisição</span>
+            <Button type="button" variant="primary" size="sm" onClick={() => setShowModal(true)}>
+              + Adicionar Item
+            </Button>
+          </div>
+          <Table
+            columns={[
+              { key: 'name', label: 'Item' },
+              { key: 'quantidade', label: 'Quantidade' },
+              {
+                key: 'actions',
+                label: 'Ações',
+                render: (_, row, i) => (
+                  <Button variant="danger" size="sm" onClick={() => handleRemoveItem(i)}>
+                    Remover
+                  </Button>
+                ),
+              },
+            ]}
+            data={itens}
+            emptyMessage="Nenhum item adicionado."
+          />
+          {formError && <div className="requests-error">{formError}</div>}
+          {successMsg && <div className="requests-success-msg">{successMsg}</div>}
+          <Button type="submit" variant="primary" size="lg" className="requests-submit-btn" loading={loading} disabled={loading}>
+            Enviar Requisição
           </Button>
-        </div>
-        <Table
-          columns={[
-            { key: 'name', label: 'Item' },
-            { key: 'quantidade', label: 'Quantidade' },
-            {
-              key: 'actions',
-              label: 'Ações',
-              render: (_, row, i) => (
-                <Button variant="danger" size="sm" onClick={() => handleRemoveItem(i)}>
-                  Remover
-                </Button>
-              ),
-            },
-          ]}
-          data={itens}
-          emptyMessage="Nenhum item adicionado."
-        />
-        {formError && <div className="requests-error">{formError}</div>}
-        {successMsg && <div style={{ color: '#2d8cff', marginTop: 12, textAlign: 'center', fontWeight: 500 }}>{successMsg}</div>}
-        <Button type="submit" variant="primary" size="lg" style={{ marginTop: 16 }} loading={loading} disabled={loading}>
-          Enviar Requisição
-        </Button>
-      </form>
+        </form>
+      </div>
+
       <Modal
         open={showModal}
         title="Adicionar Item"
         onClose={() => setShowModal(false)}
         actions={
           <>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
+            <Button variant="secondary" size="sm" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
-            <Button variant="primary" onClick={handleAddItem}>
+            <Button variant="primary" size="sm" onClick={handleAddItem}>
               Adicionar
             </Button>
           </>
         }
       >
-        <div style={{ marginBottom: 16 }}>
+        <div className="input-group">
           <label className="input-label">Item</label>
           <select
             className="input-field"
             value={itemSelecionado}
             onChange={e => setItemSelecionado(e.target.value)}
           >
-            <option value="">Selecione...</option>
+            <option value="">Selecione um item</option>
             {INVENTORY_ITEMS.map(item => (
               <option key={item.id} value={item.id}>{item.name}</option>
             ))}
@@ -161,35 +171,39 @@ export default function Requests() {
           min={1}
           value={quantidade}
           onChange={e => setQuantidade(Number(e.target.value))}
+          required
         />
       </Modal>
-      <h2 style={{ marginTop: 40, marginBottom: 16, color: '#2d8cff', textAlign: 'center' }}>Minhas Requisições</h2>
-      {loadingList ? (
-        <div style={{ textAlign: 'center', color: '#888' }}>Carregando...</div>
-      ) : listError ? (
-        <div className="requests-error">{listError}</div>
-      ) : (
-        <Table
-          columns={[
-            { key: 'descricao', label: 'Descrição' },
-            { key: 'data', label: 'Data' },
-            { key: 'status', label: 'Status' },
-            {
-              key: 'itens',
-              label: 'Itens',
-              render: (row) => (
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                  {row.itens?.map((item, i) => (
-                    <li key={i}>{item.name} ({item.quantidade})</li>
-                  ))}
-                </ul>
-              ),
-            },
-          ]}
-          data={requisicoes}
-          emptyMessage="Nenhuma requisição encontrada."
-        />
-      )}
+
+      <div className="card requests-list-card">
+        <h2 className="requests-list-title">Minhas Requisições</h2>
+        {loadingList ? (
+          <div className="requests-loading">Carregando...</div>
+        ) : listError ? (
+          <div className="requests-error">{listError}</div>
+        ) : (
+          <Table
+            columns={[
+              { key: 'descricao', label: 'Descrição' },
+              { key: 'data', label: 'Data' },
+              { key: 'status', label: 'Status' },
+              {
+                key: 'itens',
+                label: 'Itens',
+                render: (row) => (
+                  <ul className="requests-items-list">
+                    {row.itens?.map((item, i) => (
+                      <li key={i}>{item.name} ({item.quantidade})</li>
+                    ))}
+                  </ul>
+                ),
+              },
+            ]}
+            data={requisicoes}
+            emptyMessage="Nenhuma requisição encontrada."
+          />
+        )}
+      </div>
     </div>
   );
 } 

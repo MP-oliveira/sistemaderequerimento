@@ -1,12 +1,23 @@
-const API_URL = 'http://localhost:3000'; // Ajuste para a URL real do backend
+const API_URL = 'http://localhost:3000';
+
+function getAuthHeaders() {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
 
 export async function listarUsuarios() {
   try {
-    const response = await fetch(`${API_URL}/users`);
+    const response = await fetch(`${API_URL}/api/users`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       throw new Error('Erro ao buscar usuários');
     }
-    return await response.json();
+    const data = await response.json();
+    return data.data || data;
   } catch (err) {
     throw err;
   }
@@ -14,12 +25,9 @@ export async function listarUsuarios() {
 
 export async function criarUsuario({ nome, email, papel, senha }) {
   try {
-    const response = await fetch(`${API_URL}/users`, {
+    const response = await fetch(`${API_URL}/api/users`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Adicione o token de autenticação se necessário
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ nome, email, papel, senha }),
     });
     if (!response.ok) {

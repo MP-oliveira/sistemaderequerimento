@@ -1,12 +1,23 @@
-const API_URL = 'http://localhost:3000'; // Ajuste para a URL real do backend
+const API_URL = 'http://localhost:3000';
+
+function getAuthHeaders() {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
 
 export async function listarItensInventario() {
   try {
-    const response = await fetch(`${API_URL}/inventory`);
+    const response = await fetch(`${API_URL}/api/inventory`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       throw new Error('Erro ao buscar inventário');
     }
-    return await response.json();
+    const data = await response.json();
+    return data.data || data;
   } catch (err) {
     throw err;
   }
@@ -14,12 +25,9 @@ export async function listarItensInventario() {
 
 export async function criarItemInventario({ nome, quantidade, status }) {
   try {
-    const response = await fetch(`${API_URL}/inventory`, {
+    const response = await fetch(`${API_URL}/api/inventory`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Adicione o token de autenticação se necessário
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ nome, quantidade, status }),
     });
     if (!response.ok) {

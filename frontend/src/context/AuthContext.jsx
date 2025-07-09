@@ -23,6 +23,7 @@ export function AuthProvider({ children }) {
 
   const login = async ({ email, password }) => {
     const data = await authService.login({ email, password });
+    console.log('Login backend response:', data);
     // Supondo que o backend retorna user e token
     setUser({ ...data.user, token: data.token });
   };

@@ -1,38 +1,112 @@
 .main-header {
   width: 100%;
-  height: 56px;
-  background: #2d8cff;
+  height: 64px;
+  background: var(--ibva-blue);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 0 24px;
   box-sizing: border-box;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 100;
-  box-shadow: 0 2px 8px #0001;
+  box-shadow: var(--ibva-shadow);
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.header-logo {
+  height: 36px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  transition: filter 0.2s;
+}
+
+.header-logo:hover {
+  filter: brightness(0) invert(1) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 2;
 }
 
 .header-title {
-  font-size: 20px;
-  font-weight: bold;
-  letter-spacing: 1px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #fff;
+  font-family: 'Montserrat', Arial, sans-serif;
+  margin: 0;
+  text-align: center;
 }
 
-.header-user {
+.header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 15px;
+  gap: 16px;
+  flex: 1;
+  justify-content: flex-end;
 }
 
-@media (max-width: 600px) {
+.header-user-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.header-logout-btn {
+  border: none;
+  cursor: pointer;
+  padding: 5px 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  outline: none;
+  margin: 0 4px;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: var(--ibva-yellow);
+  color: var(--ibva-blue);
+}
+
+@media (max-width: 768px) {
+  .main-header {
+    padding: 0 16px;
+  }
+
+  .header-title {
+    font-size: 1.2rem;
+  }
+
+  .header-user-name {
+    display: none;
+  }
+
+  .header-logo {
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
   .main-header {
     padding: 0 12px;
   }
+
   .header-title {
-    font-size: 16px;
+    font-size: 1rem;
   }
-} 
+
+  .header-logo {
+    height: 24px;
+  }
+}

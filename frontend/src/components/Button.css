@@ -1,29 +1,45 @@
 .btn {
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  padding: 10px 20px;
-  font-size: 16px;
-  transition: background 0.2s, color 0.2s;
+  padding: 12px 28px;
+  font-size: 1rem;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   outline: none;
   margin: 0 4px;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: var(--ibva-yellow);
+  color: #fff;
+  box-shadow: var(--ibva-shadow);
 }
 
 .btn-primary {
-  background: #2d8cff;
+  background: var(--ibva-blue);
   color: #fff;
 }
 .btn-primary:hover:not(:disabled) {
-  background: #174ea6;
+  background: var(--ibva-blue-dark);
+  color: #fff;
+  box-shadow: 0 4px 24px #174ea633;
+}
+
+.btn-yellow {
+  background: var(--ibva-yellow);
+  color: #222;
+}
+.btn-yellow:hover:not(:disabled) {
+  background: #ffe066;
+  color: #222;
 }
 
 .btn-secondary {
   background: #e0e7ef;
-  color: #2d8cff;
+  color: var(--ibva-blue);
 }
 .btn-secondary:hover:not(:disabled) {
   background: #b6c6e3;
+  color: var(--ibva-blue-dark);
 }
 
 .btn-danger {
@@ -35,20 +51,21 @@
 }
 
 .btn-md {
-  font-size: 16px;
-  padding: 10px 20px;
+  font-size: 1rem;
+  padding: 12px 28px;
 }
 .btn-sm {
-  font-size: 14px;
-  padding: 7px 14px;
+  font-size: 0.9rem;
+  padding: 8px 18px;
 }
 .btn-lg {
-  font-size: 18px;
-  padding: 14px 28px;
+  font-size: 1.1rem;
+  padding: 16px 36px;
 }
 
 .btn:disabled {
   background: #cfd8dc;
   color: #888;
   cursor: not-allowed;
+  box-shadow: none;
 } 

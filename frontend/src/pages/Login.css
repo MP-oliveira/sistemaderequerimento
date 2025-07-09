@@ -3,20 +3,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f6fa;
+  background: var(--ibva-gray-bg);
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .login-form {
-  background: #fff;
-  padding: 32px;
-  border-radius: 12px;
-  box-shadow: 0 2px 16px #0001;
-  min-width: 320px;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .login-form h2 {
-  margin-bottom: 24px;
   text-align: center;
+  margin-bottom: 28px;
 }
 
 .login-form input {
@@ -49,4 +54,14 @@
 .login-form button:disabled {
   background: #a0c4ff;
   cursor: not-allowed;
+}
+
+/* Novas classes para substituir estilos inline */
+.login-loading {
+  color: #2d8cff;
+  font-weight: 500;
+}
+
+.login-submit-btn {
+  margin-top: 10px;
 } 

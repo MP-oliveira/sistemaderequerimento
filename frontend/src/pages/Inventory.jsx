@@ -63,57 +63,61 @@ export default function Inventory() {
 
   return (
     <div className="inventory-page">
-      <h1>Inventário</h1>
-      <form className="inventory-form" onSubmit={handleSubmit}>
-        <Input
-          label="Nome do item"
-          placeholder="Ex: Microfone, Projetor..."
-          value={nome}
-          onChange={e => setNome(e.target.value)}
-          required
-        />
-        <Input
-          label="Quantidade"
-          type="number"
-          min={1}
-          value={quantidade}
-          onChange={e => setQuantidade(Number(e.target.value))}
-          required
-        />
-        <div className="input-group">
-          <label className="input-label">Status</label>
-          <select
-            className="input-field"
-            value={status}
-            onChange={e => setStatus(e.target.value)}
-          >
-            {STATUS_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
-        {formError && <div className="inventory-error">{formError}</div>}
-        {successMsg && <div style={{ color: '#2d8cff', marginTop: 12, textAlign: 'center', fontWeight: 500 }}>{successMsg}</div>}
-        <Button type="submit" variant="primary" size="md" style={{ marginTop: 12 }} loading={loadingForm} disabled={loadingForm}>
-          Adicionar Item
-        </Button>
-      </form>
-      <h2 style={{ marginTop: 40, marginBottom: 16, color: '#2d8cff', textAlign: 'center' }}>Itens do Inventário</h2>
-      {loading ? (
-        <div style={{ textAlign: 'center', color: '#888' }}>Carregando...</div>
-      ) : listError ? (
-        <div className="inventory-error">{listError}</div>
-      ) : (
-        <Table
-          columns={[
-            { key: 'nome', label: 'Nome' },
-            { key: 'quantidade', label: 'Quantidade' },
-            { key: 'status', label: 'Status' },
-          ]}
-          data={itens}
-          emptyMessage="Nenhum item encontrado."
-        />
-      )}
+      <div className="card inventory-form-card">
+        <h1 className="inventory-form-title">Inventário</h1>
+        <form className="inventory-form" onSubmit={handleSubmit}>
+          <Input
+            label="Nome do item"
+            placeholder="Ex: Microfone, Projetor..."
+            value={nome}
+            onChange={e => setNome(e.target.value)}
+            required
+          />
+          <Input
+            label="Quantidade"
+            type="number"
+            min={1}
+            value={quantidade}
+            onChange={e => setQuantidade(Number(e.target.value))}
+            required
+          />
+          <div className="input-group">
+            <label className="input-label">Status</label>
+            <select
+              className="input-field"
+              value={status}
+              onChange={e => setStatus(e.target.value)}
+            >
+              {STATUS_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          {formError && <div className="inventory-error">{formError}</div>}
+          {successMsg && <div className="inventory-success-msg">{successMsg}</div>}
+          <Button type="submit" variant="primary" size="md" className="inventory-submit-btn" loading={loadingForm} disabled={loadingForm}>
+            Adicionar Item
+          </Button>
+        </form>
+      </div>
+      <div className="card inventory-list-card">
+        <h2 className="inventory-list-title">Itens do Inventário</h2>
+        {loading ? (
+          <div className="inventory-loading">Carregando...</div>
+        ) : listError ? (
+          <div className="inventory-error">{listError}</div>
+        ) : (
+          <Table
+            columns={[
+              { key: 'nome', label: 'Nome' },
+              { key: 'quantidade', label: 'Quantidade' },
+              { key: 'status', label: 'Status' },
+            ]}
+            data={itens}
+            emptyMessage="Nenhum item encontrado."
+          />
+        )}
+      </div>
     </div>
   );
 } 

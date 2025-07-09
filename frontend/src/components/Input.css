@@ -1,25 +1,30 @@
 .input-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   display: flex;
   flex-direction: column;
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 
 .input-label {
   margin-bottom: 6px;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: var(--ibva-blue);
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 
 .input-field {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  transition: border 0.2s;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: #f9f9f9;
 }
 
 .input-field:focus {
-  border-color: #2d8cff;
+  border-color: var(--ibva-blue);
+  box-shadow: 0 0 0 2px #2d8cff22;
   outline: none;
 }
 
@@ -31,4 +36,5 @@
   color: #ff4d4f;
   font-size: 13px;
   margin-top: 4px;
+  font-family: 'Montserrat', Arial, sans-serif;
 } 

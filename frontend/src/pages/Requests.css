@@ -35,6 +35,59 @@
   font-weight: 500;
 }
 
+/* Novas classes para substituir estilos inline */
+.requests-form-card {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.requests-form-title {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.requests-success-msg {
+  color: #2d8cff;
+  margin-top: 12px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.requests-submit-btn {
+  border: none;
+  cursor: pointer;
+  padding: 18px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  outline: none;
+  margin: 0 4px;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: var(--ibva-yellow);
+  color: var(--ibva-blue);
+}
+
+.requests-loading {
+  text-align: center;
+  color: #888;
+}
+
+.requests-list-card {
+  max-width: 900px;
+  margin: 32px auto 0 auto;
+}
+
+.requests-list-title {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.requests-items-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 @media (max-width: 700px) {
   .requests-page {
     padding: 16px 4px 24px 4px;

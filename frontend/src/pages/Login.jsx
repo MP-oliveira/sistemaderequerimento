@@ -30,32 +30,34 @@ export default function Login() {
   };
 
   if (loadingAuth) {
-    return <div className="login-bg"><div style={{ color: '#2d8cff', fontWeight: 500 }}>Carregando...</div></div>;
+    return <div className="login-bg"><div className="login-loading">Carregando...</div></div>;
   }
 
   return (
     <div className="login-bg">
-      <form onSubmit={handleSubmit} className="login-form">
-        <h2>Login</h2>
-        <input
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        {error && <div className="error">{error}</div>}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Entrando...' : 'Entrar'}
-        </button>
-      </form>
+      <div className="card login-card">
+        <form onSubmit={handleSubmit} className="login-form">
+          <h2>Login</h2>
+          <input
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          {error && <div className="error">{error}</div>}
+          <button type="submit" disabled={loading} className="btn btn-primary login-submit-btn">
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 } 
