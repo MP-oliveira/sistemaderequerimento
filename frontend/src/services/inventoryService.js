@@ -23,12 +23,17 @@ export async function listarItensInventario() {
   }
 }
 
-export async function criarItemInventario({ nome, quantidade, status }) {
+export async function criarItemInventario({ name, category, quantity }) {
   try {
     const response = await fetch(`${API_URL}/api/inventory`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ nome, quantidade, status }),
+      body: JSON.stringify({
+        name,
+        category,
+        quantity_available: quantity,
+        quantity_total: quantity
+      }),
     });
     if (!response.ok) {
       const error = await response.json();

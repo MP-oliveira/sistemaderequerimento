@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabaseClient.js';
 
-// Função utilitária para montar o objeto de insert/update sem status nulo
+// Função utilitária para montar o objeto de insert/update SEM status
 function buildInventoryData(body) {
   const data = {
     name: body.name,
@@ -11,7 +11,7 @@ function buildInventoryData(body) {
     last_used_date: body.last_used_date,
     location: body.location
   };
-  if (body.status) data.status = body.status;
+  // NÃO grava status manualmente
   if (body.image_url) data.image_url = body.image_url;
   return data;
 }
@@ -63,6 +63,7 @@ export const createInventoryItem = async (req, res) => {
     if (validationError) {
       return res.status(400).json({ success: false, message: validationError });
     }
+    // Monta dados SEM status
     const data = buildInventoryData(req.body);
     const { data: item, error } = await supabase
       .from('inventory')
@@ -78,7 +79,7 @@ export const createInventoryItem = async (req, res) => {
       user_id: req.user.userId,
       action: 'CRIACAO',
       status_anterior: null,
-      status_novo: item.status,
+      status_novo: null, // Não há status
       quantidade_anterior: null,
       quantidade_nova: item.quantity_available,
       observacao: 'Item criado'

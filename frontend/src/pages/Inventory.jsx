@@ -16,8 +16,9 @@ export default function Inventory() {
   const [itens, setItens] = useState([]);
   const [loading, setLoading] = useState(false);
   const [listError, setListError] = useState('');
-  const [nome, setNome] = useState('');
-  const [quantidade, setQuantidade] = useState(1);
+  const [nome, setNome] = useState("");
+  const [quantidade, setQuantidade] = useState("");
+  const [categoria, setCategoria] = useState("");
   const [status, setStatus] = useState('DISPONIVEL');
   const [formError, setFormError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -43,17 +44,17 @@ export default function Inventory() {
     e.preventDefault();
     setFormError('');
     setSuccessMsg('');
-    if (!nome || quantidade < 1) {
-      setFormError('Preencha o nome e a quantidade corretamente.');
+    if (!nome || quantidade < 1 || !categoria) {
+      setFormError('Preencha o nome, a categoria e a quantidade corretamente.');
       return;
     }
     setLoadingForm(true);
     try {
-      await criarItemInventario({ nome, quantidade, status });
+      await criarItemInventario({ name: nome, category: categoria, quantity: quantidade });
       setSuccessMsg('Item adicionado com sucesso!');
       setNome('');
       setQuantidade(1);
-      setStatus('DISPONIVEL');
+      setCategoria('Geral');
       buscarItens();
     } catch (err) {
       setFormError(err.message || 'Erro ao adicionar item');
@@ -74,25 +75,22 @@ export default function Inventory() {
             required
           />
           <Input
+            label="Categoria"
+            placeholder="Ex: Som, Projeção, Geral..."
+            value={categoria}
+            onChange={e => setCategoria(e.target.value)}
+            required
+          />
+          <Input
             label="Quantidade"
             type="number"
             min={1}
+            placeholder="1"
             value={quantidade}
-            onChange={e => setQuantidade(Number(e.target.value))}
+            onChange={e => setQuantidade(e.target.value)}
             required
           />
-          <div className="input-group">
-            <label className="input-label">Status</label>
-            <select
-              className="input-field"
-              value={status}
-              onChange={e => setStatus(e.target.value)}
-            >
-              {STATUS_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
+          {/* Campo de status removido do formulário */}
           {formError && <div className="inventory-error">{formError}</div>}
           {successMsg && <div className="inventory-success-msg">{successMsg}</div>}
           <Button type="submit" variant="primary" size="md" className="inventory-submit-btn" loading={loadingForm} disabled={loadingForm}>
@@ -109,11 +107,16 @@ export default function Inventory() {
         ) : (
           <Table
             columns={[
-              { key: 'nome', label: 'Nome' },
-              { key: 'quantidade', label: 'Quantidade' },
-              { key: 'status', label: 'Status' },
+              { key: 'name', label: 'Nome' },
+              { key: 'quantity_available', label: 'Quantidade' },
+              { key: 'disponibilidade', label: 'Disponibilidade' },
             ]}
-            data={itens}
+            data={itens.map(item => ({
+              ...item,
+              disponibilidade: Number(item.quantity_available) >= 2 ? 'Disponível' : (
+                <span style={{ color: 'red', fontWeight: 'bold' }}>Baixo estoque</span>
+              )
+            }))}
             emptyMessage="Nenhum item encontrado."
           />
         )}
