@@ -7,43 +7,83 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-
+  const loadUserData = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${authService.getToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.data;
+      }
+    } catch (error) {
+      console.error('❌ Erro ao carregar dados do usuário:', error);
+    }
+    return null;
+  };
 
   useEffect(() => {
     // Carregar usuário do token ao iniciar
-    const token = authService.getToken();
-    
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({ 
-          id: payload.userId,
-          nome: payload.name || 'Usuário',
-          email: payload.email,
-          role: payload.role,
-          token 
-        });
-      } catch (error) {
-        setUser(null);
+    const loadUser = async () => {
+      const token = authService.getToken();
+      
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          console.log('🔍 AuthContext - Token payload:', payload);
+          
+          // Buscar dados completos do usuário
+          const userData = await loadUserData(payload.userId);
+          if (userData) {
+            setUser({ 
+              id: userData.id,
+              nome: userData.full_name || 'Usuário',
+              email: userData.email,
+              role: userData.role,
+              token 
+            });
+          } else {
+            // Fallback com dados do token
+            setUser({ 
+              id: payload.userId,
+              nome: 'Usuário',
+              email: 'usuario@igreja.com',
+              role: payload.role,
+              token 
+            });
+          }
+        } catch (error) {
+          console.error('❌ AuthContext - Erro ao processar token:', error);
+          setUser(null);
+          localStorage.removeItem('token');
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    
+    loadUser();
   }, []);
 
   const login = async ({ email, password }) => {
     const data = await authService.login({ email, password });
     
-    // O backend retorna data.user com os dados do usuário
-    const userData = {
-      id: data.user.id,
-      nome: data.user.name,
-      email: data.user.email,
-      role: data.user.role,
+    // Buscar dados completos do usuário após login
+    const userData = await loadUserData(data.user.id);
+    
+    const userInfo = {
+      id: userData?.id || data.user.id,
+      nome: userData?.full_name || data.user.name || 'Usuário',
+      email: userData?.email || data.user.email,
+      role: userData?.role || data.user.role,
       token: data.token
     };
     
-    setUser(userData);
-    return userData;
+    setUser(userInfo);
+    return userInfo;
   };
 
   const logout = () => {
