@@ -30,6 +30,7 @@ export function AuthProvider({ children }) {
     // Carregar usuário do token ao iniciar
     const loadUser = async () => {
       const token = authService.getToken();
+      console.log('🔍 AuthContext - Token encontrado:', !!token);
       
       if (token) {
         try {
@@ -38,6 +39,8 @@ export function AuthProvider({ children }) {
           
           // Buscar dados completos do usuário
           const userData = await loadUserData(payload.userId);
+          console.log('🔍 AuthContext - User data from API:', userData);
+          
           if (userData) {
             setUser({ 
               id: userData.id,
@@ -50,8 +53,8 @@ export function AuthProvider({ children }) {
             // Fallback com dados do token
             setUser({ 
               id: payload.userId,
-              nome: 'Usuário',
-              email: 'usuario@igreja.com',
+              nome: 'Administrador',
+              email: 'admin@igreja.com',
               role: payload.role,
               token 
             });
@@ -61,6 +64,8 @@ export function AuthProvider({ children }) {
           setUser(null);
           localStorage.removeItem('token');
         }
+      } else {
+        console.log('🔍 AuthContext - Nenhum token encontrado');
       }
       setLoading(false);
     };
@@ -69,10 +74,13 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async ({ email, password }) => {
+    console.log('🔍 AuthContext - Iniciando login:', { email });
     const data = await authService.login({ email, password });
+    console.log('🔍 AuthContext - Login response:', data);
     
     // Buscar dados completos do usuário após login
     const userData = await loadUserData(data.user.id);
+    console.log('🔍 AuthContext - User data from API:', userData);
     
     const userInfo = {
       id: userData?.id || data.user.id,
@@ -82,6 +90,7 @@ export function AuthProvider({ children }) {
       token: data.token
     };
     
+    console.log('🔍 AuthContext - Final user info:', userInfo);
     setUser(userInfo);
     return userInfo;
   };
@@ -100,6 +109,7 @@ export function AuthProvider({ children }) {
       ) : (
         children
       )}
+      {console.log('🔍 AuthContext - Renderizando com user:', user)}
     </AuthContext.Provider>
   );
 }

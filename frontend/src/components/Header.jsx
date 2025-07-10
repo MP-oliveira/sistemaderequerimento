@@ -5,7 +5,17 @@ import ibvaLogo from '../assets/images/ibva-logo.png';
 import './Header.css';
 
 export default function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, login } = useAuth();
+  
+  console.log('🔍 Header - User data:', user);
+
+  const handleAutoLogin = async () => {
+    try {
+      await login({ email: 'admin@igreja.com', password: 'password' });
+    } catch (error) {
+      console.error('Erro no login automático:', error);
+    }
+  };
 
   return (
     <header className="main-header">
@@ -23,22 +33,7 @@ export default function Header() {
           <Button 
             variant="primary" 
             size="sm" 
-            onClick={async () => {
-              try {
-                const response = await fetch('http://localhost:3000/api/auth/login', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: 'admin@igreja.com', password: 'password' })
-                });
-                const data = await response.json();
-                if (data.success) {
-                  localStorage.setItem('token', data.data.token);
-                  window.location.reload();
-                }
-              } catch (error) {
-                console.error('Erro no login automático:', error);
-              }
-            }}
+            onClick={handleAutoLogin}
             className="header-login-btn"
           >
             Login
