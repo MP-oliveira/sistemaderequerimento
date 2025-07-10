@@ -5,6 +5,7 @@ import Modal from '../components/Modal';
 import Table from '../components/Table';
 import { criarRequisicao, listarRequisicoes, aprovarRequisicao, executarRequisicao, finalizarRequisicao } from '../services/requestsService';
 import { listarItensInventario } from '../services/inventoryService';
+import { listarEventos } from '../services/eventsService';
 import { useAuth } from '../context/AuthContext';
 import './Requests.css';
 
@@ -13,6 +14,7 @@ export default function Requests() {
   const [descricao, setDescricao] = useState('');
   const [department, setDepartment] = useState('');
   const [data, setData] = useState('');
+  const [eventoSelecionado, setEventoSelecionado] = useState('');
   const [itens, setItens] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [itemSelecionado, setItemSelecionado] = useState('');
@@ -24,13 +26,25 @@ export default function Requests() {
   const [loadingList, setLoadingList] = useState(false);
   const [listError, setListError] = useState('');
   const [inventoryItems, setInventoryItems] = useState([]);
+  const [events, setEvents] = useState([]);
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [itensDevolucao, setItensDevolucao] = useState([]);
   const [requisicaoSelecionada, setRequisicaoSelecionada] = useState(null);
 
   useEffect(() => {
     buscarRequisicoes();
+    carregarEventos();
   }, []);
+
+  const carregarEventos = async () => {
+    try {
+      const data = await listarEventos();
+      setEvents(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro ao carregar eventos:', error);
+      setEvents([]);
+    }
+  };
 
   const buscarRequisicoes = async () => {
     setLoadingList(true);
@@ -106,11 +120,18 @@ export default function Requests() {
     }
     setLoading(true);
     try {
-      await criarRequisicao({ department, descricao, data, itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade })) });
+      await criarRequisicao({ 
+        department, 
+        descricao, 
+        data, 
+        event_id: eventoSelecionado || null,
+        itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade })) 
+      });
       setSuccessMsg('Requisição enviada com sucesso!');
       setDepartment('');
       setDescricao('');
       setData('');
+      setEventoSelecionado('');
       setItens([]);
       buscarRequisicoes();
     } catch (err) {
@@ -149,6 +170,21 @@ export default function Requests() {
             onChange={e => setDepartment(e.target.value)}
             required
           />
+          <div className="form-group">
+            <label className="input-label">Evento (Opcional)</label>
+            <select 
+              value={eventoSelecionado} 
+              onChange={e => setEventoSelecionado(e.target.value)}
+              className="input-field"
+            >
+              <option value="">Selecione um evento (opcional)</option>
+              {events.map(event => (
+                <option key={event.id} value={event.id}>
+                  {event.name} - {event.start_datetime ? new Date(event.start_datetime).toLocaleDateString('pt-BR') : 'Data não definida'}
+                </option>
+              ))}
+            </select>
+          </div>
           <Input
             label="Descrição"
             placeholder="Motivo ou detalhes da requisição"
@@ -279,6 +315,13 @@ export default function Requests() {
               { key: 'description', label: 'Descrição' },
               { key: 'date', label: 'Data' },
               { key: 'status', label: 'Status' },
+              { 
+                key: 'event_name', 
+                label: 'Evento',
+                render: (value) => {
+                  return value || '-';
+                }
+              },
               {
                 key: 'itens',
                 label: 'Itens',
@@ -299,37 +342,46 @@ export default function Requests() {
               ...(user && (user.role === 'ADM' || user.role === 'PASTOR') ? [{
                 key: 'actions',
                 label: 'Ações',
-                render: (value) => (
-                  value === 'PENDENTE' ? (
-                    <Button variant="success" size="sm" onClick={() => handleAprovar(value)}>
-                      Aprovar
-                    </Button>
-                  ) : null
-                )
+                render: (value, row) => {
+                  if (row && row.status === 'PENDENTE') {
+                    return (
+                      <Button variant="success" size="sm" onClick={() => handleAprovar(row.id)}>
+                        Aprovar
+                      </Button>
+                    );
+                  }
+                  return null;
+                }
               }] : []),
               // Botão Executar para AUDIOVISUAL/SEC e status APTO
               ...(user && (user.role === 'AUDIOVISUAL' || user.role === 'SEC') ? [{
                 key: 'actions2',
                 label: 'Ações',
-                render: (value) => (
-                  value === 'APTO' ? (
-                    <Button variant="primary" size="sm" onClick={() => handleExecutar(value)}>
-                      Executar
-                    </Button>
-                  ) : null
-                )
+                render: (value, row) => {
+                  if (row && row.status === 'APTO') {
+                    return (
+                      <Button variant="primary" size="sm" onClick={() => handleExecutar(row.id)}>
+                        Executar
+                      </Button>
+                    );
+                  }
+                  return null;
+                }
               }] : []),
               // Botão Finalizar para quem executou e status EXECUTADO
               ...(user ? [{
                 key: 'actions3',
                 label: 'Ações',
-                render: (value) => (
-                  value === 'EXECUTADO' ? (
-                    <Button variant="warning" size="sm" onClick={() => handleOpenFinishModal(value)}>
-                      Finalizar/Devolver Itens
-                    </Button>
-                  ) : null
-                )
+                render: (value, row) => {
+                  if (row && row.status === 'EXECUTADO') {
+                    return (
+                      <Button variant="warning" size="sm" onClick={() => handleOpenFinishModal(row)}>
+                        Finalizar/Devolver Itens
+                      </Button>
+                    );
+                  }
+                  return null;
+                }
               }] : [])
             ]}
             data={requisicoes}

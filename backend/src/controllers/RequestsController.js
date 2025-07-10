@@ -52,16 +52,48 @@ export const createRequest = async (req, res) => {
 // Listar requisições do usuário (ou todas se ADM)
 export const listRequests = async (req, res) => {
   try {
-    let query = supabase.from('requests').select('*');
+    let query = supabase
+      .from('requests')
+      .select(`
+        *,
+        events:event_id (
+          id,
+          name,
+          start_datetime,
+          end_datetime
+        )
+      `);
+    
     if (req.user.role !== 'ADM') {
       query = query.or(`requester_id.eq.${req.user.userId},approved_by.eq.${req.user.userId},executed_by.eq.${req.user.userId}`);
     }
+    
     const { data: requests, error } = await query;
+    
     if (error) {
+      console.log('❌ Erro ao buscar requisições:', error);
       return res.status(400).json({ success: false, message: 'Erro ao buscar requisições.', error: error.message });
     }
-    res.json({ success: true, data: requests });
+    
+    // Garantir que todos os campos necessários estejam presentes
+    const processedRequests = (requests || []).map(request => ({
+      id: request.id,
+      department: request.department || '',
+      description: request.description || '',
+      date: request.date || '',
+      status: request.status || 'PENDENTE',
+      event_id: request.event_id || null,
+      event_name: request.events?.name || null,
+      requester_id: request.requester_id,
+      approved_by: request.approved_by,
+      executed_by: request.executed_by,
+      created_at: request.created_at,
+      updated_at: request.updated_at
+    }));
+    
+    res.json({ success: true, data: processedRequests });
   } catch (error) {
+    console.log('❌ Erro interno:', error);
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
 };

@@ -1,14 +1,12 @@
 .events-container {
   padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 .events-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .events-header h1 {
@@ -31,7 +29,7 @@
   border-top: 4px solid #007bff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 @keyframes spin {
@@ -39,26 +37,47 @@
   100% { transform: rotate(360deg); }
 }
 
+/* Estilos do formulário */
 .event-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  padding: 20px 0;
 }
 
 .form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
-.form-row:last-child {
-  grid-template-columns: 1fr;
+.form-row > * {
+  flex: 1;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .form-actions {
   display: flex;
+  gap: 10px;
   justify-content: flex-end;
-  gap: 15px;
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #eee;
@@ -90,30 +109,4 @@
 .status-info {
   background-color: #d1ecf1;
   color: #0c5460;
-}
-
-.input-label {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-weight: 500;
-  color: #333;
-}
-
-.input-field {
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.3s;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-textarea.input-field {
-  resize: vertical;
-  min-height: 100px;
 } 
