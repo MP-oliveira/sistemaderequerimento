@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { listarEventos } from '../services/eventsService';
+import { listarItensInventario } from '../services/inventoryService';
+import toast from 'react-hot-toast';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -8,24 +10,43 @@ export default function Dashboard() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [itensBaixoEstoque, setItensBaixoEstoque] = useState([]);
+
+  // Função para verificar estoque baixo
+  const verificarEstoqueBaixo = async () => {
+    try {
+      const itens = await listarItensInventario();
+      const itensBaixoEstoque = itens.filter(item => 
+        Number(item.quantity_available) <= 2
+      );
+      
+      setItensBaixoEstoque(itensBaixoEstoque);
+    } catch (error) {
+      console.error('Erro ao verificar estoque:', error);
+    }
+  };
 
 
-
-  // Carregar eventos da API
+  // Carregar eventos da API e verificar estoque
   useEffect(() => {
-    const carregarEventos = async () => {
+    const carregarDados = async () => {
       setLoading(true);
       try {
         const eventos = await listarEventos();
         setEvents(eventos);
+        toast.success(`Carregados ${eventos.length} eventos com sucesso!`);
+        
+        // Verificar estoque baixo
+        await verificarEstoqueBaixo();
       } catch (err) {
         console.error('Erro ao carregar eventos:', err);
         setEvents([]);
+        toast.error('Erro ao carregar eventos. Tente novamente.');
       }
       setLoading(false);
     };
     
-    carregarEventos();
+    carregarDados();
   }, []);
 
   const getDaysInMonth = (date) => {
@@ -127,6 +148,32 @@ export default function Dashboard() {
             <p className="stat-label">Disponíveis</p>
           </div>
         </div>
+        
+        {/* Alerta de estoque baixo */}
+        {itensBaixoEstoque.length > 0 && (
+          <div style={{
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffeaa7',
+            borderRadius: '8px',
+            padding: '16px',
+            marginTop: '20px',
+            color: '#856404'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '18px' }}>⚠️</span>
+              <strong>Alerta de Estoque Baixo</strong>
+            </div>
+            <p style={{ margin: '8px 0 0 0', fontSize: '14px' }}>
+              {itensBaixoEstoque.length} item(s) com estoque baixo: {itensBaixoEstoque.map(item => 
+                `${item.name} (${item.quantity_available} disponível)`
+              ).join(', ')}
+            </p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', opacity: 0.8 }}>
+              Por favor, verifique o inventário e reponha os itens necessários.
+            </p>
+          </div>
+        )}
+        
       </div>
 
       <div className="card calendar-card">
