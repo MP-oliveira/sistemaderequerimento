@@ -27,24 +27,36 @@ export async function listarEventos() {
 
 export async function criarEvento({ name, location, start_datetime, end_datetime, description, expected_audience }) {
   try {
+    const eventData = { 
+      name, 
+      location, 
+      start_datetime, 
+      end_datetime, 
+      description, 
+      expected_audience 
+    };
+    
+    console.log('🔍 Enviando dados para API:', eventData);
+    
     const response = await fetch(`${API_URL}/api/events`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ 
-        name, 
-        location, 
-        start_datetime, 
-        end_datetime, 
-        description, 
-        expected_audience 
-      }),
+      body: JSON.stringify(eventData),
     });
+    
+    console.log('🔍 Status da resposta:', response.status);
+    
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erro ao criar evento');
+      const errorData = await response.json();
+      console.error('❌ Erro da API:', errorData);
+      throw new Error(errorData.message || `Erro ${response.status}: ${response.statusText}`);
     }
-    return await response.json();
+    
+    const result = await response.json();
+    console.log('✅ Evento criado com sucesso:', result);
+    return result;
   } catch (err) {
+    console.error('❌ Erro ao criar evento:', err);
     throw err;
   }
 }

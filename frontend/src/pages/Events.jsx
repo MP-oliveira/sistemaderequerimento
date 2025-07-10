@@ -4,6 +4,7 @@ import Modal from '../components/Modal';
 import Table from '../components/Table';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import toast from 'react-hot-toast';
 import './Events.css';
 
 export default function Events() {
@@ -18,6 +19,37 @@ export default function Events() {
     description: '',
     expected_audience: ''
   });
+  const [conflitoDetectado, setConflitoDetectado] = useState(false);
+
+  // Função para verificar conflitos de agenda
+  const verificarConflitos = (novoEvento) => {
+    if (!novoEvento.start_datetime || !novoEvento.end_datetime || !novoEvento.location) {
+      return false;
+    }
+
+    const novoInicio = new Date(novoEvento.start_datetime);
+    const novoFim = new Date(novoEvento.end_datetime);
+
+    const conflitos = events.filter(evento => {
+      // Verificar se o local é o mesmo (case insensitive)
+      if (evento.location.toLowerCase() !== novoEvento.location.toLowerCase()) {
+        return false;
+      }
+      
+      const eventoInicio = new Date(evento.start_datetime);
+      const eventoFim = new Date(evento.end_datetime);
+      
+      // Verificar se há sobreposição de horários
+      const conflito1 = novoInicio < eventoFim && novoFim > eventoInicio; // Sobreposição geral
+      const conflito2 = novoInicio >= eventoInicio && novoInicio < eventoFim; // Início dentro
+      const conflito3 = novoFim > eventoInicio && novoFim <= eventoFim; // Fim dentro
+      const conflito4 = novoInicio <= eventoInicio && novoFim >= eventoFim; // Contém completamente
+      
+      return conflito1 || conflito2 || conflito3 || conflito4;
+    });
+
+    return conflitos.length > 0;
+  };
 
   useEffect(() => {
     carregarEventos();
@@ -27,8 +59,8 @@ export default function Events() {
     setLoading(true);
     try {
       const data = await listarEventos();
-      console.log('🔍 Events - Dados recebidos:', data);
-      setEvents(Array.isArray(data) ? data : []);
+      const eventosArray = Array.isArray(data) ? data : [];
+      setEvents(eventosArray);
     } catch (error) {
       console.error('❌ Events - Erro ao carregar eventos:', error);
       setEvents([]);
@@ -38,9 +70,17 @@ export default function Events() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Verificar conflitos antes de enviar
+    if (conflitoDetectado) {
+      toast.error('❌ Não é possível criar o evento devido a conflito de agenda. Verifique o local e horário.');
+      return;
+    }
+    
     try {
       console.log('🔍 Events - Criando evento:', formData);
       await criarEvento(formData);
+      toast.success('✅ Evento criado com sucesso!');
       setShowModal(false);
       setFormData({
         name: '',
@@ -50,18 +90,34 @@ export default function Events() {
         description: '',
         expected_audience: ''
       });
+      setConflitoDetectado(false);
       carregarEventos(); // Recarregar lista
     } catch (error) {
       console.error('❌ Events - Erro ao criar evento:', error);
+      toast.error('❌ Erro ao criar evento. Tente novamente.');
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: value
-    }));
+    };
+    
+    setFormData(newFormData);
+    
+    // Verificar conflitos quando os campos de data/hora/local mudarem
+    if (['start_datetime', 'end_datetime', 'location'].includes(name)) {
+      const temConflito = verificarConflitos(newFormData);
+      setConflitoDetectado(temConflito);
+      
+      if (temConflito) {
+        toast.error('⚠️ Conflito de agenda detectado! Já existe um evento neste local/horário.', {
+          duration: 5000
+        });
+      }
+    }
   };
 
   const openModal = () => {
@@ -110,9 +166,11 @@ export default function Events() {
     <div className="events-container">
       <div className="events-header">
         <h1>Gestão de Eventos</h1>
-        <Button onClick={openModal} variant="primary">
-          Novo Evento
-        </Button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Button onClick={openModal} variant="primary">
+            Novo Evento
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -134,6 +192,20 @@ export default function Events() {
         title="Novo Evento"
       >
         <form onSubmit={handleSubmit} className="event-form">
+          {/* Alerta de conflito */}
+          {conflitoDetectado && (
+            <div style={{
+              backgroundColor: '#f8d7da',
+              border: '1px solid #f5c6cb',
+              borderRadius: '4px',
+              padding: '12px',
+              marginBottom: '16px',
+              color: '#721c24'
+            }}>
+              ⚠️ <strong>Conflito de Agenda Detectado!</strong> Já existe um evento neste local/horário.
+            </div>
+          )}
+          
           <div className="form-row">
             <Input
               label="Nome do Evento"
@@ -198,8 +270,13 @@ export default function Events() {
             <Button type="button" onClick={closeModal} variant="secondary">
               Cancelar
             </Button>
-            <Button type="submit" variant="primary">
-              Criar Evento
+            <Button 
+              type="submit" 
+              variant="primary"
+              disabled={conflitoDetectado}
+              style={conflitoDetectado ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+            >
+              {conflitoDetectado ? 'Conflito Detectado' : 'Criar Evento'}
             </Button>
           </div>
         </form>

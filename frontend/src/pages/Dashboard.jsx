@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { listarEventos } from '../services/eventsService';
 import { listarItensInventario } from '../services/inventoryService';
 import toast from 'react-hot-toast';
+import Modal from '../components/Modal';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -11,6 +12,9 @@ export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [itensBaixoEstoque, setItensBaixoEstoque] = useState([]);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedDayEvents, setSelectedDayEvents] = useState([]);
+  const [selectedDay, setSelectedDay] = useState(null);
 
   // Função para verificar estoque baixo
   const verificarEstoqueBaixo = async () => {
@@ -123,6 +127,40 @@ export default function Dashboard() {
     return date.toDateString() === today.toDateString();
   };
 
+  const handleDayClick = (day) => {
+    if (day.events.length > 0) {
+      setSelectedDayEvents(day.events);
+      setSelectedDay(day.date);
+      setShowEventModal(true);
+    }
+  };
+
+  const closeEventModal = () => {
+    setShowEventModal(false);
+    setSelectedDayEvents([]);
+    setSelectedDay(null);
+  };
+
+  const formatEventTime = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('pt-BR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
+
+  const formatEventDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', { 
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
   const days = getDaysInMonth(currentDate);
 
   return (
@@ -209,20 +247,28 @@ export default function Dashboard() {
                 {days.map((day, index) => (
                   <div 
                     key={index} 
-                    className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''}`}
+                    className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
+                    onClick={() => handleDayClick(day)}
+                    style={{ cursor: day.events.length > 0 ? 'pointer' : 'default' }}
                   >
                     <span className="day-number">{day.date.getDate()}</span>
                     {day.events.length > 0 && (
-                      <div className="day-events">
-                        {day.events.slice(0, 2).map(event => (
-                          <div key={event.id} className="event-dot" title={event.name || event.titulo}>
-                            •
-                          </div>
-                        ))}
-                        {day.events.length > 2 && (
-                          <div className="event-more">+{day.events.length - 2}</div>
-                        )}
-                      </div>
+                      <>
+                        <div className="day-events">
+                          {day.events.slice(0, 2).map(event => (
+                            <div key={event.id} className="event-dot" title={event.name || event.titulo}>
+                              •
+                            </div>
+                          ))}
+                          {day.events.length > 2 && (
+                            <div className="event-more">+{day.events.length - 2}</div>
+                          )}
+                        </div>
+                        {/* Nome do primeiro evento */}
+                        <div className="event-name-preview" title={day.events[0].name || day.events[0].titulo}>
+                          {day.events[0].name || day.events[0].titulo}
+                        </div>
+                      </>
                     )}
                   </div>
                 ))}
@@ -238,6 +284,53 @@ export default function Dashboard() {
           </>
         )}
       </div>
+
+      {/* Modal de Eventos do Dia */}
+      <Modal 
+        open={showEventModal} 
+        onClose={closeEventModal}
+        title={selectedDay ? `Eventos de ${formatEventDate(selectedDay)}` : 'Eventos do Dia'}
+      >
+        <div className="events-modal-content">
+          {selectedDayEvents.length === 0 ? (
+            <p>Nenhum evento encontrado para este dia.</p>
+          ) : (
+            <div className="events-list">
+              {selectedDayEvents.map((event, index) => (
+                <div key={event.id || index} className="event-item">
+                  <div className="event-header">
+                    <h4 className="event-name">{event.name || event.titulo}</h4>
+                    <span className="event-time">
+                      {event.start_datetime && formatEventTime(event.start_datetime)}
+                      {event.end_datetime && ` - ${formatEventTime(event.end_datetime)}`}
+                    </span>
+                  </div>
+                  {event.location && (
+                    <p className="event-location">
+                      📍 <strong>Local:</strong> {event.location}
+                    </p>
+                  )}
+                  {event.description && (
+                    <p className="event-description">
+                      📝 {event.description}
+                    </p>
+                  )}
+                  {event.expected_audience && (
+                    <p className="event-audience">
+                      👥 <strong>Público esperado:</strong> {event.expected_audience} pessoas
+                    </p>
+                  )}
+                  {event.status && (
+                    <span className={`event-status status-${event.status.toLowerCase()}`}>
+                      {event.status}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 } 

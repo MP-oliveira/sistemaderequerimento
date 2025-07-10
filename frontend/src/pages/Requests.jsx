@@ -7,6 +7,7 @@ import { criarRequisicao, listarRequisicoes, aprovarRequisicao, executarRequisic
 import { listarItensInventario } from '../services/inventoryService';
 import { listarEventos } from '../services/eventsService';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import './Requests.css';
 
 export default function Requests() {
@@ -30,6 +31,31 @@ export default function Requests() {
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [itensDevolucao, setItensDevolucao] = useState([]);
   const [requisicaoSelecionada, setRequisicaoSelecionada] = useState(null);
+  const [conflitoDetectado, setConflitoDetectado] = useState(false);
+
+  // Função para verificar conflitos de agenda
+  const verificarConflitos = (novaRequisicao) => {
+    if (!novaRequisicao.data || !novaRequisicao.event_id) {
+      return false;
+    }
+
+    const dataRequisicao = new Date(novaRequisicao.data);
+    
+    // Verificar conflitos com eventos existentes
+    const conflitos = events.filter(evento => {
+      if (!evento.start_datetime) return false;
+      
+      const eventoData = new Date(evento.start_datetime);
+      const mesmoDia = dataRequisicao.toDateString() === eventoData.toDateString();
+      
+      // Verificar se não é o próprio evento selecionado
+      const naoEhMesmoEvento = evento.id !== parseInt(novaRequisicao.event_id);
+      
+      return mesmoDia && naoEhMesmoEvento;
+    });
+
+    return conflitos.length > 0;
+  };
 
   useEffect(() => {
     buscarRequisicoes();
@@ -114,10 +140,29 @@ export default function Requests() {
     e.preventDefault();
     setFormError('');
     setSuccessMsg('');
+    
     if (!department || !descricao || !data || itens.length === 0) {
       setFormError('Preencha todos os campos e adicione pelo menos um item.');
       return;
     }
+
+    // Verificar conflitos se um evento foi selecionado
+    if (eventoSelecionado) {
+      const novaRequisicao = {
+        data,
+        event_id: eventoSelecionado
+      };
+      
+      const temConflito = verificarConflitos(novaRequisicao);
+      if (temConflito) {
+        toast.error('⚠️ Conflito de agenda detectado! Já existe um evento nesta data.', {
+          duration: 5000
+        });
+        setFormError('Conflito de agenda detectado. Verifique a data selecionada.');
+        return;
+      }
+    }
+    
     setLoading(true);
     try {
       await criarRequisicao({ 
@@ -127,15 +172,18 @@ export default function Requests() {
         event_id: eventoSelecionado || null,
         itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade })) 
       });
+      toast.success('✅ Requisição enviada com sucesso!');
       setSuccessMsg('Requisição enviada com sucesso!');
       setDepartment('');
       setDescricao('');
       setData('');
       setEventoSelecionado('');
       setItens([]);
+      setConflitoDetectado(false);
       buscarRequisicoes();
     } catch (err) {
       setFormError(err.message || 'Erro ao enviar requisição');
+      toast.error('❌ Erro ao enviar requisição. Tente novamente.');
     }
     setLoading(false);
   };
@@ -163,6 +211,20 @@ export default function Requests() {
       <div className="card requests-form-card">
         <h1 className="requests-form-title">Nova Requisição</h1>
         <form className="requests-form" onSubmit={handleSubmit}>
+          {/* Alerta de conflito */}
+          {conflitoDetectado && (
+            <div style={{
+              backgroundColor: '#f8d7da',
+              border: '1px solid #f5c6cb',
+              borderRadius: '4px',
+              padding: '12px',
+              marginBottom: '16px',
+              color: '#721c24'
+            }}>
+              ⚠️ <strong>Conflito de Agenda Detectado!</strong> Já existe um evento nesta data.
+            </div>
+          )}
+          
           <Input
             label="Departamento"
             placeholder="Ex: Ministério de Louvor"
@@ -174,7 +236,23 @@ export default function Requests() {
             <label className="input-label">Evento (Opcional)</label>
             <select 
               value={eventoSelecionado} 
-              onChange={e => setEventoSelecionado(e.target.value)}
+              onChange={e => {
+                setEventoSelecionado(e.target.value);
+                // Verificar conflitos quando evento é selecionado
+                if (e.target.value && data) {
+                  const novaRequisicao = {
+                    data,
+                    event_id: e.target.value
+                  };
+                  const temConflito = verificarConflitos(novaRequisicao);
+                  setConflitoDetectado(temConflito);
+                  if (temConflito) {
+                    toast.error('⚠️ Conflito de agenda detectado! Já existe um evento nesta data.', {
+                      duration: 5000
+                    });
+                  }
+                }
+              }}
               className="input-field"
             >
               <option value="">Selecione um evento (opcional)</option>
@@ -196,7 +274,23 @@ export default function Requests() {
             label="Data de uso"
             type="date"
             value={data}
-            onChange={e => setData(e.target.value)}
+            onChange={e => {
+              setData(e.target.value);
+              // Verificar conflitos quando data é alterada
+              if (e.target.value && eventoSelecionado) {
+                const novaRequisicao = {
+                  data: e.target.value,
+                  event_id: eventoSelecionado
+                };
+                const temConflito = verificarConflitos(novaRequisicao);
+                setConflitoDetectado(temConflito);
+                if (temConflito) {
+                  toast.error('⚠️ Conflito de agenda detectado! Já existe um evento nesta data.', {
+                    duration: 5000
+                  });
+                }
+              }
+            }}
             required
           />
           <div className="requests-items-header">
@@ -224,8 +318,16 @@ export default function Requests() {
           />
           {formError && <div className="requests-error">{formError}</div>}
           {successMsg && <div className="requests-success-msg">{successMsg}</div>}
-          <Button type="submit" variant="primary" size="lg" className="requests-submit-btn" loading={loading} disabled={loading}>
-            Enviar Requisição
+          <Button 
+            type="submit" 
+            variant="primary" 
+            size="lg" 
+            className="requests-submit-btn" 
+            loading={loading} 
+            disabled={loading || conflitoDetectado}
+            style={conflitoDetectado ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+          >
+            {conflitoDetectado ? 'Conflito Detectado' : 'Enviar Requisição'}
           </Button>
         </form>
       </div>
