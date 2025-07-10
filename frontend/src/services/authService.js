@@ -7,10 +7,12 @@ export async function login({ email, password }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+    
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Erro ao fazer login');
     }
+    
     const data = await response.json();
     localStorage.setItem('token', data.data.token);
     return data.data;

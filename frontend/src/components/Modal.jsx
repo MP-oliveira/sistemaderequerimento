@@ -3,6 +3,7 @@ import './Modal.css';
 
 export default function Modal({ open, title, children, onClose, actions }) {
   if (!open) return null;
+  
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>

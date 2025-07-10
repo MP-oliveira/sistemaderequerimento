@@ -13,9 +13,11 @@ export async function listarEventos() {
     const response = await fetch(`${API_URL}/api/events`, {
       headers: getAuthHeaders()
     });
+    
     if (!response.ok) {
       throw new Error('Erro ao buscar eventos');
     }
+    
     const data = await response.json();
     return data.data || data;
   } catch (err) {
@@ -23,12 +25,19 @@ export async function listarEventos() {
   }
 }
 
-export async function criarEvento({ titulo, data, descricao, tipo }) {
+export async function criarEvento({ name, location, start_datetime, end_datetime, description, expected_audience }) {
   try {
     const response = await fetch(`${API_URL}/api/events`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ titulo, data, descricao, tipo }),
+      body: JSON.stringify({ 
+        name, 
+        location, 
+        start_datetime, 
+        end_datetime, 
+        description, 
+        expected_audience 
+      }),
     });
     if (!response.ok) {
       const error = await response.json();

@@ -21,7 +21,11 @@ export default function Table({ columns, data, emptyMessage = 'Nenhum registro e
             data.map((row, i) => (
               <tr key={i}>
                 {columns.map(col => (
-                  <td key={col.key}>{col.render ? col.render(row) : row[col.key]}</td>
+                  <td key={col.key}>
+                    {col.render ? col.render(row[col.key]) : 
+                     (React.isValidElement(row[col.key]) ? row[col.key] : 
+                      (typeof row[col.key] === 'object' ? JSON.stringify(row[col.key]) : row[col.key]))}
+                  </td>
                 ))}
               </tr>
             ))

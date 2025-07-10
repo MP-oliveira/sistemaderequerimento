@@ -10,8 +10,13 @@ import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 
 function PrivateRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
+  try {
+    const { user } = useAuth();
+    return user ? children : <Navigate to="/login" />;
+  } catch (error) {
+    console.error('Erro no PrivateRoute:', error);
+    return <Navigate to="/login" />;
+  }
 }
 
 export default function AppRoutes() {

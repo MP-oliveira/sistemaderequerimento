@@ -7,9 +7,12 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+
+
   useEffect(() => {
     // Carregar usuário do token ao iniciar
     const token = authService.getToken();
+    
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -20,7 +23,7 @@ export function AuthProvider({ children }) {
           role: payload.role,
           token 
         });
-      } catch {
+      } catch (error) {
         setUser(null);
       }
     }
@@ -29,7 +32,6 @@ export function AuthProvider({ children }) {
 
   const login = async ({ email, password }) => {
     const data = await authService.login({ email, password });
-    console.log('Login backend response:', data);
     
     // O backend retorna data.user com os dados do usuário
     const userData = {
@@ -51,11 +53,21 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <div>Carregando...</div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+  }
+  return context;
 } 

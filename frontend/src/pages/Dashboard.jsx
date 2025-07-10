@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getMockEvents } from '../services/eventsService';
+import { listarEventos } from '../services/eventsService';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -9,16 +9,23 @@ export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Carregar eventos (usando mock por enquanto)
+
+
+  // Carregar eventos da API
   useEffect(() => {
-    setLoading(true);
-    try {
-      const mockEvents = getMockEvents();
-      setEvents(mockEvents);
-    } catch (err) {
-      console.error('Erro ao carregar eventos:', err);
-    }
-    setLoading(false);
+    const carregarEventos = async () => {
+      setLoading(true);
+      try {
+        const eventos = await listarEventos();
+        setEvents(eventos);
+      } catch (err) {
+        console.error('Erro ao carregar eventos:', err);
+        setEvents([]);
+      }
+      setLoading(false);
+    };
+    
+    carregarEventos();
   }, []);
 
   const getDaysInMonth = (date) => {
@@ -45,7 +52,15 @@ export default function Dashboard() {
     for (let i = 1; i <= daysInMonth; i++) {
       const currentDate = new Date(year, month, i);
       const dateString = currentDate.toISOString().split('T')[0];
-      const dayEvents = events.filter(event => event.data === dateString);
+      const dayEvents = events.filter(event => {
+        // Verificar se o evento tem start_datetime e se corresponde ao dia
+        if (event.start_datetime) {
+          const eventDate = new Date(event.start_datetime);
+          const eventDateString = eventDate.toISOString().split('T')[0];
+          return eventDateString === dateString;
+        }
+        return false;
+      });
       
       days.push({
         date: currentDate,
@@ -153,7 +168,7 @@ export default function Dashboard() {
                     {day.events.length > 0 && (
                       <div className="day-events">
                         {day.events.slice(0, 2).map(event => (
-                          <div key={event.id} className="event-dot" title={event.titulo}>
+                          <div key={event.id} className="event-dot" title={event.name || event.titulo}>
                             •
                           </div>
                         ))}

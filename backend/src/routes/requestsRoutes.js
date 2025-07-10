@@ -1,5 +1,5 @@
 import express from 'express';
-import { createRequest, listRequests, getRequest, approveRequest, executeRequest, rejectRequest } from '../controllers/RequestsController.js';
+import { createRequest, listRequests, getRequest, approveRequest, executeRequest, rejectRequest, finishRequest } from '../controllers/RequestsController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -21,5 +21,8 @@ router.patch('/:id/execute', authenticateToken, executeRequest);
 
 // Rejeitar requisição
 router.patch('/:id/reject', authenticateToken, rejectRequest);
+
+// Finalizar requisição (devolução de itens)
+router.patch('/:id/finish', authenticateToken, finishRequest);
 
 export default router;
