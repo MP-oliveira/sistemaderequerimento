@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { listarEventos } from '../services/eventsService';
 import { listarItensInventario } from '../services/inventoryService';
+import { buscarTodosLogs } from '../services/activityLogService';
+import ActivityLog from '../components/ActivityLog';
 import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
 import './Dashboard.css';
@@ -15,6 +17,9 @@ export default function Dashboard() {
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
+  
+  // Estados para logs de atividade
+  const [recentLogs, setRecentLogs] = useState([]);
 
   // Função para verificar estoque baixo
   const verificarEstoqueBaixo = async () => {
@@ -30,6 +35,17 @@ export default function Dashboard() {
     }
   };
 
+  // Função para carregar logs recentes
+  const carregarLogsRecentes = async () => {
+    try {
+      const logs = await buscarTodosLogs();
+      // Pegar apenas os 5 logs mais recentes
+      setRecentLogs(logs.slice(0, 5) || []);
+    } catch (error) {
+      console.error('Erro ao carregar logs:', error);
+      // Não mostrar erro toast para não poluir a interface
+    }
+  };
 
   // Carregar eventos da API e verificar estoque
   useEffect(() => {
@@ -42,6 +58,9 @@ export default function Dashboard() {
         
         // Verificar estoque baixo
         await verificarEstoqueBaixo();
+        
+        // Carregar logs recentes
+        await carregarLogsRecentes();
       } catch (err) {
         console.error('Erro ao carregar eventos:', err);
         setEvents([]);
@@ -283,6 +302,15 @@ export default function Dashboard() {
             </div>
           </>
         )}
+      </div>
+
+      {/* Seção de Atividades Recentes */}
+      <div className="card activity-card">
+        <ActivityLog 
+          logs={recentLogs}
+          title="📋 Atividades Recentes"
+          emptyMessage="Nenhuma atividade registrada recentemente."
+        />
       </div>
 
       {/* Modal de Eventos do Dia */}

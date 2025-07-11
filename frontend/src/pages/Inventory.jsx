@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Table from '../components/Table';
+import ActivityLog from '../components/ActivityLog';
 import { listarItensInventario, criarItemInventario } from '../services/inventoryService';
+import { buscarHistoricoInventario } from '../services/activityLogService';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -27,6 +29,12 @@ export default function Inventory() {
   const [formError, setFormError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loadingForm, setLoadingForm] = useState(false);
+  
+  // Estados para logs
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [itemLogs, setItemLogs] = useState([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
 
   useEffect(() => {
     buscarItens();
@@ -42,6 +50,28 @@ export default function Inventory() {
       setListError(err.message || 'Erro ao buscar inventário');
     }
     setLoading(false);
+  };
+
+  // Função para buscar logs de um item
+  const buscarLogsItem = async (itemId, itemName) => {
+    setLoadingLogs(true);
+    try {
+      const logs = await buscarHistoricoInventario(itemId);
+      setItemLogs(logs || []);
+      setSelectedItem({ id: itemId, name: itemName });
+      setShowLogs(true);
+    } catch (error) {
+      console.error('Erro ao buscar logs:', error);
+      toast.error('Erro ao carregar histórico do item');
+    }
+    setLoadingLogs(false);
+  };
+
+  // Função para fechar logs
+  const fecharLogs = () => {
+    setShowLogs(false);
+    setSelectedItem(null);
+    setItemLogs([]);
   };
 
   // Função para exportar para PDF
@@ -174,6 +204,27 @@ export default function Inventory() {
     setLoadingForm(false);
   };
 
+  const columns = [
+    { key: 'name', label: 'Nome' },
+    { key: 'category', label: 'Categoria' },
+    { key: 'quantity_available', label: 'Quantidade' },
+    { key: 'disponibilidade', label: 'Disponibilidade' },
+    { 
+      key: 'actions', 
+      label: 'Ações',
+      render: (_, item) => (
+        <Button 
+          onClick={() => buscarLogsItem(item.id, item.name)}
+          variant="secondary" 
+          size="sm"
+          style={{ fontSize: '0.8rem', padding: '4px 8px' }}
+        >
+          📋 Histórico
+        </Button>
+      )
+    }
+  ];
+
   return (
     <div className="inventory-page">
       <div className="card inventory-form-card">
@@ -210,6 +261,7 @@ export default function Inventory() {
           </Button>
         </form>
       </div>
+      
       <div className="card inventory-list-card">
         <div className="inventory-header">
           <h2 className="inventory-list-title">Itens do Inventário</h2>
@@ -237,12 +289,7 @@ export default function Inventory() {
           <div className="inventory-error">{listError}</div>
         ) : (
           <Table
-            columns={[
-              { key: 'name', label: 'Nome' },
-              { key: 'category', label: 'Categoria' },
-              { key: 'quantity_available', label: 'Quantidade' },
-              { key: 'disponibilidade', label: 'Disponibilidade' },
-            ]}
+            columns={columns}
             data={itens.map(item => ({
               ...item,
               disponibilidade: Number(item.quantity_available) >= 2 ? 'Disponível' : (
@@ -253,6 +300,32 @@ export default function Inventory() {
           />
         )}
       </div>
+
+      {/* Modal de Logs */}
+      {showLogs && (
+        <div className="logs-modal-overlay" onClick={fecharLogs}>
+          <div className="logs-modal-content" onClick={e => e.stopPropagation()}>
+            <div className="logs-modal-header">
+              <h3>📋 Histórico de Atividades - {selectedItem?.name}</h3>
+              <button className="logs-modal-close" onClick={fecharLogs}>✕</button>
+            </div>
+            <div className="logs-modal-body">
+              {loadingLogs ? (
+                <div className="logs-loading">
+                  <div className="loading-spinner"></div>
+                  <p>Carregando histórico...</p>
+                </div>
+              ) : (
+                <ActivityLog 
+                  logs={itemLogs}
+                  title={`Histórico do Item: ${selectedItem?.name}`}
+                  emptyMessage="Nenhuma atividade registrada para este item."
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

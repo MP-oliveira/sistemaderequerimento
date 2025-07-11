@@ -1,8 +1,8 @@
 .main-header {
   width: 100%;
   height: 64px;
-  background: var(--ibva-blue);
-  color: #fff;
+  background: #1a4b8c;
+  color: #ffd700;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -12,7 +12,7 @@
   top: 0;
   left: 0;
   z-index: 100;
-  box-shadow: var(--ibva-shadow);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
@@ -44,7 +44,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #fff;
+  color: #ffd700;
   font-family: 'Montserrat', Arial, sans-serif;
   margin: 0;
   text-align: center;
@@ -61,7 +61,7 @@
 .header-user-name {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #fff;
+  color: #ffd700;
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
@@ -75,8 +75,14 @@
   outline: none;
   margin: 0 4px;
   font-family: 'Montserrat', Arial, sans-serif;
-  background: var(--ibva-yellow);
-  color: var(--ibva-blue);
+  background: #ffd700;
+  color: #1a4b8c;
+}
+
+.header-logout-btn:hover {
+  background: #f8d400;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 768px) {
