@@ -7,12 +7,12 @@
 }
 
 .inventory-page {
-  max-width: 600px;
+  max-width: 1100px;
   margin: 0 auto;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 16px #0001;
-  padding: 32px 24px 40px 24px;
+  padding: 48px 48px 56px 48px;
 }
 
 .inventory-page h1 {
@@ -36,7 +36,7 @@
 
 /* Novas classes para substituir estilos inline */
 .inventory-form-card {
-  max-width: 500px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -60,11 +60,14 @@
   font-weight: 600;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   outline: none;
-  margin: 0 4px;
+  margin: 24px auto 0 auto;
   font-family: 'Montserrat', Arial, sans-serif;
   background: var(--ibva-yellow);
   color: var(--ibva-blue);
-
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
 }
 
 .inventory-loading {
@@ -73,7 +76,7 @@
 }
 
 .inventory-list-card {
-  max-width: 900px;
+  max-width: 1050px;
   margin: 32px auto 0 auto;
 }
 
@@ -212,6 +215,34 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.inventory-form .input-group, .inventory-form select.input-field, .inventory-form input.input-field, .inventory-form textarea.input-field {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.inventory-form select.input-field, .inventory-form input.input-field, .inventory-form textarea.input-field {
+  min-width: 300px;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .inventory-page {
+    max-width: 99vw;
+    padding: 16px 2vw 24px 2vw;
+  }
+  .inventory-form-card {
+    max-width: 99vw;
+  }
+  .inventory-list-card {
+    max-width: 99vw;
+  }
+  .inventory-submit-btn {
+    max-width: 99vw;
+  }
 }
 
 @media (max-width: 700px) {

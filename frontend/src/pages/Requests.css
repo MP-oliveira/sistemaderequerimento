@@ -31,6 +31,11 @@
 
 .requests-items-header button {
   min-width: 160px;
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
 }
 
 .requests-error {
@@ -66,10 +71,14 @@
   font-weight: 600;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   outline: none;
-  margin: 0 4px;
+  margin: 24px auto 0 auto;
   font-family: 'Montserrat', Arial, sans-serif;
   background: var(--ibva-yellow);
   color: var(--ibva-blue);
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
 }
 
 .requests-loading {
@@ -102,6 +111,9 @@
     max-width: 99vw;
   }
   .requests-list-card {
+    max-width: 99vw;
+  }
+  .requests-submit-btn {
     max-width: 99vw;
   }
 }

@@ -1,5 +1,5 @@
 .users-page {
-  max-width: 100vw;
+  max-width: 1100px;
   margin: 0 auto;
   background: none;
   border-radius: 0;
@@ -8,12 +8,12 @@
 }
 
 .users-card {
-  max-width: 500px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .users-list-card {
-  max-width: 900px;
+  max-width: 1050px;
   margin: 32px auto 0 auto;
 }
 
@@ -59,11 +59,14 @@
   font-weight: 600;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   outline: none;
-  margin: 0 4px;
+  margin: 24px auto 0 auto;
   font-family: 'Montserrat', Arial, sans-serif;
   background: var(--ibva-yellow);
   color: var(--ibva-blue);
-  margin-top: 10px;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
 }
 
 .users-loading {
@@ -71,8 +74,30 @@
   color: #888;
 }
 
-@media (max-width: 700px) {
+.users-form .input-group, .users-form select.input-field, .users-form input.input-field, .users-form textarea.input-field {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.users-form select.input-field, .users-form input.input-field, .users-form textarea.input-field {
+  min-width: 300px;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 1200px) {
   .users-page {
-    padding: 16px 4px 24px 4px;
+    max-width: 99vw;
+    padding: 16px 2vw 24px 2vw;
+  }
+  .users-card {
+    max-width: 99vw;
+  }
+  .users-list-card {
+    max-width: 99vw;
+  }
+  .users-submit-btn {
+    max-width: 99vw;
   }
 } 
