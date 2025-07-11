@@ -557,7 +557,7 @@ export default function Requests() {
                       size="sm" 
                       onClick={() => handleVerComprovantes(row)}
                     >
-                      📎 Comprovantes
+                    Comprovantes
                     </Button>
                   );
                 }

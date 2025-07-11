@@ -43,12 +43,12 @@
 }
 
 .btn-info {
-  background: #17a2b8;
-  color: #fff;
+  background: #ffe066;
+  color: #0f345f;
 }
 .btn-info:hover:not(:disabled) {
-  background: #138496;
-  color: #fff;
+  background: #ffe066eb;
+  color: #0f345fce;
   box-shadow: 0 4px 24px #17a2b833;
 }
 
