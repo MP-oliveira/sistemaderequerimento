@@ -325,7 +325,7 @@ export default function Events() {
             />
           </div>
 
-          <div className="form-row">
+          <div className="form-row description-row">
             <label className="input-label">
               Descrição
               <textarea
