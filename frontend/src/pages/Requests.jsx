@@ -6,7 +6,6 @@ import Table from '../components/Table';
 import Comprovantes from '../components/Comprovantes';
 import { criarRequisicao, listarRequisicoes, aprovarRequisicao, executarRequisicao, finalizarRequisicao, rejeitarRequisicao } from '../services/requestsService';
 import { listarItensInventario } from '../services/inventoryService';
-import { listarEventos } from '../services/eventsService';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Requests.css';
@@ -42,6 +41,16 @@ export default function Requests() {
   const [showComprovantesModal, setShowComprovantesModal] = useState(false);
   const [requisicaoComprovantes, setRequisicaoComprovantes] = useState(null);
 
+  // Campos de evento dentro da requisição
+  const [evento, setEvento] = useState({
+    name: '',
+    location: '',
+    start_datetime: '',
+    end_datetime: '',
+    expected_audience: '',
+    description: ''
+  });
+
   // Função para verificar conflitos de agenda
   const verificarConflitos = (novaRequisicao) => {
     if (!novaRequisicao.data || !novaRequisicao.event_id) {
@@ -73,11 +82,11 @@ export default function Requests() {
 
   const carregarEventos = async () => {
     try {
-      const data = await listarEventos();
-      setEvents(Array.isArray(data) ? data : []);
+      const data = await listarItensInventario();
+      setInventoryItems(data);
     } catch (error) {
       console.error('Erro ao carregar eventos:', error);
-      setEvents([]);
+      setInventoryItems([]); // Changed from setEvents to setInventoryItems
     }
   };
 
@@ -225,16 +234,16 @@ export default function Requests() {
         department, 
         descricao, 
         data, 
-        event_id: eventoSelecionado || null,
-        itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade })) 
+        itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade })),
+        evento: evento.name || evento.location || evento.start_datetime ? evento : null
       });
       toast.success('✅ Requisição enviada com sucesso!');
       setSuccessMsg('Requisição enviada com sucesso!');
       setDepartment('');
       setDescricao('');
       setData('');
-      setEventoSelecionado('');
       setItens([]);
+      setEvento({ name: '', location: '', start_datetime: '', end_datetime: '', expected_audience: '', description: '' });
       setConflitoDetectado(false);
       buscarRequisicoes();
     } catch (err) {
@@ -316,6 +325,63 @@ export default function Requests() {
             onChange={e => setDepartment(e.target.value)}
             required
           />
+          {/* Campos de Evento dentro da requisição */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 15 }}>Dados do Evento (opcional)</div>
+            <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
+              <Input
+                label="Nome do Evento"
+                name="name"
+                value={evento.name}
+                onChange={e => setEvento(ev => ({ ...ev, name: e.target.value }))}
+              />
+              <Input
+                label="Local"
+                name="location"
+                value={evento.location}
+                onChange={e => setEvento(ev => ({ ...ev, location: e.target.value }))}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
+              <Input
+                label="Data/Hora de Início"
+                name="start_datetime"
+                type="datetime-local"
+                value={evento.start_datetime}
+                onChange={e => setEvento(ev => ({ ...ev, start_datetime: e.target.value }))}
+              />
+              <Input
+                label="Data/Hora de Fim"
+                name="end_datetime"
+                type="datetime-local"
+                value={evento.end_datetime}
+                onChange={e => setEvento(ev => ({ ...ev, end_datetime: e.target.value }))}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
+              <Input
+                label="Público Esperado"
+                name="expected_audience"
+                type="number"
+                value={evento.expected_audience}
+                onChange={e => setEvento(ev => ({ ...ev, expected_audience: e.target.value }))}
+              />
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <label className="input-label">
+                Descrição
+                <textarea
+                  name="description"
+                  value={evento.description}
+                  onChange={e => setEvento(ev => ({ ...ev, description: e.target.value }))}
+                  rows="3"
+                  className="input-field"
+                  placeholder="Descreva o evento..."
+                  style={{ marginTop: 4 }}
+                />
+              </label>
+            </div>
+          </div>
           <div className="form-group">
             <label className="input-label">Evento (Opcional)</label>
             <select 

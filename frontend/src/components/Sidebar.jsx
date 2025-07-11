@@ -7,7 +7,6 @@ const links = [
   { to: '/usuarios', label: 'Usuários' },
   { to: '/inventario', label: 'Inventário' },
   { to: '/requisicoes', label: 'Requerimentos' },
-  { to: '/eventos', label: 'Eventos' },
 ];
 
 export default function Sidebar() {

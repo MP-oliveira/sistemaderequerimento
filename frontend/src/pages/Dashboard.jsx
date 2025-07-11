@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { listarEventos } from '../services/eventsService';
 import { listarItensInventario } from '../services/inventoryService';
 import { buscarTodosLogs } from '../services/activityLogService';
 import ActivityLog from '../components/ActivityLog';

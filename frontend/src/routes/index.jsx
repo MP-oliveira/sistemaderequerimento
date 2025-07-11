@@ -5,7 +5,6 @@ import Dashboard from '../pages/Dashboard';
 import Users from '../pages/Users';
 import Inventory from '../pages/Inventory';
 import Requests from '../pages/Requests';
-import Events from '../pages/Events';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 
@@ -60,16 +59,6 @@ export default function AppRoutes() {
             <PrivateRoute>
               <Layout>
                 <Requests />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/eventos"
-          element={
-            <PrivateRoute>
-              <Layout>
-                <Events />
               </Layout>
             </PrivateRoute>
           }
