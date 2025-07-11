@@ -3,6 +3,10 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import Table from '../components/Table';
 import { listarItensInventario, criarItemInventario } from '../services/inventoryService';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import toast from 'react-hot-toast';
 import './Inventory.css';
 
 const STATUS_OPTIONS = [
@@ -38,6 +42,114 @@ export default function Inventory() {
       setListError(err.message || 'Erro ao buscar inventário');
     }
     setLoading(false);
+  };
+
+  // Função para exportar para PDF
+  const exportarParaPDF = () => {
+    if (itens.length === 0) {
+      toast.error('Não há itens para exportar');
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+      
+      // Título
+      doc.setFontSize(20);
+      doc.text('Relatório de Inventário', 105, 20, { align: 'center' });
+      
+      // Data de geração
+      doc.setFontSize(12);
+      doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 105, 30, { align: 'center' });
+      
+      // Preparar dados para a tabela
+      const tableData = itens.map(item => [
+        item.name || '-',
+        item.category || '-',
+        item.quantity_available || 0,
+        Number(item.quantity_available) >= 2 ? 'Disponível' : 'Baixo estoque',
+        item.location || '-',
+        item.description || '-'
+      ]);
+
+      // Criar tabela
+      autoTable(doc, {
+        head: [['Nome', 'Categoria', 'Quantidade', 'Status', 'Local', 'Descrição']],
+        body: tableData,
+        startY: 40,
+        styles: {
+          fontSize: 10,
+          cellPadding: 3
+        },
+        headStyles: {
+          fillColor: [45, 140, 255],
+          textColor: 255
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        }
+      });
+
+      // Salvar arquivo
+      const fileName = `inventario_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+      
+      toast.success('✅ Relatório PDF exportado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      toast.error('❌ Erro ao exportar PDF');
+    }
+  };
+
+  // Função para exportar para Excel
+  const exportarParaExcel = () => {
+    if (itens.length === 0) {
+      toast.error('Não há itens para exportar');
+      return;
+    }
+
+    try {
+      // Preparar dados para o Excel
+      const dadosParaExcel = itens.map(item => ({
+        'Nome': item.name || '-',
+        'Categoria': item.category || '-',
+        'Quantidade Disponível': item.quantity_available || 0,
+        'Quantidade Total': item.quantity_total || 0,
+        'Status': Number(item.quantity_available) >= 2 ? 'Disponível' : 'Baixo estoque',
+        'Local': item.location || '-',
+        'Descrição': item.description || '-',
+        'Última Atualização': item.updated_at ? new Date(item.updated_at).toLocaleString('pt-BR') : '-'
+      }));
+
+      // Criar workbook
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(dadosParaExcel);
+
+      // Ajustar largura das colunas
+      const colWidths = [
+        { wch: 25 }, // Nome
+        { wch: 15 }, // Categoria
+        { wch: 15 }, // Quantidade Disponível
+        { wch: 15 }, // Quantidade Total
+        { wch: 12 }, // Status
+        { wch: 20 }, // Local
+        { wch: 30 }, // Descrição
+        { wch: 20 }  // Última Atualização
+      ];
+      ws['!cols'] = colWidths;
+
+      // Adicionar worksheet ao workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Inventário');
+
+      // Salvar arquivo
+      const fileName = `inventario_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      
+      toast.success('✅ Relatório Excel exportado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar Excel:', error);
+      toast.error('❌ Erro ao exportar Excel');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -99,7 +211,26 @@ export default function Inventory() {
         </form>
       </div>
       <div className="card inventory-list-card">
-        <h2 className="inventory-list-title">Itens do Inventário</h2>
+        <div className="inventory-header">
+          <h2 className="inventory-list-title">Itens do Inventário</h2>
+          <div className="export-buttons">
+            <Button 
+              onClick={exportarParaPDF} 
+              variant="secondary" 
+              size="sm"
+              style={{ marginRight: '8px' }}
+            >
+              📄 Exportar PDF
+            </Button>
+            <Button 
+              onClick={exportarParaExcel} 
+              variant="secondary" 
+              size="sm"
+            >
+              📊 Exportar Excel
+            </Button>
+          </div>
+        </div>
         {loading ? (
           <div className="inventory-loading">Carregando...</div>
         ) : listError ? (
@@ -108,6 +239,7 @@ export default function Inventory() {
           <Table
             columns={[
               { key: 'name', label: 'Nome' },
+              { key: 'category', label: 'Categoria' },
               { key: 'quantity_available', label: 'Quantidade' },
               { key: 'disponibilidade', label: 'Disponibilidade' },
             ]}
