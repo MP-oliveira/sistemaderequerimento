@@ -92,4 +92,87 @@
   .requests-page {
     padding: 16px 4px 24px 4px;
   }
+}
+
+/* Estilos para busca */
+.search-container {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e9ecef;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: #666;
+  font-size: 16px;
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 40px 12px 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--ibva-blue);
+  box-shadow: 0 0 0 2px rgba(45, 140, 255, 0.25);
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.clear-search {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.clear-search:hover {
+  color: #333;
+  background: #e9ecef;
+}
+
+.search-info {
+  display: flex;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .search-wrapper {
+    max-width: 100%;
+  }
+  
+  .search-input {
+    font-size: 16px; /* Evita zoom no iOS */
+  }
 } 

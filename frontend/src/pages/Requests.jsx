@@ -32,6 +32,10 @@ export default function Requests() {
   const [itensDevolucao, setItensDevolucao] = useState([]);
   const [requisicaoSelecionada, setRequisicaoSelecionada] = useState(null);
   const [conflitoDetectado, setConflitoDetectado] = useState(false);
+  
+  // Estado para busca
+  const [busca, setBusca] = useState('');
+  const [requisicoesFiltradas, setRequisicoesFiltradas] = useState([]);
 
   // Função para verificar conflitos de agenda
   const verificarConflitos = (novaRequisicao) => {
@@ -77,13 +81,59 @@ export default function Requests() {
     setListError('');
     try {
       const data = await listarRequisicoes();
-      setRequisicoes(Array.isArray(data) ? data : []);
+      const requisicoesArray = Array.isArray(data) ? data : [];
+      setRequisicoes(requisicoesArray);
+      setRequisicoesFiltradas(requisicoesArray);
     } catch (err) {
       console.error('Erro ao buscar requisições:', err);
       setListError(err.message || 'Erro ao buscar requisições');
       setRequisicoes([]);
+      setRequisicoesFiltradas([]);
     }
     setLoadingList(false);
+  };
+
+  // Função para filtrar requisições
+  const filtrarRequisicoes = () => {
+    if (!busca.trim()) {
+      setRequisicoesFiltradas(requisicoes);
+      return;
+    }
+
+    const termoBusca = busca.toLowerCase();
+    const requisicoesFiltradas = requisicoes.filter(requisicao => {
+      // Buscar por departamento
+      if (requisicao.department?.toLowerCase().includes(termoBusca)) return true;
+      
+      // Buscar por descrição
+      if (requisicao.description?.toLowerCase().includes(termoBusca)) return true;
+      
+      // Buscar por status
+      if (requisicao.status?.toLowerCase().includes(termoBusca)) return true;
+      
+      // Buscar por data
+      if (requisicao.date?.toLowerCase().includes(termoBusca)) return true;
+      
+      // Buscar por nome do evento
+      if (requisicao.event_name?.toLowerCase().includes(termoBusca)) return true;
+      
+      return false;
+    });
+
+    setRequisicoesFiltradas(requisicoesFiltradas);
+  };
+
+  // Aplicar filtros quando mudarem
+  useEffect(() => {
+    filtrarRequisicoes();
+  }, [busca, requisicoes]);
+
+  const handleBuscaChange = (e) => {
+    setBusca(e.target.value);
+  };
+
+  const limparBusca = () => {
+    setBusca('');
   };
 
   // Buscar itens do inventário ao abrir o modal
@@ -405,6 +455,28 @@ export default function Requests() {
         </div>
       </Modal>
 
+      {/* Campo de Busca */}
+      <div className="search-container">
+        <div className="search-wrapper">
+          <div className="search-icon">🔍</div>
+          <input
+            type="text"
+            placeholder="Buscar requisições por departamento, descrição, status..."
+            value={busca}
+            onChange={handleBuscaChange}
+            className="search-input"
+          />
+          {busca && (
+            <button onClick={limparBusca} className="clear-search">
+              ✕
+            </button>
+          )}
+        </div>
+        <div className="search-info">
+          <span>Mostrando {requisicoesFiltradas.length} de {requisicoes.length} requisições</span>
+        </div>
+      </div>
+
       <div className="card requests-list-card">
         <h2 className="requests-list-title">Meus Requerimentos</h2>
         {loadingList ? (
@@ -486,7 +558,7 @@ export default function Requests() {
                 }
               }] : [])
             ]}
-            data={requisicoes}
+            data={requisicoesFiltradas}
             emptyMessage="Nenhuma requisição encontrada."
           />
         )}

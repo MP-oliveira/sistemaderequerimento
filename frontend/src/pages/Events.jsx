@@ -20,6 +20,10 @@ export default function Events() {
     expected_audience: ''
   });
   const [conflitoDetectado, setConflitoDetectado] = useState(false);
+  
+  // Estado para busca
+  const [busca, setBusca] = useState('');
+  const [eventosFiltrados, setEventosFiltrados] = useState([]);
 
   // Função para verificar conflitos de agenda
   const verificarConflitos = (novoEvento) => {
@@ -61,11 +65,54 @@ export default function Events() {
       const data = await listarEventos();
       const eventosArray = Array.isArray(data) ? data : [];
       setEvents(eventosArray);
+      setEventosFiltrados(eventosArray);
     } catch (error) {
       console.error('❌ Events - Erro ao carregar eventos:', error);
       setEvents([]);
+      setEventosFiltrados([]);
     }
     setLoading(false);
+  };
+
+  // Função para filtrar eventos
+  const filtrarEventos = () => {
+    if (!busca.trim()) {
+      setEventosFiltrados(events);
+      return;
+    }
+
+    const termoBusca = busca.toLowerCase();
+    const eventosFiltrados = events.filter(evento => {
+      // Buscar por nome
+      if (evento.name?.toLowerCase().includes(termoBusca)) return true;
+      if (evento.titulo?.toLowerCase().includes(termoBusca)) return true;
+      
+      // Buscar por local
+      if (evento.location?.toLowerCase().includes(termoBusca)) return true;
+      
+      // Buscar por status
+      if (evento.status?.toLowerCase().includes(termoBusca)) return true;
+      
+      // Buscar por descrição
+      if (evento.description?.toLowerCase().includes(termoBusca)) return true;
+      
+      return false;
+    });
+
+    setEventosFiltrados(eventosFiltrados);
+  };
+
+  // Aplicar filtros quando mudarem
+  useEffect(() => {
+    filtrarEventos();
+  }, [busca, events]);
+
+  const handleBuscaChange = (e) => {
+    setBusca(e.target.value);
+  };
+
+  const limparBusca = () => {
+    setBusca('');
   };
 
   const handleSubmit = async (e) => {
@@ -173,6 +220,28 @@ export default function Events() {
         </div>
       </div>
 
+      {/* Campo de Busca */}
+      <div className="search-container">
+        <div className="search-wrapper">
+          <div className="search-icon">🔍</div>
+          <input
+            type="text"
+            placeholder="Buscar eventos por nome, local, status..."
+            value={busca}
+            onChange={handleBuscaChange}
+            className="search-input"
+          />
+          {busca && (
+            <button onClick={limparBusca} className="clear-search">
+              ✕
+            </button>
+          )}
+        </div>
+        <div className="search-info">
+          <span>Mostrando {eventosFiltrados.length} de {events.length} eventos</span>
+        </div>
+      </div>
+
       {loading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
@@ -180,7 +249,7 @@ export default function Events() {
         </div>
       ) : (
         <Table 
-          data={events} 
+          data={eventosFiltrados} 
           columns={columns}
           emptyMessage="Nenhum evento encontrado."
         />
