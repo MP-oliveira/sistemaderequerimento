@@ -44,7 +44,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #ffd700;
+  color: #fff;
   font-family: 'Montserrat', Arial, sans-serif;
   margin: 0;
   text-align: center;
@@ -61,7 +61,7 @@
 .header-user-name {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #ffd700;
+  color: #fff;
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
