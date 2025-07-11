@@ -43,4 +43,42 @@ export async function criarItemInventario({ name, category, quantity }) {
   } catch (err) {
     throw err;
   }
+}
+
+export async function atualizarItemInventario(id, { name, category, quantity_available, quantity_total }) {
+  try {
+    const response = await fetch(`${API_URL}/api/inventory/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        name,
+        category,
+        quantity_available,
+        quantity_total
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao atualizar item');
+    }
+    return await response.json();
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function deletarItemInventario(id) {
+  try {
+    const response = await fetch(`${API_URL}/api/inventory/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao deletar item');
+    }
+    return await response.json();
+  } catch (err) {
+    throw err;
+  }
 } 

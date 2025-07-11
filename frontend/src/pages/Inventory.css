@@ -228,6 +228,13 @@
   max-width: 100%;
 }
 
+.icon-outline-blue {
+  color: #2d8cff;
+  stroke: #2d8cff;
+  fill: #fff;
+  stroke-width: 2.2;
+}
+
 @media (max-width: 1200px) {
   .inventory-page {
     max-width: 99vw;

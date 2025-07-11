@@ -100,4 +100,19 @@
   color: #888;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.btn-icon-blue {
+  background: none;
+  border: none;
+  color: #2d8cff;
+  font-size: 1.1rem;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.btn-icon-blue:hover:not(:disabled) {
+  color: #165ba8;
+  background: none;
+  box-shadow: none;
 } 

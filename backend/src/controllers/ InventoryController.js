@@ -187,10 +187,12 @@ export const deleteInventoryItem = async (req, res) => {
     if (errAtual || !atual) {
       return res.status(404).json({ success: false, message: 'Item não encontrado para remover.' });
     }
+    console.log('Tentando deletar item do inventário:', id);
     const { error } = await supabase
       .from('inventory')
       .delete()
       .eq('id', id);
+    console.log('Resultado do delete:', error);
     if (error) {
       return res.status(400).json({ success: false, message: 'Erro ao remover item.', error: error.message });
     }

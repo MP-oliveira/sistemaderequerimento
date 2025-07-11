@@ -3,7 +3,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import Table from '../components/Table';
 import ActivityLog from '../components/ActivityLog';
-import { listarItensInventario, criarItemInventario } from '../services/inventoryService';
+import { listarItensInventario, criarItemInventario, atualizarItemInventario, deletarItemInventario } from '../services/inventoryService';
 import { buscarHistoricoInventario } from '../services/activityLogService';
 import { useAuth } from '../context/AuthContext';
 import jsPDF from 'jspdf';
@@ -11,6 +11,8 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import toast from 'react-hot-toast';
 import './Inventory.css';
+import Modal from '../components/Modal';
+import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
 const STATUS_OPTIONS = [
   { value: 'DISPONIVEL', label: 'Disponível' },
@@ -27,7 +29,6 @@ export default function Inventory() {
   const [nome, setNome] = useState("");
   const [quantidade, setQuantidade] = useState("");
   const [categoria, setCategoria] = useState("");
-  const [status, setStatus] = useState('DISPONIVEL');
   const [formError, setFormError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loadingForm, setLoadingForm] = useState(false);
@@ -38,6 +39,12 @@ export default function Inventory() {
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
 
+  // Estados para edição e deleção
+  const [editItem, setEditItem] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   useEffect(() => {
     buscarItens();
   }, []);
@@ -46,7 +53,9 @@ export default function Inventory() {
     setLoading(true);
     setListError('');
     try {
+      console.log('🔄 Buscando itens do inventário...');
       const data = await listarItensInventario();
+      console.log('✅ Itens recebidos:', data);
       setItens(data);
     } catch (err) {
       setListError(err.message || 'Erro ao buscar inventário');
@@ -206,6 +215,54 @@ export default function Inventory() {
     setLoadingForm(false);
   };
 
+  // Função para abrir modal de edição
+  const handleEdit = (item) => {
+    setEditItem(item);
+    setShowEditModal(true);
+  };
+
+  // Função para abrir modal de deleção
+  const handleDelete = (item) => {
+    setDeleteItem(item);
+    setShowDeleteModal(true);
+  };
+
+  // Função para salvar edição
+  const handleSalvarEdicao = async () => {
+    if (!editItem) return;
+    try {
+      await atualizarItemInventario(editItem.id, {
+        name: editItem.name,
+        category: editItem.category,
+        quantity_available: Number(editItem.quantity_available),
+        quantity_total: Number(editItem.quantity_total ?? editItem.quantity_available)
+      });
+      toast.success('Item atualizado com sucesso!');
+      setShowEditModal(false);
+      setEditItem(null);
+      buscarItens();
+    } catch (err) {
+      toast.error('Erro ao atualizar item: ' + (err.message || 'Erro desconhecido'));
+    }
+  };
+
+  // Função para deletar item
+  const handleConfirmarDelete = async () => {
+    if (!deleteItem) return;
+    try {
+      await deletarItemInventario(deleteItem.id);
+      toast.success('Item deletado com sucesso!');
+      setShowDeleteModal(false);
+      setDeleteItem(null);
+      setTimeout(() => {
+        console.log('🔁 Atualizando lista após deleção...');
+        buscarItens();
+      }, 200);
+    } catch (err) {
+      toast.error('Erro ao deletar item: ' + (err.message || 'Erro desconhecido'));
+    }
+  };
+
   const columns = [
     { key: 'name', label: 'Nome' },
     { key: 'category', label: 'Categoria' },
@@ -215,14 +272,34 @@ export default function Inventory() {
       key: 'actions', 
       label: 'Ações',
       render: (_, item) => (
-        <Button 
-          onClick={() => buscarLogsItem(item.id, item.name)}
-          variant="secondary" 
-          size="sm"
-          style={{ fontSize: '0.8rem', padding: '4px 8px' }}
-        >
-          📋 Histórico
-        </Button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button 
+            onClick={() => buscarLogsItem(item.id, item.name)}
+            variant="secondary" 
+            size="sm"
+            style={{ fontSize: '0.8rem', padding: '4px 8px' }}
+          >
+            📋
+          </Button>
+          <Button
+            onClick={() => handleEdit(item)}
+            variant="icon-blue"
+            size="sm"
+            style={{ background: 'white', border: 'none', fontSize: '1.1rem', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
+            title="Editar"
+          >
+            <FiEdit className="icon-outline-blue" size={18} />
+          </Button>
+          <Button
+            onClick={() => handleDelete(item)}
+            variant="icon-blue"
+            size="sm"
+            style={{ background: 'white', border: 'none', fontSize: '1.1rem', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
+            title="Deletar"
+          >
+            <FiTrash2 className="icon-outline-blue" size={18} />
+          </Button>
+        </div>
       )
     }
   ];
@@ -328,6 +405,51 @@ export default function Inventory() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de Edição */}
+      {showEditModal && editItem && (
+        <Modal open={showEditModal} onClose={() => { setShowEditModal(false); setEditItem(null); }} title="✏️ Editar Item do Inventário">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Input
+              label="Nome do item"
+              value={editItem.name}
+              onChange={e => setEditItem({ ...editItem, name: e.target.value })}
+              required
+            />
+            <Input
+              label="Categoria"
+              value={editItem.category}
+              onChange={e => setEditItem({ ...editItem, category: e.target.value })}
+              required
+            />
+            <Input
+              label="Quantidade"
+              type="number"
+              min={1}
+              value={editItem.quantity_available}
+              onChange={e => setEditItem({ ...editItem, quantity_available: e.target.value })}
+              required
+            />
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16 }}>
+              <Button variant="secondary" onClick={() => { setShowEditModal(false); setEditItem(null); }}>Cancelar</Button>
+              <Button variant="primary" onClick={handleSalvarEdicao}>Salvar</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal de Confirmação de Deleção */}
+      {showDeleteModal && deleteItem && (
+        <Modal open={showDeleteModal} onClose={() => { setShowDeleteModal(false); setDeleteItem(null); }} title="🗑️ Confirmar Deleção">
+          <div style={{ padding: 8 }}>
+            <p>Tem certeza que deseja <b>deletar</b> o item <b>{deleteItem.name}</b>?</p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16 }}>
+              <Button variant="secondary" onClick={() => { setShowDeleteModal(false); setDeleteItem(null); }}>Cancelar</Button>
+              <Button variant="danger" onClick={handleConfirmarDelete}>Deletar</Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
