@@ -1,6 +1,7 @@
 import { supabase } from '../config/supabaseClient.js';
 // Importar função de log do histórico do inventário
 import { logInventoryHistory } from './ InventoryController.js';
+import { enviarEmail, enviarEmailPorPapel } from '../utils/emailService.js';
 
 // Criar uma nova requisição
 export const createRequest = async (req, res) => {
@@ -42,6 +43,33 @@ export const createRequest = async (req, res) => {
       console.log('❌ Erro ao criar requisição:', error);
       return res.status(400).json({ success: false, message: 'Erro ao criar requisição.', error: error.message });
     }
+
+    // Buscar dados do solicitante para o e-mail
+    const { data: solicitante } = await supabase
+      .from('users')
+      .select('full_name, email')
+      .eq('id', requester_id)
+      .single();
+
+    // Enviar e-mail para todos os pastores sobre a nova requisição
+    try {
+      const mensagemPastores = `Nova requisição criada!
+
+Departamento: ${department}
+Solicitante: ${solicitante?.full_name || 'N/A'}
+Data: ${date}
+Descrição: ${description}
+Local: ${location || 'Não informado'}
+
+Acesse o sistema para aprovar ou rejeitar esta requisição.`;
+
+      await enviarEmailPorPapel('PASTOR', 'Nova Requisição Aguardando Aprovação', mensagemPastores);
+      console.log('✅ E-mail enviado para pastores sobre nova requisição');
+    } catch (e) {
+      console.error('❌ Erro ao enviar e-mail para pastores:', e);
+      // Não falha a criação da requisição se o e-mail falhar
+    }
+
     // Aqui você pode salvar os itens da requisição em outra tabela se necessário
     res.status(201).json({ success: true, data: request });
   } catch (error) {
@@ -158,6 +186,43 @@ export const approveRequest = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Erro ao aprovar requisição.', error: error?.message });
     }
     
+    // Enviar e-mail automático ao usuário solicitante
+    const { data: usuario } = await supabase
+      .from('users')
+      .select('email, full_name')
+      .eq('id', requestData.requester_id)
+      .single();
+    if (usuario && usuario.email) {
+      try {
+        await enviarEmail(
+          usuario.email,
+          'Sua requisição foi aprovada!',
+          `Olá ${usuario.full_name},\n\nSua requisição #${id} foi aprovada e está apta para execução.\n\nAcesse o sistema para mais detalhes.`
+        );
+      } catch (e) {
+        console.error('Erro ao enviar e-mail de aprovação:', e);
+      }
+    }
+
+    // Enviar e-mail para audiovisual sobre a requisição aprovada
+    try {
+      const mensagemAudiovisual = `Requisição aprovada e aguardando execução!
+
+ID da Requisição: ${id}
+Departamento: ${requestData.department}
+Solicitante: ${usuario?.full_name || 'N/A'}
+Data: ${requestData.date}
+Descrição: ${requestData.description}
+Local: ${requestData.location || 'Não informado'}
+
+Acesse o sistema para executar esta requisição.`;
+
+      await enviarEmailPorPapel('AUDIOVISUAL', 'Requisição Aprovada - Aguardando Execução', mensagemAudiovisual);
+      console.log('✅ E-mail enviado para audiovisual sobre requisição aprovada');
+    } catch (e) {
+      console.error('❌ Erro ao enviar e-mail para audiovisual:', e);
+    }
+    
     // Criar evento automaticamente baseado na requisição
     if (requestData.start_datetime && requestData.end_datetime) {
       const eventName = `Evento - ${requestData.department}`;
@@ -264,6 +329,23 @@ export const executeRequest = async (req, res) => {
     if (error || !request) {
       return res.status(400).json({ success: false, message: 'Erro ao executar requisição.', error: error?.message });
     }
+    // Enviar e-mail automático ao usuário solicitante
+    const { data: usuario } = await supabase
+      .from('users')
+      .select('email, full_name')
+      .eq('id', request.requester_id)
+      .single();
+    if (usuario && usuario.email) {
+      try {
+        await enviarEmail(
+          usuario.email,
+          'Sua requisição foi executada!',
+          `Olá ${usuario.full_name},\n\nSua requisição #${id} foi executada.\n\nAcesse o sistema para mais detalhes.`
+        );
+      } catch (e) {
+        console.error('Erro ao enviar e-mail de execução:', e);
+      }
+    }
     res.json({ success: true, message: 'Requisição executada e inventário atualizado.', data: request });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
@@ -295,6 +377,45 @@ export const rejectRequest = async (req, res) => {
     if (error || !request) {
       return res.status(400).json({ success: false, message: 'Erro ao rejeitar requisição.', error: error?.message });
     }
+
+    // Buscar dados do solicitante
+    const { data: solicitante } = await supabase
+      .from('users')
+      .select('email, full_name')
+      .eq('id', request.requester_id)
+      .single();
+
+    // Enviar e-mail automático ao usuário solicitante
+    if (solicitante && solicitante.email) {
+      try {
+        await enviarEmail(
+          solicitante.email,
+          'Sua requisição foi rejeitada!',
+          `Olá ${solicitante.full_name},\n\nSua requisição #${id} foi rejeitada.\nMotivo: ${rejection_reason}\n\nAcesse o sistema para mais detalhes.`
+        );
+      } catch (e) {
+        console.error('Erro ao enviar e-mail de rejeição:', e);
+      }
+    }
+
+    // Enviar e-mail para secretários sobre a rejeição
+    try {
+      const mensagemSecretarios = `Requisição rejeitada!
+
+ID da Requisição: ${id}
+Departamento: ${request.department}
+Solicitante: ${solicitante?.full_name || 'N/A'}
+Data: ${request.date}
+Motivo da Rejeição: ${rejection_reason}
+
+A requisição foi rejeitada pelo pastor/administrador.`;
+
+      await enviarEmailPorPapel('SEC', 'Requisição Rejeitada', mensagemSecretarios);
+      console.log('✅ E-mail enviado para secretários sobre rejeição');
+    } catch (e) {
+      console.error('❌ Erro ao enviar e-mail para secretários:', e);
+    }
+
     res.json({ success: true, message: 'Requisição rejeitada.', data: request });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
