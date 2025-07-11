@@ -2,6 +2,42 @@ import { supabase } from '../config/supabaseClient.js';
 // Importar função de log do histórico do inventário
 import { logInventoryHistory } from './ InventoryController.js';
 import { enviarEmail, enviarEmailPorPapel } from '../utils/emailService.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+// Configuração do multer para upload de arquivos
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = 'uploads/comprovantes';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Tipo de arquivo não suportado. Use apenas: jpeg, jpg, png, gif, pdf, doc, docx, xls, xlsx'));
+    }
+  }
+});
 
 // Criar uma nova requisição
 export const createRequest = async (req, res) => {
@@ -480,3 +516,220 @@ export const finishRequest = async (req, res) => {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
 };
+
+// Upload de comprovante para uma requisição
+export const uploadComprovante = async (req, res) => {
+  try {
+    const { request_id } = req.params;
+    const { description } = req.body;
+    
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Nenhum arquivo enviado.' });
+    }
+
+    // Verificar se a requisição existe
+    const { data: request, error: requestError } = await supabase
+      .from('requests')
+      .select('*')
+      .eq('id', request_id)
+      .single();
+
+    if (requestError || !request) {
+      return res.status(404).json({ success: false, message: 'Requisição não encontrada.' });
+    }
+
+    // Verificar permissão: só o solicitante, aprovador, executor ou ADM podem adicionar comprovantes
+    if (
+      req.user.role !== 'ADM' &&
+      ![request.requester_id, request.approved_by, request.executed_by].includes(req.user.userId)
+    ) {
+      return res.status(403).json({ success: false, message: 'Acesso negado.' });
+    }
+
+    // Salvar informações do comprovante no banco
+    const { data: comprovante, error } = await supabase
+      .from('request_comprovantes')
+      .insert([{
+        request_id,
+        filename: req.file.filename,
+        original_name: req.file.originalname,
+        file_path: req.file.path,
+        file_size: req.file.size,
+        mime_type: req.file.mimetype,
+        description: description || 'Comprovante anexado',
+        uploaded_by: req.user.userId
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      // Se falhar ao salvar no banco, remover o arquivo
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ success: false, message: 'Erro ao salvar comprovante.', error: error.message });
+    }
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'Comprovante enviado com sucesso.',
+      data: comprovante 
+    });
+  } catch (error) {
+    // Se houver erro, remover arquivo se existir
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Listar comprovantes de uma requisição
+export const listComprovantes = async (req, res) => {
+  try {
+    const { request_id } = req.params;
+
+    // Verificar se a requisição existe
+    const { data: request, error: requestError } = await supabase
+      .from('requests')
+      .select('*')
+      .eq('id', request_id)
+      .single();
+
+    if (requestError || !request) {
+      return res.status(404).json({ success: false, message: 'Requisição não encontrada.' });
+    }
+
+    // Verificar permissão: só o solicitante, aprovador, executor ou ADM podem ver comprovantes
+    if (
+      req.user.role !== 'ADM' &&
+      ![request.requester_id, request.approved_by, request.executed_by].includes(req.user.userId)
+    ) {
+      return res.status(403).json({ success: false, message: 'Acesso negado.' });
+    }
+
+    const { data: comprovantes, error } = await supabase
+      .from('request_comprovantes')
+      .select(`
+        *,
+        users:uploaded_by (
+          id,
+          full_name
+        )
+      `)
+      .eq('request_id', request_id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return res.status(400).json({ success: false, message: 'Erro ao buscar comprovantes.', error: error.message });
+    }
+
+    // Mapear para incluir nome do usuário
+    const comprovantesComUsuario = comprovantes.map(comp => ({
+      ...comp,
+      uploaded_by_name: comp.users ? comp.users.full_name : 'Usuário não encontrado'
+    }));
+
+    res.json({ success: true, data: comprovantesComUsuario });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Download de um comprovante
+export const downloadComprovante = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Buscar comprovante
+    const { data: comprovante, error } = await supabase
+      .from('request_comprovantes')
+      .select(`
+        *,
+        requests!inner (
+          requester_id,
+          approved_by,
+          executed_by
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error || !comprovante) {
+      return res.status(404).json({ success: false, message: 'Comprovante não encontrado.' });
+    }
+
+    // Verificar permissão
+    const request = comprovante.requests;
+    if (
+      req.user.role !== 'ADM' &&
+      ![request.requester_id, request.approved_by, request.executed_by].includes(req.user.userId)
+    ) {
+      return res.status(403).json({ success: false, message: 'Acesso negado.' });
+    }
+
+    // Verificar se arquivo existe
+    if (!fs.existsSync(comprovante.file_path)) {
+      return res.status(404).json({ success: false, message: 'Arquivo não encontrado no servidor.' });
+    }
+
+    // Enviar arquivo
+    res.download(comprovante.file_path, comprovante.original_name);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Remover comprovante
+export const removeComprovante = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Buscar comprovante
+    const { data: comprovante, error } = await supabase
+      .from('request_comprovantes')
+      .select(`
+        *,
+        requests!inner (
+          requester_id,
+          approved_by,
+          executed_by
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error || !comprovante) {
+      return res.status(404).json({ success: false, message: 'Comprovante não encontrado.' });
+    }
+
+    // Verificar permissão: só quem enviou ou ADM pode remover
+    const request = comprovante.requests;
+    if (
+      req.user.role !== 'ADM' &&
+      comprovante.uploaded_by !== req.user.userId
+    ) {
+      return res.status(403).json({ success: false, message: 'Acesso negado.' });
+    }
+
+    // Remover arquivo do servidor
+    if (fs.existsSync(comprovante.file_path)) {
+      fs.unlinkSync(comprovante.file_path);
+    }
+
+    // Remover registro do banco
+    const { error: deleteError } = await supabase
+      .from('request_comprovantes')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      return res.status(400).json({ success: false, message: 'Erro ao remover comprovante.', error: deleteError.message });
+    }
+
+    res.json({ success: true, message: 'Comprovante removido com sucesso.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Middleware para upload de arquivo
+export const uploadMiddleware = upload.single('comprovante');

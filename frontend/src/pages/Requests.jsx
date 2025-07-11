@@ -3,7 +3,8 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Table from '../components/Table';
-import { criarRequisicao, listarRequisicoes, aprovarRequisicao, executarRequisicao, finalizarRequisicao } from '../services/requestsService';
+import Comprovantes from '../components/Comprovantes';
+import { criarRequisicao, listarRequisicoes, aprovarRequisicao, executarRequisicao, finalizarRequisicao, rejeitarRequisicao } from '../services/requestsService';
 import { listarItensInventario } from '../services/inventoryService';
 import { listarEventos } from '../services/eventsService';
 import { useAuth } from '../context/AuthContext';
@@ -36,6 +37,10 @@ export default function Requests() {
   // Estado para busca
   const [busca, setBusca] = useState('');
   const [requisicoesFiltradas, setRequisicoesFiltradas] = useState([]);
+  
+  // Estado para comprovantes
+  const [showComprovantesModal, setShowComprovantesModal] = useState(false);
+  const [requisicaoComprovantes, setRequisicaoComprovantes] = useState(null);
 
   // Função para verificar conflitos de agenda
   const verificarConflitos = (novaRequisicao) => {
@@ -82,6 +87,7 @@ export default function Requests() {
     try {
       const data = await listarRequisicoes();
       const requisicoesArray = Array.isArray(data) ? data : [];
+      console.log('🔍 Requisições carregadas:', requisicoesArray);
       setRequisicoes(requisicoesArray);
       setRequisicoesFiltradas(requisicoesArray);
     } catch (err) {
@@ -241,19 +247,47 @@ export default function Requests() {
   const handleAprovar = async (id) => {
     try {
       await aprovarRequisicao(id);
+      toast.success('✅ Requisição aprovada com sucesso!');
       buscarRequisicoes();
     } catch (err) {
-      alert(err.message || 'Erro ao aprovar requisição');
+      toast.error('❌ Erro ao aprovar requisição: ' + (err.message || 'Erro desconhecido'));
     }
   };
 
   const handleExecutar = async (id) => {
     try {
       await executarRequisicao(id);
+      toast.success('✅ Requisição executada com sucesso!');
       buscarRequisicoes();
     } catch (err) {
-      alert(err.message || 'Erro ao executar requisição');
+      toast.error('❌ Erro ao executar requisição: ' + (err.message || 'Erro desconhecido'));
     }
+  };
+
+  const handleRejeitar = async (id) => {
+    const motivo = prompt('Digite o motivo da rejeição:');
+    if (!motivo) {
+      alert('É necessário informar um motivo para a rejeição.');
+      return;
+    }
+    
+    try {
+      await rejeitarRequisicao(id, motivo);
+      toast.success('✅ Requisição rejeitada com sucesso!');
+      buscarRequisicoes();
+    } catch (err) {
+      toast.error('❌ Erro ao rejeitar requisição: ' + (err.message || 'Erro desconhecido'));
+    }
+  };
+
+  const handleVerComprovantes = (requisicao) => {
+    setRequisicaoComprovantes(requisicao);
+    setShowComprovantesModal(true);
+  };
+
+  const handleFecharComprovantes = () => {
+    setShowComprovantesModal(false);
+    setRequisicaoComprovantes(null);
   };
 
   return (
@@ -512,57 +546,123 @@ export default function Requests() {
                   );
                 },
               },
-              // Botão Aprovar para ADM/PASTOR e status PENDENTE
-              ...(user && (user.role === 'ADM' || user.role === 'PASTOR') ? [{
+              {
+                key: 'comprovantes',
+                label: 'Comprovantes',
+                render: (value, row) => {
+                  console.log('🔍 Renderizando botão comprovantes para:', row);
+                  return (
+                    <Button 
+                      variant="info" 
+                      size="sm" 
+                      onClick={() => handleVerComprovantes(row)}
+                    >
+                      📎 Comprovantes
+                    </Button>
+                  );
+                }
+              },
+              // Coluna única de ações com todos os botões
+              {
                 key: 'actions',
                 label: 'Ações',
                 render: (value, row) => {
-                  if (row && row.status === 'PENDENTE') {
-                    return (
-                      <Button variant="success" size="sm" onClick={() => handleAprovar(row.id)}>
-                        Aprovar
+                  const actions = [];
+                  
+                  // Botão Aprovar para ADM/PASTOR e status PENDENTE
+                  if (user && (user.role === 'ADM' || user.role === 'PASTOR') && row.status === 'PENDENTE') {
+                    actions.push(
+                      <Button 
+                        key="aprovar" 
+                        variant="success" 
+                        size="sm" 
+                        onClick={() => handleAprovar(row.id)}
+                        style={{ marginRight: '4px' }}
+                      >
+                        ✅ Aprovar
                       </Button>
                     );
                   }
-                  return null;
-                }
-              }] : []),
-              // Botão Executar para AUDIOVISUAL/SEC e status APTO
-              ...(user && (user.role === 'AUDIOVISUAL' || user.role === 'SEC') ? [{
-                key: 'actions2',
-                label: 'Ações',
-                render: (value, row) => {
-                  if (row && row.status === 'APTO') {
-                    return (
-                      <Button variant="primary" size="sm" onClick={() => handleExecutar(row.id)}>
-                        Executar
+                  
+                  // Botão Executar para AUDIOVISUAL/SEC e status APTO
+                  if (user && (user.role === 'AUDIOVISUAL' || user.role === 'SEC') && row.status === 'APTO') {
+                    actions.push(
+                      <Button 
+                        key="executar" 
+                        variant="primary" 
+                        size="sm" 
+                        onClick={() => handleExecutar(row.id)}
+                        style={{ marginRight: '4px' }}
+                      >
+                        ▶️ Executar
                       </Button>
                     );
                   }
-                  return null;
-                }
-              }] : []),
-              // Botão Finalizar para quem executou e status EXECUTADO
-              ...(user && requisicoes.some(r => r.executed_by === user.id) ? [{
-                key: 'actions3',
-                label: 'Ações',
-                render: (value, row) => {
-                  if (row && row.status === 'EXECUTADO' && row.executed_by === user.id) {
-                    return (
-                      <Button variant="warning" size="sm" onClick={() => handleOpenFinishModal(row)}>
-                        Finalizar/Devolver Itens
+                  
+                  // Botão Finalizar para quem executou e status EXECUTADO
+                  if (user && row.status === 'EXECUTADO' && row.executed_by === user.id) {
+                    actions.push(
+                      <Button 
+                        key="finalizar" 
+                        variant="warning" 
+                        size="sm" 
+                        onClick={() => handleOpenFinishModal(row)}
+                        style={{ marginRight: '4px' }}
+                      >
+                        🔄 Finalizar
                       </Button>
                     );
                   }
-                  return null;
+                  
+                  // Botão Rejeitar para ADM/PASTOR e status PENDENTE
+                  if (user && (user.role === 'ADM' || user.role === 'PASTOR') && row.status === 'PENDENTE') {
+                    actions.push(
+                      <Button 
+                        key="rejeitar" 
+                        variant="danger" 
+                        size="sm" 
+                        onClick={() => handleRejeitar(row.id)}
+                      >
+                        ❌ Rejeitar
+                      </Button>
+                    );
+                  }
+                  
+                  return actions.length > 0 ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {actions}
+                    </div>
+                  ) : (
+                    <span style={{ color: '#999', fontSize: '0.9rem' }}>Nenhuma ação disponível</span>
+                  );
                 }
-              }] : [])
+              }
             ]}
             data={requisicoesFiltradas}
             emptyMessage="Nenhuma requisição encontrada."
           />
         )}
       </div>
+
+      <Modal
+        open={showComprovantesModal}
+        title="Comprovantes da Requisição"
+        onClose={handleFecharComprovantes}
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={handleFecharComprovantes}>
+              Fechar
+            </Button>
+          </>
+        }
+      >
+        {requisicaoComprovantes && (
+          <Comprovantes 
+            requisicao={requisicaoComprovantes} 
+            onClose={handleFecharComprovantes}
+          />
+        )}
+      </Modal>
     </div>
   );
 } 
