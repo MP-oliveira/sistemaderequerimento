@@ -5,6 +5,7 @@ import Table from '../components/Table';
 import ActivityLog from '../components/ActivityLog';
 import { listarItensInventario, criarItemInventario } from '../services/inventoryService';
 import { buscarHistoricoInventario } from '../services/activityLogService';
+import { useAuth } from '../context/AuthContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -19,6 +20,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function Inventory() {
+  const { user } = useAuth();
   const [itens, setItens] = useState([]);
   const [loading, setLoading] = useState(false);
   const [listError, setListError] = useState('');
@@ -227,40 +229,41 @@ export default function Inventory() {
 
   return (
     <div className="inventory-page">
-      <div className="card inventory-form-card">
-        <h1 className="inventory-form-title">Inventário</h1>
-        <form className="inventory-form" onSubmit={handleSubmit}>
-          <Input
-            label="Nome do item"
-            placeholder="Ex: Microfone, Projetor..."
-            value={nome}
-            onChange={e => setNome(e.target.value)}
-            required
-          />
-          <Input
-            label="Categoria"
-            placeholder="Ex: Som, Projeção, Geral..."
-            value={categoria}
-            onChange={e => setCategoria(e.target.value)}
-            required
-          />
-          <Input
-            label="Quantidade"
-            type="number"
-            min={1}
-            placeholder="1"
-            value={quantidade}
-            onChange={e => setQuantidade(e.target.value)}
-            required
-          />
-          {/* Campo de status removido do formulário */}
-          {formError && <div className="inventory-error">{formError}</div>}
-          {successMsg && <div className="inventory-success-msg">{successMsg}</div>}
-          <Button type="submit" variant="primary" size="md" className="inventory-submit-btn" loading={loadingForm} disabled={loadingForm}>
-            Adicionar Item
-          </Button>
-        </form>
-      </div>
+      {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
+        <div className="card inventory-form-card">
+          <h1 className="inventory-form-title">Inventário</h1>
+          <form className="inventory-form" onSubmit={handleSubmit}>
+            <Input
+              label="Nome do item"
+              placeholder="Ex: Microfone, Projetor..."
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              required
+            />
+            <Input
+              label="Categoria"
+              placeholder="Ex: Som, Projeção, Geral..."
+              value={categoria}
+              onChange={e => setCategoria(e.target.value)}
+              required
+            />
+            <Input
+              label="Quantidade"
+              type="number"
+              min={1}
+              placeholder="1"
+              value={quantidade}
+              onChange={e => setQuantidade(e.target.value)}
+              required
+            />
+            {formError && <div className="inventory-error">{formError}</div>}
+            {successMsg && <div className="inventory-success-msg">{successMsg}</div>}
+            <Button type="submit" variant="primary" size="md" className="inventory-submit-btn" loading={loadingForm} disabled={loadingForm}>
+              Adicionar Item
+            </Button>
+          </form>
+        </div>
+      )}
       
       <div className="card inventory-list-card">
         <div className="inventory-header">

@@ -4,10 +4,12 @@ import Modal from '../components/Modal';
 import Table from '../components/Table';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Events.css';
 
 export default function Events() {
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -214,9 +216,11 @@ export default function Events() {
       <div className="events-header">
         <h1>Gestão de Eventos</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
-          <Button onClick={openModal} variant="primary">
-            Novo Evento
-          </Button>
+          {user && (user.role === 'ADM' || user.role === 'PASTOR' || user.role === 'LIDER') && (
+            <Button onClick={openModal} variant="primary">
+              Novo Evento
+            </Button>
+          )}
         </div>
       </div>
 

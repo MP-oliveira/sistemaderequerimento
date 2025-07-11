@@ -543,11 +543,11 @@ export default function Requests() {
                 }
               }] : []),
               // Botão Finalizar para quem executou e status EXECUTADO
-              ...(user ? [{
+              ...(user && requisicoes.some(r => r.executed_by === user.id) ? [{
                 key: 'actions3',
                 label: 'Ações',
                 render: (value, row) => {
-                  if (row && row.status === 'EXECUTADO') {
+                  if (row && row.status === 'EXECUTADO' && row.executed_by === user.id) {
                     return (
                       <Button variant="warning" size="sm" onClick={() => handleOpenFinishModal(row)}>
                         Finalizar/Devolver Itens
