@@ -8,6 +8,7 @@ import Modal from '../components/Modal';
 import { listarUsuarios, criarUsuario, atualizarUsuario, deletarUsuario, alternarStatusUsuario } from '../services/usersService';
 import toast from 'react-hot-toast';
 import './Users.css';
+import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
 const PAPEL_OPTIONS = [
   { value: 'ADM', label: 'Administrador' },
@@ -279,26 +280,32 @@ export default function Users() {
                 label: 'Ações',
                 render: (value, row) => (
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <Button 
-                      variant="primary" 
-                      size="sm" 
+                    <Button
                       onClick={() => handleEditUser(row)}
+                      variant="icon-blue"
+                      size="sm"
+                      style={{ background: 'none', border: 'none', padding: 0, color: '#2d8cff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Editar"
                     >
-                      ✏️ Editar
+                      <FiEdit className="icon-outline-blue" size={16} />
                     </Button>
-                    <Button 
-                      variant={row.is_active ? "warning" : "success"} 
-                      size="sm" 
-                      onClick={() => handleToggleStatus(row)}
-                    >
-                      {row.is_active ? '🚫 Desativar' : '✅ Ativar'}
-                    </Button>
-                    <Button 
-                      variant="danger" 
-                      size="sm" 
+                    <Button
                       onClick={() => handleDeleteUser(row)}
+                      variant="icon-blue"
+                      size="sm"
+                      style={{ background: 'none', border: 'none', padding: 0, color: '#2d8cff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Deletar"
                     >
-                      🗑️ Deletar
+                      <FiTrash2 className="icon-outline-blue" size={16} />
+                    </Button>
+                    <Button
+                      onClick={() => handleToggleStatus(row)}
+                      variant="icon-blue"
+                      size="sm"
+                      className="icon-action-btn"
+                      title={row.is_active ? 'Desativar' : 'Ativar'}
+                    >
+                      {row.is_active ? '🚫' : '✅'}
                     </Button>
                   </div>
                 )

@@ -86,6 +86,31 @@
   max-width: 100%;
 }
 
+.icon-action-btn {
+  background: white;
+  border: 1px solid #2d8cff;
+  color: #2d8cff;
+  border-radius: 6px;
+  font-size: 1rem;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  transition: box-shadow 0.2s;
+  box-shadow: none;
+  cursor: pointer;
+}
+.icon-action-btn:hover {
+  box-shadow: 0 0 0 2px #2d8cff33;
+  background: #f5faff;
+}
+
+.icon-outline-blue {
+  color: #2d8cff;
+}
+
 @media (max-width: 1200px) {
   .users-page {
     max-width: 99vw;
