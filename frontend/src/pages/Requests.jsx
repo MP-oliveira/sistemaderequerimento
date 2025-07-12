@@ -258,7 +258,7 @@ export default function Requests() {
   return (
     <div className="requests-page">
       <div className="card requests-form-card">
-        <h1 className="requests-form-title">Nova Requisição</h1>
+        <h1 className="requests-form-title">Novo Requerimento</h1>
         <form className="requests-form" onSubmit={handleSubmit}>
           {/* Alerta de conflito */}
           {conflitoDetectado && (
@@ -345,7 +345,6 @@ export default function Requests() {
             </div>
           </div>
           <div className="requests-items-header">
-            <span>Itens da requisição</span>
             <Button type="button" variant="primary" size="sm" onClick={handleOpenModal}>
               + Adicionar Item
             </Button>
@@ -378,7 +377,7 @@ export default function Requests() {
             disabled={loading || conflitoDetectado}
             style={conflitoDetectado ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
           >
-            {conflitoDetectado ? 'Conflito Detectado' : 'Enviar Requisição'}
+            {conflitoDetectado ? 'Conflito Detectado' : 'Enviar Requerimento'}
           </Button>
         </form>
       </div>
