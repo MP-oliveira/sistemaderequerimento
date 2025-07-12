@@ -54,6 +54,39 @@ export const createRequest = async (req, res) => {
     } = req.body;
     const requester_id = req.user.userId;
     const status = 'PENDENTE'; // status inicial
+
+    // Verificação de conflito de local/data/horário
+    if (location && start_datetime && end_datetime) {
+      // Buscar eventos existentes para o mesmo local e intervalo de datas
+      const { data: eventosConflitantes, error: erroEventos } = await supabase
+        .from('events')
+        .select('id, name, location, start_datetime, end_datetime')
+        .eq('location', location)
+        .or(`(
+          and(start_datetime <= '${end_datetime}', end_datetime >= '${start_datetime}')
+        )`);
+      if (erroEventos) {
+        return res.status(400).json({ success: false, message: 'Erro ao verificar conflitos de agenda.', error: erroEventos.message });
+      }
+      if (eventosConflitantes && eventosConflitantes.length > 0) {
+        return res.status(409).json({ success: false, message: 'Já existe um evento agendado para este local e horário.', conflitos: eventosConflitantes });
+      }
+      // Buscar requisições já aprovadas para o mesmo local e intervalo de datas
+      const { data: reqsConflitantes, error: erroReqs } = await supabase
+        .from('requests')
+        .select('id, location, start_datetime, end_datetime, status')
+        .eq('location', location)
+        .or(`(
+          and(start_datetime <= '${end_datetime}', end_datetime >= '${start_datetime}')
+        )`)
+        .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO']);
+      if (erroReqs) {
+        return res.status(400).json({ success: false, message: 'Erro ao verificar conflitos de agenda.', error: erroReqs.message });
+      }
+      if (reqsConflitantes && reqsConflitantes.length > 0) {
+        return res.status(409).json({ success: false, message: 'Já existe uma requisição aprovada para este local e horário.', conflitos: reqsConflitantes });
+      }
+    }
     console.log('Status enviado para o banco:', status);
     const { data: request, error } = await supabase
       .from('requests')

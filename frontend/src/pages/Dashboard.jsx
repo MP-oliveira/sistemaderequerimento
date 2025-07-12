@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { listarItensInventario } from '../services/inventoryService';
 import { buscarTodosLogs } from '../services/activityLogService';
+import { listarRequisicoes, listarEventos } from '../services/requestsService';
 import ActivityLog from '../components/ActivityLog';
 import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
+import Button from '../components/Button';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -52,22 +54,41 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const eventos = await listarEventos();
-        setEvents(eventos);
-        toast.success(`Carregados ${eventos.length} eventos com sucesso!`);
-        
-        // Verificar estoque baixo
+        // Buscar requisições relevantes
+        const requisicoes = await listarRequisicoes();
+        // Filtrar apenas APTO, EXECUTADO, FINALIZADO
+        const reqsParaAgenda = (requisicoes || []).filter(req => ['APTO', 'EXECUTADO', 'FINALIZADO'].includes(req.status));
+        // Mapear para formato de evento
+        const eventosReqs = reqsParaAgenda.map(req => ({
+          id: req.id,
+          title: req.event_name || req.description || 'Requisição',
+          location: req.location,
+          start_datetime: req.start_datetime,
+          end_datetime: req.end_datetime,
+          status: req.status,
+          type: 'requisicao',
+        }));
+        // Mapear eventos para formato unificado
+        const eventosFormatados = (eventos || []).map(ev => ({
+          id: ev.id,
+          title: ev.name,
+          location: ev.location,
+          start_datetime: ev.start_datetime,
+          end_datetime: ev.end_datetime,
+          status: ev.status || 'CONFIRMADO',
+          type: 'evento',
+        }));
+        // Unir tudo
+        setEvents([...eventosFormatados, ...eventosReqs]);
         await verificarEstoqueBaixo();
-        
-        // Carregar logs recentes
         await carregarLogsRecentes();
       } catch (err) {
         console.error('Erro ao carregar eventos:', err);
         setEvents([]);
-        toast.error('Erro ao carregar eventos. Tente novamente.');
+        toast.error('Erro ao carregar eventos ou requisições. Tente novamente.');
       }
       setLoading(false);
     };
-    
     carregarDados();
   }, []);
 
@@ -316,46 +337,36 @@ export default function Dashboard() {
       <Modal 
         open={showEventModal} 
         onClose={closeEventModal}
-        title={selectedDay ? `Eventos de ${formatEventDate(selectedDay)}` : 'Eventos do Dia'}
+        title={selectedDay ? `Eventos/Requerimentos em ${formatEventDate(selectedDay)}` : 'Eventos'}
+        actions={
+          <Button variant="secondary" size="sm" onClick={closeEventModal}>Fechar</Button>
+        }
       >
-        <div className="events-modal-content">
-          {selectedDayEvents.length === 0 ? (
-            <p>Nenhum evento encontrado para este dia.</p>
-          ) : (
-            <div className="events-list">
-              {selectedDayEvents.map((event, index) => (
-                <div key={event.id || index} className="event-item">
-                  <div className="event-header">
-                    <h4 className="event-name">{event.name || event.titulo}</h4>
-                    <span className="event-time">
-                      {event.start_datetime && formatEventTime(event.start_datetime)}
-                      {event.end_datetime && ` - ${formatEventTime(event.end_datetime)}`}
-                    </span>
-                  </div>
-                  {event.location && (
-                    <p className="event-location">
-                      📍 <strong>Local:</strong> {event.location}
-                    </p>
-                  )}
-                  {event.description && (
-                    <p className="event-description">
-                      📝 {event.description}
-                    </p>
-                  )}
-                  {event.expected_audience && (
-                    <p className="event-audience">
-                      👥 <strong>Público esperado:</strong> {event.expected_audience} pessoas
-                    </p>
-                  )}
-                  {event.status && (
-                    <span className={`event-status status-${event.status.toLowerCase()}`}>
-                      {event.status}
-                    </span>
-                  )}
-                </div>
-              ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {selectedDayEvents.map((ev, idx) => (
+            <div
+              key={ev.id + '-' + idx}
+              style={{
+                border: '1px solid #2d8cff',
+                borderRadius: 8,
+                padding: 12,
+                background: ev.status === 'FINALIZADO' ? '#f5faff' : '#fff',
+                opacity: ev.status === 'FINALIZADO' ? 0.6 : 1,
+                boxShadow: '0 2px 8px #0001',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4
+              }}
+            >
+              <div style={{ fontWeight: 600, fontSize: 16 }}>{ev.title}</div>
+              <div><b>Local:</b> {ev.location || '-'}</div>
+              <div><b>Status:</b> {ev.status}</div>
+              <div><b>Horário:</b> {formatEventTime(ev.start_datetime)} - {formatEventTime(ev.end_datetime)}</div>
+              {ev.type === 'requisicao' && <div style={{ color: '#2d8cff', fontSize: 13 }}>Requerimento</div>}
+              {ev.type === 'evento' && <div style={{ color: '#28a745', fontSize: 13 }}>Evento</div>}
             </div>
-          )}
+          ))}
+          {selectedDayEvents.length === 0 && <div>Nenhum evento ou requerimento neste dia.</div>}
         </div>
       </Modal>
     </div>

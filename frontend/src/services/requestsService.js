@@ -194,4 +194,19 @@ export async function removerComprovante(comprovanteId) {
   } catch (err) {
     throw err;
   }
+}
+
+export async function listarEventos() {
+  try {
+    const response = await fetch('http://localhost:3000/api/events', {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Erro ao buscar eventos');
+    }
+    const data = await response.json();
+    return data.data || data;
+  } catch (err) {
+    throw err;
+  }
 } 
