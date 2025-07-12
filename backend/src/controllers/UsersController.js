@@ -223,17 +223,40 @@ export const toggleUserActive = async (req, res) => {
 
 // Remover usuário (apenas ADM)
 export const deleteUser = async (req, res) => {
+  // Permissão ADM
+  if (!req.user || req.user.role !== 'ADM') {
+    return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores.' });
+  }
   try {
-    if (!req.user || req.user.role !== 'ADM') {
-      return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores.' });
-    }
     const { id } = req.params;
-    const { error } = await supabase
+    // Buscar usuário atual
+    const { data: usuario, error: errUsuario } = await supabase.from('users').select('*').eq('id', id).single();
+    console.log('Usuário encontrado no banco:', usuario, 'Erro:', errUsuario);
+    if (errUsuario || !usuario) {
+      return res.status(404).json({ success: false, message: 'Usuário não encontrado para remover.' });
+    }
+    console.log('Tentando deletar usuário:', id);
+    // Deletar do banco
+    const { data: deleted, error } = await supabase
       .from('users')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select();
+    console.log('Resultado do delete no banco:', deleted, error);
     if (error) {
-      return res.status(400).json({ success: false, message: 'Erro ao remover usuário.', error: error?.message });
+      return res.status(400).json({ success: false, message: 'Erro ao remover usuário.', error: error.message });
+    }
+    // Deletar do Auth
+    if (supabaseAdmin) {
+      const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
+      if (authError) {
+        if (authError.message && authError.message.includes('User not found')) {
+          console.log('Usuário não encontrado no Auth, mas removido do banco.');
+        } else {
+          console.log('Erro ao remover do Auth:', authError.message);
+        }
+        // Nunca retorna erro para o frontend!
+      }
     }
     res.json({ success: true, message: 'Usuário removido com sucesso.' });
   } catch (error) {

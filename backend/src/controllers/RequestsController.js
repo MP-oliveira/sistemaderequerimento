@@ -44,15 +44,12 @@ export const createRequest = async (req, res) => {
   try {
     console.log('🔍 [createRequest] req.body:', req.body);
     const {
-      event_id = null,
       department,
       supplier = null,
       expected_audience = null,
-      description,
       location = null,
       start_datetime = null,
       end_datetime = null,
-      date,
       itens
     } = req.body;
     const requester_id = req.user.userId;
@@ -61,16 +58,13 @@ export const createRequest = async (req, res) => {
     const { data: request, error } = await supabase
       .from('requests')
       .insert([{
-        event_id,
         requester_id,
         department,
         supplier,
         expected_audience,
-        description,
         location,
         start_datetime,
         end_datetime,
-        date,
         status
       }])
       .select()
@@ -93,9 +87,9 @@ export const createRequest = async (req, res) => {
 
 Departamento: ${department}
 Solicitante: ${solicitante?.full_name || 'N/A'}
-Data: ${date}
-Descrição: ${description}
-Local: ${location || 'Não informado'}
+Data: ${request.date}
+Descrição: ${request.description}
+Local: ${request.location || 'Não informado'}
 
 Acesse o sistema para aprovar ou rejeitar esta requisição.`;
 
@@ -143,11 +137,7 @@ export const listRequests = async (req, res) => {
     const processedRequests = (requests || []).map(request => ({
       id: request.id,
       department: request.department || '',
-      description: request.description || '',
-      date: request.date || '',
       status: request.status || 'PENDENTE',
-      event_id: request.event_id || null,
-      event_name: request.events?.name || null,
       requester_id: request.requester_id,
       approved_by: request.approved_by,
       executed_by: request.executed_by,

@@ -101,6 +101,10 @@
   list-style: none;
 }
 
+.input-full-requests {
+  margin-right: 20px;
+}
+
 @media (max-width: 1200px) {
   .requests-page {
     max-width: 99vw;
@@ -180,6 +184,10 @@
   background: #e9ecef;
 }
 
+.mr {
+  margin-right: 20px;
+}
+
 .search-info {
   display: flex;
   justify-content: center;
@@ -210,4 +218,10 @@
   min-width: 300px;
   width: 100%;
   max-width: 100%;
+} 
+
+.input-full {
+  width: 100%;
+  min-width: 220px;
+  box-sizing: border-box;
 } 

@@ -12,10 +12,7 @@ import './Requests.css';
 
 export default function Requests() {
   const { user } = useAuth();
-  const [descricao, setDescricao] = useState('');
   const [department, setDepartment] = useState('');
-  const [data, setData] = useState('');
-  const [eventoSelecionado, setEventoSelecionado] = useState('');
   const [itens, setItens] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [itemSelecionado, setItemSelecionado] = useState('');
@@ -27,7 +24,6 @@ export default function Requests() {
   const [loadingList, setLoadingList] = useState(false);
   const [listError, setListError] = useState('');
   const [inventoryItems, setInventoryItems] = useState([]);
-  const [events, setEvents] = useState([]);
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [itensDevolucao, setItensDevolucao] = useState([]);
   const [requisicaoSelecionada, setRequisicaoSelecionada] = useState(null);
@@ -51,29 +47,7 @@ export default function Requests() {
     description: ''
   });
 
-  // Função para verificar conflitos de agenda
-  const verificarConflitos = (novaRequisicao) => {
-    if (!novaRequisicao.data || !novaRequisicao.event_id) {
-      return false;
-    }
 
-    const dataRequisicao = new Date(novaRequisicao.data);
-    
-    // Verificar conflitos com eventos existentes
-    const conflitos = events.filter(evento => {
-      if (!evento.start_datetime) return false;
-      
-      const eventoData = new Date(evento.start_datetime);
-      const mesmoDia = dataRequisicao.toDateString() === eventoData.toDateString();
-      
-      // Verificar se não é o próprio evento selecionado
-      const naoEhMesmoEvento = evento.id !== parseInt(novaRequisicao.event_id);
-      
-      return mesmoDia && naoEhMesmoEvento;
-    });
-
-    return conflitos.length > 0;
-  };
 
   useEffect(() => {
     buscarRequisicoes();
@@ -206,42 +180,24 @@ export default function Requests() {
     setFormError('');
     setSuccessMsg('');
     
-    if (!department || !descricao || !data || itens.length === 0) {
+    if (!department || itens.length === 0) {
       setFormError('Preencha todos os campos e adicione pelo menos um item.');
       return;
     }
 
-    // Verificar conflitos se um evento foi selecionado
-    if (eventoSelecionado) {
-      const novaRequisicao = {
-        data,
-        event_id: eventoSelecionado
-      };
-      
-      const temConflito = verificarConflitos(novaRequisicao);
-      if (temConflito) {
-        toast.error('⚠️ Conflito de agenda detectado! Já existe um evento nesta data.', {
-          duration: 5000
-        });
-        setFormError('Conflito de agenda detectado. Verifique a data selecionada.');
-        return;
-      }
-    }
+
     
     setLoading(true);
     try {
       await criarRequisicao({ 
         department, 
-        descricao, 
-        data, 
+        data: new Date().toISOString().slice(0, 10), // Usar a data atual
         itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade })),
         evento: evento.name || evento.location || evento.start_datetime ? evento : null
       });
       toast.success('✅ Requisição enviada com sucesso!');
       setSuccessMsg('Requisição enviada com sucesso!');
       setDepartment('');
-      setDescricao('');
-      setData('');
       setItens([]);
       setEvento({ name: '', location: '', start_datetime: '', end_datetime: '', expected_audience: '', description: '' });
       setConflitoDetectado(false);
@@ -324,6 +280,7 @@ export default function Requests() {
             value={department}
             onChange={e => setDepartment(e.target.value)}
             required
+            className="input-full-requests"
           />
           {/* Campos de Evento dentro da requisição */}
           <div style={{ marginBottom: 16 }}>
@@ -334,12 +291,14 @@ export default function Requests() {
                 name="name"
                 value={evento.name}
                 onChange={e => setEvento(ev => ({ ...ev, name: e.target.value }))}
+                className="input-full"
               />
               <Input
                 label="Local"
                 name="location"
                 value={evento.location}
                 onChange={e => setEvento(ev => ({ ...ev, location: e.target.value }))}
+                className="input-full"
               />
             </div>
             <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
@@ -349,6 +308,7 @@ export default function Requests() {
                 type="datetime-local"
                 value={evento.start_datetime}
                 onChange={e => setEvento(ev => ({ ...ev, start_datetime: e.target.value }))}
+                className="input-full"
               />
               <Input
                 label="Data/Hora de Fim"
@@ -356,6 +316,7 @@ export default function Requests() {
                 type="datetime-local"
                 value={evento.end_datetime}
                 onChange={e => setEvento(ev => ({ ...ev, end_datetime: e.target.value }))}
+                className="input-full"
               />
             </div>
             <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
@@ -365,6 +326,7 @@ export default function Requests() {
                 type="number"
                 value={evento.expected_audience}
                 onChange={e => setEvento(ev => ({ ...ev, expected_audience: e.target.value }))}
+                className="input-full"
               />
             </div>
             <div style={{ marginBottom: 8 }}>
@@ -375,74 +337,13 @@ export default function Requests() {
                   value={evento.description}
                   onChange={e => setEvento(ev => ({ ...ev, description: e.target.value }))}
                   rows="3"
-                  className="input-field"
+                  className="input-field input-full"
                   placeholder="Descreva o evento..."
                   style={{ marginTop: 4 }}
                 />
               </label>
             </div>
           </div>
-          <div className="form-group">
-            <label className="input-label">Evento (Opcional)</label>
-            <select 
-              value={eventoSelecionado} 
-              onChange={e => {
-                setEventoSelecionado(e.target.value);
-                // Verificar conflitos quando evento é selecionado
-                if (e.target.value && data) {
-                  const novaRequisicao = {
-                    data,
-                    event_id: e.target.value
-                  };
-                  const temConflito = verificarConflitos(novaRequisicao);
-                  setConflitoDetectado(temConflito);
-                  if (temConflito) {
-                    toast.error('⚠️ Conflito de agenda detectado! Já existe um evento nesta data.', {
-                      duration: 5000
-                    });
-                  }
-                }
-              }}
-              className="input-field"
-            >
-              <option value="">Selecione um evento (opcional)</option>
-              {events.map(event => (
-                <option key={event.id} value={event.id}>
-                  {event.name} - {event.start_datetime ? new Date(event.start_datetime).toLocaleDateString('pt-BR') : 'Data não definida'}
-                </option>
-              ))}
-            </select>
-          </div>
-          <Input
-            label="Descrição"
-            placeholder="Motivo ou detalhes da requisição"
-            value={descricao}
-            onChange={e => setDescricao(e.target.value)}
-            required
-          />
-          <Input
-            label="Data de uso"
-            type="date"
-            value={data}
-            onChange={e => {
-              setData(e.target.value);
-              // Verificar conflitos quando data é alterada
-              if (e.target.value && eventoSelecionado) {
-                const novaRequisicao = {
-                  data: e.target.value,
-                  event_id: eventoSelecionado
-                };
-                const temConflito = verificarConflitos(novaRequisicao);
-                setConflitoDetectado(temConflito);
-                if (temConflito) {
-                  toast.error('⚠️ Conflito de agenda detectado! Já existe um evento nesta data.', {
-                    duration: 5000
-                  });
-                }
-              }
-            }}
-            required
-          />
           <div className="requests-items-header">
             <span>Itens da requisição</span>
             <Button type="button" variant="primary" size="sm" onClick={handleOpenModal}>
@@ -518,6 +419,7 @@ export default function Requests() {
           value={quantidade}
           onChange={e => setQuantidade(e.target.value)}
           required
+          className="input-full"
         />
       </Modal>
 

@@ -65,3 +65,75 @@ export async function criarUsuario({ nome, email, papel, senha }) {
     throw err;
   }
 } 
+
+export async function atualizarUsuario(id, { nome, email, papel }) {
+  try {
+    const response = await fetch(`${API_URL}/api/users/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        full_name: nome,
+        email,
+        role: papel
+      }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+      }
+      throw new Error(error.message || 'Erro ao atualizar usuário');
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function deletarUsuario(id) {
+  try {
+    const response = await fetch(`${API_URL}/api/users/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+      }
+      throw new Error(error.message || 'Erro ao deletar usuário');
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function alternarStatusUsuario(id, isActive) {
+  try {
+    const response = await fetch(`${API_URL}/api/users/${id}/activate`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_active: isActive }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Sessão expirada. Faça login novamente.');
+      }
+      throw new Error(error.message || 'Erro ao alterar status do usuário');
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    throw err;
+  }
+} 
