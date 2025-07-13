@@ -175,7 +175,16 @@ export const listRequests = async (req, res) => {
       approved_by: request.approved_by,
       executed_by: request.executed_by,
       created_at: request.created_at,
-      updated_at: request.updated_at
+      updated_at: request.updated_at,
+      description: request.description || '',
+      date: request.date || '',
+      event_name: request.event_name || '',
+      itens: request.itens || [],
+      location: request.location || '',
+      start_datetime: request.start_datetime || '',
+      end_datetime: request.end_datetime || '',
+      expected_audience: request.expected_audience || '',
+      // Adicione outros campos que desejar exibir
     }));
     
     res.json({ success: true, data: processedRequests });

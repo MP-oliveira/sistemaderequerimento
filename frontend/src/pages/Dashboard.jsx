@@ -189,17 +189,6 @@ export default function Dashboard() {
     });
   };
 
-  const formatEventDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', { 
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
-
   const days = getDaysInMonth(currentDate);
 
   return (
@@ -336,37 +325,55 @@ export default function Dashboard() {
       {/* Modal de Eventos do Dia */}
       <Modal 
         open={showEventModal} 
+        title={
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <span className="event-modal-title">Evento</span>
+            {selectedDay && (
+              <span className="event-modal-date">
+                {(() => {
+                  const dia = selectedDay.toLocaleDateString('pt-BR', { weekday: 'long' });
+                  const data = selectedDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                  return `${dia.charAt(0).toUpperCase() + dia.slice(1)}, ${data}`;
+                })()}
+              </span>
+            )}
+          </div>
+        }
         onClose={closeEventModal}
-        title={selectedDay ? `Eventos/Requerimentos em ${formatEventDate(selectedDay)}` : 'Eventos'}
         actions={
           <Button variant="secondary" size="sm" onClick={closeEventModal}>Fechar</Button>
         }
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {selectedDayEvents.map((ev, idx) => (
-            <div
-              key={ev.id + '-' + idx}
-              style={{
-                border: '1px solid #2d8cff',
-                borderRadius: 8,
-                padding: 12,
-                background: ev.status === 'FINALIZADO' ? '#f5faff' : '#fff',
-                opacity: ev.status === 'FINALIZADO' ? 0.6 : 1,
-                boxShadow: '0 2px 8px #0001',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 4
-              }}
-            >
-              <div style={{ fontWeight: 600, fontSize: 16 }}>{ev.title}</div>
-              <div><b>Local:</b> {ev.location || '-'}</div>
-              <div><b>Status:</b> {ev.status}</div>
-              <div><b>Horário:</b> {formatEventTime(ev.start_datetime)} - {formatEventTime(ev.end_datetime)}</div>
-              {ev.type === 'requisicao' && <div style={{ color: '#2d8cff', fontSize: 13 }}>Requerimento</div>}
-              {ev.type === 'evento' && <div style={{ color: '#28a745', fontSize: 13 }}>Evento</div>}
-            </div>
-          ))}
-          {selectedDayEvents.length === 0 && <div>Nenhum evento ou requerimento neste dia.</div>}
+        <div className="event-modal-cards">
+          {selectedDayEvents
+            .filter(ev => ev.status !== 'CANCELADO')
+            .map((ev, idx) => {
+              const isFinalizado = ev.status === 'FINALIZADO';
+              return (
+                <div
+                  key={ev.id + '-' + idx}
+                  className={`event-modal-card${isFinalizado ? ' finalizado' : ''}`}
+                >
+                  <div className="event-modal-header">
+                    <span className="event-modal-title-name">{ev.title}</span>
+                    <span className={`event-modal-status${ev.status === 'APTO' ? ' apto' : ev.status === 'EXECUTADO' ? ' executado' : ev.status === 'FINALIZADO' ? ' finalizado' : ''}`}>{ev.status}</span>
+                  </div>
+                  <div className={`event-modal-info${isFinalizado ? ' finalizado' : ''}`}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span role="img" aria-label="local" style={{ fontSize: 17 }}>📍</span> {ev.location || '-'}
+                    </span>
+                    <span>
+                      <span role="img" aria-label="horario" style={{ fontSize: 17 }}>🕒</span> {formatEventTime(ev.start_datetime)} - {formatEventTime(ev.end_datetime)}
+                    </span>
+                  </div>
+                  <div>
+                    {ev.type === 'requisicao' && <span className="event-modal-badge requisicao">Requerimento</span>}
+                    {ev.type === 'evento' && <span className="event-modal-badge">Evento</span>}
+                  </div>
+                </div>
+              );
+            })}
+          {selectedDayEvents.filter(ev => ev.status !== 'CANCELADO').length === 0 && <div>Nenhum evento ou requerimento neste dia.</div>}
         </div>
       </Modal>
     </div>
