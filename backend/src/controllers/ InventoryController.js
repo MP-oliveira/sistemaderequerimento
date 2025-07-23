@@ -103,10 +103,40 @@ export const listInventoryItems = async (req, res) => {
     if (error) {
       return res.status(400).json({ success: false, message: 'Erro ao buscar itens.', error: error.message });
     }
-    // Adicionar alerta de quantidade baixa
-    const itemsWithAlert = items.map(item => ({
+    // Adicionar alerta de quantidade baixa + última utilização e usuário audiovisual
+    const itemsWithAlert = await Promise.all(items.map(async item => {
+      let last_used_at = null;
+      let last_used_by_name = null;
+      // Buscar último log de uso do tipo USO_REQUISICAO
+      const { data: logs } = await supabase
+        .from('inventory_history')
+        .select('created_at, user_id, action')
+        .eq('inventory_id', item.id)
+        .eq('action', 'USO_REQUISICAO')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (logs && logs.length > 0) {
+        last_used_at = logs[0].created_at ? logs[0].created_at.slice(0, 10) : null;
+        // Buscar nome do usuário
+        if (logs[0].user_id) {
+          const { data: user } = await supabase
+            .from('users')
+            .select('full_name, role')
+            .eq('id', logs[0].user_id)
+            .single();
+          if (user && user.role === 'AUDIOVISUAL') {
+            last_used_by_name = user.full_name;
+          } else {
+            last_used_by_name = user ? user.full_name : null;
+          }
+        }
+      }
+      return {
       ...item,
-      alerta_quantidade_baixa: item.quantity_available <= 2
+        alerta_quantidade_baixa: item.quantity_available <= 2,
+        last_used_at,
+        last_used_by_name
+      };
     }));
     res.json({ success: true, data: itemsWithAlert });
   } catch (error) {

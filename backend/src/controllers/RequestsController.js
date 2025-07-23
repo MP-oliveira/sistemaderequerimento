@@ -53,41 +53,89 @@ export const createRequest = async (req, res) => {
       itens
     } = req.body;
     const requester_id = req.user.userId;
-    const status = 'PENDENTE'; // status inicial
+    let status = 'PENDENTE'; // status inicial
+    let conflitoDetectado = false;
+
+    // Buscar prioridade do departamento
+    let prioridade = 'Média';
+    if (department) {
+      const { data: dept, error: deptError } = await supabase
+        .from('departments')
+        .select('prioridade')
+        .eq('id', department)
+        .single();
+      if (dept && dept.prioridade) prioridade = dept.prioridade;
+    }
 
     // Verificação de conflito de local/data/horário
     if (location && start_datetime && end_datetime) {
       // Buscar eventos existentes para o mesmo local e intervalo de datas
-      const { data: eventosConflitantes, error: erroEventos } = await supabase
+      const { data: eventosConflitantes } = await supabase
         .from('events')
         .select('id, name, location, start_datetime, end_datetime')
-        .eq('location', location)
-        .or(`(
-          and(start_datetime <= '${end_datetime}', end_datetime >= '${start_datetime}')
-        )`);
-      if (erroEventos) {
-        return res.status(400).json({ success: false, message: 'Erro ao verificar conflitos de agenda.', error: erroEventos.message });
+        .eq('location', location);
+      function parseUTC(dateStr) {
+        if (!dateStr) return NaN;
+        // Se já tem timezone, retorna direto
+        if (dateStr.endsWith('Z') || dateStr.includes('+')) return Date.parse(dateStr);
+        // Se não tem, adiciona +00:00
+        return Date.parse(dateStr + '+00:00');
       }
-      if (eventosConflitantes && eventosConflitantes.length > 0) {
-        return res.status(409).json({ success: false, message: 'Já existe um evento agendado para este local e horário.', conflitos: eventosConflitantes });
-      }
+      // Verificar conflito de menos de 1 hora entre eventos
+      const conflitoEvento = (eventosConflitantes || []).find(ev => {
+        const startA = parseUTC(start_datetime);
+        const endA = parseUTC(end_datetime);
+        const startB = parseUTC(ev.start_datetime);
+        const endB = parseUTC(ev.end_datetime);
+        console.log('[DEBUG] Comparando evento:', {
+          startA: start_datetime,
+          endA: end_datetime,
+          startB: ev.start_datetime,
+          endB: ev.end_datetime
+        });
+        if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
+        if (startA < endB && endA > startB) {
+          const diff1 = Math.abs(startA - endB) / (1000 * 60 * 60);
+          const diff2 = Math.abs(startB - endA) / (1000 * 60 * 60);
+          if (diff1 < 1 || diff2 < 1) {
+            return true;
+          }
+        }
+        return false;
+      });
       // Buscar requisições já aprovadas para o mesmo local e intervalo de datas
-      const { data: reqsConflitantes, error: erroReqs } = await supabase
+      const { data: reqsConflitantes } = await supabase
         .from('requests')
         .select('id, location, start_datetime, end_datetime, status')
         .eq('location', location)
-        .or(`(
-          and(start_datetime <= '${end_datetime}', end_datetime >= '${start_datetime}')
-        )`)
-        .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO']);
-      if (erroReqs) {
-        return res.status(400).json({ success: false, message: 'Erro ao verificar conflitos de agenda.', error: erroReqs.message });
-      }
-      if (reqsConflitantes && reqsConflitantes.length > 0) {
-        return res.status(409).json({ success: false, message: 'Já existe uma requisição aprovada para este local e horário.', conflitos: reqsConflitantes });
+        .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO', 'PENDENTE', 'PENDENTE_CONFLITO']);
+      const conflitoReq = (reqsConflitantes || []).find(ev => {
+        const startA = parseUTC(start_datetime);
+        const endA = parseUTC(end_datetime);
+        const startB = parseUTC(ev.start_datetime);
+        const endB = parseUTC(ev.end_datetime);
+        console.log('[DEBUG] Comparando requisicao:', {
+          startA: start_datetime,
+          endA: end_datetime,
+          startB: ev.start_datetime,
+          endB: ev.end_datetime
+        });
+        if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
+        if (startA < endB && endA > startB) {
+          const diff1 = Math.abs(startA - endB) / (1000 * 60 * 60);
+          const diff2 = Math.abs(startB - endA) / (1000 * 60 * 60);
+          if (diff1 < 1 || diff2 < 1) {
+            return true;
+          }
+        }
+        return false;
+      });
+      if (conflitoEvento || conflitoReq) {
+        status = 'PENDENTE_CONFLITO';
+        conflitoDetectado = true;
       }
     }
-    console.log('Status enviado para o banco:', status);
+
     const { data: request, error } = await supabase
       .from('requests')
       .insert([{
@@ -98,7 +146,8 @@ export const createRequest = async (req, res) => {
         location,
         start_datetime,
         end_datetime,
-        status
+        status,
+        prioridade
       }])
       .select()
       .single();
@@ -134,7 +183,15 @@ Acesse o sistema para aprovar ou rejeitar esta requisição.`;
     }
 
     // Aqui você pode salvar os itens da requisição em outra tabela se necessário
-    res.status(201).json({ success: true, data: request });
+    if (conflitoDetectado) {
+      return res.status(201).json({
+        success: true,
+        data: request,
+        conflito: true,
+        message: 'Requisição criada, mas há conflito de agenda. O pastor/ADM irá decidir qual será priorizada.'
+      });
+    }
+    res.status(201).json({ success: true, data: request, conflito: false });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
@@ -184,6 +241,8 @@ export const listRequests = async (req, res) => {
       start_datetime: request.start_datetime || '',
       end_datetime: request.end_datetime || '',
       expected_audience: request.expected_audience || '',
+      prioridade: request.prioridade || '',
+      conflito: request.status === 'PENDENTE_CONFLITO',
       // Adicione outros campos que desejar exibir
     }));
     
@@ -238,6 +297,11 @@ export const approveRequest = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Requisição não encontrada.', error: fetchError?.message });
     }
     
+    // Só pode aprovar se status for PENDENTE ou PENDENTE_CONFLITO
+    if (!['PENDENTE', 'PENDENTE_CONFLITO'].includes(requestData.status)) {
+      return res.status(400).json({ success: false, message: 'Só é possível aprovar requisições com status PENDENTE ou PENDENTE_CONFLITO.' });
+    }
+
     // Atualizar status da requisição para APTO
     const { data: request, error } = await supabase
       .from('requests')

@@ -224,9 +224,9 @@ export const toggleUserActive = async (req, res) => {
 // Remover usuário (apenas ADM)
 export const deleteUser = async (req, res) => {
   // Permissão ADM
-  if (!req.user || req.user.role !== 'ADM') {
-    return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores.' });
-  }
+    if (!req.user || req.user.role !== 'ADM') {
+      return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores.' });
+    }
   try {
     const { id } = req.params;
     // Buscar usuário atual

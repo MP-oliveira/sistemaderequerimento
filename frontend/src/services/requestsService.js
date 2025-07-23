@@ -194,7 +194,7 @@ export async function removerComprovante(comprovanteId) {
   } catch (err) {
     throw err;
   }
-}
+} 
 
 export async function listarEventos() {
   try {

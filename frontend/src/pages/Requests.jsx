@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect, useCallback } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
@@ -47,6 +47,10 @@ export default function Requests() {
     description: ''
   });
 
+  // Estados para filtros
+  const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroPrioridade, setFiltroPrioridade] = useState('');
+  const [filtroDepartamento, setFiltroDepartamento] = useState('');
 
 
   useEffect(() => {
@@ -83,39 +87,35 @@ export default function Requests() {
   };
 
   // Função para filtrar requisições
-  const filtrarRequisicoes = () => {
-    if (!busca.trim()) {
-      setRequisicoesFiltradas(requisicoes);
-      return;
+  const filtrarRequisicoes = useCallback(() => {
+    let filtradas = requisicoes;
+    if (filtroStatus) {
+      filtradas = filtradas.filter(r => r.status === filtroStatus);
     }
-
-    const termoBusca = busca.toLowerCase();
-    const requisicoesFiltradas = requisicoes.filter(requisicao => {
-      // Buscar por departamento
-      if (requisicao.department?.toLowerCase().includes(termoBusca)) return true;
-      
-      // Buscar por descrição
-      if (requisicao.description?.toLowerCase().includes(termoBusca)) return true;
-      
-      // Buscar por status
-      if (requisicao.status?.toLowerCase().includes(termoBusca)) return true;
-      
-      // Buscar por data
-      if (requisicao.date?.toLowerCase().includes(termoBusca)) return true;
-      
-      // Buscar por nome do evento
-      if (requisicao.event_name?.toLowerCase().includes(termoBusca)) return true;
-      
-      return false;
-    });
-
-    setRequisicoesFiltradas(requisicoesFiltradas);
-  };
+    if (filtroPrioridade) {
+      filtradas = filtradas.filter(r => (r.prioridade || '').toLowerCase() === filtroPrioridade.toLowerCase());
+    }
+    if (filtroDepartamento) {
+      filtradas = filtradas.filter(r => (r.department || '').toLowerCase().includes(filtroDepartamento.toLowerCase()));
+    }
+    if (busca.trim()) {
+      const termoBusca = busca.toLowerCase();
+      filtradas = filtradas.filter(requisicao => {
+        if (requisicao.department?.toLowerCase().includes(termoBusca)) return true;
+        if (requisicao.description?.toLowerCase().includes(termoBusca)) return true;
+        if (requisicao.status?.toLowerCase().includes(termoBusca)) return true;
+        if (requisicao.date?.toLowerCase().includes(termoBusca)) return true;
+        if (requisicao.event_name?.toLowerCase().includes(termoBusca)) return true;
+        return false;
+      });
+    }
+    setRequisicoesFiltradas(filtradas);
+  }, [busca, requisicoes, filtroStatus, filtroPrioridade, filtroDepartamento]);
 
   // Aplicar filtros quando mudarem
   useEffect(() => {
     filtrarRequisicoes();
-  }, [busca, requisicoes]);
+  }, [busca, requisicoes, filtrarRequisicoes]);
 
   const handleBuscaChange = (e) => {
     setBusca(e.target.value);
@@ -189,18 +189,26 @@ export default function Requests() {
     
     setLoading(true);
     try {
-      await criarRequisicao({ 
+      const response = await criarRequisicao({ 
         department, 
         data: new Date().toISOString().slice(0, 10), // Usar a data atual
         itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade })),
         evento: evento.name || evento.location || evento.start_datetime ? evento : null
       });
-      toast.success('✅ Requisição enviada com sucesso!');
+      if (response && response.conflito) {
+        setConflitoDetectado(true);
+        toast('⚠️ Sua requisição foi criada, mas está em conflito de agenda e aguarda decisão do pastor/ADM.', {
+          icon: '⚠️',
+          style: { background: '#fff3cd', color: '#856404', fontWeight: 600 }
+        });
+      } else {
+        setConflitoDetectado(false);
+        toast.success('✅ Requisição enviada com sucesso!');
+      }
       setSuccessMsg('Requisição enviada com sucesso!');
       setDepartment('');
       setItens([]);
       setEvento({ name: '', location: '', start_datetime: '', end_datetime: '', expected_audience: '', description: '' });
-      setConflitoDetectado(false);
       buscarRequisicoes();
     } catch (err) {
       setFormError(err.message || 'Erro ao enviar requisição');
@@ -293,13 +301,25 @@ export default function Requests() {
                 onChange={e => setEvento(ev => ({ ...ev, name: e.target.value }))}
                 className="input-full"
               />
-              <Input
-                label="Local"
-                name="location"
-                value={evento.location}
-                onChange={e => setEvento(ev => ({ ...ev, location: e.target.value }))}
-                className="input-full"
-              />
+              <label className="input-label" style={{ width: '100%' }}>
+                Local
+                <select
+                  name="location"
+                  className="input-field input-full"
+                  value={evento.location}
+                  onChange={e => setEvento(ev => ({ ...ev, location: e.target.value }))}
+                  required
+                >
+                  <option value="">Selecione o local</option>
+                  <option value="Sala 22">Sala 22</option>
+                  <option value="Sala 23">Sala 23</option>
+                  <option value="Sala 24">Sala 24</option>
+                  <option value="Sala 26">Sala 26</option>
+                  <option value="Sala 27">Sala 27</option>
+                  <option value="Templo">Templo</option>
+                  <option value="Anexo 2">Anexo 2</option>
+                </select>
+              </label>
             </div>
             <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
               <Input
@@ -307,7 +327,17 @@ export default function Requests() {
                 name="start_datetime"
                 type="datetime-local"
                 value={evento.start_datetime}
-                onChange={e => setEvento(ev => ({ ...ev, start_datetime: e.target.value }))}
+                onChange={e => {
+                  const value = e.target.value;
+                  setEvento(ev => {
+                    // Se end_datetime estiver vazio ou for de outro dia, preenche igual ao início
+                    let novoFim = ev.end_datetime;
+                    if (!ev.end_datetime || (value && ev.end_datetime.slice(0, 10) !== value.slice(0, 10))) {
+                      novoFim = value;
+                    }
+                    return { ...ev, start_datetime: value, end_datetime: novoFim };
+                  });
+                }}
                 className="input-full"
               />
               <Input
@@ -478,6 +508,32 @@ export default function Requests() {
         </div>
       </div>
 
+      <div className="filters-container" style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+        <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} className="filter-select">
+          <option value="">Status (todos)</option>
+          <option value="PENDENTE">Pendente</option>
+          <option value="PENDENTE_CONFLITO">Em Conflito</option>
+          <option value="APTO">Apto</option>
+          <option value="EXECUTADO">Executado</option>
+          <option value="FINALIZADO">Finalizado</option>
+          <option value="REJEITADO">Rejeitado</option>
+        </select>
+        <select value={filtroPrioridade} onChange={e => setFiltroPrioridade(e.target.value)} className="filter-select">
+          <option value="">Prioridade (todas)</option>
+          <option value="Alta">Alta</option>
+          <option value="Média">Média</option>
+          <option value="Baixa">Baixa</option>
+        </select>
+        <input
+          type="text"
+          value={filtroDepartamento}
+          onChange={e => setFiltroDepartamento(e.target.value)}
+          placeholder="Departamento (filtro)"
+          className="filter-input"
+          style={{ minWidth: 180 }}
+        />
+      </div>
+
       <div className="card requests-list-card">
         <h2 className="requests-list-title">Meus Requerimentos</h2>
         {loadingList ? (
@@ -489,7 +545,19 @@ export default function Requests() {
             columns={[
               { key: 'description', label: 'Descrição' },
               { key: 'date', label: 'Data' },
-              { key: 'status', label: 'Status' },
+              { key: 'status', label: 'Status', render: (value, row) => (
+                <span style={{
+                  color: row.status === 'PENDENTE_CONFLITO' ? '#b85c00' : row.status === 'APTO' ? '#2d8cff' : row.status === 'REJEITADO' ? '#d32f2f' : '#333',
+                  fontWeight: row.status === 'PENDENTE_CONFLITO' ? 700 : 500,
+                  background: row.status === 'PENDENTE_CONFLITO' ? '#fff3cd' : 'none',
+                  borderRadius: row.status === 'PENDENTE_CONFLITO' ? 8 : 0,
+                  padding: row.status === 'PENDENTE_CONFLITO' ? '2px 10px' : 0,
+                  display: 'inline-block',
+                }}>
+                  {row.status === 'PENDENTE_CONFLITO' ? '⚠️ Em conflito' : value}
+                </span>
+              ) },
+              { key: 'prioridade', label: 'Prioridade', render: value => value || '-' },
               { 
                 key: 'event_name', 
                 label: 'Evento',
@@ -536,8 +604,8 @@ export default function Requests() {
                 render: (value, row) => {
                   const actions = [];
                   
-                  // Botão Aprovar para ADM/PASTOR e status PENDENTE
-                  if (user && (user.role === 'ADM' || user.role === 'PASTOR') && row.status === 'PENDENTE') {
+                  // Botão Aprovar para ADM/PASTOR e status PENDENTE ou PENDENTE_CONFLITO
+                  if (user && (user.role === 'ADM' || user.role === 'PASTOR') && (row.status === 'PENDENTE' || row.status === 'PENDENTE_CONFLITO')) {
                     actions.push(
                       <Button 
                         key="aprovar" 
@@ -581,8 +649,8 @@ export default function Requests() {
                     );
                   }
                   
-                  // Botão Rejeitar para ADM/PASTOR e status PENDENTE
-                  if (user && (user.role === 'ADM' || user.role === 'PASTOR') && row.status === 'PENDENTE') {
+                  // Botão Rejeitar para ADM/PASTOR e status PENDENTE ou PENDENTE_CONFLITO
+                  if (user && (user.role === 'ADM' || user.role === 'PASTOR') && (row.status === 'PENDENTE' || row.status === 'PENDENTE_CONFLITO')) {
                     actions.push(
                       <Button 
                         key="rejeitar" 

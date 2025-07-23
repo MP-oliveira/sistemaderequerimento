@@ -21,6 +21,7 @@ export default function Dashboard() {
   
   // Estados para logs de atividade
   const [recentLogs, setRecentLogs] = useState([]);
+  const [requisicoesConflito, setRequisicoesConflito] = useState([]);
 
   // Função para verificar estoque baixo
   const verificarEstoqueBaixo = async () => {
@@ -91,6 +92,16 @@ export default function Dashboard() {
     };
     carregarDados();
   }, []);
+
+  useEffect(() => {
+    async function buscarConflitos() {
+      if (user && (user.role === 'ADM' || user.role === 'PASTOR')) {
+        const todas = await listarRequisicoes();
+        setRequisicoesConflito((todas || []).filter(r => r.status === 'PENDENTE_CONFLITO'));
+      }
+    }
+    buscarConflitos();
+  }, [user]);
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -214,6 +225,27 @@ export default function Dashboard() {
             <p className="stat-label">Disponíveis</p>
           </div>
         </div>
+        
+        {user && (user.role === 'ADM' || user.role === 'PASTOR') && requisicoesConflito.length > 0 && (
+          <div className="dashboard-conflitos-card" style={{ background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 12, padding: 18, marginBottom: 24 }}>
+            <div style={{ fontWeight: 700, color: '#b85c00', fontSize: 18, marginBottom: 8 }}>
+              ⚠️ Requisições em Conflito aguardando decisão ({requisicoesConflito.length})
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {requisicoesConflito.map(req => (
+                <li key={req.id} style={{ marginBottom: 12, background: '#fffbe6', borderRadius: 8, padding: 10, display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>{req.description || 'Sem descrição'}</div>
+                    <div style={{ fontSize: 14, color: '#b85c00' }}>Depto: {req.department} | Prioridade: <b>{req.prioridade || '-'}</b></div>
+                    <div style={{ fontSize: 13, color: '#888' }}>Data: {req.start_datetime ? new Date(req.start_datetime).toLocaleString('pt-BR') : '-'}</div>
+                  </div>
+                  <Button variant="success" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=aprovar`} style={{ marginRight: 6 }}>Aprovar</Button>
+                  <Button variant="danger" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=rejeitar`}>Rejeitar</Button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         
         {/* Alerta de estoque baixo */}
         {itensBaixoEstoque.length > 0 && (

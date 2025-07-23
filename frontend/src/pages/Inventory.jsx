@@ -268,6 +268,8 @@ export default function Inventory() {
     { key: 'category', label: 'Categoria' },
     { key: 'quantity_available', label: 'Quantidade' },
     { key: 'disponibilidade', label: 'Disponibilidade' },
+    { key: 'last_used_at', label: 'Última Utilização', render: value => value ? new Date(value).toLocaleDateString('pt-BR') : '-' },
+    { key: 'last_used_by_name', label: 'Último Audiovisual', render: value => value || '-' },
     { 
       key: 'actions', 
       label: 'Ações',
