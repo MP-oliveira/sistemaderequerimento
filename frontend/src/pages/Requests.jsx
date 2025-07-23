@@ -9,6 +9,7 @@ import { listarItensInventario } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Requests.css';
+import { FiCheckCircle, FiXCircle, FiPlay, FiRefreshCw, FiFileText } from 'react-icons/fi';
 
 export default function Requests() {
   const { user } = useAuth();
@@ -51,6 +52,12 @@ export default function Requests() {
   const [filtroStatus, setFiltroStatus] = useState('');
   const [filtroPrioridade, setFiltroPrioridade] = useState('');
   const [filtroDepartamento, setFiltroDepartamento] = useState('');
+
+  // Estados de loading para botões de ação
+  const [loadingAprovar, setLoadingAprovar] = useState('');
+  const [loadingRejeitar, setLoadingRejeitar] = useState('');
+  const [loadingExecutar, setLoadingExecutar] = useState('');
+  const [loadingFinalizar, setLoadingFinalizar] = useState('');
 
 
   useEffect(() => {
@@ -164,6 +171,7 @@ export default function Requests() {
   };
 
   const handleFinalizar = async () => {
+    setLoadingFinalizar(requisicaoSelecionada?.id);
     try {
       const itensDevolvidos = itensDevolucao.filter(item => item.devolver).map(item => ({ id: item.id, quantidade: item.quantidade }));
       await finalizarRequisicao(requisicaoSelecionada.id, itensDevolvidos);
@@ -173,6 +181,7 @@ export default function Requests() {
     } catch (err) {
       alert(err.message || 'Erro ao finalizar requisição');
     }
+    setLoadingFinalizar('');
   };
 
   const handleSubmit = async (e) => {
@@ -218,6 +227,7 @@ export default function Requests() {
   };
 
   const handleAprovar = async (id) => {
+    setLoadingAprovar(id);
     try {
       await aprovarRequisicao(id);
       toast.success('✅ Requisição aprovada com sucesso!');
@@ -225,9 +235,11 @@ export default function Requests() {
     } catch (err) {
       toast.error('❌ Erro ao aprovar requisição: ' + (err.message || 'Erro desconhecido'));
     }
+    setLoadingAprovar('');
   };
 
   const handleExecutar = async (id) => {
+    setLoadingExecutar(id);
     try {
       await executarRequisicao(id);
       toast.success('✅ Requisição executada com sucesso!');
@@ -235,12 +247,15 @@ export default function Requests() {
     } catch (err) {
       toast.error('❌ Erro ao executar requisição: ' + (err.message || 'Erro desconhecido'));
     }
+    setLoadingExecutar('');
   };
 
   const handleRejeitar = async (id) => {
+    setLoadingRejeitar(id);
     const motivo = prompt('Digite o motivo da rejeição:');
     if (!motivo) {
       alert('É necessário informar um motivo para a rejeição.');
+      setLoadingRejeitar('');
       return;
     }
     
@@ -251,6 +266,7 @@ export default function Requests() {
     } catch (err) {
       toast.error('❌ Erro ao rejeitar requisição: ' + (err.message || 'Erro desconhecido'));
     }
+    setLoadingRejeitar('');
   };
 
   const handleVerComprovantes = (requisicao) => {
@@ -582,23 +598,6 @@ export default function Requests() {
                 },
               },
               {
-                key: 'comprovantes',
-                label: 'Comprovantes',
-                render: (value, row) => {
-                  console.log('🔍 Renderizando botão comprovantes para:', row);
-                  return (
-                    <Button 
-                      variant="info" 
-                      size="sm" 
-                      onClick={() => handleVerComprovantes(row)}
-                    >
-                    Comprovantes
-                    </Button>
-                  );
-                }
-              },
-              // Coluna única de ações com todos os botões
-              {
                 key: 'actions',
                 label: 'Ações',
                 render: (value, row) => {
@@ -612,39 +611,11 @@ export default function Requests() {
                         variant="success" 
                         size="sm" 
                         onClick={() => handleAprovar(row.id)}
+                        title="Aprovar requisição"
+                        loading={loadingAprovar === row.id}
                         style={{ marginRight: '4px' }}
                       >
-                        ✅ Aprovar
-                      </Button>
-                    );
-                  }
-                  
-                  // Botão Executar para AUDIOVISUAL/SEC e status APTO
-                  if (user && (user.role === 'AUDIOVISUAL' || user.role === 'SEC') && row.status === 'APTO') {
-                    actions.push(
-                      <Button 
-                        key="executar" 
-                        variant="primary" 
-                        size="sm" 
-                        onClick={() => handleExecutar(row.id)}
-                        style={{ marginRight: '4px' }}
-                      >
-                        ▶️ Executar
-                      </Button>
-                    );
-                  }
-                  
-                  // Botão Finalizar para quem executou e status EXECUTADO
-                  if (user && row.status === 'EXECUTADO' && row.executed_by === user.id) {
-                    actions.push(
-                      <Button 
-                        key="finalizar" 
-                        variant="warning" 
-                        size="sm" 
-                        onClick={() => handleOpenFinishModal(row)}
-                        style={{ marginRight: '4px' }}
-                      >
-                        🔄 Finalizar
+                        <FiCheckCircle style={{ marginRight: 2 }} /> Aprovar
                       </Button>
                     );
                   }
@@ -657,12 +628,61 @@ export default function Requests() {
                         variant="danger" 
                         size="sm" 
                         onClick={() => handleRejeitar(row.id)}
+                        title="Rejeitar requisição"
+                        loading={loadingRejeitar === row.id}
                       >
-                        ❌ Rejeitar
+                        <FiXCircle style={{ marginRight: 2 }} /> Rejeitar
                       </Button>
                     );
                   }
                   
+                  // Botão Executar para AUDIOVISUAL/SEC e status APTO
+                  if (user && (user.role === 'AUDIOVISUAL' || user.role === 'SEC') && row.status === 'APTO') {
+                    actions.push(
+                      <Button 
+                        key="executar" 
+                        variant="primary" 
+                        size="sm" 
+                        onClick={() => handleExecutar(row.id)}
+                        title="Executar requisição"
+                        loading={loadingExecutar === row.id}
+                        style={{ marginRight: '4px' }}
+                      >
+                        <FiPlay style={{ marginRight: 2 }} /> Executar
+                      </Button>
+                    );
+                  }
+                  
+                  // Botão Finalizar para quem executou e status EXECUTADO
+                  if (user && row.status === 'EXECUTADO' && row.executed_by === user.id) {
+                    actions.push(
+                      <Button 
+                        key="finalizar" 
+                        variant="warning" 
+                        size="sm" 
+                        onClick={() => handleOpenFinishModal(row)}
+                        title="Finalizar requisição"
+                        loading={loadingFinalizar === row.id}
+                        style={{ marginRight: '4px' }}
+                      >
+                        <FiRefreshCw style={{ marginRight: 2 }} /> Finalizar
+                      </Button>
+                    );
+                  }
+                  
+                  // Botão Comprovantes (apenas um por linha)
+                  actions.push(
+                    <Button 
+                      key="comprovantes" 
+                      variant="info" 
+                      size="sm" 
+                      onClick={() => handleVerComprovantes(row)}
+                      title="Ver comprovantes"
+                    >
+                      <FiFileText style={{ marginRight: 2 }} /> Comprovantes
+                    </Button>
+                  );
+
                   return actions.length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                       {actions}

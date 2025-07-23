@@ -113,21 +113,29 @@ export const login = async (req, res) => {
       });
     }
 
-    // Buscar usuário
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .single();
-
-    if (error || !user) {
+    // Autenticar via Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError || !authData || !authData.user) {
       return res.status(401).json({
         success: false,
         message: 'Credenciais inválidas'
       });
     }
 
-    // Verificar se usuário está ativo
+    // Buscar usuário na tabela users pelo id do Auth
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single();
+
+    if (error || !user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Usuário não encontrado ou inativo'
+      });
+    }
+
     if (!user.is_active) {
       return res.status(401).json({
         success: false,
@@ -135,16 +143,7 @@ export const login = async (req, res) => {
       });
     }
 
-    // Verificar senha
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Credenciais inválidas'
-      });
-    }
-
-    // Gerar token
+    // Gerar token JWT
     const token = generateToken(user.id, user.role);
 
     res.json({
@@ -160,7 +159,6 @@ export const login = async (req, res) => {
         token
       }
     });
-
   } catch (error) {
     console.error('Erro no login:', error);
     res.status(500).json({

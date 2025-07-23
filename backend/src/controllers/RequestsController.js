@@ -212,7 +212,7 @@ export const listRequests = async (req, res) => {
         )
       `);
     
-    if (req.user.role !== 'ADM') {
+    if (req.user.role !== 'ADM' && req.user.role !== 'PASTOR') {
       query = query.or(`requester_id.eq.${req.user.userId},approved_by.eq.${req.user.userId},executed_by.eq.${req.user.userId}`);
     }
     

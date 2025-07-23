@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "nodemailer": "^7.0.5"
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
+    "nodemailer": "^7.0.5",
+    "xlsx": "^0.18.5"
   }
 }
