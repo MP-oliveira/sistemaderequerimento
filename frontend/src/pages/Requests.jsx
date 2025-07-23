@@ -10,6 +10,9 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Requests.css';
 import { FiCheckCircle, FiXCircle, FiPlay, FiRefreshCw, FiFileText } from 'react-icons/fi';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 export default function Requests() {
   const { user } = useAuth();
@@ -277,6 +280,47 @@ export default function Requests() {
   const handleFecharComprovantes = () => {
     setShowComprovantesModal(false);
     setRequisicaoComprovantes(null);
+  };
+
+  // Função para exportar Excel
+  const exportarExcel = () => {
+    const dados = requisicoesFiltradas.map(r => ({
+      Descrição: r.description,
+      Data: r.date,
+      Status: r.status,
+      Prioridade: r.prioridade,
+      Departamento: r.department,
+      Evento: r.event_name,
+      Local: r.location,
+      'Data/Hora Início': r.start_datetime,
+      'Data/Hora Fim': r.end_datetime,
+      'Público': r.expected_audience
+    }));
+    const ws = XLSX.utils.json_to_sheet(dados);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Requisições');
+    XLSX.writeFile(wb, 'requisicoes.xlsx');
+  };
+  // Função para exportar PDF
+  const exportarPDF = () => {
+    const doc = new jsPDF();
+    const colunas = [
+      'Descrição', 'Data', 'Status', 'Prioridade', 'Departamento', 'Evento', 'Local', 'Data/Hora Início', 'Data/Hora Fim', 'Público'
+    ];
+    const linhas = requisicoesFiltradas.map(r => [
+      r.description,
+      r.date,
+      r.status,
+      r.prioridade,
+      r.department,
+      r.event_name,
+      r.location,
+      r.start_datetime,
+      r.end_datetime,
+      r.expected_audience
+    ]);
+    doc.autoTable({ head: [colunas], body: linhas, styles: { fontSize: 9 } });
+    doc.save('requisicoes.pdf');
   };
 
   return (
@@ -550,8 +594,29 @@ export default function Requests() {
         />
       </div>
 
+      <div className="requests-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <h2 className="requests-list-title" style={{ margin: 0 }}>Meus Requerimentos</h2>
+        <div className="export-buttons" style={{ display: 'flex', gap: 8 }}>
+          <Button 
+            onClick={exportarPDF} 
+            variant="secondary" 
+            size="sm"
+            style={{ boxShadow: '0 2px 8px #0001', fontWeight: 600, display: 'flex', alignItems: 'center' }}
+          >
+            <span style={{ fontSize: 18, marginRight: 6 }}>📄</span> Exportar PDF
+          </Button>
+          <Button 
+            onClick={exportarExcel} 
+            variant="secondary" 
+            size="sm"
+            style={{ boxShadow: '0 2px 8px #0001', fontWeight: 600, display: 'flex', alignItems: 'center' }}
+          >
+            <span style={{ fontSize: 18, marginRight: 6 }}>📊</span> Exportar Excel
+          </Button>
+        </div>
+      </div>
+
       <div className="card requests-list-card">
-        <h2 className="requests-list-title">Meus Requerimentos</h2>
         {loadingList ? (
           <div className="requests-loading">Carregando...</div>
         ) : listError ? (

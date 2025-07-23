@@ -111,21 +111,20 @@ export const createUser = async (req, res) => {
   }
 };
 
-// Listar todos os usuários (apenas para administradores)
+// Listar todos os usuários (ADM ou PASTOR)
 export const listUsers = async (req, res) => {
   try {
-    // Verifica se o usuário é ADM
-    if (!req.user || req.user.role !== 'ADM') {
+    console.log('Usuário autenticado:', req.user);
+    // Verifica se o usuário é ADM ou PASTOR
+    if (!req.user || (req.user.role !== 'ADM' && req.user.role !== 'PASTOR')) {
       return res.status(403).json({
         success: false,
-        message: 'Acesso negado. Apenas administradores podem listar usuários.'
+        message: 'Acesso negado. Apenas administradores ou pastores podem listar usuários.'
       });
     }
-
     const { data: users, error } = await supabase
       .from('users')
       .select('id, full_name, email, role, is_active, created_at');
-
     if (error) {
       return res.status(400).json({
         success: false,
@@ -133,7 +132,6 @@ export const listUsers = async (req, res) => {
         error: error.message
       });
     }
-
     res.json({
       success: true,
       data: users

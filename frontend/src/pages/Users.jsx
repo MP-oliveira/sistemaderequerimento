@@ -54,8 +54,8 @@ export default function Users() {
     }
     
     // Verificar se é administrador
-    if (user.role !== 'ADM') {
-      setListError('Acesso negado. Apenas administradores podem gerenciar usuários.');
+    if (user.role !== 'ADM' && user.role !== 'PASTOR') {
+      setListError('Acesso negado. Apenas administradores ou pastores podem gerenciar usuários.');
       return;
     }
     
@@ -192,13 +192,13 @@ export default function Users() {
     }
   };
 
-  // Se não for administrador, mostrar mensagem
-  if (user && user.role !== 'ADM') {
+  // Se não for administrador ou pastor, mostrar mensagem
+  if (user && user.role !== 'ADM' && user.role !== 'PASTOR') {
     return (
       <div className="users-page">
         <div className="card users-card">
           <h1>Acesso Negado</h1>
-          <p>Apenas administradores podem gerenciar usuários.</p>
+          <p>Apenas administradores ou pastores podem gerenciar usuários.</p>
         </div>
       </div>
     );

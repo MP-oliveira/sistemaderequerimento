@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
 import './Dashboard.css';
+import { FiFileText, FiClock, FiPackage, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -204,76 +205,111 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <div className="card dashboard-card">
-        <h1>Bem-vindo, {user?.nome || 'Usuário'}!</h1>
-        <p className="dashboard-subtitle">Sistema de Requisições e Eventos da Igreja</p>
-        
-        <div className="dashboard-stats">
-          <div className="stat-card">
-            <h3>Requerimentos</h3>
-            <p className="stat-number">12</p>
-            <p className="stat-label">Este mês</p>
-          </div>
-          <div className="stat-card">
-            <h3>Eventos</h3>
-            <p className="stat-number">{events.length}</p>
-            <p className="stat-label">Este mês</p>
-          </div>
-          <div className="stat-card">
-            <h3>Itens</h3>
-            <p className="stat-number">45</p>
-            <p className="stat-label">Disponíveis</p>
-          </div>
-        </div>
-        
-        {user && (user.role === 'ADM' || user.role === 'PASTOR') && requisicoesConflito.length > 0 && (
-          <div className="dashboard-conflitos-card" style={{ background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 12, padding: 18, marginBottom: 24 }}>
-            <div style={{ fontWeight: 700, color: '#b85c00', fontSize: 18, marginBottom: 8 }}>
-              ⚠️ Requisições em Conflito aguardando decisão ({requisicoesConflito.length})
-            </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {requisicoesConflito.map(req => (
-                <li key={req.id} style={{ marginBottom: 12, background: '#fffbe6', borderRadius: 8, padding: 10, display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600 }}>{req.description || 'Sem descrição'}</div>
-                    <div style={{ fontSize: 14, color: '#b85c00' }}>Depto: {req.department} | Prioridade: <b>{req.prioridade || '-'}</b></div>
-                    <div style={{ fontSize: 13, color: '#888' }}>Data: {req.start_datetime ? new Date(req.start_datetime).toLocaleString('pt-BR') : '-'}</div>
-                  </div>
-                  <Button variant="success" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=aprovar`} style={{ marginRight: 6 }}>Aprovar</Button>
-                  <Button variant="danger" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=rejeitar`}>Rejeitar</Button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        
-        {/* Alerta de estoque baixo */}
-        {itensBaixoEstoque.length > 0 && (
-          <div style={{
-            backgroundColor: '#fff3cd',
-            border: '1px solid #ffeaa7',
-            borderRadius: '8px',
-            padding: '16px',
-            marginTop: '20px',
-            color: '#856404'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '18px' }}>⚠️</span>
-              <strong>Alerta de Estoque Baixo</strong>
-            </div>
-            <p style={{ margin: '8px 0 0 0', fontSize: '14px' }}>
-              {itensBaixoEstoque.length} item(s) com estoque baixo: {itensBaixoEstoque.map(item => 
-                `${item.name} (${item.quantity_available} disponível)`
-              ).join(', ')}
-            </p>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', opacity: 0.8 }}>
-              Por favor, verifique o inventário e reponha os itens necessários.
-            </p>
-          </div>
-        )}
-        
+      <div className="dashboard-header">
+        <h2>Bem-vindo, {user?.nome || 'Administrador'}!</h2>
+        <p>Gerencie os requerimentos e recursos da igreja</p>
       </div>
-
+      {/* Stats Cards - Grid */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon blue">
+              <FiFileText size={28} />
+            </div>
+          </div>
+          <div className="stat-number">12</div>
+          <div className="stat-label">Requerimentos Ativos</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon yellow">
+              <FiClock size={28} />
+            </div>
+          </div>
+          <div className="stat-number">{events.length}</div>
+          <div className="stat-label">Eventos Agendados</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon success">
+              <FiPackage size={28} />
+            </div>
+          </div>
+          <div className="stat-number">45</div>
+          <div className="stat-label">Itens Disponíveis</div>
+        </div>
+      </div>
+      {/* Quick Actions - Grid */}
+      <div className="quick-actions">
+        <h3 className="section-title">
+          <FiZap style={{marginRight: 8}} />
+          Ações Rápidas
+        </h3>
+        <div className="actions-grid">
+          <a href="/usuarios" className="action-btn">
+            <FiUserPlus />
+            Adicionar Usuário
+          </a>
+          <a href="/requisicoes" className="action-btn">
+            <FiPlus />
+            Novo Requerimento
+          </a>
+          <a href="/inventario" className="action-btn">
+            <FiCalendar />
+            Agendar Evento
+          </a>
+          <a href="/relatorio" className="action-btn">
+            <FiDownload />
+            Relatório
+          </a>
+        </div>
+      </div>
+      {/* Painel de conflitos */}
+      {user && (user.role === 'ADM' || user.role === 'PASTOR') && requisicoesConflito.length > 0 && (
+        <div className="dashboard-conflitos-card" style={{ background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 12, padding: 18, marginBottom: 24 }}>
+          <div style={{ fontWeight: 700, color: '#b85c00', fontSize: 18, marginBottom: 8 }}>
+            ⚠️ Requisições em Conflito aguardando decisão ({requisicoesConflito.length})
+          </div>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {requisicoesConflito.map(req => (
+              <li key={req.id} style={{ marginBottom: 12, background: '#fffbe6', borderRadius: 8, padding: 10, display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600 }}>{req.description || 'Sem descrição'}</div>
+                  <div style={{ fontSize: 14, color: '#b85c00' }}>Depto: {req.department} | Prioridade: <b>{req.prioridade || '-'}</b></div>
+                  <div style={{ fontSize: 13, color: '#888' }}>Data: {req.start_datetime ? new Date(req.start_datetime).toLocaleString('pt-BR') : '-'}</div>
+                </div>
+                <Button variant="success" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=aprovar`} style={{ marginRight: 6 }}>Aprovar</Button>
+                <Button variant="danger" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=rejeitar`}>Rejeitar</Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {/* Alerta de estoque baixo */}
+      {itensBaixoEstoque.length > 0 && (
+        <div style={{
+          backgroundColor: '#fff3cd',
+          border: '1px solid #ffeaa7',
+          borderRadius: '8px',
+          padding: '16px',
+          marginTop: '20px',
+          color: '#856404'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '18px' }}>⚠️</span>
+            <strong>Alerta de Estoque Baixo</strong>
+          </div>
+          <p style={{ margin: '8px 0 0 0', fontSize: '14px' }}>
+            {itensBaixoEstoque.length} item(s) com estoque baixo: {itensBaixoEstoque.map(item => 
+              `${item.name} (${item.quantity_available} disponível)`
+            ).join(', ')}
+          </p>
+          <p style={{ margin: '4px 0 0 0', fontSize: '12px', opacity: 0.8 }}>
+            Por favor, verifique o inventário e reponha os itens necessários.
+          </p>
+        </div>
+      )}
+      {/* Calendário */}
       <div className="card calendar-card">
         <div className="calendar-header">
           <button className="calendar-nav-btn" onClick={previousMonth}>
@@ -284,7 +320,6 @@ export default function Dashboard() {
             ›
           </button>
         </div>
-
         {loading ? (
           <div className="calendar-loading">
             <div className="loading-spinner"></div>
@@ -302,7 +337,6 @@ export default function Dashboard() {
                 <div className="weekday">Sex</div>
                 <div className="weekday">Sáb</div>
               </div>
-              
               <div className="calendar-days">
                 {days.map((day, index) => (
                   <div 
@@ -334,7 +368,6 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
-
             <div className="calendar-legend">
               <div className="legend-item">
                 <div className="legend-dot"></div>
@@ -344,7 +377,6 @@ export default function Dashboard() {
           </>
         )}
       </div>
-
       {/* Seção de Atividades Recentes */}
       <div className="card activity-card">
         <ActivityLog 
@@ -353,7 +385,6 @@ export default function Dashboard() {
           emptyMessage="Nenhuma atividade registrada recentemente."
         />
       </div>
-
       {/* Modal de Eventos do Dia */}
       <Modal 
         open={showEventModal} 
