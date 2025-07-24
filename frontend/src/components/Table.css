@@ -6,19 +6,24 @@
 
 .custom-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   background: var(--ibva-white);
   border-radius: 12px;
   box-shadow: var(--ibva-shadow);
   margin: 16px 0;
   font-family: 'Montserrat', Arial, sans-serif;
+  table-layout: auto;
 }
 
 .custom-table th, .custom-table td {
-  padding: 14px 18px;
+  padding: 8px 10px;
   text-align: left;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  min-width: 80px;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .custom-table th {
@@ -39,9 +44,11 @@
   font-style: italic;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .custom-table th, .custom-table td {
-    padding: 8px 6px;
-    font-size: 0.95rem;
+    padding: 6px 4px;
+    font-size: 0.9rem;
+    min-width: 60px;
+    max-width: 120px;
   }
 } 

@@ -11,7 +11,9 @@
   --ibva-shadow: 0 2px 16px #0001;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -20,7 +22,12 @@ html, body, #root {
   color: var(--ibva-text);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Montserrat', Arial, sans-serif;
   color: var(--ibva-blue);
   font-weight: 700;
@@ -32,15 +39,19 @@ a {
   text-decoration: none;
   transition: color 0.2s;
 }
+
 a:hover {
   color: var(--ibva-blue-dark);
 }
 
-button, .btn {
+button,
+.btn {
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: 'Montserrat', Arial, sans-serif;
   border-radius: 8px;
   border: 1px solid #ccc;
@@ -50,15 +61,10 @@ input, select, textarea {
   transition: border 0.2s;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   border-color: var(--ibva-blue);
   outline: none;
 }
 
-.card {
-  background: var(--ibva-white);
-  border-radius: 16px;
-  box-shadow: var(--ibva-shadow);
-  padding: 32px 24px;
-  margin-bottom: 24px;
-}

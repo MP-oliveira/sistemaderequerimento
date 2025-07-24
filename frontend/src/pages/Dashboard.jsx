@@ -1,66 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { listarItensInventario } from '../services/inventoryService';
-import { buscarTodosLogs } from '../services/activityLogService';
 import { listarRequisicoes, listarEventos } from '../services/requestsService';
 import ActivityLog from '../components/ActivityLog';
-import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
 import './Dashboard.css';
-import { FiFileText, FiClock, FiPackage, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
+import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
+
+const PAGES = [
+  { key: 'dashboard', label: 'Dashboard', icon: <FiPieChart /> },
+  { key: 'requirements', label: 'Requerimentos', icon: <FiFileText /> },
+  { key: 'inventory', label: 'Inventário', icon: <FiPackage /> },
+];
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [itensBaixoEstoque, setItensBaixoEstoque] = useState([]);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
-  
-  // Estados para logs de atividade
-  const [recentLogs, setRecentLogs] = useState([]);
   const [requisicoesConflito, setRequisicoesConflito] = useState([]);
+  const [page, setPage] = useState('dashboard');
 
-  // Função para verificar estoque baixo
-  const verificarEstoqueBaixo = async () => {
-    try {
-      const itens = await listarItensInventario();
-      const itensBaixoEstoque = itens.filter(item => 
-        Number(item.quantity_available) <= 2
-      );
-      
-      setItensBaixoEstoque(itensBaixoEstoque);
-    } catch (error) {
-      console.error('Erro ao verificar estoque:', error);
-    }
-  };
-
-  // Função para carregar logs recentes
+  // Função para carregar logs recentes (não faz mais nada)
   const carregarLogsRecentes = async () => {
-    try {
-      const logs = await buscarTodosLogs();
-      // Pegar apenas os 5 logs mais recentes
-      setRecentLogs(logs.slice(0, 5) || []);
-    } catch (error) {
-      console.error('Erro ao carregar logs:', error);
-      // Não mostrar erro toast para não poluir a interface
-    }
+    // Removido: não é mais necessário
   };
 
-  // Carregar eventos da API e verificar estoque
   useEffect(() => {
     const carregarDados = async () => {
       setLoading(true);
       try {
         const eventos = await listarEventos();
-        // Buscar requisições relevantes
         const requisicoes = await listarRequisicoes();
-        // Filtrar apenas APTO, EXECUTADO, FINALIZADO
         const reqsParaAgenda = (requisicoes || []).filter(req => ['APTO', 'EXECUTADO', 'FINALIZADO'].includes(req.status));
-        // Mapear para formato de evento
         const eventosReqs = reqsParaAgenda.map(req => ({
           id: req.id,
           title: req.event_name || req.description || 'Requisição',
@@ -70,7 +45,6 @@ export default function Dashboard() {
           status: req.status,
           type: 'requisicao',
         }));
-        // Mapear eventos para formato unificado
         const eventosFormatados = (eventos || []).map(ev => ({
           id: ev.id,
           title: ev.name,
@@ -80,14 +54,11 @@ export default function Dashboard() {
           status: ev.status || 'CONFIRMADO',
           type: 'evento',
         }));
-        // Unir tudo
         setEvents([...eventosFormatados, ...eventosReqs]);
-        await verificarEstoqueBaixo();
         await carregarLogsRecentes();
       } catch (err) {
         console.error('Erro ao carregar eventos:', err);
         setEvents([]);
-        toast.error('Erro ao carregar eventos ou requisições. Tente novamente.');
       }
       setLoading(false);
     };
@@ -111,25 +82,20 @@ export default function Dashboard() {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
-    
     const days = [];
-    
-    // Dias do mês anterior
-    for (let i = startingDay - 1; i >= 0; i--) {
-      const prevMonth = new Date(year, month - 1, 0);
+    // Dias do mês anterior (apenas para alinhar o primeiro dia da semana)
+    for (let i = 0; i < startingDay; i++) {
       days.push({
-        date: new Date(year, month - 1, prevMonth.getDate() - i),
+        date: null,
         isCurrentMonth: false,
         events: []
       });
     }
-    
     // Dias do mês atual
     for (let i = 1; i <= daysInMonth; i++) {
       const currentDate = new Date(year, month, i);
       const dateString = currentDate.toISOString().split('T')[0];
       const dayEvents = events.filter(event => {
-        // Verificar se o evento tem start_datetime e se corresponde ao dia
         if (event.start_datetime) {
           const eventDate = new Date(event.start_datetime);
           const eventDateString = eventDate.toISOString().split('T')[0];
@@ -137,24 +103,21 @@ export default function Dashboard() {
         }
         return false;
       });
-      
       days.push({
         date: currentDate,
         isCurrentMonth: true,
         events: dayEvents
       });
     }
-    
-    // Dias do próximo mês
-    const remainingDays = 42 - days.length; // 6 semanas * 7 dias
-    for (let i = 1; i <= remainingDays; i++) {
+    // Dias do próximo mês (apenas para completar a última semana)
+    const remaining = (7 - (days.length % 7)) % 7;
+    for (let i = 1; i <= remaining; i++) {
       days.push({
         date: new Date(year, month + 1, i),
         isCurrentMonth: false,
         events: []
       });
     }
-    
     return days;
   };
 
@@ -174,6 +137,7 @@ export default function Dashboard() {
   };
 
   const isToday = (date) => {
+    if (!date) return false;
     const today = new Date();
     return date.toDateString() === today.toDateString();
   };
@@ -205,6 +169,19 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
+      {/* Page Toggle */}
+      <div className="page-toggle">
+        {PAGES.map(p => (
+          <button
+            key={p.key}
+            className={`toggle-btn${page === p.key ? ' active' : ''}`}
+            onClick={() => setPage(p.key)}
+          >
+            {p.icon}
+            {p.label}
+          </button>
+        ))}
+      </div>
       <div className="dashboard-header">
         <h2>Bem-vindo, {user?.nome || 'Administrador'}!</h2>
         <p>Gerencie os requerimentos e recursos da igreja</p>
@@ -214,29 +191,35 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-icon blue">
-              <FiFileText size={28} />
+              <FiFileText size={18} />
             </div>
           </div>
-          <div className="stat-number">12</div>
-          <div className="stat-label">Requerimentos Ativos</div>
+          <div className="stat-info">
+            <div className="stat-number">12</div>
+            <div className="stat-label">Requerimentos Ativos</div>
+          </div>
         </div>
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-icon yellow">
-              <FiClock size={28} />
+              <FiClock size={18} />
             </div>
           </div>
-          <div className="stat-number">{events.length}</div>
-          <div className="stat-label">Eventos Agendados</div>
+          <div className="stat-info">
+            <div className="stat-number">{events.length}</div>
+            <div className="stat-label">Eventos Agendados</div>
+          </div>
         </div>
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-icon success">
-              <FiPackage size={28} />
+              <FiPackage size={18} />
             </div>
           </div>
-          <div className="stat-number">45</div>
-          <div className="stat-label">Itens Disponíveis</div>
+          <div className="stat-info">
+            <div className="stat-number">45</div>
+            <div className="stat-label">Itens Disponíveis</div>
+          </div>
         </div>
       </div>
       {/* Quick Actions - Grid */}
@@ -246,13 +229,13 @@ export default function Dashboard() {
           Ações Rápidas
         </h3>
         <div className="actions-grid">
-          <a href="/usuarios" className="action-btn">
-            <FiUserPlus />
-            Adicionar Usuário
-          </a>
           <a href="/requisicoes" className="action-btn">
             <FiPlus />
             Novo Requerimento
+          </a>
+          <a href="/usuarios" className="action-btn">
+            <FiUserPlus />
+            Adicionar Usuário
           </a>
           <a href="/inventario" className="action-btn">
             <FiCalendar />
@@ -266,7 +249,7 @@ export default function Dashboard() {
       </div>
       {/* Painel de conflitos */}
       {user && (user.role === 'ADM' || user.role === 'PASTOR') && requisicoesConflito.length > 0 && (
-        <div className="dashboard-conflitos-card" style={{ background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: 12, padding: 18, marginBottom: 24 }}>
+        <div className="dashboard-conflitos-card">
           <div style={{ fontWeight: 700, color: '#b85c00', fontSize: 18, marginBottom: 8 }}>
             ⚠️ Requisições em Conflito aguardando decisão ({requisicoesConflito.length})
           </div>
@@ -283,30 +266,6 @@ export default function Dashboard() {
               </li>
             ))}
           </ul>
-        </div>
-      )}
-      {/* Alerta de estoque baixo */}
-      {itensBaixoEstoque.length > 0 && (
-        <div style={{
-          backgroundColor: '#fff3cd',
-          border: '1px solid #ffeaa7',
-          borderRadius: '8px',
-          padding: '16px',
-          marginTop: '20px',
-          color: '#856404'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '18px' }}>⚠️</span>
-            <strong>Alerta de Estoque Baixo</strong>
-          </div>
-          <p style={{ margin: '8px 0 0 0', fontSize: '14px' }}>
-            {itensBaixoEstoque.length} item(s) com estoque baixo: {itensBaixoEstoque.map(item => 
-              `${item.name} (${item.quantity_available} disponível)`
-            ).join(', ')}
-          </p>
-          <p style={{ margin: '4px 0 0 0', fontSize: '12px', opacity: 0.8 }}>
-            Por favor, verifique o inventário e reponha os itens necessários.
-          </p>
         </div>
       )}
       {/* Calendário */}
@@ -326,73 +285,128 @@ export default function Dashboard() {
             <p>Carregando eventos...</p>
           </div>
         ) : (
-          <>
-            <div className="calendar-grid">
-              <div className="calendar-weekdays">
-                <div className="weekday">Dom</div>
-                <div className="weekday">Seg</div>
-                <div className="weekday">Ter</div>
-                <div className="weekday">Qua</div>
-                <div className="weekday">Qui</div>
-                <div className="weekday">Sex</div>
-                <div className="weekday">Sáb</div>
-              </div>
-              <div className="calendar-days">
-                {days.map((day, index) => (
-                  <div 
-                    key={index} 
-                    className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
-                    onClick={() => handleDayClick(day)}
-                    style={{ cursor: day.events.length > 0 ? 'pointer' : 'default' }}
-                  >
-                    <span className="day-number">{day.date.getDate()}</span>
-                    {day.events.length > 0 && (
-                      <>
-                        <div className="day-events">
-                          {day.events.slice(0, 2).map(event => (
-                            <div key={event.id} className="event-dot" title={event.name || event.titulo}>
-                              •
-                            </div>
-                          ))}
-                          {day.events.length > 2 && (
-                            <div className="event-more">+{day.events.length - 2}</div>
-                          )}
-                        </div>
-                        {/* Nome do primeiro evento */}
-                        <div className="event-name-preview" title={day.events[0].name || day.events[0].titulo}>
-                          {day.events[0].name || day.events[0].titulo}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
+          <div className="calendar-grid">
+            <div className="calendar-weekdays">
+              <div className="weekday">Dom</div>
+              <div className="weekday">Seg</div>
+              <div className="weekday">Ter</div>
+              <div className="weekday">Qua</div>
+              <div className="weekday">Qui</div>
+              <div className="weekday">Sex</div>
+              <div className="weekday">Sáb</div>
             </div>
-            <div className="calendar-legend">
-              <div className="legend-item">
-                <div className="legend-dot"></div>
-                <span>Eventos da Igreja</span>
-              </div>
+            <div className="calendar-days">
+              {days.map((day, index) => (
+                <div 
+                  key={index} 
+                  className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
+                  onClick={() => handleDayClick(day)}
+                  style={{ cursor: day.events.length > 0 ? 'pointer' : 'default' }}
+                >
+                  <span className="day-number">{day.date ? day.date.getDate() : ''}</span>
+                  {day.events.length > 0 && (
+                    <>
+                      <div className="day-events">
+                        {day.events.slice(0, 2).map(event => (
+                          <div key={event.id} className="event-dot" title={event.name || event.titulo}>
+                            •
+                          </div>
+                        ))}
+                        {day.events.length > 2 && (
+                          <div className="event-more">+{day.events.length - 2}</div>
+                        )}
+                      </div>
+                      <div className="event-name-preview" title={day.events[0].name || day.events[0].titulo}>
+                        {day.events[0].name || day.events[0].titulo}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          </>
+          </div>
         )}
+        <div className="calendar-legend">
+          <div className="legend-item">
+            <div className="legend-dot"></div>
+            <span>Eventos da Igreja</span>
+          </div>
+        </div>
       </div>
-      {/* Seção de Atividades Recentes */}
-      <div className="card activity-card">
-        <ActivityLog 
-          logs={recentLogs}
-          title="📋 Atividades Recentes"
-          emptyMessage="Nenhuma atividade registrada recentemente."
-        />
+      {/* Lista de eventos do dia */}
+      <div className="card activity-card" style={{ marginTop: '-16px', marginBottom: '24px' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 12 }}>Atividades do dia</h3>
+        {(() => {
+          const today = new Date();
+          const todayStr = today.toISOString().split('T')[0];
+          const eventosHoje = events.filter(ev => {
+            if (!ev.start_datetime) return false;
+            const evDate = new Date(ev.start_datetime);
+            return evDate.toISOString().split('T')[0] === todayStr;
+          });
+          if (eventosHoje.length === 0) {
+            return <div style={{ color: '#888', fontSize: 15 }}>Nenhum evento para hoje.</div>;
+          }
+          return (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {eventosHoje.map(ev => (
+                <li key={ev.id} style={{ marginBottom: 8, padding: 8, borderRadius: 6, background: '#f8f9fa', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontWeight: 600 }}>{ev.title}</span>
+                  <span style={{ color: '#888', fontWeight: 400, fontSize: 14 }}>
+                    {ev.location ? `(${ev.location})` : ''}
+                  </span>
+                  <span style={{ color: '#2563eb', fontWeight: 500, fontSize: 14 }}>
+                    {ev.start_datetime ? new Date(ev.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                    {ev.end_datetime ? ' - ' + new Date(ev.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          );
+        })()}
+      </div>
+      {/* Lista de atividades recentes do mês até ontem */}
+      <div className="card activity-card" style={{ marginBottom: '24px' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 12 }}>Atividades recentes</h3>
+        {(() => {
+          const today = new Date();
+          const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          const eventosRecentes = events.filter(ev => {
+            if (!ev.start_datetime) return false;
+            const evDate = new Date(ev.start_datetime);
+            // Entre o primeiro dia do mês e ontem
+            return evDate >= firstDayOfMonth && evDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          }).sort((a, b) => new Date(b.start_datetime) - new Date(a.start_datetime));
+          if (eventosRecentes.length === 0) {
+            return <div style={{ color: '#888', fontSize: 15 }}>Nenhuma atividade recente neste mês.</div>;
+          }
+          return (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {eventosRecentes.map(ev => (
+                <li key={ev.id} style={{ marginBottom: 8, padding: 8, borderRadius: 6, background: '#f8f9fa', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontWeight: 600 }}>{ev.title}</span>
+                  <span style={{ color: '#888', fontWeight: 400, fontSize: 14 }}>
+                    {ev.location ? `(${ev.location})` : ''}
+                  </span>
+                  <span style={{ color: '#2563eb', fontWeight: 500, fontSize: 14 }}>
+                    {ev.start_datetime ? new Date(ev.start_datetime).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : ''}
+                    {ev.start_datetime ? ' ' + new Date(ev.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                    {ev.end_datetime ? ' - ' + new Date(ev.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          );
+        })()}
       </div>
       {/* Modal de Eventos do Dia */}
       <Modal 
         open={showEventModal} 
         title={
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <span className="event-modal-title">Evento</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+            <span className="event-modal-title" style={{ color: '#2563eb', fontWeight: 700, fontSize: 22 }}>Evento</span>
             {selectedDay && (
-              <span className="event-modal-date">
+              <span className="event-modal-date" style={{ color: '#666', fontSize: 15, fontWeight: 400, marginTop: 4 }}>
                 {(() => {
                   const dia = selectedDay.toLocaleDateString('pt-BR', { weekday: 'long' });
                   const data = selectedDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -416,22 +430,45 @@ export default function Dashboard() {
                 <div
                   key={ev.id + '-' + idx}
                   className={`event-modal-card${isFinalizado ? ' finalizado' : ''}`}
+                  style={{
+                    background: isFinalizado ? '#f9fafb' : '#fff',
+                    opacity: isFinalizado ? 0.7 : 1,
+                    borderRadius: 14,
+                    boxShadow: '0 2px 12px #2563eb11',
+                    padding: 20,
+                    marginBottom: 12,
+                    minWidth: 320,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: 8
+                  }}
                 >
-                  <div className="event-modal-header">
-                    <span className="event-modal-title-name">{ev.title}</span>
-                    <span className={`event-modal-status${ev.status === 'APTO' ? ' apto' : ev.status === 'EXECUTADO' ? ' executado' : ev.status === 'FINALIZADO' ? ' finalizado' : ''}`}>{ev.status}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                    <span className="event-modal-title-name" style={{ fontWeight: 600, fontSize: 18, color: '#2563eb' }}>{ev.title}</span>
+                    <span className={`event-modal-status${ev.status === 'APTO' ? ' apto' : ev.status === 'EXECUTADO' ? ' executado' : ev.status === 'FINALIZADO' ? ' finalizado' : ''}`}
+                      style={{
+                        background: ev.status === 'APTO' ? '#d1fae5' : ev.status === 'EXECUTADO' ? '#fef3c7' : '#f3f4f6',
+                        color: ev.status === 'APTO' ? '#059669' : ev.status === 'EXECUTADO' ? '#d97706' : '#9ca3af',
+                        fontWeight: 500,
+                        fontSize: 13,
+                        borderRadius: 12,
+                        padding: '4px 12px',
+                        marginLeft: 'auto'
+                      }}
+                    >{ev.status}</span>
                   </div>
-                  <div className={`event-modal-info${isFinalizado ? ' finalizado' : ''}`}>
+                  <div style={{ color: '#666', fontSize: 15, margin: '4px 0 0 0' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span role="img" aria-label="local" style={{ fontSize: 17 }}>📍</span> {ev.location || '-'}
                     </span>
-                    <span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
                       <span role="img" aria-label="horario" style={{ fontSize: 17 }}>🕒</span> {formatEventTime(ev.start_datetime)} - {formatEventTime(ev.end_datetime)}
                     </span>
                   </div>
-                  <div>
-                    {ev.type === 'requisicao' && <span className="event-modal-badge requisicao">Requerimento</span>}
-                    {ev.type === 'evento' && <span className="event-modal-badge">Evento</span>}
+                  <div style={{ marginTop: 6 }}>
+                    {ev.type === 'requisicao' && <span className="event-modal-badge requisicao" style={{ background: '#dbeafe', color: '#2563eb', fontSize: 12, fontWeight: 500, borderRadius: 8, padding: '4px 12px' }}>Requerimento</span>}
+                    {ev.type === 'evento' && <span className="event-modal-badge" style={{ background: '#d1fae5', color: '#059669', fontSize: 12, fontWeight: 500, borderRadius: 8, padding: '4px 12px' }}>Evento</span>}
                   </div>
                 </div>
               );
