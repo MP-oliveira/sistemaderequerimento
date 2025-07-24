@@ -29,7 +29,8 @@
 .page-toggle {
   display: flex;
   gap: 1rem;
-  margin-bottom: 2.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
   max-width: 1200px;
   align-self: center;
 }
@@ -59,6 +60,7 @@
   margin-bottom: 2rem;
   text-align: left;
   width: 100%;
+  margin-left: 90px;
 }
 .dashboard-header h2 {
   font-size: 2rem;
@@ -77,11 +79,13 @@
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
   margin-bottom: 2rem;
-  width: 100%;
+  width: 92%;
+  margin-left: 70px;
+  margin-right: 70px;
 }
 .stat-card {
+  width: 90%;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
@@ -95,6 +99,7 @@
   height: 100px;
   justify-content: center;
   transition: box-shadow 0.2s;
+  width: 350px;
 }
 .stat-card:hover {
   box-shadow: 0 2px 8px rgba(37,99,235,0.08);

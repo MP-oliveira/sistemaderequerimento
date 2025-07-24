@@ -6,11 +6,12 @@ import Modal from '../components/Modal';
 import Button from '../components/Button';
 import './Dashboard.css';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 const PAGES = [
-  { key: 'dashboard', label: 'Dashboard', icon: <FiPieChart /> },
-  { key: 'requirements', label: 'Requerimentos', icon: <FiFileText /> },
-  { key: 'inventory', label: 'Inventário', icon: <FiPackage /> },
+  { key: 'dashboard', label: 'Dashboard', icon: <FiPieChart />, url: '/' },
+  { key: 'requirements', label: 'Requerimentos', icon: <FiFileText />, url: '/requisicoes' },
+  { key: 'inventory', label: 'Inventário', icon: <FiPackage />, url: '/inventario' },
 ];
 
 export default function Dashboard() {
@@ -22,7 +23,6 @@ export default function Dashboard() {
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
   const [requisicoesConflito, setRequisicoesConflito] = useState([]);
-  const [page, setPage] = useState('dashboard');
 
   // Função para carregar logs recentes (não faz mais nada)
   const carregarLogsRecentes = async () => {
@@ -172,14 +172,14 @@ export default function Dashboard() {
       {/* Page Toggle */}
       <div className="page-toggle">
         {PAGES.map(p => (
-          <button
+          <a
             key={p.key}
-            className={`toggle-btn${page === p.key ? ' active' : ''}`}
-            onClick={() => setPage(p.key)}
+            className={`toggle-btn${window.location.pathname === p.url ? ' active' : ''}`}
+            href={p.url}
           >
             {p.icon}
             {p.label}
-          </button>
+          </a>
         ))}
       </div>
       <div className="dashboard-header">
