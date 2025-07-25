@@ -1,21 +1,19 @@
- import React, { useState, useEffect, useCallback } from 'react';
+ import { useState, useEffect, useCallback } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Table from '../components/Table';
 import Comprovantes from '../components/Comprovantes';
-import { criarRequisicao, listarRequisicoes, aprovarRequisicao, executarRequisicao, finalizarRequisicao, rejeitarRequisicao } from '../services/requestsService';
+import { criarRequisicao, listarRequisicoes, finalizarRequisicao } from '../services/requestsService';
 import { listarItensInventario } from '../services/inventoryService';
-import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Requests.css';
-import { FiCheckCircle, FiXCircle, FiPlay, FiRefreshCw, FiFileText } from 'react-icons/fi';
+import {FiEdit, FiTrash2 } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 export default function Requests() {
-  const { user } = useAuth();
   const [department, setDepartment] = useState('');
   const [itens, setItens] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -57,10 +55,7 @@ export default function Requests() {
   const [filtroDepartamento, setFiltroDepartamento] = useState('');
 
   // Estados de loading para botões de ação
-  const [loadingAprovar, setLoadingAprovar] = useState('');
-  const [loadingRejeitar, setLoadingRejeitar] = useState('');
-  const [loadingExecutar, setLoadingExecutar] = useState('');
-  const [loadingFinalizar, setLoadingFinalizar] = useState('');
+  // Remover estados de loading não usados
 
 
   useEffect(() => {
@@ -162,19 +157,7 @@ export default function Requests() {
     setItens(itens.filter((_, i) => i !== index));
   };
 
-  const handleOpenFinishModal = (req) => {
-    setRequisicaoSelecionada(req);
-    const itens = Array.isArray(req.itens) ? req.itens : [];
-    setItensDevolucao(itens.map(item => ({ ...item, devolver: true })));
-    setShowFinishModal(true);
-  };
-
-  const handleToggleDevolver = (index) => {
-    setItensDevolucao(prev => prev.map((item, i) => i === index ? { ...item, devolver: !item.devolver } : item));
-  };
-
   const handleFinalizar = async () => {
-    setLoadingFinalizar(requisicaoSelecionada?.id);
     try {
       const itensDevolvidos = itensDevolucao.filter(item => item.devolver).map(item => ({ id: item.id, quantidade: item.quantidade }));
       await finalizarRequisicao(requisicaoSelecionada.id, itensDevolvidos);
@@ -184,7 +167,6 @@ export default function Requests() {
     } catch (err) {
       alert(err.message || 'Erro ao finalizar requisição');
     }
-    setLoadingFinalizar('');
   };
 
   const handleSubmit = async (e) => {
@@ -229,52 +211,8 @@ export default function Requests() {
     setLoading(false);
   };
 
-  const handleAprovar = async (id) => {
-    setLoadingAprovar(id);
-    try {
-      await aprovarRequisicao(id);
-      toast.success('✅ Requisição aprovada com sucesso!');
-      buscarRequisicoes();
-    } catch (err) {
-      toast.error('❌ Erro ao aprovar requisição: ' + (err.message || 'Erro desconhecido'));
-    }
-    setLoadingAprovar('');
-  };
-
-  const handleExecutar = async (id) => {
-    setLoadingExecutar(id);
-    try {
-      await executarRequisicao(id);
-      toast.success('✅ Requisição executada com sucesso!');
-      buscarRequisicoes();
-    } catch (err) {
-      toast.error('❌ Erro ao executar requisição: ' + (err.message || 'Erro desconhecido'));
-    }
-    setLoadingExecutar('');
-  };
-
-  const handleRejeitar = async (id) => {
-    setLoadingRejeitar(id);
-    const motivo = prompt('Digite o motivo da rejeição:');
-    if (!motivo) {
-      alert('É necessário informar um motivo para a rejeição.');
-      setLoadingRejeitar('');
-      return;
-    }
-    
-    try {
-      await rejeitarRequisicao(id, motivo);
-      toast.success('✅ Requisição rejeitada com sucesso!');
-      buscarRequisicoes();
-    } catch (err) {
-      toast.error('❌ Erro ao rejeitar requisição: ' + (err.message || 'Erro desconhecido'));
-    }
-    setLoadingRejeitar('');
-  };
-
-  const handleVerComprovantes = (requisicao) => {
-    setRequisicaoComprovantes(requisicao);
-    setShowComprovantesModal(true);
+  const handleToggleDevolver = (index) => {
+    setItensDevolucao(prev => prev.map((item, i) => i === index ? { ...item, devolver: !item.devolver } : item));
   };
 
   const handleFecharComprovantes = () => {
@@ -617,150 +555,37 @@ export default function Requests() {
       </div>
 
       <div className="card requests-list-card">
+        <h3>Meus Requerimentos</h3>
         {loadingList ? (
           <div className="requests-loading">Carregando...</div>
         ) : listError ? (
           <div className="requests-error">{listError}</div>
+        ) : requisicoesFiltradas.length === 0 ? (
+          <div className="requests-error">Nenhuma requisição encontrada.</div>
         ) : (
-          <Table
-            columns={[
-              { key: 'description', label: 'Descrição' },
-              { key: 'date', label: 'Data' },
-              { key: 'status', label: 'Status', render: (value, row) => (
-                <span style={{
-                  color: row.status === 'PENDENTE_CONFLITO' ? '#b85c00' : row.status === 'APTO' ? '#2d8cff' : row.status === 'REJEITADO' ? '#d32f2f' : '#333',
-                  fontWeight: row.status === 'PENDENTE_CONFLITO' ? 700 : 500,
-                  background: row.status === 'PENDENTE_CONFLITO' ? '#fff3cd' : 'none',
-                  borderRadius: row.status === 'PENDENTE_CONFLITO' ? 8 : 0,
-                  padding: row.status === 'PENDENTE_CONFLITO' ? '2px 10px' : 0,
-                  display: 'inline-block',
-                }}>
-                  {row.status === 'PENDENTE_CONFLITO' ? '⚠️ Em conflito' : value}
-                </span>
-              ) },
-              { key: 'prioridade', label: 'Prioridade', render: value => value || '-' },
-              { 
-                key: 'event_name', 
-                label: 'Evento',
-                render: (value) => {
-                  return value || '-';
-                }
-              },
-              {
-                key: 'itens',
-                label: 'Itens',
-                render: (value) => {
-                  const itens = Array.isArray(value) ? value : [];
-                  return (
-                    <ul className="requests-items-list">
-                      {itens.map((item, i) => (
-                        <li key={i}>
-                          {item?.name || item?.nome || 'Item'} ({item?.quantidade || 0})
-                        </li>
-                      ))}
-                    </ul>
-                  );
-                },
-              },
-              {
-                key: 'actions',
-                label: 'Ações',
-                render: (value, row) => {
-                  const actions = [];
-                  
-                  // Botão Aprovar para ADM/PASTOR e status PENDENTE ou PENDENTE_CONFLITO
-                  if (user && (user.role === 'ADM' || user.role === 'PASTOR') && (row.status === 'PENDENTE' || row.status === 'PENDENTE_CONFLITO')) {
-                    actions.push(
-                      <Button 
-                        key="aprovar" 
-                        variant="success" 
-                        size="sm" 
-                        onClick={() => handleAprovar(row.id)}
-                        title="Aprovar requisição"
-                        loading={loadingAprovar === row.id}
-                        style={{ marginRight: '4px' }}
-                      >
-                        <FiCheckCircle style={{ marginRight: 2 }} /> Aprovar
-                      </Button>
-                    );
-                  }
-                  
-                  // Botão Rejeitar para ADM/PASTOR e status PENDENTE ou PENDENTE_CONFLITO
-                  if (user && (user.role === 'ADM' || user.role === 'PASTOR') && (row.status === 'PENDENTE' || row.status === 'PENDENTE_CONFLITO')) {
-                    actions.push(
-                      <Button 
-                        key="rejeitar" 
-                        variant="danger" 
-                        size="sm" 
-                        onClick={() => handleRejeitar(row.id)}
-                        title="Rejeitar requisição"
-                        loading={loadingRejeitar === row.id}
-                      >
-                        <FiXCircle style={{ marginRight: 2 }} /> Rejeitar
-                      </Button>
-                    );
-                  }
-                  
-                  // Botão Executar para AUDIOVISUAL/SEC e status APTO
-                  if (user && (user.role === 'AUDIOVISUAL' || user.role === 'SEC') && row.status === 'APTO') {
-                    actions.push(
-                      <Button 
-                        key="executar" 
-                        variant="primary" 
-                        size="sm" 
-                        onClick={() => handleExecutar(row.id)}
-                        title="Executar requisição"
-                        loading={loadingExecutar === row.id}
-                        style={{ marginRight: '4px' }}
-                      >
-                        <FiPlay style={{ marginRight: 2 }} /> Executar
-                      </Button>
-                    );
-                  }
-                  
-                  // Botão Finalizar para quem executou e status EXECUTADO
-                  if (user && row.status === 'EXECUTADO' && row.executed_by === user.id) {
-                    actions.push(
-                      <Button 
-                        key="finalizar" 
-                        variant="warning" 
-                        size="sm" 
-                        onClick={() => handleOpenFinishModal(row)}
-                        title="Finalizar requisição"
-                        loading={loadingFinalizar === row.id}
-                        style={{ marginRight: '4px' }}
-                      >
-                        <FiRefreshCw style={{ marginRight: 2 }} /> Finalizar
-                      </Button>
-                    );
-                  }
-                  
-                  // Botão Comprovantes (apenas um por linha)
-                  actions.push(
-                    <Button 
-                      key="comprovantes" 
-                      variant="info" 
-                      size="sm" 
-                      onClick={() => handleVerComprovantes(row)}
-                      title="Ver comprovantes"
-                    >
-                      <FiFileText style={{ marginRight: 2 }} /> Comprovantes
-                    </Button>
-                  );
-
-                  return actions.length > 0 ? (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                      {actions}
-                    </div>
-                  ) : (
-                    <span style={{ color: '#999', fontSize: '0.9rem' }}>Nenhuma ação disponível</span>
-                  );
-                }
-              }
-            ]}
-            data={requisicoesFiltradas}
-            emptyMessage="Nenhuma requisição encontrada."
-          />
+          <ul>
+            {requisicoesFiltradas.map((row) => (
+              <li key={row.id}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span className="req-title">{row.description}</span>
+                  {row.event_name || row.location ? (
+                    <span className="req-local">
+                      {row.event_name ? `(${row.event_name})` : row.location ? `(${row.location})` : ''}
+                    </span>
+                  ) : null}
+                </div>
+                <span className="req-date">{row.date}</span>
+                <div className="req-actions">
+                  <button className="req-action-btn" title="Editar">
+                    <FiEdit size={16} />
+                  </button>
+                  <button className="req-action-btn delete" title="Deletar">
+                    <FiTrash2 size={16} />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 

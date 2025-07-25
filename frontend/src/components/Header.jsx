@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import Button from './Button';
 import ibvaLogo from '../assets/images/ibva-logo.png';
 import './Header.css';
+import { Link } from 'react-router-dom';
 
 export default function Header() {
   const { user, logout, login } = useAuth();
@@ -20,7 +21,9 @@ export default function Header() {
   return (
     <header className="main-header">
       <div className="header-left">
-        <img src={ibvaLogo} alt="IBVA Logo" className="header-logo" />
+        <Link to="/">
+          <img src={ibvaLogo} alt="IBVA Logo" className="header-logo" />
+        </Link>
       </div>
       
       <div className="header-center">

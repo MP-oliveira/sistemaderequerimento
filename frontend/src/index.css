@@ -2,6 +2,7 @@
 
 :root {
   --ibva-blue: #174ea6;
+  --ibva-blue-light: #9cbaea;
   --ibva-blue-dark: #123a7b;
   --ibva-yellow: #ffd600;
   --ibva-gray-bg: #f5f6fa;
@@ -9,6 +10,7 @@
   --ibva-text: #222;
   --ibva-gray: #888;
   --ibva-shadow: 0 2px 16px #0001;
+  --ibva-red: #d32f2f;
 }
 
 html,
