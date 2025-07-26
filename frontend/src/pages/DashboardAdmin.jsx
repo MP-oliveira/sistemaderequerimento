@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '../components/Button';
-import { Modal } from '../components/Modal';
-import { Table } from '../components/Table';
+import Button from '../components/Button';
+import Modal from '../components/Modal';
+import Table from '../components/Table';
 import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
-import requestsService from '../services/requestsService';
+import { listarRequisicoes } from '../services/requestsService';
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
@@ -33,7 +33,7 @@ export default function DashboardAdmin() {
   const carregarDados = async () => {
     try {
       setLoading(true);
-      const response = await requestsService.listarRequisicoes();
+      const response = await listarRequisicoes();
       setRequisicoes(response.data || []);
       
       // Calcular estatísticas

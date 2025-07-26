@@ -113,26 +113,17 @@ export const login = async (req, res) => {
       });
     }
 
-    // Autenticar via Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError || !authData || !authData.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Credenciais inválidas'
-      });
-    }
-
-    // Buscar usuário na tabela users pelo id do Auth
+    // Buscar usuário diretamente na tabela users
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
-      .eq('id', authData.user.id)
+      .eq('email', email)
       .single();
 
     if (error || !user) {
       return res.status(401).json({
         success: false,
-        message: 'Usuário não encontrado ou inativo'
+        message: 'Credenciais inválidas'
       });
     }
 
@@ -140,6 +131,15 @@ export const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Usuário inativo. Contate o administrador.'
+      });
+    }
+
+    // Verificar senha
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Credenciais inválidas'
       });
     }
 
