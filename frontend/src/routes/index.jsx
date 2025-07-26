@@ -7,6 +7,7 @@ import Inventory from '../pages/Inventory';
 import Requests from '../pages/Requests';
 import RequestsAdmin from '../pages/RequestsAdmin';
 import DashboardAdmin from '../pages/DashboardAdmin';
+import AudiovisualDashboard from '../pages/AudiovisualDashboard';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 
@@ -47,7 +48,13 @@ function SmartDashboardRoute() {
     return <Navigate to="/admin/dashboard" />;
   }
   
-  // Se for secretário, audiovisual, líder ou usuário normal, vai para o dashboard normal
+  // Se for audiovisual, vai para o dashboard audiovisual
+  if (user.role === 'AUDIOVISUAL') {
+    console.log('🔍 SmartDashboardRoute - Redirecionando audiovisual para dashboard audiovisual');
+    return <Navigate to="/audiovisual/dashboard" />;
+  }
+  
+  // Se for secretário, líder ou usuário normal, vai para o dashboard normal
   console.log('🔍 SmartDashboardRoute - Redirecionando usuário normal para dashboard normal');
   return <Navigate to="/dashboard" />;
 }
@@ -121,6 +128,16 @@ export default function AppRoutes() {
                 <RequestsAdmin />
               </Layout>
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/audiovisual/dashboard"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <AudiovisualDashboard />
+              </Layout>
+            </PrivateRoute>
           }
         />
       </Routes>

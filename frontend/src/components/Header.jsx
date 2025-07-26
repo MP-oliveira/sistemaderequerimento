@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 
 export default function Header() {
   const { user, logout, login } = useAuth();
-  const [showAdminMenu, setShowAdminMenu] = useState(false);
   
   console.log('🔍 Header - User data:', user);
 
@@ -42,53 +41,6 @@ export default function Header() {
       
       <div className="header-right">
         <span className="header-user-name">Olá, {user?.nome || 'Usuário'}</span>
-        
-        {/* Menu Administrativo */}
-        {isAdmin && (
-          <div className="admin-menu-container">
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              onClick={() => setShowAdminMenu(!showAdminMenu)}
-              className="admin-menu-toggle"
-            >
-              ⚙️ Admin
-            </Button>
-            
-            {showAdminMenu && (
-              <div className="admin-menu">
-                <Link 
-                  to="/admin/dashboard" 
-                  className="admin-menu-item"
-                  onClick={() => setShowAdminMenu(false)}
-                >
-                  📊 Dashboard Admin
-                </Link>
-                <Link 
-                  to="/admin/requisicoes" 
-                  className="admin-menu-item"
-                  onClick={() => setShowAdminMenu(false)}
-                >
-                  📋 Gerenciar Requisições
-                </Link>
-                <Link 
-                  to="/usuarios" 
-                  className="admin-menu-item"
-                  onClick={() => setShowAdminMenu(false)}
-                >
-                  👥 Gerenciar Usuários
-                </Link>
-                <Link 
-                  to="/inventario" 
-                  className="admin-menu-item"
-                  onClick={() => setShowAdminMenu(false)}
-                >
-                  📦 Gerenciar Inventário
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
         
         {!user && (
           <Button 

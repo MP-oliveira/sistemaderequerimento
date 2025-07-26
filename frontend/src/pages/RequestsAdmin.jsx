@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import Table from '../components/Table';
+import React, { useState, useEffect } from 'react';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
+import Table from '../components/Table';
+import AdminButtons from '../components/AdminButtons';
 import Input from '../components/Input';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada } from '../services/requestsService';
 import './Requests.css';
@@ -112,6 +113,8 @@ export default function RequestsAdmin() {
 
   return (
     <div className="requests-page">
+      <AdminButtons />
+      
       {/* Notificação da página */}
       {notificacao.mostrar && (
         <div className={`notificacao ${notificacao.tipo}`}>

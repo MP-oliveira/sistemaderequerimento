@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Table from '../components/Table';
+import AdminButtons from '../components/AdminButtons';
 import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag } from 'react-icons/fi';
-import { listarRequisicoes } from '../services/requestsService';
+import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao } from '../services/requestsService';
+import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparation } from '../utils/notificationUtils';
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
@@ -109,6 +111,49 @@ export default function DashboardAdmin() {
     return colors[status] || '#6b7280';
   };
 
+  // Função para aprovar requisição
+  const aprovarRequisicaoHandler = async (id) => {
+    try {
+      await aprovarRequisicao(id);
+      mostrarNotificacao('Requisição aprovada com sucesso!', 'sucesso');
+      
+      // Buscar dados da requisição para notificação
+      const requisicao = requisicoes.find(req => req.id === id);
+      if (requisicao) {
+        // Notificar SEC sobre aprovação
+        notifyRequestApproved(requisicao);
+        
+        // Notificar AUDIOVISUAL para preparar material
+        notifyAudiovisualPreparation(requisicao);
+      }
+      
+      carregarDados(); // Recarregar dados
+    } catch (error) {
+      console.error('Erro ao aprovar requisição:', error);
+      mostrarNotificacao('Erro ao aprovar requisição', 'erro');
+    }
+  };
+
+  // Função para rejeitar requisição
+  const rejeitarRequisicaoHandler = async (id) => {
+    try {
+      await rejeitarRequisicao(id, 'Rejeitado pelo administrador');
+      mostrarNotificacao('Requisição rejeitada com sucesso!', 'sucesso');
+      
+      // Buscar dados da requisição para notificação
+      const requisicao = requisicoes.find(req => req.id === id);
+      if (requisicao) {
+        // Notificar SEC sobre rejeição
+        notifyRequestRejected(requisicao);
+      }
+      
+      carregarDados(); // Recarregar dados
+    } catch (error) {
+      console.error('Erro ao rejeitar requisição:', error);
+      mostrarNotificacao('Erro ao rejeitar requisição', 'erro');
+    }
+  };
+
   useEffect(() => {
     carregarDados();
   }, []);
@@ -142,6 +187,8 @@ export default function DashboardAdmin() {
 
   return (
     <div className="dashboard-admin">
+      <AdminButtons />
+      
       {notificacao && (
         <div className={`notificacao ${notificacao.tipo}`}>
           {notificacao.mensagem}
@@ -247,7 +294,7 @@ export default function DashboardAdmin() {
           {/* Requisições Pendentes */}
           <div className="dashboard-section">
             <div className="section-header">
-              <h2>Requisições Pendentes</h2>
+              <h2>Requisições Pendentes de Aprovação</h2>
               <Button 
                 variant="primary" 
                 size="sm" 
@@ -257,14 +304,16 @@ export default function DashboardAdmin() {
               </Button>
             </div>
             
-            {requisicoesPendentes.length === 0 ? (
+            {requisicoesPendentes.filter(req => req.status === 'PENDENTE' || req.status === 'PENDENTE_CONFLITO').length === 0 ? (
               <div className="empty-state">
-                <p>🎉 Nenhuma requisição pendente!</p>
+                <p>🎉 Nenhuma requisição pendente de aprovação!</p>
                 <p>Todas as requisições foram processadas.</p>
               </div>
             ) : (
               <div className="pending-requests">
-                {requisicoesPendentes.map((req) => (
+                {requisicoesPendentes
+                  .filter(req => req.status === 'PENDENTE' || req.status === 'PENDENTE_CONFLITO')
+                  .map((req) => (
                   <div key={req.id} className="request-card">
                     <div className="request-header">
                       <h4>{req.department}</h4>
@@ -282,11 +331,19 @@ export default function DashboardAdmin() {
                     </div>
                     <div className="request-actions">
                       <Button 
-                        variant="primary" 
+                        variant="success" 
                         size="sm"
-                        onClick={() => window.location.href = `/admin/requisicoes`}
+                        onClick={() => aprovarRequisicaoHandler(req.id)}
+                        style={{ marginRight: '8px' }}
                       >
-                        Ver Detalhes
+                        ✅ Aprovar
+                      </Button>
+                      <Button 
+                        variant="danger" 
+                        size="sm"
+                        onClick={() => rejeitarRequisicaoHandler(req.id)}
+                      >
+                        ❌ Rejeitar
                       </Button>
                     </div>
                   </div>

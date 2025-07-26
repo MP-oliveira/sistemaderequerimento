@@ -1,0 +1,68 @@
+/* Botões Admin */
+.admin-buttons-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+}
+
+.admin-buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.admin-btn {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  color: #374151 !important;
+  font-size: 0.85rem !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s !important;
+  border-radius: 6px !important;
+}
+
+.admin-btn:hover {
+  background: #f9fafb !important;
+  border-color: #d1d5db !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botão selecionado (página atual) */
+.admin-btn.active {
+  background: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: white !important;
+}
+
+.admin-btn.active:hover {
+  background: #1d4ed8 !important;
+  border-color: #1e40af !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .admin-buttons {
+    gap: 0.5rem;
+  }
+  
+  .admin-btn {
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.8rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .admin-btn {
+    width: 100%;
+    text-align: center;
+  }
+} 
