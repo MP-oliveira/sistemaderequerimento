@@ -61,6 +61,7 @@ export default function DashboardAdmin() {
   // Função para abrir modal com requisições filtradas
   const abrirFiltro = async (status) => {
     try {
+      console.log('🔍 DashboardAdmin - Abrindo filtro para status:', status);
       setFilterLoading(true);
       setCurrentFilter(status);
       setShowFilterModal(true);
@@ -72,6 +73,8 @@ export default function DashboardAdmin() {
       } else {
         requests = requisicoes.filter(r => r.status === status);
       }
+      
+      console.log('🔍 DashboardAdmin - Requisições filtradas:', requests);
       setFilteredRequests(requests);
     } catch (error) {
       console.error('Erro ao filtrar requisições:', error);
@@ -174,7 +177,7 @@ export default function DashboardAdmin() {
               </div>
             </div>
             
-            <div className="admin-stat-card" onClick={() => abrirFiltro('CONFLITO')}>
+            <div className="admin-stat-card" onClick={() => abrirFiltro('PENDENTE_CONFLITO')}>
               <div className="admin-stat-icon orange">⚠️</div>
               <div className="admin-stat-content">
                 <h3>{stats.conflitos}</h3>
@@ -182,7 +185,7 @@ export default function DashboardAdmin() {
               </div>
             </div>
             
-            <div className="admin-stat-card" onClick={() => abrirFiltro('APROVADO')}>
+            <div className="admin-stat-card" onClick={() => abrirFiltro('APTO')}>
               <div className="admin-stat-icon success">✅</div>
               <div className="admin-stat-content">
                 <h3>{stats.aprovadas}</h3>
@@ -313,10 +316,9 @@ export default function DashboardAdmin() {
 
       {/* Modal de Filtros */}
       <Modal 
-        isOpen={showFilterModal} 
+        open={showFilterModal} 
         onClose={() => setShowFilterModal(false)}
         title={`Requisições ${getStatusLabel(currentFilter)}`}
-        size="lg"
       >
         {filterLoading ? (
           <div className="loading-state">
