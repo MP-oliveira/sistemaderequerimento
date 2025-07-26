@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Table from '../components/Table';
-import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
+import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag } from 'react-icons/fi';
 import { listarRequisicoes } from '../services/requestsService';
 import './DashboardAdmin.css';
 
@@ -160,7 +160,9 @@ export default function DashboardAdmin() {
           {/* Cards de Estatísticas */}
           <div className="admin-stats-grid">
             <div className="admin-stat-card" onClick={() => abrirFiltro('TOTAL')}>
-              <div className="admin-stat-icon blue">📊</div>
+              <div className="admin-stat-icon blue">
+                <FiBarChart2 />
+              </div>
               <div className="admin-stat-content">
                 <h3>{stats.total}</h3>
                 <p>Total de Requisições</p>
@@ -168,7 +170,9 @@ export default function DashboardAdmin() {
             </div>
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('PENDENTE')}>
-              <div className="admin-stat-icon yellow">⏳</div>
+              <div className="admin-stat-icon yellow">
+                <FiClock />
+              </div>
               <div className="admin-stat-content">
                 <h3>{stats.pendentes}</h3>
                 <p>Pendentes</p>
@@ -176,7 +180,9 @@ export default function DashboardAdmin() {
             </div>
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('PENDENTE_CONFLITO')}>
-              <div className="admin-stat-icon orange">⚠️</div>
+              <div className="admin-stat-icon orange">
+                <FiAlertTriangle />
+              </div>
               <div className="admin-stat-content">
                 <h3>{stats.conflitos}</h3>
                 <p>Em Conflito</p>
@@ -184,7 +190,9 @@ export default function DashboardAdmin() {
             </div>
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('APTO')}>
-              <div className="admin-stat-icon success">✅</div>
+              <div className="admin-stat-icon success">
+                <FiCheckCircle />
+              </div>
               <div className="admin-stat-content">
                 <h3>{stats.aprovadas}</h3>
                 <p>Aprovadas</p>
@@ -192,7 +200,9 @@ export default function DashboardAdmin() {
             </div>
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('REJEITADO')}>
-              <div className="admin-stat-icon red">❌</div>
+              <div className="admin-stat-icon red">
+                <FiXCircle />
+              </div>
               <div className="admin-stat-content">
                 <h3>{stats.rejeitadas}</h3>
                 <p>Rejeitadas</p>
@@ -200,7 +210,9 @@ export default function DashboardAdmin() {
             </div>
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('EXECUTADO')}>
-              <div className="admin-stat-icon purple">🎯</div>
+              <div className="admin-stat-icon purple">
+                <FiFlag />
+              </div>
               <div className="admin-stat-content">
                 <h3>{stats.executadas}</h3>
                 <p>Executadas</p>

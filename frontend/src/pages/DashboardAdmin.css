@@ -99,15 +99,15 @@
 }
 
 .admin-stat-icon {
-  font-size: 1.5rem;
-  width: 48px;
-  height: 48px;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  color: #fff !important;
+  font-size: 1.1rem;
   flex-shrink: 0;
-  color: #fff;
 }
 
 .admin-stat-icon.blue { background: #4285f4; }
@@ -116,6 +116,13 @@
 .admin-stat-icon.red { background: #f44336; }
 .admin-stat-icon.purple { background: #9c27b0; }
 .admin-stat-icon.orange { background: #ff5722; }
+
+/* Garantir que os ícones SVG sejam brancos */
+.admin-stat-icon svg {
+  color: #fff !important;
+  fill: #fff !important;
+  stroke: #fff !important;
+}
 
 .admin-stat-content {
   display: flex;
