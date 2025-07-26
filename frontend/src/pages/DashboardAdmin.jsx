@@ -33,21 +33,25 @@ export default function DashboardAdmin() {
   const carregarDados = async () => {
     try {
       setLoading(true);
+      
       const response = await listarRequisicoes();
-      setRequisicoes(response.data || []);
+      const requisicoesData = response.data || response || [];
+      setRequisicoes(requisicoesData);
       
       // Calcular estatísticas
       const statsData = {
-        total: response.data?.length || 0,
-        pendentes: response.data?.filter(r => r.status === 'PENDENTE').length || 0,
-        aprovadas: response.data?.filter(r => r.status === 'APROVADO').length || 0,
-        rejeitadas: response.data?.filter(r => r.status === 'REJEITADO').length || 0,
-        executadas: response.data?.filter(r => r.status === 'EXECUTADO').length || 0,
-        conflitos: response.data?.filter(r => r.status === 'CONFLITO').length || 0
+        total: requisicoesData.length || 0,
+        pendentes: requisicoesData.filter(r => r.status === 'PENDENTE').length || 0,
+        aprovadas: requisicoesData.filter(r => r.status === 'APTO').length || 0,
+        rejeitadas: requisicoesData.filter(r => r.status === 'REJEITADO').length || 0,
+        executadas: requisicoesData.filter(r => r.status === 'EXECUTADO').length || 0,
+        conflitos: requisicoesData.filter(r => r.status === 'PENDENTE_CONFLITO').length || 0
       };
+      
       setStats(statsData);
+      
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      console.error('❌ DashboardAdmin - Erro ao carregar dados:', error);
       mostrarNotificacao('Erro ao carregar dados do dashboard', 'erro');
     } finally {
       setLoading(false);
@@ -81,10 +85,11 @@ export default function DashboardAdmin() {
   const getStatusLabel = (status) => {
     const labels = {
       'PENDENTE': 'Pendentes',
-      'APROVADO': 'Aprovadas',
+      'APTO': 'Aprovadas',
       'REJEITADO': 'Rejeitadas',
       'EXECUTADO': 'Executadas',
-      'CONFLITO': 'Em Conflito',
+      'PENDENTE_CONFLITO': 'Em Conflito',
+      'PREENCHIDO': 'Preenchidas',
       'TOTAL': 'Total de Requisições'
     };
     return labels[status] || status;
@@ -94,10 +99,11 @@ export default function DashboardAdmin() {
   const getStatusColor = (status) => {
     const colors = {
       'PENDENTE': '#ff9800',
-      'APROVADO': '#4caf50',
+      'APTO': '#4caf50',
       'REJEITADO': '#f44336',
       'EXECUTADO': '#9c27b0',
-      'CONFLITO': '#ff5722'
+      'PENDENTE_CONFLITO': '#ff5722',
+      'PREENCHIDO': '#2196f3'
     };
     return colors[status] || '#6b7280';
   };
