@@ -302,21 +302,21 @@ export default function DashboardAdmin() {
               Ações Rápidas
             </h3>
             <div className="actions-grid">
-              <a href="/requisicoes" className="action-btn">
+              <a href="/admin/requisicoes" className="action-btn">
                 <FiPlus />
-                Novo Requerimento
+                Gerenciar Requisições
               </a>
               <a href="/usuarios" className="action-btn">
                 <FiUserPlus />
-                Adicionar Usuário
+                Gerenciar Usuários
               </a>
               <a href="/inventario" className="action-btn">
                 <FiCalendar />
-                Agendar Evento
+                Gerenciar Inventário
               </a>
               <a href="/relatorio" className="action-btn">
                 <FiDownload />
-                Relatório
+                Relatórios Admin
               </a>
             </div>
           </div>

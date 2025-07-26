@@ -29,13 +29,41 @@ function AdminRoute({ children }) {
   }
 }
 
+// Componente que redireciona automaticamente baseado no papel do usuário
+function SmartDashboardRoute() {
+  const { user } = useAuth();
+  
+  console.log('🔍 SmartDashboardRoute - User:', user);
+  console.log('🔍 SmartDashboardRoute - User role:', user?.role);
+  
+  if (!user) {
+    console.log('🔍 SmartDashboardRoute - Redirecionando para login');
+    return <Navigate to="/login" />;
+  }
+  
+  // Se for admin ou pastor, vai para o dashboard admin
+  if (user.role === 'ADM' || user.role === 'PASTOR') {
+    console.log('🔍 SmartDashboardRoute - Redirecionando admin/pastor para dashboard admin');
+    return <Navigate to="/admin/dashboard" />;
+  }
+  
+  // Se for secretário, audiovisual, líder ou usuário normal, vai para o dashboard normal
+  console.log('🔍 SmartDashboardRoute - Redirecionando usuário normal para dashboard normal');
+  return <Navigate to="/dashboard" />;
+}
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        
+        {/* Rota raiz - redireciona automaticamente baseado no papel */}
+        <Route path="/" element={<SmartDashboardRoute />} />
+        
+        {/* Dashboard normal para usuários não-admin */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <PrivateRoute>
               <Layout>
@@ -44,6 +72,7 @@ export default function AppRoutes() {
             </PrivateRoute>
           }
         />
+        
         <Route
           path="/usuarios"
           element={

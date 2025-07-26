@@ -148,18 +148,26 @@ export const listUsers = async (req, res) => {
 // Detalhar um usuário (apenas ADM)
 export const getUser = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== 'ADM') {
-      return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores.' });
-    }
     const { id } = req.params;
+    
+    // Permitir que usuários vejam seus próprios dados OU que admins vejam qualquer usuário
+    if (!req.user || (req.user.userId !== id && req.user.role !== 'ADM')) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Acesso negado. Você só pode ver seus próprios dados.' 
+      });
+    }
+    
     const { data: user, error } = await supabase
       .from('users')
       .select('id, full_name, email, role, is_active, created_at')
       .eq('id', id)
       .single();
+      
     if (error || !user) {
       return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
     }
+    
     res.json({ success: true, data: user });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });

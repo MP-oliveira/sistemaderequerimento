@@ -20,11 +20,18 @@ export default function Header() {
   };
 
   const isAdmin = user && (user.role === 'ADM' || user.role === 'PASTOR');
+  
+  // Determinar para onde o logo deve redirecionar
+  const getDashboardPath = () => {
+    if (!user) return '/';
+    if (isAdmin) return '/admin/dashboard';
+    return '/dashboard';
+  };
 
   return (
     <header className="main-header">
       <div className="header-left">
-        <Link to="/">
+        <Link to={getDashboardPath()}>
           <img src={ibvaLogo} alt="IBVA Logo" className="header-logo" />
         </Link>
       </div>
