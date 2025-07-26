@@ -196,6 +196,56 @@
   border-radius: 50%;
 }
 
+/* Cores específicas para cada status */
+.status-dot.pendentes {
+  background-color: #ff9800;
+}
+
+.status-dot.aprovadas {
+  background-color: #4caf50;
+}
+
+.status-dot.rejeitadas {
+  background-color: #f44336;
+}
+
+.status-dot.executadas {
+  background-color: #9c27b0;
+}
+
+.status-dot.conflitos {
+  background-color: #ff5722;
+}
+
+.status-dot.preenchidas {
+  background-color: #2196f3;
+}
+
+/* Cores específicas para as barras de progresso */
+.status-fill.pendentes {
+  background-color: #ff9800;
+}
+
+.status-fill.aprovadas {
+  background-color: #4caf50;
+}
+
+.status-fill.rejeitadas {
+  background-color: #f44336;
+}
+
+.status-fill.executadas {
+  background-color: #9c27b0;
+}
+
+.status-fill.conflitos {
+  background-color: #ff5722;
+}
+
+.status-fill.preenchidas {
+  background-color: #2196f3;
+}
+
 .status-progress {
   flex: 1;
   height: 8px;

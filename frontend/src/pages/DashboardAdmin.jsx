@@ -61,7 +61,6 @@ export default function DashboardAdmin() {
   // Função para abrir modal com requisições filtradas
   const abrirFiltro = async (status) => {
     try {
-      console.log('🔍 DashboardAdmin - Abrindo filtro para status:', status);
       setFilterLoading(true);
       setCurrentFilter(status);
       setShowFilterModal(true);
@@ -74,7 +73,6 @@ export default function DashboardAdmin() {
         requests = requisicoes.filter(r => r.status === status);
       }
       
-      console.log('🔍 DashboardAdmin - Requisições filtradas:', requests);
       setFilteredRequests(requests);
     } catch (error) {
       console.error('Erro ao filtrar requisições:', error);
@@ -217,15 +215,14 @@ export default function DashboardAdmin() {
               {Object.entries(stats).filter(([key, value]) => key !== 'total' && value > 0).map(([key, value]) => (
                 <div key={key} className="status-bar">
                   <div className="status-label">
-                    <span className="status-dot" style={{ backgroundColor: getStatusColor(key.toUpperCase()) }}></span>
+                    <span className={`status-dot ${key.toLowerCase()}`}></span>
                     {getStatusLabel(key.toUpperCase())}
                   </div>
                   <div className="status-progress">
                     <div 
-                      className="status-fill" 
+                      className={`status-fill ${key.toLowerCase()}`}
                       style={{ 
-                        width: `${(value / stats.total) * 100}%`,
-                        backgroundColor: getStatusColor(key.toUpperCase())
+                        width: `${(value / stats.total) * 100}%`
                       }}
                     ></div>
                   </div>
