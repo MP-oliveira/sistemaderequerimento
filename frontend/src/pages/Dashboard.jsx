@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { listarRequisicoes, listarEventos } from '../services/requestsService';
 import ActivityLog from '../components/ActivityLog';
@@ -250,19 +250,19 @@ export default function Dashboard() {
       {/* Painel de conflitos */}
       {user && (user.role === 'ADM' || user.role === 'PASTOR') && requisicoesConflito.length > 0 && (
         <div className="dashboard-conflitos-card">
-          <div style={{ fontWeight: 700, color: '#b85c00', fontSize: 18, marginBottom: 8 }}>
+          <div className="conflitos-header">
             ⚠️ Requisições em Conflito aguardando decisão ({requisicoesConflito.length})
           </div>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul className="conflitos-list">
             {requisicoesConflito.map(req => (
-              <li key={req.id} style={{ marginBottom: 12, background: '#fffbe6', borderRadius: 8, padding: 10, display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600 }}>{req.description || 'Sem descrição'}</div>
-                  <div style={{ fontSize: 14, color: '#b85c00' }}>Depto: {req.department} | Prioridade: <b>{req.prioridade || '-'}</b></div>
-                  <div style={{ fontSize: 13, color: '#888' }}>Data: {req.start_datetime ? new Date(req.start_datetime).toLocaleString('pt-BR') : '-'}</div>
+              <li key={req.id} className="conflito-item">
+                <div className="conflito-content">
+                  <div className="conflito-title">{req.description || 'Sem descrição'}</div>
+                  <div className="conflito-info">Depto: {req.department} | Prioridade: <b>{req.prioridade || '-'}</b></div>
+                  <div className="conflito-date">Data: {req.start_datetime ? new Date(req.start_datetime).toLocaleString('pt-BR') : '-'}</div>
                 </div>
-                <Button variant="success" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=aprovar`} style={{ marginRight: 6 }}>Aprovar</Button>
-                <Button variant="danger" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=rejeitar`}>Rejeitar</Button>
+                <Button variant="success" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=aprovar`} className="conflito-btn-aprovar">Aprovar</Button>
+                <Button variant="danger" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=rejeitar`} className="conflito-btn-rejeitar">Rejeitar</Button>
               </li>
             ))}
           </ul>
@@ -334,8 +334,8 @@ export default function Dashboard() {
         </div>
       </div>
       {/* Lista de eventos do dia */}
-      <div className="card activity-card" style={{ marginTop: '-16px', marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 12 }}>Atividades do dia</h3>
+      <div className="card activity-card activity-card-today">
+        <h3 className="activity-title">Atividades do dia</h3>
         {(() => {
           const today = new Date();
           const todayStr = today.toISOString().split('T')[0];
@@ -345,17 +345,17 @@ export default function Dashboard() {
             return evDate.toISOString().split('T')[0] === todayStr;
           });
           if (eventosHoje.length === 0) {
-            return <div style={{ color: '#888', fontSize: 15 }}>Nenhum evento para hoje.</div>;
+            return <div className="no-events">Nenhum evento para hoje.</div>;
           }
           return (
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <ul className="events-list">
               {eventosHoje.map(ev => (
-                <li key={ev.id} style={{ marginBottom: 8, padding: 8, borderRadius: 6, background: '#f8f9fa', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ fontWeight: 600 }}>{ev.title}</span>
-                  <span style={{ color: '#888', fontWeight: 400, fontSize: 14 }}>
+                <li key={ev.id} className="event-item">
+                  <span className="event-title">{ev.title}</span>
+                  <span className="event-location">
                     {ev.location ? `(${ev.location})` : ''}
                   </span>
-                  <span style={{ color: '#2563eb', fontWeight: 500, fontSize: 14 }}>
+                  <span className="event-time">
                     {ev.start_datetime ? new Date(ev.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
                     {ev.end_datetime ? ' - ' + new Date(ev.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
                   </span>
@@ -366,8 +366,8 @@ export default function Dashboard() {
         })()}
       </div>
       {/* Lista de atividades recentes do mês até ontem */}
-      <div className="card activity-card" style={{ marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 12 }}>Atividades recentes</h3>
+      <div className="card activity-card activity-card-recent">
+        <h3 className="activity-title">Atividades recentes</h3>
         {(() => {
           const today = new Date();
           const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -378,17 +378,17 @@ export default function Dashboard() {
             return evDate >= firstDayOfMonth && evDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
           }).sort((a, b) => new Date(b.start_datetime) - new Date(a.start_datetime));
           if (eventosRecentes.length === 0) {
-            return <div style={{ color: '#888', fontSize: 15 }}>Nenhuma atividade recente neste mês.</div>;
+            return <div className="no-events">Nenhuma atividade recente neste mês.</div>;
           }
           return (
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <ul className="events-list">
               {eventosRecentes.map(ev => (
-                <li key={ev.id} style={{ marginBottom: 8, padding: 8, borderRadius: 6, background: '#f8f9fa', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ fontWeight: 600 }}>{ev.title}</span>
-                  <span style={{ color: '#888', fontWeight: 400, fontSize: 14 }}>
+                <li key={ev.id} className="event-item">
+                  <span className="event-title">{ev.title}</span>
+                  <span className="event-location">
                     {ev.location ? `(${ev.location})` : ''}
                   </span>
-                  <span style={{ color: '#2563eb', fontWeight: 500, fontSize: 14 }}>
+                  <span className="event-time">
                     {ev.start_datetime ? new Date(ev.start_datetime).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : ''}
                     {ev.start_datetime ? ' ' + new Date(ev.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
                     {ev.end_datetime ? ' - ' + new Date(ev.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
@@ -403,10 +403,10 @@ export default function Dashboard() {
       <Modal 
         open={showEventModal} 
         title={
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
-            <span className="event-modal-title" style={{ color: '#2563eb', fontWeight: 700, fontSize: 22 }}>Evento</span>
+          <div className="event-modal-header">
+            <span className="event-modal-title">Evento</span>
             {selectedDay && (
-              <span className="event-modal-date" style={{ color: '#666', fontSize: 15, fontWeight: 400, marginTop: 4 }}>
+              <span className="event-modal-date">
                 {(() => {
                   const dia = selectedDay.toLocaleDateString('pt-BR', { weekday: 'long' });
                   const data = selectedDay.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });

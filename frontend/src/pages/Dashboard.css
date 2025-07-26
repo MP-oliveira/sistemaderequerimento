@@ -196,6 +196,126 @@
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
+/* Painel de Conflitos */
+.conflitos-header {
+  font-weight: 700;
+  color: #b85c00;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.conflitos-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.conflito-item {
+  margin-bottom: 12px;
+  background: #fffbe6;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.conflito-content {
+  flex: 1;
+}
+
+.conflito-title {
+  font-weight: 600;
+}
+
+.conflito-info {
+  font-size: 14px;
+  color: #b85c00;
+}
+
+.conflito-date {
+  font-size: 13px;
+  color: #888;
+}
+
+.conflito-btn-aprovar {
+  margin-right: 6px;
+}
+
+/* Atividades */
+.activity-card-today {
+  margin-top: -16px;
+  margin-bottom: 24px;
+}
+
+.activity-card-recent {
+  margin-bottom: 24px;
+}
+
+.activity-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.no-events {
+  color: #888;
+  font-size: 15px;
+}
+
+.events-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.event-item {
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.event-title {
+  font-weight: 600;
+}
+
+.event-location {
+  color: #888;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.event-time {
+  color: #2563eb;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Modal de Eventos */
+.event-modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.event-modal-title {
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.event-modal-date {
+  color: #666;
+  font-size: 15px;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
 .dashboard-conflitos-card {
   width: 100%;
   max-width: 1200px;

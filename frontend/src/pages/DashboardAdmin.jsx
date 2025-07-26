@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
-import { listarRequisicoes } from '../services/requestsService';
-import Button from '../components/Button';
+import React, { useState, useEffect } from 'react';
+import { Button } from '../components/Button';
+import { Modal } from '../components/Modal';
+import { Table } from '../components/Table';
+import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
+import requestsService from '../services/requestsService';
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
@@ -12,85 +15,127 @@ export default function DashboardAdmin() {
     aprovadas: 0,
     rejeitadas: 0,
     executadas: 0,
-    finalizadas: 0,
     conflitos: 0
   });
+  const [notificacao, setNotificacao] = useState(null);
+  
+  // Estados para o modal de filtros
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filteredRequests, setFilteredRequests] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState('');
+  const [filterLoading, setFilterLoading] = useState(false);
 
-  // Estado para notificações
-  const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
+  function mostrarNotificacao(mensagem, tipo) {
+    setNotificacao({ mensagem, tipo });
+    setTimeout(() => setNotificacao(null), 5000);
+  }
+
+  const carregarDados = async () => {
+    try {
+      setLoading(true);
+      const response = await requestsService.listarRequisicoes();
+      setRequisicoes(response.data || []);
+      
+      // Calcular estatísticas
+      const statsData = {
+        total: response.data?.length || 0,
+        pendentes: response.data?.filter(r => r.status === 'PENDENTE').length || 0,
+        aprovadas: response.data?.filter(r => r.status === 'APROVADO').length || 0,
+        rejeitadas: response.data?.filter(r => r.status === 'REJEITADO').length || 0,
+        executadas: response.data?.filter(r => r.status === 'EXECUTADO').length || 0,
+        conflitos: response.data?.filter(r => r.status === 'CONFLITO').length || 0
+      };
+      setStats(statsData);
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error);
+      mostrarNotificacao('Erro ao carregar dados do dashboard', 'erro');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Função para abrir modal com requisições filtradas
+  const abrirFiltro = async (status) => {
+    try {
+      setFilterLoading(true);
+      setCurrentFilter(status);
+      setShowFilterModal(true);
+      
+      // Filtrar requisições pelo status
+      let requests;
+      if (status === 'TOTAL') {
+        requests = requisicoes; // Mostrar todas as requisições
+      } else {
+        requests = requisicoes.filter(r => r.status === status);
+      }
+      setFilteredRequests(requests);
+    } catch (error) {
+      console.error('Erro ao filtrar requisições:', error);
+      mostrarNotificacao('Erro ao carregar requisições filtradas', 'erro');
+    } finally {
+      setFilterLoading(false);
+    }
+  };
+
+  // Função para obter label do status
+  const getStatusLabel = (status) => {
+    const labels = {
+      'PENDENTE': 'Pendentes',
+      'APROVADO': 'Aprovadas',
+      'REJEITADO': 'Rejeitadas',
+      'EXECUTADO': 'Executadas',
+      'CONFLITO': 'Em Conflito',
+      'TOTAL': 'Total de Requisições'
+    };
+    return labels[status] || status;
+  };
+
+  // Função para obter cor do status
+  const getStatusColor = (status) => {
+    const colors = {
+      'PENDENTE': '#ff9800',
+      'APROVADO': '#4caf50',
+      'REJEITADO': '#f44336',
+      'EXECUTADO': '#9c27b0',
+      'CONFLITO': '#ff5722'
+    };
+    return colors[status] || '#6b7280';
+  };
 
   useEffect(() => {
     carregarDados();
   }, []);
 
-  // Auto-hide das notificações
-  useEffect(() => {
-    if (notificacao.mostrar) {
-      const timer = setTimeout(() => setNotificacao({ mensagem: '', tipo: '', mostrar: false }), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [notificacao.mostrar]);
+  // Configuração das colunas da tabela
+  const columns = [
+    { key: 'event_name', label: 'Evento' },
+    { key: 'department', label: 'Departamento' },
+    { key: 'requester', label: 'Solicitante' },
+    { key: 'start_datetime', label: 'Data/Hora Início' },
+    { key: 'end_datetime', label: 'Data/Hora Fim' },
+    { key: 'location', label: 'Local' },
+    { key: 'status', label: 'Status' }
+  ];
 
-  function mostrarNotificacao(mensagem, tipo) {
-    setNotificacao({ mensagem, tipo, mostrar: true });
-  }
-
-  const carregarDados = async () => {
-    setLoading(true);
-    try {
-      const data = await listarRequisicoes();
-      const requisicoesArray = Array.isArray(data) ? data : [];
-      setRequisicoes(requisicoesArray);
-      
-      // Calcular estatísticas
-      const estatisticas = {
-        total: requisicoesArray.length,
-        pendentes: requisicoesArray.filter(r => r.status === 'PENDENTE').length,
-        aprovadas: requisicoesArray.filter(r => r.status === 'APTO').length,
-        rejeitadas: requisicoesArray.filter(r => r.status === 'REJEITADO').length,
-        executadas: requisicoesArray.filter(r => r.status === 'EXECUTADO').length,
-        finalizadas: requisicoesArray.filter(r => r.status === 'FINALIZADO').length,
-        conflitos: requisicoesArray.filter(r => r.status === 'PENDENTE_CONFLITO').length
-      };
-      setStats(estatisticas);
-    } catch (err) {
-      mostrarNotificacao('Erro ao carregar dados do dashboard', 'erro');
-    }
-    setLoading(false);
+  // Formatar dados para a tabela
+  const formatTableData = (requests) => {
+    return requests.map(request => ({
+      ...request,
+      start_datetime: new Date(request.start_datetime).toLocaleString('pt-BR'),
+      end_datetime: new Date(request.end_datetime).toLocaleString('pt-BR'),
+      status: (
+        <span className="status-badge-table">
+          {request.status}
+        </span>
+      )
+    }));
   };
 
-  const requisicoesPendentes = requisicoes.filter(r => 
-    r.status === 'PENDENTE' || r.status === 'PENDENTE_CONFLITO'
-  ).slice(0, 5);
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PENDENTE': return '#f59e0b';
-      case 'PENDENTE_CONFLITO': return '#dc2626';
-      case 'APTO': return '#10b981';
-      case 'REJEITADO': return '#ef4444';
-      case 'EXECUTADO': return '#3b82f6';
-      case 'FINALIZADO': return '#8b5cf6';
-      default: return '#6b7280';
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'PENDENTE': return 'Pendente';
-      case 'PENDENTE_CONFLITO': return 'Em Conflito';
-      case 'APTO': return 'Aprovada';
-      case 'REJEITADO': return 'Rejeitada';
-      case 'EXECUTADO': return 'Executada';
-      case 'FINALIZADO': return 'Finalizada';
-      default: return status;
-    }
-  };
+  const requisicoesPendentes = requisicoes.filter(r => r.status === 'PENDENTE').slice(0, 5);
 
   return (
     <div className="dashboard-admin">
-      {/* Notificação */}
-      {notificacao.mostrar && (
+      {notificacao && (
         <div className={`notificacao ${notificacao.tipo}`}>
           {notificacao.mensagem}
         </div>
@@ -107,7 +152,7 @@ export default function DashboardAdmin() {
         <>
           {/* Cards de Estatísticas */}
           <div className="admin-stats-grid">
-            <div className="admin-stat-card">
+            <div className="admin-stat-card" onClick={() => abrirFiltro('TOTAL')}>
               <div className="admin-stat-icon blue">📊</div>
               <div className="admin-stat-content">
                 <h3>{stats.total}</h3>
@@ -115,7 +160,7 @@ export default function DashboardAdmin() {
               </div>
             </div>
             
-            <div className="admin-stat-card">
+            <div className="admin-stat-card" onClick={() => abrirFiltro('PENDENTE')}>
               <div className="admin-stat-icon yellow">⏳</div>
               <div className="admin-stat-content">
                 <h3>{stats.pendentes}</h3>
@@ -123,7 +168,7 @@ export default function DashboardAdmin() {
               </div>
             </div>
             
-            <div className="admin-stat-card">
+            <div className="admin-stat-card" onClick={() => abrirFiltro('CONFLITO')}>
               <div className="admin-stat-icon orange">⚠️</div>
               <div className="admin-stat-content">
                 <h3>{stats.conflitos}</h3>
@@ -131,7 +176,7 @@ export default function DashboardAdmin() {
               </div>
             </div>
             
-            <div className="admin-stat-card">
+            <div className="admin-stat-card" onClick={() => abrirFiltro('APROVADO')}>
               <div className="admin-stat-icon success">✅</div>
               <div className="admin-stat-content">
                 <h3>{stats.aprovadas}</h3>
@@ -139,7 +184,7 @@ export default function DashboardAdmin() {
               </div>
             </div>
             
-            <div className="admin-stat-card">
+            <div className="admin-stat-card" onClick={() => abrirFiltro('REJEITADO')}>
               <div className="admin-stat-icon red">❌</div>
               <div className="admin-stat-content">
                 <h3>{stats.rejeitadas}</h3>
@@ -147,7 +192,7 @@ export default function DashboardAdmin() {
               </div>
             </div>
             
-            <div className="admin-stat-card">
+            <div className="admin-stat-card" onClick={() => abrirFiltro('EXECUTADO')}>
               <div className="admin-stat-icon purple">🎯</div>
               <div className="admin-stat-content">
                 <h3>{stats.executadas}</h3>
@@ -233,42 +278,66 @@ export default function DashboardAdmin() {
           </div>
 
           {/* Ações Rápidas */}
-          <div className="dashboard-section">
-            <h2>Ações Rápidas</h2>
-            <div className="quick-actions">
-              <Button 
-                variant="primary" 
-                size="lg"
-                onClick={() => window.location.href = '/admin/requisicoes'}
-                className="action-btn"
-              >
-                <span className="action-icon">📋</span>
-                Gerenciar Requisições
-              </Button>
-              
-              <Button 
-                variant="secondary" 
-                size="lg"
-                onClick={() => window.location.href = '/usuarios'}
-                className="action-btn"
-              >
-                <span className="action-icon">👥</span>
-                Gerenciar Usuários
-              </Button>
-              
-              <Button 
-                variant="secondary" 
-                size="lg"
-                onClick={() => window.location.href = '/inventario'}
-                className="action-btn"
-              >
-                <span className="action-icon">📦</span>
-                Gerenciar Inventário
-              </Button>
+          <div className="quick-actions">
+            <h3 className="section-title">
+              <FiZap style={{marginRight: 8}} />
+              Ações Rápidas
+            </h3>
+            <div className="actions-grid">
+              <a href="/requisicoes" className="action-btn">
+                <FiPlus />
+                Novo Requerimento
+              </a>
+              <a href="/usuarios" className="action-btn">
+                <FiUserPlus />
+                Adicionar Usuário
+              </a>
+              <a href="/inventario" className="action-btn">
+                <FiCalendar />
+                Agendar Evento
+              </a>
+              <a href="/relatorio" className="action-btn">
+                <FiDownload />
+                Relatório
+              </a>
             </div>
           </div>
         </>
       )}
+
+      {/* Modal de Filtros */}
+      <Modal 
+        isOpen={showFilterModal} 
+        onClose={() => setShowFilterModal(false)}
+        title={`Requisições ${getStatusLabel(currentFilter)}`}
+        size="lg"
+      >
+        {filterLoading ? (
+          <div className="loading-state">
+            <p>Carregando requisições...</p>
+          </div>
+        ) : filteredRequests.length === 0 ? (
+          <div className="empty-state">
+            <p>Nenhuma requisição encontrada para este filtro.</p>
+          </div>
+        ) : (
+          <div className="filtered-requests">
+            <Table 
+              columns={columns}
+              data={formatTableData(filteredRequests)}
+              className="admin-table"
+            />
+            <div className="modal-footer">
+              <Button 
+                variant="primary" 
+                onClick={() => window.location.href = '/admin/requisicoes'}
+              >
+                Ver Todas as Requisições
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 } 
