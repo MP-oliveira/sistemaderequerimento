@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import toast from 'react-hot-toast';
+
 import './Inventory.css';
 import Modal from '../components/Modal';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
@@ -45,9 +45,24 @@ export default function Inventory() {
   const [deleteItem, setDeleteItem] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // Estado para notificações
+  const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
+
   useEffect(() => {
     buscarItens();
   }, []);
+
+  // Auto-hide das notificações
+  useEffect(() => {
+    if (notificacao.mostrar) {
+      const timer = setTimeout(() => setNotificacao({ mensagem: '', tipo: '', mostrar: false }), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notificacao.mostrar]);
+
+  function mostrarNotificacao(mensagem, tipo) {
+    setNotificacao({ mensagem, tipo, mostrar: true });
+  }
 
   const buscarItens = async () => {
     setLoading(true);
@@ -73,7 +88,7 @@ export default function Inventory() {
       setShowLogs(true);
     } catch (error) {
       console.error('Erro ao buscar logs:', error);
-      toast.error('Erro ao carregar histórico do item');
+      mostrarNotificacao('Erro ao carregar histórico do item', 'erro');
     }
     setLoadingLogs(false);
   };
@@ -88,7 +103,7 @@ export default function Inventory() {
   // Função para exportar para PDF
   const exportarParaPDF = () => {
     if (itens.length === 0) {
-      toast.error('Não há itens para exportar');
+      mostrarNotificacao('Não há itens para exportar', 'erro');
       return;
     }
 
@@ -135,17 +150,17 @@ export default function Inventory() {
       const fileName = `inventario_${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(fileName);
       
-      toast.success('✅ Relatório PDF exportado com sucesso!');
+      mostrarNotificacao('✅ Relatório PDF exportado com sucesso!', 'sucesso');
     } catch (error) {
       console.error('Erro ao exportar PDF:', error);
-      toast.error('❌ Erro ao exportar PDF');
+      mostrarNotificacao('❌ Erro ao exportar PDF', 'erro');
     }
   };
 
   // Função para exportar para Excel
   const exportarParaExcel = () => {
     if (itens.length === 0) {
-      toast.error('Não há itens para exportar');
+      mostrarNotificacao('Não há itens para exportar', 'erro');
       return;
     }
 
@@ -186,10 +201,10 @@ export default function Inventory() {
       const fileName = `inventario_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);
       
-      toast.success('✅ Relatório Excel exportado com sucesso!');
+      mostrarNotificacao('✅ Relatório Excel exportado com sucesso!', 'sucesso');
     } catch (error) {
       console.error('Erro ao exportar Excel:', error);
-      toast.error('❌ Erro ao exportar Excel');
+      mostrarNotificacao('❌ Erro ao exportar Excel', 'erro');
     }
   };
 
@@ -237,12 +252,12 @@ export default function Inventory() {
         quantity_available: Number(editItem.quantity_available),
         quantity_total: Number(editItem.quantity_total ?? editItem.quantity_available)
       });
-      toast.success('Item atualizado com sucesso!');
+      mostrarNotificacao('Item atualizado com sucesso!', 'sucesso');
       setShowEditModal(false);
       setEditItem(null);
       buscarItens();
     } catch (err) {
-      toast.error('Erro ao atualizar item: ' + (err.message || 'Erro desconhecido'));
+      mostrarNotificacao('Erro ao atualizar item: ' + (err.message || 'Erro desconhecido'), 'erro');
     }
   };
 
@@ -251,7 +266,7 @@ export default function Inventory() {
     if (!deleteItem) return;
     try {
       await deletarItemInventario(deleteItem.id);
-      toast.success('Item deletado com sucesso!');
+      mostrarNotificacao('Item deletado com sucesso!', 'sucesso');
       setShowDeleteModal(false);
       setDeleteItem(null);
       setTimeout(() => {
@@ -259,7 +274,7 @@ export default function Inventory() {
         buscarItens();
       }, 200);
     } catch (err) {
-      toast.error('Erro ao deletar item: ' + (err.message || 'Erro desconhecido'));
+      mostrarNotificacao('Erro ao deletar item: ' + (err.message || 'Erro desconhecido'), 'erro');
     }
   };
 
@@ -308,6 +323,13 @@ export default function Inventory() {
 
   return (
     <div className="inventory-page">
+      {/* Notificação */}
+      {notificacao.mostrar && (
+        <div className={`notificacao ${notificacao.tipo}`}>
+          {notificacao.mensagem}
+        </div>
+      )}
+
       {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
         <div className="card inventory-form-card">
           <h1 className="inventory-form-title">Inventário</h1>

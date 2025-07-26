@@ -1,259 +1,167 @@
-import React, { useState, useEffect } from 'react';
-import { uploadComprovante, listarComprovantes, downloadComprovante, removerComprovante } from '../services/requestsService';
+import { useState, useEffect } from 'react';
 import Button from './Button';
-import Modal from './Modal';
-import toast from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext';
+import { listarComprovantes, uploadComprovante, removerComprovante, downloadComprovante } from '../services/requestsService';
 import './Comprovantes.css';
 
 export default function Comprovantes({ requisicao, onClose }) {
-  const { user } = useAuth();
   const [comprovantes, setComprovantes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [description, setDescription] = useState('');
 
+  // Estado para notificações
+  const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
+
   useEffect(() => {
-    if (requisicao && requisicao.id) {
-      carregarComprovantes();
+    if (requisicao) {
+      buscarComprovantes();
     }
   }, [requisicao]);
 
-  const carregarComprovantes = async () => {
-    if (!requisicao || !requisicao.id) return;
-    
+  // Auto-hide das notificações
+  useEffect(() => {
+    if (notificacao.mostrar) {
+      const timer = setTimeout(() => setNotificacao({ mensagem: '', tipo: '', mostrar: false }), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notificacao.mostrar]);
+
+  function mostrarNotificacao(mensagem, tipo) {
+    setNotificacao({ mensagem, tipo, mostrar: true });
+  }
+
+  const buscarComprovantes = async () => {
     setLoading(true);
     try {
       const data = await listarComprovantes(requisicao.id);
-      setComprovantes(data || []);
-    } catch (error) {
-      console.error('Erro ao carregar comprovantes:', error);
-      toast.error('Erro ao carregar comprovantes');
+      setComprovantes(Array.isArray(data) ? data : []);
+    } catch (err) {
+      mostrarNotificacao('Erro ao buscar comprovantes', 'erro');
     }
     setLoading(false);
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      // Validar tamanho (10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('Arquivo muito grande. Máximo 10MB.');
-        return;
-      }
-
-      // Validar tipo
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Tipo de arquivo não suportado. Use: jpeg, jpg, png, gif, pdf, doc, docx, xls, xlsx');
-        return;
-      }
-
-      setSelectedFile(file);
-    }
+    setSelectedFile(file);
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      toast.error('Selecione um arquivo');
+    if (!selectedFile || !description.trim()) {
+      mostrarNotificacao('Selecione um arquivo e adicione uma descrição', 'erro');
       return;
     }
 
     setUploading(true);
     try {
       await uploadComprovante(requisicao.id, selectedFile, description);
-      toast.success('Comprovante enviado com sucesso!');
-      setShowUploadModal(false);
+      mostrarNotificacao('Comprovante enviado com sucesso!', 'sucesso');
       setSelectedFile(null);
       setDescription('');
-      carregarComprovantes();
-    } catch (error) {
-      console.error('Erro ao enviar comprovante:', error);
-      toast.error(error.message || 'Erro ao enviar comprovante');
+      buscarComprovantes();
+    } catch (err) {
+      mostrarNotificacao('Erro ao enviar comprovante', 'erro');
     }
     setUploading(false);
   };
 
-  const handleDownload = async (comprovante) => {
+  const handleDownload = async (comprovanteId, fileName) => {
     try {
-      await downloadComprovante(comprovante.id);
-      toast.success('Download iniciado!');
-    } catch (error) {
-      console.error('Erro ao baixar comprovante:', error);
-      toast.error('Erro ao baixar comprovante');
+      await downloadComprovante(comprovanteId);
+      mostrarNotificacao('Download iniciado!', 'sucesso');
+    } catch (err) {
+      mostrarNotificacao('Erro ao fazer download', 'erro');
     }
   };
 
-  const handleRemove = async (comprovante) => {
-    if (!window.confirm('Tem certeza que deseja remover este comprovante?')) {
-      return;
-    }
-
+  const handleDelete = async (comprovanteId) => {
     try {
-      await removerComprovante(comprovante.id);
-      toast.success('Comprovante removido com sucesso!');
-      carregarComprovantes();
-    } catch (error) {
-      console.error('Erro ao remover comprovante:', error);
-      toast.error('Erro ao remover comprovante');
+      await removerComprovante(comprovanteId);
+      mostrarNotificacao('Comprovante removido com sucesso!', 'sucesso');
+      buscarComprovantes();
+    } catch (err) {
+      mostrarNotificacao('Erro ao remover comprovante', 'erro');
     }
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('pt-BR');
-  };
-
-  const getFileIcon = (mimeType) => {
-    if (mimeType.startsWith('image/')) return '🖼️';
-    if (mimeType === 'application/pdf') return '📄';
-    if (mimeType.includes('word')) return '📝';
-    if (mimeType.includes('excel')) return '📊';
-    return '📎';
   };
 
   return (
     <div className="comprovantes-container">
+      {/* Notificação */}
+      {notificacao.mostrar && (
+        <div className={`notificacao ${notificacao.tipo}`}>
+          {notificacao.mensagem}
+        </div>
+      )}
+
       <div className="comprovantes-header">
-        <h3>📎 Comprovantes da Requisição</h3>
-        <div className="comprovantes-actions">
-          <Button 
-            onClick={() => setShowUploadModal(true)} 
-            variant="primary" 
+        <h3>Comprovantes da Requisição</h3>
+        <p>Requisição: {requisicao?.description || 'N/A'}</p>
+      </div>
+
+      <div className="upload-section">
+        <h4>Adicionar Comprovante</h4>
+        <div className="upload-form">
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+            className="file-input"
+          />
+          <input
+            type="text"
+            placeholder="Descrição do comprovante"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="description-input"
+          />
+          <Button
+            onClick={handleUpload}
+            disabled={!selectedFile || !description.trim() || uploading}
+            loading={uploading}
+            variant="primary"
             size="sm"
           >
-            📤 Enviar Comprovante
-          </Button>
-          <Button 
-            onClick={onClose} 
-            variant="secondary" 
-            size="sm"
-          >
-            ✕ Fechar
+            Enviar
           </Button>
         </div>
       </div>
 
-      {loading ? (
-        <div className="comprovantes-loading">
-          <div className="loading-spinner"></div>
-          <p>Carregando comprovantes...</p>
-        </div>
-      ) : comprovantes.length === 0 ? (
-        <div className="comprovantes-empty">
-          <p>📭 Nenhum comprovante enviado ainda.</p>
-          <p>Clique em "Enviar Comprovante" para adicionar documentos.</p>
-        </div>
-      ) : (
-        <div className="comprovantes-list">
-          {comprovantes.map((comprovante) => (
-            <div key={comprovante.id} className="comprovante-item">
-              <div className="comprovante-info">
-                <div className="comprovante-icon">
-                  {getFileIcon(comprovante.mime_type)}
+      <div className="comprovantes-list">
+        <h4>Comprovantes Enviados</h4>
+        {loading ? (
+          <div className="loading">Carregando...</div>
+        ) : comprovantes.length === 0 ? (
+          <div className="empty">Nenhum comprovante encontrado.</div>
+        ) : (
+          <div className="comprovantes-grid">
+            {comprovantes.map((comprovante) => (
+              <div key={comprovante.id} className="comprovante-item">
+                <div className="comprovante-info">
+                  <h5>{comprovante.description}</h5>
+                  <p>Enviado em: {new Date(comprovante.created_at).toLocaleString()}</p>
                 </div>
-                <div className="comprovante-details">
-                  <h4 className="comprovante-name">{comprovante.original_name}</h4>
-                  <p className="comprovante-description">{comprovante.description}</p>
-                  <div className="comprovante-meta">
-                    <span className="comprovante-size">{formatFileSize(comprovante.file_size)}</span>
-                    <span className="comprovante-date">{formatDate(comprovante.created_at)}</span>
-                    <span className="comprovante-user">por {comprovante.uploaded_by_name}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="comprovante-actions">
-                <Button 
-                  onClick={() => handleDownload(comprovante)} 
-                  variant="secondary" 
-                  size="sm"
-                >
-                  📥 Baixar
-                </Button>
-                {(user.role === 'ADM' || comprovante.uploaded_by === user.id) && (
-                  <Button 
-                    onClick={() => handleRemove(comprovante)} 
-                    variant="danger" 
+                <div className="comprovante-actions">
+                  <Button
+                    onClick={() => handleDownload(comprovante.id, comprovante.file_name)}
+                    variant="secondary"
                     size="sm"
                   >
-                    🗑️ Remover
+                    Download
                   </Button>
-                )}
+                  <Button
+                    onClick={() => handleDelete(comprovante.id)}
+                    variant="danger"
+                    size="sm"
+                  >
+                    Remover
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Modal de Upload */}
-      <Modal 
-        open={showUploadModal} 
-        onClose={() => setShowUploadModal(false)}
-        title="📤 Enviar Comprovante"
-      >
-        <div className="upload-form">
-          <div className="form-group">
-            <label className="input-label">
-              Arquivo
-              <input
-                type="file"
-                onChange={handleFileSelect}
-                accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx"
-                className="file-input"
-              />
-            </label>
-            {selectedFile && (
-              <div className="selected-file">
-                <span>✅ {selectedFile.name} ({formatFileSize(selectedFile.size)})</span>
-              </div>
-            )}
+            ))}
           </div>
-
-          <div className="form-group">
-            <label className="input-label">
-              Descrição (opcional)
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Descreva o comprovante..."
-                rows="3"
-                className="input-field"
-              />
-            </label>
-          </div>
-
-          <div className="upload-info">
-            <p>📋 Tipos aceitos: JPG, PNG, GIF, PDF, DOC, DOCX, XLS, XLSX</p>
-            <p>📏 Tamanho máximo: 10MB</p>
-          </div>
-
-          <div className="form-actions">
-            <Button 
-              onClick={() => setShowUploadModal(false)} 
-              variant="secondary"
-            >
-              Cancelar
-            </Button>
-            <Button 
-              onClick={handleUpload} 
-              variant="primary"
-              loading={uploading}
-              disabled={!selectedFile || uploading}
-            >
-              {uploading ? 'Enviando...' : 'Enviar Comprovante'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        )}
+      </div>
     </div>
   );
 } 

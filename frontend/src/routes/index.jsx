@@ -5,6 +5,8 @@ import Dashboard from '../pages/Dashboard';
 import Users from '../pages/Users';
 import Inventory from '../pages/Inventory';
 import Requests from '../pages/Requests';
+import RequestsAdmin from '../pages/RequestsAdmin';
+import DashboardAdmin from '../pages/DashboardAdmin';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 
@@ -15,6 +17,15 @@ function PrivateRoute({ children }) {
   } catch (error) {
     console.error('Erro no PrivateRoute:', error);
     return <Navigate to="/login" />;
+  }
+}
+
+function AdminRoute({ children }) {
+  try {
+    const { user } = useAuth();
+    return user && (user.role === 'ADM' || user.role === 'PASTOR') ? children : <Navigate to="/" />;
+  } catch (error) {
+    return <Navigate to="/" />;
   }
 }
 
@@ -61,6 +72,26 @@ export default function AppRoutes() {
                 <Requests />
               </Layout>
             </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <Layout>
+                <DashboardAdmin />
+              </Layout>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/requisicoes"
+          element={
+            <AdminRoute>
+              <Layout>
+                <RequestsAdmin />
+              </Layout>
+            </AdminRoute>
           }
         />
       </Routes>

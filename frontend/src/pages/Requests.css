@@ -27,10 +27,59 @@
   text-align: left;
 }
 
+/* --- NOVO LAYOUT DO FORMULÁRIO DE REQUERIMENTO --- */
 .requests-form {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 28px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 32px 28px 28px 28px;
+  margin-bottom: 0;
+}
+
+.requests-form-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 0;
+}
+
+.requests-form-col {
+  flex: 1 1 220px;
+  min-width: 220px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.requests-form-section-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #2563eb;
+  margin-bottom: 10px;
+  margin-top: 0;
+  letter-spacing: 0.01em;
+}
+
+.requests-form-row {
+  display: flex;
+  flex-direction: row;
+  gap: 28px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.requests-form-row-evento {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  width: 100%;
+  margin-bottom: 0;
 }
 
 .requests-items-header {
@@ -318,6 +367,62 @@
   color: #174ea6;
 }
 
+.requests-alert-conflito {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  color: #92400e;
+}
+
+.conflito-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.conflito-icon {
+  font-size: 1.2rem;
+}
+
+.conflito-details {
+  margin-bottom: 12px;
+}
+
+.conflito-details p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.conflito-actions {
+  border-top: 1px solid #f59e0b;
+  padding-top: 12px;
+}
+
+.conflito-actions small {
+  color: #92400e;
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .requests-form, .requests-form-section, .requests-form-row, .requests-form-row-evento {
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 8px 16px 8px;
+  }
+  .requests-form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .requests-form-col {
+    min-width: 100%;
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 1200px) {
   .requests-page {
     max-width: 99vw;
@@ -347,5 +452,139 @@
   .filters-container {
     flex-direction: column;
     gap: 8px;
+  }
+} 
+
+.requests-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.export-btn {
+  box-shadow: 0 2px 8px #0001;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+.export-btn-pdf {}
+.export-btn-excel {}
+.export-btn-icon {
+  font-size: 18px;
+  margin-right: 6px;
+}
+
+.requests-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 1.1rem;
+  font-size: 16px;
+  color: #222;
+  box-shadow: none;
+  border: none;
+  transition: background 0.2s;
+  cursor: pointer;
+  margin: 0 0 8px;
+  padding: 4px;
+  border-radius: 6px;
+  background: #F8F9FA;
+}
+
+.req-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.edit-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-modal-section-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.edit-modal-section-title-itens {
+  margin-top: 12px;
+}
+
+.edit-modal-itens-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.edit-modal-itens-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.edit-modal-qtd-input {
+  width: 60px;
+}
+.edit-modal-add-item-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+.edit-modal-add-item-select {
+  flex: 1;
+}
+.edit-modal-add-item-qtd {
+  width: 60px;
+} 
+
+.input-label {
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  color: #222;
+  font-size: 15px;
+} 
+
+.notificacao {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+.notificacao.sucesso {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.notificacao.erro {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.notificacao.aviso {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 } 

@@ -1,0 +1,94 @@
+/* Histórico de Status */
+.status-history-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.status-history-section h4 {
+  margin-bottom: 16px;
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+.status-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-history-item {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.status-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+.status-pendente {
+  background-color: #f59e0b;
+}
+
+.status-pendente_conflito {
+  background-color: #dc2626;
+}
+
+.status-apto {
+  background-color: #10b981;
+}
+
+.status-rejeitado {
+  background-color: #ef4444;
+}
+
+.status-executado {
+  background-color: #3b82f6;
+}
+
+.status-finalizado {
+  background-color: #8b5cf6;
+}
+
+.status-date {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.status-user {
+  font-size: 0.9rem;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.status-reason {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Responsividade para histórico de status */
+@media (max-width: 768px) {
+  .status-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .status-history-item {
+    padding: 10px;
+  }
+} 

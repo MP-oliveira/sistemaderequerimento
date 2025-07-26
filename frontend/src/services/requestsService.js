@@ -194,7 +194,28 @@ export async function removerComprovante(comprovanteId) {
   } catch (err) {
     throw err;
   }
-} 
+}
+
+export async function atualizarRequisicao(id, data) {
+  try {
+    const response = await fetch(`${API_URL}/api/requests/${id}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        description: data.description,
+        event_name: data.event_name,
+        date: data.date
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao atualizar requisição');
+    }
+    return await response.json();
+  } catch (err) {
+    throw err;
+  }
+}
 
 export async function listarEventos() {
   try {
@@ -203,6 +224,38 @@ export async function listarEventos() {
     });
     if (!response.ok) {
       throw new Error('Erro ao buscar eventos');
+    }
+    const data = await response.json();
+    return data.data || data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function deletarRequisicao(id) {
+  try {
+    const response = await fetch(`${API_URL}/api/requests/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao deletar requisição');
+    }
+    return await response.json();
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function getRequisicaoDetalhada(id) {
+  try {
+    const response = await fetch(`${API_URL}/api/requests/${id}`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao buscar requisição detalhada');
     }
     const data = await response.json();
     return data.data || data;

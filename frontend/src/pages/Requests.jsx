@@ -4,9 +4,8 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Table from '../components/Table';
 import Comprovantes from '../components/Comprovantes';
-import { criarRequisicao, listarRequisicoes, finalizarRequisicao } from '../services/requestsService';
+import { criarRequisicao, listarRequisicoes, finalizarRequisicao, atualizarRequisicao, deletarRequisicao, getRequisicaoDetalhada } from '../services/requestsService';
 import { listarItensInventario } from '../services/inventoryService';
-import toast from 'react-hot-toast';
 import './Requests.css';
 import {FiEdit, FiTrash2 } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
@@ -57,11 +56,32 @@ export default function Requests() {
   // Estados de loading para botões de ação
   // Remover estados de loading não usados
 
+  // Estado para modal de edição
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editReq, setEditReq] = useState(null);
+  // Estado para modal de confirmação de deleção
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteReq, setDeleteReq] = useState(null);
+
+  // Estado para notificações
+  const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
 
   useEffect(() => {
     buscarRequisicoes();
     carregarEventos();
   }, []);
+
+  // Auto-hide das notificações
+  useEffect(() => {
+    if (notificacao.mostrar) {
+      const timer = setTimeout(() => setNotificacao({ mensagem: '', tipo: '', mostrar: false }), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notificacao.mostrar]);
+
+  function mostrarNotificacao(mensagem, tipo) {
+    setNotificacao({ mensagem, tipo, mostrar: true });
+  }
 
   const carregarEventos = async () => {
     try {
@@ -165,7 +185,7 @@ export default function Requests() {
       setRequisicaoSelecionada(null);
       buscarRequisicoes();
     } catch (err) {
-      alert(err.message || 'Erro ao finalizar requisição');
+      console.error('Erro ao finalizar requisição:', err);
     }
   };
 
@@ -179,25 +199,28 @@ export default function Requests() {
       return;
     }
 
-
-    
     setLoading(true);
     try {
       const response = await criarRequisicao({ 
-        department, 
-        data: new Date().toISOString().slice(0, 10), // Usar a data atual
-        itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade })),
-        evento: evento.name || evento.location || evento.start_datetime ? evento : null
+        department,
+        department_leader: evento.department_leader || '',
+        prioridade: evento.prioridade || '',
+        date: evento.date || new Date().toISOString().slice(0, 10),
+        event_name: evento.event_name || '',
+        location: evento.location || '',
+        start_datetime: evento.start_datetime || '',
+        end_datetime: evento.end_datetime || '',
+        expected_audience: evento.expected_audience || '',
+        description: evento.description || '',
+        requester: evento.requester || '',
+        itens: itens.map(item => ({ id: item.id, quantidade: item.quantidade }))
       });
       if (response && response.conflito) {
         setConflitoDetectado(true);
-        toast('⚠️ Sua requisição foi criada, mas está em conflito de agenda e aguarda decisão do pastor/ADM.', {
-          icon: '⚠️',
-          style: { background: '#fff3cd', color: '#856404', fontWeight: 600 }
-        });
+        mostrarNotificacao('⚠️ Sua requisição foi criada, mas está em conflito de agenda e aguarda decisão do pastor/ADM.', 'aviso');
       } else {
         setConflitoDetectado(false);
-        toast.success('✅ Requisição enviada com sucesso!');
+        mostrarNotificacao('✅ Requisição enviada com sucesso!', 'sucesso');
       }
       setSuccessMsg('Requisição enviada com sucesso!');
       setDepartment('');
@@ -206,7 +229,7 @@ export default function Requests() {
       buscarRequisicoes();
     } catch (err) {
       setFormError(err.message || 'Erro ao enviar requisição');
-      toast.error('❌ Erro ao enviar requisição. Tente novamente.');
+      mostrarNotificacao('❌ Erro ao enviar requisição. Tente novamente.', 'erro');
     }
     setLoading(false);
   };
@@ -261,45 +284,144 @@ export default function Requests() {
     doc.save('requisicoes.pdf');
   };
 
+  // Função para editar uma requisição
+  const handleEdit = async (id) => {
+    console.log('Chamando getRequisicaoDetalhada', id);
+    try {
+      const reqDetalhada = await getRequisicaoDetalhada(id);
+      console.log('Resposta getRequisicaoDetalhada:', reqDetalhada);
+      setEditReq({ ...reqDetalhada });
+      setEditModalOpen(true);
+    } catch (err) {
+      console.error('Erro ao buscar detalhes da requisição:', err);
+    }
+  };
+
+  const handleEditSave = async () => {
+    try {
+      // Remover o campo 'itens' do objeto antes de enviar
+      const { itens: _, ...dadosParaUpdate } = editReq;
+      await atualizarRequisicao(editReq.id, dadosParaUpdate);
+      setRequisicoes(prev => prev.map(r => r.id === editReq.id ? { ...editReq } : r));
+      setRequisicoesFiltradas(prev => prev.map(r => r.id === editReq.id ? { ...editReq } : r));
+      setEditModalOpen(false);
+      setEditReq(null);
+    } catch (err) {
+      console.error('Erro ao salvar edição:', err);
+    }
+  };
+
+  // Função para deletar uma requisição
+  const handleDelete = (id) => {
+    const req = requisicoes.find(r => r.id === id);
+    setDeleteReq(req);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    console.log('Chamando deletarRequisicao', deleteReq.id);
+    try {
+      const resp = await deletarRequisicao(deleteReq.id);
+      console.log('Resposta deletarRequisicao:', resp);
+      setRequisicoes(prev => prev.filter(r => r.id !== deleteReq.id));
+      setRequisicoesFiltradas(prev => prev.filter(r => r.id !== deleteReq.id));
+      setDeleteModalOpen(false);
+      setDeleteReq(null);
+    } catch (err) {
+      console.error('Erro ao deletar:', err);
+    }
+  };
+
+  const handleEditField = (field, value) => {
+    setEditReq(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Debug: mostrar estado do modal de edição
+  console.log('editModalOpen:', editModalOpen, 'editReq:', editReq);
   return (
     <div className="requests-page">
+      {/* Notificação */}
+      {notificacao.mostrar && (
+        <div className={`notificacao ${notificacao.tipo}`}>
+          {notificacao.mensagem}
+        </div>
+      )}
+
       <div className="card requests-form-card">
         <h1 className="requests-form-title">Novo Requerimento</h1>
         <form className="requests-form" onSubmit={handleSubmit}>
           {/* Alerta de conflito */}
           {conflitoDetectado && (
-            <div style={{
-              backgroundColor: '#f8d7da',
-              border: '1px solid #f5c6cb',
-              borderRadius: '4px',
-              padding: '12px',
-              marginBottom: '16px',
-              color: '#721c24'
-            }}>
-              ⚠️ <strong>Conflito de Agenda Detectado!</strong> Já existe um evento nesta data.
+            <div className="requests-alert-conflito">
+              <div className="conflito-header">
+                <span className="conflito-icon">⚠️</span>
+                <strong>Conflito de Agenda Detectado!</strong>
+              </div>
+              <div className="conflito-details">
+                <p>Já existe um evento agendado para este local e horário.</p>
+                <p><strong>Sua requisição foi criada e está aguardando aprovação manual.</strong></p>
+                <p>Um pastor ou administrador irá avaliar e decidir sobre o conflito.</p>
+              </div>
+              <div className="conflito-actions">
+                <small>💡 Dica: Considere alterar o horário ou local para evitar conflitos futuros.</small>
+              </div>
             </div>
           )}
-          
-          <Input
-            label="Departamento"
-            placeholder="Ex: Ministério de Louvor"
-            value={department}
-            onChange={e => setDepartment(e.target.value)}
-            required
-            className="input-full-requests"
-          />
-          {/* Campos de Evento dentro da requisição */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 15 }}>Dados do Evento (opcional)</div>
-            <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
+
+          <div className="requests-form-section">
+            <div className="requests-form-col">
               <Input
-                label="Nome do Evento"
-                name="name"
-                value={evento.name}
-                onChange={e => setEvento(ev => ({ ...ev, name: e.target.value }))}
+                label="Departamento"
+                placeholder="Ex: Ministério de Louvor"
+                value={department}
+                onChange={e => setDepartment(e.target.value)}
+                required
+                className="input-full-requests"
+              />
+            </div>
+            <div className="requests-form-col">
+              <Input
+                label="Fornecedor"
+                placeholder="Ex: Fornecedor X"
+                value={evento.supplier || ''}
+                onChange={e => setEvento(ev => ({ ...ev, supplier: e.target.value }))}
                 className="input-full"
               />
-              <label className="input-label" style={{ width: '100%' }}>
+            </div>
+            <div className="requests-form-col">
+              <Input
+                label="Prioridade"
+                placeholder="Ex: Alta, Média, Baixa"
+                value={evento.prioridade || ''}
+                onChange={e => setEvento(ev => ({ ...ev, prioridade: e.target.value }))}
+                className="input-full"
+              />
+            </div>
+            <div className="requests-form-col">
+              <Input
+                label="Data do Requerimento"
+                name="date"
+                type="date"
+                value={evento.date || ''}
+                onChange={e => setEvento(ev => ({ ...ev, date: e.target.value }))}
+                className="input-full"
+              />
+            </div>
+          </div>
+
+          <div className="requests-form-section">
+            <div className="requests-form-col" style={{ flex: 2 }}>
+              <div className="requests-form-section-title">Dados do Evento</div>
+              <Input
+                label="Nome do Evento"
+                name="event_name"
+                value={evento.event_name || ''}
+                onChange={e => setEvento(ev => ({ ...ev, event_name: e.target.value }))}
+                className="input-full"
+              />
+            </div>
+            <div className="requests-form-col">
+              <label className="input-label" style={{ width: '100%', marginBottom: 0 }}>
                 Local
                 <select
                   name="location"
@@ -319,25 +441,17 @@ export default function Requests() {
                 </select>
               </label>
             </div>
-            <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
+            <div className="requests-form-col">
               <Input
                 label="Data/Hora de Início"
                 name="start_datetime"
                 type="datetime-local"
                 value={evento.start_datetime}
-                onChange={e => {
-                  const value = e.target.value;
-                  setEvento(ev => {
-                    // Se end_datetime estiver vazio ou for de outro dia, preenche igual ao início
-                    let novoFim = ev.end_datetime;
-                    if (!ev.end_datetime || (value && ev.end_datetime.slice(0, 10) !== value.slice(0, 10))) {
-                      novoFim = value;
-                    }
-                    return { ...ev, start_datetime: value, end_datetime: novoFim };
-                  });
-                }}
+                onChange={e => setEvento(ev => ({ ...ev, start_datetime: e.target.value }))}
                 className="input-full"
               />
+            </div>
+            <div className="requests-form-col">
               <Input
                 label="Data/Hora de Fim"
                 name="end_datetime"
@@ -347,7 +461,7 @@ export default function Requests() {
                 className="input-full"
               />
             </div>
-            <div style={{ display: 'flex', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
+            <div className="requests-form-col">
               <Input
                 label="Público Esperado"
                 name="expected_audience"
@@ -357,21 +471,22 @@ export default function Requests() {
                 className="input-full"
               />
             </div>
-            <div style={{ marginBottom: 8 }}>
-              <label className="input-label">
-                Descrição
-                <textarea
-                  name="description"
-                  value={evento.description}
-                  onChange={e => setEvento(ev => ({ ...ev, description: e.target.value }))}
-                  rows="3"
-                  className="input-field input-full"
-                  placeholder="Descreva o evento..."
-                  style={{ marginTop: 4 }}
-                />
-              </label>
+          </div>
+
+          <div className="requests-form-section">
+            <div className="requests-form-col" style={{ flex: 2 }}>
+              <Input
+                label="Descrição"
+                name="description"
+                value={evento.description}
+                onChange={e => setEvento(ev => ({ ...ev, description: e.target.value }))}
+                className="input-full"
+                placeholder="Descreva o evento..."
+              />
             </div>
           </div>
+
+          {/* Itens da requisição */}
           <div className="requests-items-header">
             <Button type="button" variant="primary" size="sm" onClick={handleOpenModal}>
               + Adicionar Item
@@ -532,24 +647,24 @@ export default function Requests() {
         />
       </div>
 
-      <div className="requests-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <h2 className="requests-list-title" style={{ margin: 0 }}>Meus Requerimentos</h2>
-        <div className="export-buttons" style={{ display: 'flex', gap: 8 }}>
+      <div className="requests-header">
+        <h2 className="requests-list-title">Meus Requerimentos</h2>
+        <div className="export-buttons">
           <Button 
             onClick={exportarPDF} 
             variant="secondary" 
             size="sm"
-            style={{ boxShadow: '0 2px 8px #0001', fontWeight: 600, display: 'flex', alignItems: 'center' }}
+            className="export-btn export-btn-pdf"
           >
-            <span style={{ fontSize: 18, marginRight: 6 }}>📄</span> Exportar PDF
+            <span className="export-btn-icon">📄</span> Exportar PDF
           </Button>
           <Button 
             onClick={exportarExcel} 
             variant="secondary" 
             size="sm"
-            style={{ boxShadow: '0 2px 8px #0001', fontWeight: 600, display: 'flex', alignItems: 'center' }}
+            className="export-btn export-btn-excel"
           >
-            <span style={{ fontSize: 18, marginRight: 6 }}>📊</span> Exportar Excel
+            <span className="export-btn-icon">📊</span> Exportar Excel
           </Button>
         </div>
       </div>
@@ -565,8 +680,8 @@ export default function Requests() {
         ) : (
           <ul>
             {requisicoesFiltradas.map((row) => (
-              <li key={row.id}>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <li key={row.id} className="requests-list-item">
+                <div className="req-info">
                   <span className="req-title">{row.description}</span>
                   {row.event_name || row.location ? (
                     <span className="req-local">
@@ -576,10 +691,10 @@ export default function Requests() {
                 </div>
                 <span className="req-date">{row.date}</span>
                 <div className="req-actions">
-                  <button className="req-action-btn" title="Editar">
+                  <button className="req-action-btn" title="Editar" onClick={() => handleEdit(row.id)}>
                     <FiEdit size={16} />
                   </button>
-                  <button className="req-action-btn delete" title="Deletar">
+                  <button className="req-action-btn delete" title="Deletar" onClick={() => handleDelete(row.id)}>
                     <FiTrash2 size={16} />
                   </button>
                 </div>
@@ -606,6 +721,157 @@ export default function Requests() {
             requisicao={requisicaoComprovantes} 
             onClose={handleFecharComprovantes}
           />
+        )}
+      </Modal>
+      {/* Modal de edição */}
+      <Modal
+        open={editModalOpen}
+        title="Editar Requisição"
+        onClose={() => { setEditModalOpen(false); setEditReq(null); }}
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => { setEditModalOpen(false); setEditReq(null); }}>Cancelar</Button>
+            <Button variant="primary" size="sm" onClick={handleEditSave}>Salvar</Button>
+          </>
+        }
+      >
+        {editReq && (
+          <div className="edit-modal-content">
+            <Input
+              label="Departamento"
+              value={editReq.department || ''}
+              onChange={e => handleEditField('department', e.target.value)}
+              required
+            />
+            <div className="edit-modal-section-title">Dados do Evento</div>
+            <Input
+              label="Nome do Evento"
+              value={editReq.event_name || ''}
+              onChange={e => handleEditField('event_name', e.target.value)}
+            />
+            {/* Local como select */}
+            <label className="input-label">
+              Local
+              <select
+                name="location"
+                className="input-field input-full"
+                value={editReq.location || ''}
+                onChange={e => handleEditField('location', e.target.value)}
+                required
+              >
+                <option value="">Selecione o local</option>
+                <option value="Sala 22">Sala 22</option>
+                <option value="Sala 23">Sala 23</option>
+                <option value="Sala 24">Sala 24</option>
+                <option value="Sala 26">Sala 26</option>
+                <option value="Sala 27">Sala 27</option>
+                <option value="Templo">Templo</option>
+                <option value="Anexo 2">Anexo 2</option>
+              </select>
+            </label>
+            <Input
+              label="Data/Hora de Início"
+              type="datetime-local"
+              value={editReq.start_datetime || ''}
+              onChange={e => handleEditField('start_datetime', e.target.value)}
+            />
+            <Input
+              label="Data/Hora de Fim"
+              type="datetime-local"
+              value={editReq.end_datetime || ''}
+              onChange={e => handleEditField('end_datetime', e.target.value)}
+            />
+            <Input
+              label="Público Esperado"
+              type="number"
+              value={editReq.expected_audience || ''}
+              onChange={e => handleEditField('expected_audience', e.target.value)}
+            />
+            <Input
+              label="Descrição do Evento"
+              value={editReq.description || ''}
+              onChange={e => handleEditField('description', e.target.value)}
+              required
+            />
+            {/* Itens da requisição - apenas exibição, edição avançada pode ser feita depois */}
+            <div className="edit-modal-section-title edit-modal-section-title-itens">Itens da Requisição</div>
+            <ul className="edit-modal-itens-list">
+              {(editReq.itens || []).map((item, idx) => (
+                <li key={item.id || idx} className="edit-modal-itens-list-item">
+                  <span>{item.name || item.nome || 'Item'}:</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={item.quantidade || 1}
+                    onChange={e => {
+                      const novaQtd = e.target.value;
+                      setEditReq(prev => ({
+                        ...prev,
+                        itens: prev.itens.map((it, i) => i === idx ? { ...it, quantidade: novaQtd } : it)
+                      }));
+                    }}
+                    className="edit-modal-qtd-input"
+                  />
+                  <Button variant="danger" size="sm" onClick={() => {
+                    setEditReq(prev => ({
+                      ...prev,
+                      itens: prev.itens.filter((_, i) => i !== idx)
+                    }));
+                  }}>Remover</Button>
+                </li>
+              ))}
+            </ul>
+            {/* Adicionar novo item (simples) */}
+            <div className="edit-modal-add-item-row">
+              <select
+                value={editReq.novoItemId || ''}
+                onChange={e => handleEditField('novoItemId', e.target.value)}
+                className="edit-modal-add-item-select"
+              >
+                <option value="">Adicionar novo item...</option>
+                {inventoryItems.filter(i => !(editReq.itens || []).some(it => it.id === i.id)).map(item => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+              <Input
+                type="number"
+                min={1}
+                value={editReq.novaQtd || ''}
+                onChange={e => handleEditField('novaQtd', e.target.value)}
+                placeholder="Qtd"
+                className="edit-modal-add-item-qtd"
+              />
+              <Button variant="primary" size="sm" onClick={() => {
+                if (!editReq.novoItemId || !editReq.novaQtd) return;
+                const item = inventoryItems.find(i => i.id === editReq.novoItemId);
+                if (!item) return;
+                setEditReq(prev => ({
+                  ...prev,
+                  itens: [...(prev.itens || []), { ...item, quantidade: Number(editReq.novaQtd) }],
+                  novoItemId: '',
+                  novaQtd: ''
+                }));
+              }}>Adicionar</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+      {/* Modal de confirmação de deleção */}
+      <Modal
+        open={deleteModalOpen}
+        title="Confirmar Deleção"
+        onClose={() => { setDeleteModalOpen(false); setDeleteReq(null); }}
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => { setDeleteModalOpen(false); setDeleteReq(null); }}>Cancelar</Button>
+            <Button variant="danger" size="sm" onClick={handleDeleteConfirm}>Deletar</Button>
+          </>
+        }
+      >
+        {deleteReq && (
+          <div style={{ fontSize: 16 }}>
+            Tem certeza que deseja deletar a requisição <b>{deleteReq.description}</b>?
+          </div>
         )}
       </Modal>
     </div>

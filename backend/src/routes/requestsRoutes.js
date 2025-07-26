@@ -11,7 +11,9 @@ import {
   listComprovantes,
   downloadComprovante,
   removeComprovante,
-  uploadMiddleware
+  uploadMiddleware,
+  deleteRequest,
+  updateRequest
 } from '../controllers/RequestsController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
@@ -38,10 +40,16 @@ router.patch('/:id/reject', authenticateToken, rejectRequest);
 // Finalizar requisição (devolução de itens)
 router.patch('/:id/finish', authenticateToken, finishRequest);
 
+// Atualizar requisição
+router.patch('/:id', authenticateToken, updateRequest);
+
 // Comprovantes
 router.post('/:request_id/comprovantes', authenticateToken, uploadMiddleware, uploadComprovante);
 router.get('/:request_id/comprovantes', authenticateToken, listComprovantes);
 router.get('/comprovantes/:id/download', authenticateToken, downloadComprovante);
 router.delete('/comprovantes/:id', authenticateToken, removeComprovante);
+
+// Deletar requisição
+router.delete('/:id', authenticateToken, deleteRequest);
 
 export default router;

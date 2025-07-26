@@ -44,20 +44,27 @@ export const createRequest = async (req, res) => {
   try {
     console.log('🔍 [createRequest] req.body:', req.body);
     const {
-      department,
-      supplier = null,
-      expected_audience = null,
-      location = null,
-      start_datetime = null,
-      end_datetime = null,
-      itens
+      department = '',
+      supplier = '',
+      expected_audience = '',
+      location = '',
+      start_datetime = '',
+      end_datetime = '',
+      description = '',
+      date = new Date().toISOString().slice(0, 10),
+      event_name = '',
+      prioridade: prioridadeInput = '',
+      status: statusInput = '',
+      itens = [],
+      event_id = null,
+      rejection_reason = '',
     } = req.body;
     const requester_id = req.user.userId;
-    let status = 'PENDENTE'; // status inicial
+    let status = statusInput || 'PENDENTE'; // status inicial
     let conflitoDetectado = false;
 
     // Buscar prioridade do departamento
-    let prioridade = 'Média';
+    let prioridade = prioridadeInput || 'Média';
     if (department) {
       const { data: dept, error: deptError } = await supabase
         .from('departments')
@@ -147,7 +154,13 @@ export const createRequest = async (req, res) => {
         start_datetime,
         end_datetime,
         status,
-        prioridade
+        prioridade,
+        description,
+        date,
+        event_name,
+        itens,
+        event_id,
+        rejection_reason
       }])
       .select()
       .single();
@@ -265,14 +278,19 @@ export const getRequest = async (req, res) => {
     if (error || !request) {
       return res.status(404).json({ success: false, message: 'Requisição não encontrada.' });
     }
-    // Permissão: só envolvidos ou ADM podem ver
+    // Permissão: só ADM ou PASTOR podem ver detalhes completos para edição
     if (
-      req.user.role !== 'ADM' &&
-      ![request.requester_id, request.approved_by, request.executed_by].includes(req.user.userId)
+      req.user.role !== 'ADM' && req.user.role !== 'PASTOR'
     ) {
       return res.status(403).json({ success: false, message: 'Acesso negado.' });
     }
-    res.json({ success: true, data: request });
+    // Buscar itens relacionados à requisição
+    const { data: itens, error: itensError } = await supabase
+      .from('request_items')
+      .select('*')
+      .eq('request_id', id);
+    // Retornar os dados da requisição + itens
+    res.json({ success: true, data: { ...request, itens: itens || [] } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
@@ -302,13 +320,24 @@ export const approveRequest = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Só é possível aprovar requisições com status PENDENTE ou PENDENTE_CONFLITO.' });
     }
 
+    // Preparar histórico de status
+    const statusHistory = requestData.status_history || [];
+    statusHistory.push({
+      status: 'APTO',
+      date: new Date().toISOString(),
+      user_id: req.user.userId,
+      user_name: req.user.full_name || req.user.email,
+      reason: 'Aprovado pelo administrador/pastor'
+    });
+
     // Atualizar status da requisição para APTO
     const { data: request, error } = await supabase
       .from('requests')
       .update({
         status: 'APTO',
         approved_by: req.user.userId,
-        approved_at: new Date().toISOString()
+        approved_at: new Date().toISOString(),
+        status_history: statusHistory
       })
       .eq('id', id)
       .select()
@@ -495,13 +524,36 @@ export const rejectRequest = async (req, res) => {
     if (!rejection_reason) {
       return res.status(400).json({ success: false, message: 'Motivo da rejeição é obrigatório.' });
     }
+
+    // Buscar dados da requisição atual
+    const { data: requestData, error: fetchError } = await supabase
+      .from('requests')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (fetchError || !requestData) {
+      return res.status(404).json({ success: false, message: 'Requisição não encontrada.', error: fetchError?.message });
+    }
+
+    // Preparar histórico de status
+    const statusHistory = requestData.status_history || [];
+    statusHistory.push({
+      status: 'REJEITADO',
+      date: new Date().toISOString(),
+      user_id: req.user.userId,
+      user_name: req.user.full_name || req.user.email,
+      reason: rejection_reason
+    });
+
     const { data: request, error } = await supabase
       .from('requests')
       .update({
         status: 'REJEITADO',
         approved_by: req.user.userId,
         approved_at: new Date().toISOString(),
-        rejection_reason
+        rejection_reason,
+        status_history: statusHistory
       })
       .eq('id', id)
       .select()
@@ -824,6 +876,43 @@ export const removeComprovante = async (req, res) => {
     res.json({ success: true, message: 'Comprovante removido com sucesso.' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Atualizar uma requisição
+export const updateRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    const { data: updated, error } = await supabase
+      .from('requests')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error || !updated) {
+      return res.status(400).json({ success: false, message: 'Erro ao atualizar requisição', error: error?.message });
+    }
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Deletar uma requisição
+export const deleteRequest = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { error } = await supabase
+      .from('requests')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      return res.status(400).json({ success: false, message: 'Erro ao deletar requisição', error: error.message });
+    }
+    return res.status(200).json({ success: true, message: 'Requisição deletada com sucesso' });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Erro interno do servidor', error: err.message });
   }
 };
 
