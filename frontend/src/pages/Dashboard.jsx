@@ -252,12 +252,12 @@ export default function Dashboard() {
               <FiUserPlus />
               Gerenciar Requisições
             </a>
-          ) : (
+          ) : user && (user.role === 'LIDER' || user.role === 'USER') ? (
             <a href="/usuarios" className="action-btn">
               <FiUserPlus />
               Adicionar Usuário
             </a>
-          )}
+          ) : null}
           <a href="/inventario" className="action-btn">
             <FiCalendar />
             Agendar Evento

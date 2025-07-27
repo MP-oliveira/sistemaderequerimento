@@ -1,8 +1,11 @@
 import React from 'react';
 import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
 import './QuickActions.css';
 
 export default function QuickActions() {
+  const { user } = useAuth();
+
   return (
     <div className="quick-actions">
       <h3 className="section-title">
@@ -14,10 +17,17 @@ export default function QuickActions() {
           <FiPlus />
           Novo Requerimento
         </a>
-        <a href="/usuarios" className="action-btn">
-          <FiUserPlus />
-          Adicionar Usuário
-        </a>
+        {user && (user.role === 'ADM' || user.role === 'PASTOR') ? (
+          <a href="/admin/requisicoes" className="action-btn">
+            <FiUserPlus />
+            Gerenciar Requisições
+          </a>
+        ) : user && (user.role === 'LIDER' || user.role === 'USER') ? (
+          <a href="/usuarios" className="action-btn">
+            <FiUserPlus />
+            Adicionar Usuário
+          </a>
+        ) : null}
         <a href="/inventario" className="action-btn">
           <FiCalendar />
           Agendar Evento
