@@ -104,7 +104,7 @@ export async function removerItemRequisicao(itemId) {
 export const getExecutedItems = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/request-items/executed`, {
+    const response = await fetch(`${API_URL}/api/request-items/executed`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ export const getExecutedItems = async () => {
 export const markItemAsReturned = async (itemId) => {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/request-items/${itemId}/return`, {
+    const response = await fetch(`${API_URL}/api/request-items/${itemId}/return`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

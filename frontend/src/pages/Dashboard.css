@@ -107,7 +107,7 @@
   height: 100px;
   justify-content: center;
   transition: box-shadow 0.2s;
-  width: 350px;
+  width: 340px;
 }
 .stat-card:hover {
   box-shadow: 0 2px 8px rgba(37,99,235,0.08);
@@ -423,7 +423,7 @@
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background: #2563eb;
+  background: #1a4b8c;
   color: white;
   font-weight: 600;
   font-size: 14px;

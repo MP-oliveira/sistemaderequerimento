@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 // Rota para testar conexão com Supabase
 app.get('/test-connection', async (req, res) => {
   const isConnected = await testConnection();
-  
+
   if (isConnected) {
     res.json({
       message: 'Conexão com Supabase funcionando!',
@@ -90,7 +90,7 @@ app.use('*', (req, res) => {
 // Middleware para tratamento de erros
 app.use((err, req, res, next) => {
   console.error('Erro na aplicação:', err.stack);
-  
+
   res.status(500).json({
     message: 'Erro interno do servidor',
     status: 'error',
@@ -102,7 +102,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, async () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   console.log(`📍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  
+
   // Testar conexão ao iniciar
   await testConnection();
 });

@@ -1,5 +1,7 @@
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -7,7 +9,7 @@ const supabase = createClient(
 );
 
 // Adicionar item a uma requisição
-export const addRequestItem = async (req, res) => {
+const createRequestItem = async (req, res) => {
   try {
     const { request_id, inventory_id, item_name, description, quantity_requested, estimated_value } = req.body;
     if (!request_id || !item_name || !quantity_requested) {
@@ -38,7 +40,7 @@ export const addRequestItem = async (req, res) => {
 };
 
 // Listar itens de uma requisição
-export const listRequestItems = async (req, res) => {
+const getRequestItems = async (req, res) => {
   try {
     const { request_id } = req.params;
     const { data: items, error } = await supabase
@@ -55,7 +57,7 @@ export const listRequestItems = async (req, res) => {
 };
 
 // Marcar item como separado (AUDIOVISUAL)
-export const markItemAsSeparated = async (req, res) => {
+const markItemAsSeparated = async (req, res) => {
   try {
     const { id } = req.params;
     const { is_separated } = req.body;
@@ -99,46 +101,64 @@ export const markItemAsSeparated = async (req, res) => {
   }
 };
 
-// Listar itens do dia para audiovisual
-export const getTodayItems = async (req, res) => {
+// Buscar itens do dia para audiovisual
+const getTodayItems = async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
-    
-    const { data: items, error } = await supabase
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+
+    const { data, error } = await supabase
       .from('request_items')
       .select(`
-        *,
-        requests!inner(
-          id,
+        id,
+        request_id,
+        inventory_id,
+        item_name,
+        quantity_requested,
+        description,
+        is_separated,
+        separated_by,
+        separated_at,
+        inventory (
+          name,
+          description
+        ),
+        requests (
           event_name,
-          description,
-          department,
-          location,
           start_datetime,
           end_datetime,
-          status
+          location,
+          expected_audience
         )
       `)
-      .eq('requests.status', 'APTO')
-      .gte('requests.start_datetime', today + 'T00:00:00')
-      .lte('requests.start_datetime', today + 'T23:59:59');
-      
+      .gte('requests.start_datetime', startOfDay.toISOString())
+      .lte('requests.start_datetime', endOfDay.toISOString())
+      .eq('requests.status', 'APTO');
+
     if (error) {
-      return res.status(400).json({ 
+      console.error('Erro ao buscar itens do dia:', error);
+      return res.status(500).json({ 
         success: false, 
-        message: 'Erro ao buscar itens do dia.', 
-        error: error.message 
+        message: 'Erro interno do servidor' 
       });
     }
-    
-    res.json({ success: true, data: items });
+
+    res.json({ 
+      success: true, 
+      data: data || [] 
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+    console.error('Erro ao buscar itens do dia:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor' 
+    });
   }
 };
 
 // Remover item de uma requisição
-export const deleteRequestItem = async (req, res) => {
+const deleteRequestItem = async (req, res) => {
   try {
     const { id } = req.params;
     const { error } = await supabase
@@ -148,30 +168,30 @@ export const deleteRequestItem = async (req, res) => {
     if (error) {
       return res.status(400).json({ success: false, message: 'Erro ao remover item.', error: error.message });
     }
-    res.json({ success: true, message: 'Item removido com sucesso.' });
+    res.json({ success: true, message: 'Item removido com sucesso!' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
 };
 
-// Atualizar item de uma requisição (opcional)
-export const updateRequestItem = async (req, res) => {
+// Atualizar item de uma requisição
+const updateRequestItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { item_name, description, quantity_requested, estimated_value, inventory_id } = req.body;
-    const updateData = {};
-    if (item_name) updateData.item_name = item_name;
-    if (description) updateData.description = description;
-    if (quantity_requested) updateData.quantity_requested = quantity_requested;
-    if (estimated_value) updateData.estimated_value = estimated_value;
-    if (inventory_id) updateData.inventory_id = inventory_id;
+    const { item_name, description, quantity_requested, estimated_value } = req.body;
     const { data: item, error } = await supabase
       .from('request_items')
-      .select()
+      .update({
+        item_name,
+        description,
+        quantity_requested,
+        estimated_value
+      })
       .eq('id', id)
+      .select()
       .single();
-    if (error || !item) {
-      return res.status(400).json({ success: false, message: 'Erro ao atualizar item.', error: error?.message });
+    if (error) {
+      return res.status(400).json({ success: false, message: 'Erro ao atualizar item.', error: error.message });
     }
     res.json({ success: true, data: item });
   } catch (error) {
@@ -273,7 +293,7 @@ const markItemAsReturned = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   createRequestItem,
   getRequestItems,
   updateRequestItem,
