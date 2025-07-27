@@ -67,9 +67,12 @@ const ReturnMaterials = () => {
             {pendingItems.map((item) => (
               <div key={item.id} className="material-item">
                 <div className="material-info">
-                  <span className="material-name">{item.item_name || item.inventory_item_name}</span>
+                  <span className="material-name">
+                    {item.item_name || item.inventory_item_name || 'Item sem nome'}
+                  </span>
                   <span className="material-details">
-                    Requisição: {item.request_title || item.request_event_name} • Quantidade: {item.quantity_requested}
+                    Requisição: {item.request_title || item.request_event_name || 'Requisição não identificada'} • 
+                    Quantidade: {item.quantity_requested || 0}
                   </span>
                 </div>
                 <button
@@ -92,13 +95,16 @@ const ReturnMaterials = () => {
             {returnedItems.map((item) => (
               <div key={item.id} className="material-item returned">
                 <div className="material-info">
-                  <span className="material-name">{item.item_name || item.inventory_item_name}</span>
+                  <span className="material-name">
+                    {item.item_name || item.inventory_item_name || 'Item sem nome'}
+                  </span>
                   <span className="material-details">
-                    Requisição: {item.request_title || item.request_event_name} • Quantidade: {item.quantity_requested}
+                    Requisição: {item.request_title || item.request_event_name || 'Requisição não identificada'} • 
+                    Quantidade: {item.quantity_requested || 0}
                   </span>
                 </div>
                 <div className="returned-icon">
-                  <FiX />
+                  <FiCheck />
                 </div>
               </div>
             ))}

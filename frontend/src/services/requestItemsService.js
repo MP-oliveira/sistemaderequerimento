@@ -2,9 +2,11 @@ const API_URL = 'http://localhost:3000';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token');
+  
   if (!token) {
     throw new Error('Token de autenticação não encontrado. Faça login novamente.');
   }
+  
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
@@ -103,13 +105,9 @@ export async function removerItemRequisicao(itemId) {
 
 export const getExecutedItems = async () => {
   try {
-    const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}/api/request-items/executed`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+      headers: getAuthHeaders()
     });
 
     if (!response.ok) {
@@ -125,13 +123,9 @@ export const getExecutedItems = async () => {
 
 export const markItemAsReturned = async (itemId) => {
   try {
-    const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}/api/request-items/${itemId}/return`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+      headers: getAuthHeaders()
     });
 
     if (!response.ok) {
