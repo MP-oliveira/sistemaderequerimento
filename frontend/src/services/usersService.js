@@ -30,11 +30,16 @@ export async function listarUsuarios() {
   }
 }
 
-export async function criarUsuario({ nome, email, papel, senha }) {
+export async function criarUsuario({ name, email, role, password }) {
   try {
-    console.log('🔍 Frontend - Dados sendo enviados:', { nome, email, papel, senha: senha ? '***' : 'undefined' });
+    console.log('🔍 Frontend - Dados sendo enviados:', { name, email, role, password: password ? '***' : 'undefined' });
     
-    const requestBody = { nome, email, papel, senha };
+    const requestBody = { 
+      nome: name, 
+      email, 
+      papel: role, 
+      senha: password 
+    };
     console.log('🔍 Frontend - Request body:', requestBody);
     
     const headers = getAuthHeaders();
@@ -66,15 +71,15 @@ export async function criarUsuario({ nome, email, papel, senha }) {
   }
 } 
 
-export async function atualizarUsuario(id, { nome, email, papel }) {
+export async function atualizarUsuario(id, { name, email, role }) {
   try {
     const response = await fetch(`${API_URL}/api/users/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify({
-        full_name: nome,
+        full_name: name,
         email,
-        role: papel
+        role
       }),
     });
     

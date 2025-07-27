@@ -1,4 +1,5 @@
 import { supabase, supabaseAdmin } from '../config/supabaseClient.js';
+import bcrypt from 'bcryptjs';
 
 // Criar novo usuário (apenas para administradores)
 export const createUser = async (req, res) => {
@@ -24,6 +25,16 @@ export const createUser = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Todos os campos são obrigatórios: nome, email, papel, senha'
+      });
+    }
+
+    // Validar papel
+    const allowedRoles = ['USER', 'LIDER', 'SEC', 'AUDIOVISUAL', 'PASTOR', 'ADM'];
+    if (!allowedRoles.includes(papel)) {
+      console.log('❌ createUser - Papel inválido:', papel);
+      return res.status(400).json({
+        success: false,
+        message: 'Papel inválido. Papéis permitidos: USER, LIDER, SEC, AUDIOVISUAL, PASTOR, ADM'
       });
     }
 
@@ -70,6 +81,10 @@ export const createUser = async (req, res) => {
     }
 
     console.log('🔍 createUser - Usuário criado no Auth, inserindo na tabela users');
+    
+    // Fazer hash da senha para salvar na tabela users
+    const hashedPassword = await bcrypt.hash(senha, 10);
+    
     // Inserir dados adicionais na tabela users
     const { data: user, error: dbError } = await supabase
       .from('users')
@@ -78,6 +93,7 @@ export const createUser = async (req, res) => {
         full_name: nome,
         email: email,
         role: papel,
+        password_hash: hashedPassword,
         is_active: true
       })
       .select('id, full_name, email, role, is_active, created_at')
@@ -182,6 +198,18 @@ export const updateUser = async (req, res) => {
     }
     const { id } = req.params;
     const { full_name, email, role } = req.body;
+    
+    // Validar papel se fornecido
+    if (role) {
+      const allowedRoles = ['USER', 'LIDER', 'SEC', 'AUDIOVISUAL', 'PASTOR', 'ADM'];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Papel inválido. Papéis permitidos: USER, LIDER, SEC, AUDIOVISUAL, PASTOR, ADM'
+        });
+      }
+    }
+    
     const updateData = {};
     if (full_name) updateData.full_name = full_name;
     if (email) updateData.email = email;

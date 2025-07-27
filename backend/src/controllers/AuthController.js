@@ -135,6 +135,13 @@ export const login = async (req, res) => {
     }
 
     // Verificar senha
+    if (!user.password_hash) {
+      return res.status(401).json({
+        success: false,
+        message: 'Usuário sem senha definida. Contate o administrador.'
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
       return res.status(401).json({

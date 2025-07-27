@@ -14,7 +14,8 @@ export default function Users() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'USER'
+    role: 'USER',
+    password: ''
   });
 
   // Estado para notificações
@@ -60,7 +61,7 @@ export default function Users() {
       }
       setShowModal(false);
       setEditingUser(null);
-      setFormData({ name: '', email: '', role: 'USER' });
+      setFormData({ name: '', email: '', role: 'USER', password: '' });
       buscarUsuarios();
     } catch (err) {
       mostrarNotificacao('Erro ao salvar usuário', 'erro');
@@ -73,7 +74,8 @@ export default function Users() {
     setFormData({
       name: user.name || user.full_name || '',
       email: user.email || '',
-      role: user.role || 'USER'
+      role: user.role || 'USER',
+      password: ''
     });
     setShowModal(true);
   };
@@ -90,7 +92,7 @@ export default function Users() {
 
   const handleOpenModal = () => {
     setEditingUser(null);
-    setFormData({ name: '', email: '', role: 'USER' });
+    setFormData({ name: '', email: '', role: 'USER', password: '' });
     setShowModal(true);
   };
 
@@ -115,7 +117,7 @@ export default function Users() {
         ) : (
           <Table
             columns={[
-              { key: 'name', label: 'Nome' },
+              { key: 'full_name', label: 'Nome' },
               { key: 'email', label: 'Email' },
               { key: 'role', label: 'Função' },
               {
@@ -166,6 +168,16 @@ export default function Users() {
             required
             className="input-full"
           />
+          {!editingUser && (
+            <Input
+              label="Senha"
+              type="password"
+              value={formData.password}
+              onChange={e => setFormData({ ...formData, password: e.target.value })}
+              required
+              className="input-full"
+            />
+          )}
           <div className="input-group">
             <label className="input-label">Função</label>
             <select
@@ -175,9 +187,11 @@ export default function Users() {
               required
             >
               <option value="USER">Usuário</option>
-              <option value="ADM">Administrador</option>
-              <option value="PASTOR">Pastor</option>
+              <option value="LIDER">Líder</option>
               <option value="SEC">Secretário</option>
+              <option value="AUDIOVISUAL">Audiovisual</option>
+              <option value="PASTOR">Pastor</option>
+              <option value="ADM">Administrador</option>
             </select>
           </div>
         </form>
