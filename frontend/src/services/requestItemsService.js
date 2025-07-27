@@ -99,4 +99,48 @@ export async function removerItemRequisicao(itemId) {
   } catch (err) {
     throw err;
   }
-} 
+}
+
+export const getExecutedItems = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/request-items/executed`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao buscar itens executados');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar itens executados:', error);
+    throw error;
+  }
+};
+
+export const markItemAsReturned = async (itemId) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/request-items/${itemId}/return`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao marcar item como retornado');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao marcar item como retornado:', error);
+    throw error;
+  }
+}; 

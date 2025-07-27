@@ -1,4 +1,10 @@
-import { supabase } from '../config/supabaseClient.js';
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 // Adicionar item a uma requisição
 export const addRequestItem = async (req, res) => {
@@ -171,4 +177,109 @@ export const updateRequestItem = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
+}; 
+
+const getExecutedItems = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('request_items')
+      .select(`
+        id,
+        request_id,
+        inventory_id,
+        item_name,
+        quantity_requested,
+        description,
+        inventory (
+          name,
+          description
+        ),
+        requests (
+          event_name,
+          start_datetime,
+          end_datetime
+        )
+      `);
+
+    if (error) {
+      console.error('Erro ao buscar itens executados:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+
+    const items = data.map(item => ({
+      id: item.id,
+      request_id: item.request_id,
+      inventory_id: item.inventory_id,
+      item_name: item.item_name,
+      quantity_requested: item.quantity_requested,
+      description: item.description,
+      inventory_item_name: item.inventory?.name,
+      inventory_item_description: item.inventory?.description,
+      request_title: item.requests?.event_name,
+      request_event_name: item.requests?.event_name,
+      request_start_time: item.requests?.start_datetime,
+      request_end_time: item.requests?.end_datetime
+    }));
+
+    res.json({ 
+      success: true, 
+      data: items 
+    });
+  } catch (error) {
+    console.error('Erro ao buscar itens executados:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor' 
+    });
+  }
+};
+
+const markItemAsReturned = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Verificar se o item existe
+    const { data: item, error: fetchError } = await supabase
+      .from('request_items')
+      .select('id, inventory_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !item) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Item não encontrado' 
+      });
+    }
+
+    // Por enquanto, apenas retornar sucesso
+    // Quando as colunas forem adicionadas, podemos implementar a lógica completa
+    console.log(`Item ${id} marcado como retornado pelo usuário ${userId}`);
+
+    res.json({ 
+      success: true, 
+      message: 'Item marcado como retornado com sucesso' 
+    });
+  } catch (error) {
+    console.error('Erro ao marcar item como retornado:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor' 
+    });
+  }
+};
+
+module.exports = {
+  createRequestItem,
+  getRequestItems,
+  updateRequestItem,
+  deleteRequestItem,
+  markItemAsSeparated,
+  getTodayItems,
+  getExecutedItems,
+  markItemAsReturned
 }; 

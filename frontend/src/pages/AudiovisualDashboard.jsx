@@ -5,8 +5,9 @@ import Modal from '../components/Modal';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import TodayMaterials from '../components/TodayMaterials';
+import ReturnMaterials from '../components/ReturnMaterials';
 import { notifyRequestExecuted } from '../utils/notificationUtils';
-import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
+import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiMapPin, FiUsers, FiCheck, FiX } from 'react-icons/fi';
 import './Dashboard.css';
 import './AudiovisualDashboard.css';
 
@@ -183,7 +184,10 @@ export default function AudiovisualDashboard() {
   const days = getDaysInMonth(currentDate);
 
   // Filtrar requisições por status
-  const requisicoesAprovadas = requisicoes.filter(req => req.status === 'APTO');
+  const requisicoesAprovadas = requisicoes.filter(req => 
+    req.status === 'APTO' && 
+    (req.start_datetime || req.event_name || req.location) // Mostrar apenas requisições com pelo menos alguns dados
+  );
   const requisicoesExecutadas = requisicoes.filter(req => req.status === 'EXECUTADO');
   const requisicoesFinalizadas = requisicoes.filter(req => req.status === 'FINALIZADO');
 
@@ -264,76 +268,72 @@ export default function AudiovisualDashboard() {
       <TodayMaterials />
 
       {/* Requisições Aprovadas para Preparação */}
-      {requisicoesAprovadas.length > 0 && (
-        <div className="dashboard-section">
-          <h3 className="section-title">
-            <FiClock style={{marginRight: 8}} />
-            Requisições Aprovadas para Preparação
-          </h3>
-          <div className="approved-requests">
-            {requisicoesAprovadas.slice(0, 3).map((req) => (
-              <div key={req.id} className="request-card">
+      <div className="dashboard-section">
+        <h2>Requisições Aprovadas para Preparação</h2>
+        {requisicoesAprovadas.length > 0 ? (
+          <div className="requests-grid">
+            {requisicoesAprovadas.map((requisicao) => (
+              <div key={requisicao.id} className="request-card">
                 <div className="request-header">
-                  <h4>{req.department}</h4>
-                  <span className="status-badge approved">Aprovada</span>
+                  <h3>{requisicao.event_name || requisicao.description || `Requisição - ${requisicao.department}`}</h3>
+                  <span className="status-badge approved">Aprovado</span>
                 </div>
-                <p className="request-description">
-                  {req.description || req.event_name || 'Sem descrição'}
-                </p>
-                <div className="request-meta">
-                  <span>📅 {req.date}</span>
-                  {req.location && <span>📍 {req.location}</span>}
+                <div className="request-details">
+                  <div className="detail-item">
+                    <FiCalendar />
+                    <span>
+                      {requisicao.start_datetime 
+                        ? new Date(requisicao.start_datetime).toLocaleDateString('pt-BR')
+                        : 'Data não definida'
+                      }
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <FiClock />
+                    <span>
+                      {requisicao.start_datetime && requisicao.end_datetime 
+                        ? `${new Date(requisicao.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${new Date(requisicao.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                        : 'Horário não definido'
+                      }
+                    </span>
+                  </div>
+                  <div className="detail-item">
+                    <FiMapPin />
+                    <span>{requisicao.location || 'Local não definido'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <FiUsers />
+                    <span>
+                      {requisicao.expected_audience 
+                        ? `${requisicao.expected_audience} pessoas`
+                        : 'Público não definido'
+                      }
+                    </span>
+                  </div>
+                  {requisicao.department && (
+                    <div className="detail-item">
+                      <span>🏢 {requisicao.department}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="request-actions">
-                  <Button 
-                    variant="success" 
-                    size="sm"
-                    onClick={() => marcarComoExecutada(req.id)}
+                  <button 
+                    className="execute-button"
+                    onClick={() => marcarComoExecutada(requisicao.id)}
                   >
-                    ✅ Marcar como Executada
-                  </Button>
+                    Marcar como Executada
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p>Nenhuma requisição aprovada com dados completos para preparação.</p>
+        )}
+      </div>
 
-      {/* Requisições Executadas para Retorno */}
-      {requisicoesExecutadas.length > 0 && (
-        <div className="dashboard-section">
-          <h3 className="section-title">
-            <FiPackage style={{marginRight: 8}} />
-            Requisições Executadas - Retornar Instrumentos
-          </h3>
-          <div className="executed-requests">
-            {requisicoesExecutadas.slice(0, 3).map((req) => (
-              <div key={req.id} className="request-card">
-                <div className="request-header">
-                  <h4>{req.department}</h4>
-                  <span className="status-badge executed">Executada</span>
-                </div>
-                <p className="request-description">
-                  {req.description || req.event_name || 'Sem descrição'}
-                </p>
-                <div className="request-meta">
-                  <span>📅 {req.date}</span>
-                  {req.location && <span>📍 {req.location}</span>}
-                </div>
-                <div className="request-actions">
-                  <Button 
-                    variant="primary" 
-                    size="sm"
-                    onClick={() => abrirModalRetorno(req)}
-                  >
-                    🔄 Retornar Instrumentos
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Instrumentos para Retorno */}
+      <ReturnMaterials />
 
       {/* Calendário */}
       <div className="card calendar-card">

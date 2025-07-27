@@ -1,0 +1,139 @@
+.return-materials {
+  background: var(--white);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  width: 100%;
+  min-width: 1202px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.return-materials h3 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.return-materials h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.materials-section {
+  margin-bottom: 1.5rem;
+}
+
+.materials-section:last-child {
+  margin-bottom: 0;
+}
+
+.materials-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.material-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: var(--bg-gray);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.material-item:hover {
+  background: #f8fafc;
+}
+
+.material-item.returned {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.material-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.material-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.material-details {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.return-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.return-button:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+.return-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.returned-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #22c55e;
+  color: white;
+  border-radius: 0.375rem;
+  flex-shrink: 0;
+}
+
+.returned-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+@media (max-width: 768px) {
+  .return-materials {
+    padding: 1.5rem;
+    min-width: auto;
+  }
+  
+  .material-item {
+    padding: 0.75rem;
+  }
+  
+  .material-name {
+    font-size: 0.9rem;
+  }
+  
+  .material-details {
+    font-size: 0.8rem;
+  }
+} 

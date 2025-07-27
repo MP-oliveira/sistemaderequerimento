@@ -1,32 +1,24 @@
-import express from 'express';
-import {
-  addRequestItem,
-  listRequestItems,
-  deleteRequestItem,
-  updateRequestItem,
-  markItemAsSeparated,
-  getTodayItems
-} from '../controllers/RequestItemsController.js';
-import { authenticateToken } from '../middlewares/authMiddleware.js';
-
+const express = require('express');
 const router = express.Router();
+const RequestItemsController = require('../controllers/RequestItemsController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-// Adicionar item
-router.post('/', authenticateToken, addRequestItem);
+// Rotas para request items
+router.post('/', authMiddleware, RequestItemsController.createRequestItem);
+router.get('/', authMiddleware, RequestItemsController.getRequestItems);
+router.put('/:id', authMiddleware, RequestItemsController.updateRequestItem);
+router.delete('/:id', authMiddleware, RequestItemsController.deleteRequestItem);
 
-// Listar itens de uma requisição
-router.get('/:request_id', authenticateToken, listRequestItems);
+// Rota para marcar item como separado
+router.patch('/:id/separate', authMiddleware, RequestItemsController.markItemAsSeparated);
 
-// Listar itens do dia para audiovisual
-router.get('/today/items', authenticateToken, getTodayItems);
+// Rota para buscar itens do dia
+router.get('/today', authMiddleware, RequestItemsController.getTodayItems);
 
-// Marcar item como separado (AUDIOVISUAL)
-router.patch('/:id/separate', authenticateToken, markItemAsSeparated);
+// Rota para buscar itens executados
+router.get('/executed', authMiddleware, RequestItemsController.getExecutedItems);
 
-// Atualizar item
-router.put('/:id', authenticateToken, updateRequestItem);
+// Rota para marcar item como retornado
+router.patch('/:id/return', authMiddleware, RequestItemsController.markItemAsReturned);
 
-// Remover item
-router.delete('/:id', authenticateToken, deleteRequestItem);
-
-export default router; 
+module.exports = router; 
