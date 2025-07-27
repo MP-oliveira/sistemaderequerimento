@@ -7,6 +7,7 @@ import Input from '../components/Input';
 import { notifyRequestExecuted } from '../utils/notificationUtils';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
 import './Dashboard.css';
+import './AudiovisualDashboard.css';
 
 export default function AudiovisualDashboard() {
   const { user } = useAuth();
@@ -101,63 +102,58 @@ export default function AudiovisualDashboard() {
   };
 
   const formatDate = (date) => {
-    const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ];
-    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+    return date.toLocaleDateString('pt-BR', { 
+      month: 'long', 
+      year: 'numeric' 
+    });
   };
 
   const previousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
   const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
   const isToday = (date) => {
     if (!date) return false;
     const today = new Date();
-    return date.toDateString() === today.toDateString();
+    return date.getDate() === today.getDate() && 
+           date.getMonth() === today.getMonth() && 
+           date.getFullYear() === today.getFullYear();
   };
 
   const handleDayClick = (day) => {
-    if (day && day.events.length > 0) {
-      setSelectedDayEvents(day.events);
+    if (day.events.length > 0) {
       setSelectedDay(day.date);
+      setSelectedDayEvents(day.events);
       setShowEventModal(true);
     }
   };
 
   const closeEventModal = () => {
     setShowEventModal(false);
-    setSelectedDayEvents([]);
     setSelectedDay(null);
+    setSelectedDayEvents([]);
   };
 
   const formatEventTime = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return new Date(dateString).toLocaleTimeString('pt-BR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
   };
 
   const marcarComoExecutada = async (id) => {
     try {
       await executarRequisicao(id);
       mostrarNotificacao('Requisição marcada como executada!', 'sucesso');
-      
-      // Buscar dados da requisição para notificação
-      const requisicao = requisicoes.find(req => req.id === id);
-      if (requisicao) {
-        notifyRequestExecuted(requisicao);
-      }
-      
       // Recarregar dados
       const requisicoesData = await listarRequisicoes();
       setRequisicoes(requisicoesData || []);
-    } catch (error) {
-      console.error('Erro ao marcar como executada:', error);
+    } catch (err) {
       mostrarNotificacao('Erro ao marcar como executada', 'erro');
     }
   };
@@ -173,25 +169,24 @@ export default function AudiovisualDashboard() {
       await retornarInstrumentos(selectedRequest.id, returnNotes);
       mostrarNotificacao('Instrumentos retornados com sucesso!', 'sucesso');
       setShowReturnModal(false);
-      
       // Recarregar dados
       const requisicoesData = await listarRequisicoes();
       setRequisicoes(requisicoesData || []);
-    } catch (error) {
-      console.error('Erro ao retornar instrumentos:', error);
+    } catch (err) {
       mostrarNotificacao('Erro ao retornar instrumentos', 'erro');
     }
   };
 
-  // Filtrar requisições para estatísticas
+  const days = getDaysInMonth(currentDate);
+
+  // Filtrar requisições por status
   const requisicoesAprovadas = requisicoes.filter(req => req.status === 'APTO');
   const requisicoesExecutadas = requisicoes.filter(req => req.status === 'EXECUTADO');
   const requisicoesFinalizadas = requisicoes.filter(req => req.status === 'FINALIZADO');
 
-  const days = getDaysInMonth(currentDate);
-
   return (
-    <div className="dashboard">
+    <div className="dashboard-container audiovisual-dashboard">
+      {/* Notificação */}
       {notificacao && (
         <div className={`notificacao ${notificacao.tipo}`}>
           {notificacao.mensagem}
@@ -347,53 +342,57 @@ export default function AudiovisualDashboard() {
         </div>
         {loading ? (
           <div className="calendar-loading">
+            <div className="loading-spinner"></div>
             <p>Carregando eventos...</p>
           </div>
         ) : (
           <div className="calendar-grid">
-            {/* Cabeçalho dos dias da semana */}
-            {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
-              <div key={day} className="calendar-day-header">
-                {day}
-              </div>
-            ))}
-            
-            {/* Dias do mês */}
-            {days.map((day, index) => (
-              <div
-                key={index}
-                className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''}`}
-                onClick={() => handleDayClick(day)}
-              >
-                {day.date && (
-                  <>
-                    <div className="day-number">{day.date.getDate()}</div>
-                    <div className="day-events">
-                      {day.events.slice(0, 2).map((event, eventIndex) => (
-                        <div
-                          key={eventIndex}
-                          className={`calendar-event ${event.type}`}
-                          title={`${event.title} - ${event.location || 'Sem local'}`}
-                        >
-                          <div className="event-title">{event.title}</div>
-                          <div className="event-location">{event.location}</div>
-                          <div className="event-time">
-                            {formatEventTime(event.start_datetime)}
+            <div className="calendar-weekdays">
+              <div className="weekday">Dom</div>
+              <div className="weekday">Seg</div>
+              <div className="weekday">Ter</div>
+              <div className="weekday">Qua</div>
+              <div className="weekday">Qui</div>
+              <div className="weekday">Sex</div>
+              <div className="weekday">Sáb</div>
+            </div>
+            <div className="calendar-days">
+              {days.map((day, index) => (
+                <div 
+                  key={index} 
+                  className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
+                  onClick={() => handleDayClick(day)}
+                  style={{ cursor: day.events.length > 0 ? 'pointer' : 'default' }}
+                >
+                  <span className="day-number">{day.date ? day.date.getDate() : ''}</span>
+                  {day.events.length > 0 && (
+                    <>
+                      <div className="day-events">
+                        {day.events.slice(0, 2).map(event => (
+                          <div key={event.id} className="event-dot" title={event.title}>
+                            •
                           </div>
-                        </div>
-                      ))}
-                      {day.events.length > 2 && (
-                        <div className="more-events">
-                          +{day.events.length - 2} mais
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+                        ))}
+                        {day.events.length > 2 && (
+                          <div className="event-more">+{day.events.length - 2}</div>
+                        )}
+                      </div>
+                      <div className="event-name-preview" title={day.events[0].title}>
+                        {day.events[0].title}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
+        <div className="calendar-legend">
+          <div className="legend-item">
+            <div className="legend-dot"></div>
+            <span>Requisições Aprovadas</span>
+          </div>
+        </div>
       </div>
 
       {/* Modal de Eventos do Dia */}
