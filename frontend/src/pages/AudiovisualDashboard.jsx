@@ -4,12 +4,15 @@ import { listarRequisicoes, listarEventos, executarRequisicao, retornarInstrumen
 import Modal from '../components/Modal';
 import Button from '../components/Button';
 import Input from '../components/Input';
+import TodayMaterials from '../components/TodayMaterials';
 import { notifyRequestExecuted } from '../utils/notificationUtils';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
 import './Dashboard.css';
 import './AudiovisualDashboard.css';
 
 export default function AudiovisualDashboard() {
+  console.log('🎯 AudiovisualDashboard renderizado');
+  
   const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
@@ -256,6 +259,9 @@ export default function AudiovisualDashboard() {
           </a>
         </div>
       </div>
+
+      {/* Materiais do Dia */}
+      <TodayMaterials />
 
       {/* Requisições Aprovadas para Preparação */}
       {requisicoesAprovadas.length > 0 && (

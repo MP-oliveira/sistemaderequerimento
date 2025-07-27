@@ -3,7 +3,9 @@ import {
   addRequestItem,
   listRequestItems,
   deleteRequestItem,
-  updateRequestItem
+  updateRequestItem,
+  markItemAsSeparated,
+  getTodayItems
 } from '../controllers/RequestItemsController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
@@ -14,6 +16,12 @@ router.post('/', authenticateToken, addRequestItem);
 
 // Listar itens de uma requisição
 router.get('/:request_id', authenticateToken, listRequestItems);
+
+// Listar itens do dia para audiovisual
+router.get('/today/items', authenticateToken, getTodayItems);
+
+// Marcar item como separado (AUDIOVISUAL)
+router.patch('/:id/separate', authenticateToken, markItemAsSeparated);
 
 // Atualizar item
 router.put('/:id', authenticateToken, updateRequestItem);
