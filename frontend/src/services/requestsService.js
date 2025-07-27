@@ -262,4 +262,53 @@ export async function getRequisicaoDetalhada(id) {
   } catch (err) {
     throw err;
   }
+}
+
+// Retornar instrumentos ao inventário (AUDIOVISUAL)
+export async function retornarInstrumentos(id, returnNotes = '') {
+  try {
+    const response = await fetch(`${API_URL}/api/requests/${id}/return-instruments`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ return_notes: returnNotes })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao retornar instrumentos');
+    }
+
+    return await response.json();
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Buscar requisições aprovadas para calendário
+export async function buscarRequisicoesCalendario(month = null, year = null) {
+  try {
+    let url = `${API_URL}/api/requests/calendar/approved`;
+    const params = new URLSearchParams();
+    
+    if (month) params.append('month', month);
+    if (year) params.append('year', year);
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao buscar requisições para calendário');
+    }
+
+    const data = await response.json();
+    return data.data || data;
+  } catch (err) {
+    throw err;
+  }
 } 

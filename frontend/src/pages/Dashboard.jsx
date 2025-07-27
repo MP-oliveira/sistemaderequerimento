@@ -7,6 +7,7 @@ import Button from '../components/Button';
 import './Dashboard.css';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import Calendar from '../components/Calendar';
 
 const PAGES = [
   { key: 'dashboard', label: 'Dashboard', icon: <FiPieChart />, url: '/' },
@@ -253,6 +254,15 @@ export default function Dashboard() {
             Relatório
           </a>
         </div>
+      </div>
+
+      {/* Calendário de Histórico */}
+      <div className="calendar-section">
+        <h3 className="section-title">
+          <FiCalendar style={{marginRight: 8}} />
+          Histórico de Requisições Aprovadas
+        </h3>
+        <Calendar />
       </div>
       {/* Painel de conflitos */}
       {user && (user.role === 'ADM' || user.role === 'PASTOR') && requisicoesConflito.length > 0 && (

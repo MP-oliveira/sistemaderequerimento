@@ -321,14 +321,14 @@ export const approveRequest = async (req, res) => {
     }
 
     // Preparar histórico de status
-    const statusHistory = requestData.status_history || [];
-    statusHistory.push({
-      status: 'APTO',
-      date: new Date().toISOString(),
-      user_id: req.user.userId,
-      user_name: req.user.full_name || req.user.email,
-      reason: 'Aprovado pelo administrador/pastor'
-    });
+    // const statusHistory = requestData.status_history || [];
+    // statusHistory.push({
+    //   status: 'APTO',
+    //   date: new Date().toISOString(),
+    //   user_id: req.user.userId,
+    //   user_name: req.user.full_name || req.user.email,
+    //   reason: 'Aprovado pelo administrador/pastor'
+    // });
 
     // Atualizar status da requisição para APTO
     const { data: request, error } = await supabase
@@ -336,8 +336,8 @@ export const approveRequest = async (req, res) => {
       .update({
         status: 'APTO',
         approved_by: req.user.userId,
-        approved_at: new Date().toISOString(),
-        status_history: statusHistory
+        approved_at: new Date().toISOString()
+        // status_history: statusHistory // Comentado até a coluna existir
       })
       .eq('id', id)
       .select()
@@ -918,3 +918,231 @@ export const deleteRequest = async (req, res) => {
 
 // Middleware para upload de arquivo
 export const uploadMiddleware = upload.single('comprovante');
+
+// Retornar instrumentos ao inventário (AUDIOVISUAL)
+export const returnInstruments = async (req, res) => {
+  try {
+    if (req.user.role !== 'AUDIOVISUAL') {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Apenas audiovisual pode retornar instrumentos.' 
+      });
+    }
+
+    const { id } = req.params;
+    const { return_notes } = req.body;
+
+    // Buscar requisição
+    const { data: request, error: requestError } = await supabase
+      .from('requests')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (requestError || !request) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Requisição não encontrada.' 
+      });
+    }
+
+    if (request.status !== 'EXECUTADO') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Apenas requisições executadas podem ter instrumentos retornados.' 
+      });
+    }
+
+    // Buscar itens da requisição
+    const { data: requestItems, error: errorItems } = await supabase
+      .from('request_items')
+      .select('*')
+      .eq('request_id', id);
+
+    if (errorItems) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao buscar itens da requisição.', 
+        error: errorItems.message 
+      });
+    }
+
+    // Retornar cada item ao inventário
+    for (const reqItem of requestItems) {
+      if (!reqItem.inventory_id || !reqItem.quantity_requested) continue;
+
+      // Buscar item do inventário
+      const { data: inv, error: errInv } = await supabase
+        .from('inventory')
+        .select('*')
+        .eq('id', reqItem.inventory_id)
+        .single();
+
+      if (errInv || !inv) continue;
+
+      const novaQuantidade = inv.quantity_available + reqItem.quantity_requested;
+      const novoStatus = novaQuantidade > 0 ? 'DISPONIVEL' : inv.status;
+
+      // Atualizar inventário
+      await supabase
+        .from('inventory')
+        .update({
+          quantity_available: novaQuantidade,
+          status: novoStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reqItem.inventory_id);
+
+      // Registrar histórico
+      await logInventoryHistory({
+        inventory_id: reqItem.inventory_id,
+        user_id: req.user.userId,
+        action: 'RETORNO_REQUISICAO',
+        status_anterior: inv.status,
+        status_novo: novoStatus,
+        quantidade_anterior: inv.quantity_available,
+        quantidade_nova: novaQuantidade,
+        observacao: `Item retornado da requisição ${id}${return_notes ? ` - ${return_notes}` : ''}`
+      });
+    }
+
+    // Atualizar status da requisição para FINALIZADO
+    const { data: updatedRequest, error } = await supabase
+      .from('requests')
+      .update({
+        status: 'FINALIZADO',
+        // returned_by: req.user.userId, // Comentado até a coluna existir
+        // returned_at: new Date().toISOString(), // Comentado até a coluna existir
+        // return_notes: return_notes || null // Comentado até a coluna existir
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !updatedRequest) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao finalizar requisição.', 
+        error: error?.message 
+      });
+    }
+
+    // Enviar e-mail ao solicitante
+    const { data: usuario } = await supabase
+      .from('users')
+      .select('email, full_name')
+      .eq('id', request.requester_id)
+      .single();
+
+    if (usuario && usuario.email) {
+      try {
+        await enviarEmail(
+          usuario.email,
+          'Requisição finalizada - Instrumentos retornados',
+          `Olá ${usuario.full_name},\n\nSua requisição #${id} foi finalizada e todos os instrumentos foram retornados ao inventário.\n\nAcesse o sistema para mais detalhes.`
+        );
+      } catch (e) {
+        console.error('Erro ao enviar e-mail de finalização:', e);
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Instrumentos retornados e requisição finalizada.', 
+      data: updatedRequest 
+    });
+
+  } catch (error) {
+    console.error('Erro ao retornar instrumentos:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor', 
+      error: error.message 
+    });
+  }
+};
+
+// Buscar requisições aprovadas para histórico no calendário
+export const getApprovedRequestsForCalendar = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+    
+    // Construir filtro de data
+    let dateFilter = {};
+    if (month && year) {
+      const startDate = `${year}-${month.padStart(2, '0')}-01`;
+      const endDate = `${year}-${month.padStart(2, '0')}-31`;
+      dateFilter = {
+        gte: startDate,
+        lte: endDate
+      };
+    }
+
+    // Buscar requisições aprovadas, executadas e finalizadas
+    const { data: requests, error } = await supabase
+      .from('requests')
+      .select(`
+        id,
+        event_name,
+        description,
+        location,
+        start_datetime,
+        end_datetime,
+        status,
+        department,
+        requester_id,
+        approved_at,
+        executed_at,
+        users!requests_requester_id_fkey(full_name)
+      `)
+      .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO'])
+      .order('start_datetime', { ascending: true });
+
+    if (error) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao buscar requisições.', 
+        error: error.message 
+      });
+    }
+
+    // Formatar dados para o calendário
+    const calendarEvents = requests.map(request => ({
+      id: request.id,
+      title: request.event_name || request.description || 'Evento',
+      location: request.location,
+      start: request.start_datetime,
+      end: request.end_datetime,
+      status: request.status,
+      department: request.department,
+      requester: request.users?.full_name || 'Usuário',
+      approvedAt: request.approved_at,
+      executedAt: request.executed_at,
+      returnedAt: null, // Será adicionado quando as colunas existirem
+      color: getStatusColor(request.status)
+    }));
+
+    res.json({ 
+      success: true, 
+      data: calendarEvents 
+    });
+
+  } catch (error) {
+    console.error('Erro ao buscar requisições para calendário:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor', 
+      error: error.message 
+    });
+  }
+};
+
+// Função auxiliar para definir cor baseada no status
+const getStatusColor = (status) => {
+  const colors = {
+    'APTO': '#10b981',      // Verde
+    'EXECUTADO': '#3b82f6',  // Azul
+    'FINALIZADO': '#8b5cf6'  // Roxo
+  };
+  return colors[status] || '#6b7280';
+};

@@ -7,6 +7,8 @@ import {
   executeRequest, 
   rejectRequest, 
   finishRequest,
+  returnInstruments,
+  getApprovedRequestsForCalendar,
   uploadComprovante,
   listComprovantes,
   downloadComprovante,
@@ -25,6 +27,9 @@ router.post('/', authenticateToken, createRequest);
 // Listar requisições (do usuário ou todas se ADM)
 router.get('/', authenticateToken, listRequests);
 
+// Buscar requisições aprovadas para calendário
+router.get('/calendar/approved', authenticateToken, getApprovedRequestsForCalendar);
+
 // Detalhar requisição
 router.get('/:id', authenticateToken, getRequest);
 
@@ -39,6 +44,9 @@ router.patch('/:id/reject', authenticateToken, rejectRequest);
 
 // Finalizar requisição (devolução de itens)
 router.patch('/:id/finish', authenticateToken, finishRequest);
+
+// Retornar instrumentos ao inventário
+router.patch('/:id/return-instruments', authenticateToken, returnInstruments);
 
 // Atualizar requisição
 router.patch('/:id', authenticateToken, updateRequest);
