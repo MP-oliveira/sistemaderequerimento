@@ -24,22 +24,22 @@ async function testApproval() {
     console.log(`   Descrição: ${requests.description || 'Sem descrição'}`);
 
     // Simular aprovação
-    const statusHistory = requests.status_history || [];
-    statusHistory.push({
-      status: 'APTO',
-      date: new Date().toISOString(),
-      user_id: 'test-user-id',
-      user_name: 'Test User',
-      reason: 'Teste de aprovação'
-    });
+    // const statusHistory = requests.status_history || [];
+    // statusHistory.push({
+    //   status: 'APTO',
+    //   date: new Date().toISOString(),
+    //   user_id: 'test-user-id',
+    //   user_name: 'Test User',
+    //   reason: 'Teste de aprovação'
+    // });
 
     const { data: updatedRequest, error: updateError } = await supabase
       .from('requests')
       .update({
         status: 'APTO',
-        approved_by: 'test-user-id',
-        approved_at: new Date().toISOString(),
-        status_history: statusHistory
+        approved_at: new Date().toISOString()
+        // approved_by: 'test-user-id', // Comentado - UUID inválido
+        // status_history: statusHistory // Comentado até a coluna existir
       })
       .eq('id', requests.id)
       .select()

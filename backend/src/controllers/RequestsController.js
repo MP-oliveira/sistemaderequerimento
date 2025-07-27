@@ -335,8 +335,8 @@ export const approveRequest = async (req, res) => {
       .from('requests')
       .update({
         status: 'APTO',
-        approved_by: req.user.userId,
         approved_at: new Date().toISOString()
+        // approved_by: req.user.userId, // Comentado - pode causar erro de UUID
         // status_history: statusHistory // Comentado até a coluna existir
       })
       .eq('id', id)
@@ -537,23 +537,23 @@ export const rejectRequest = async (req, res) => {
     }
 
     // Preparar histórico de status
-    const statusHistory = requestData.status_history || [];
-    statusHistory.push({
-      status: 'REJEITADO',
-      date: new Date().toISOString(),
-      user_id: req.user.userId,
-      user_name: req.user.full_name || req.user.email,
-      reason: rejection_reason
-    });
+    // const statusHistory = requestData.status_history || [];
+    // statusHistory.push({
+    //   status: 'REJEITADO',
+    //   date: new Date().toISOString(),
+    //   user_id: req.user.userId,
+    //   user_name: req.user.full_name || req.user.email,
+    //   reason: rejection_reason
+    // });
 
     const { data: request, error } = await supabase
       .from('requests')
       .update({
         status: 'REJEITADO',
-        approved_by: req.user.userId,
         approved_at: new Date().toISOString(),
-        rejection_reason,
-        status_history: statusHistory
+        rejection_reason
+        // approved_by: req.user.userId, // Comentado - pode causar erro de UUID
+        // status_history: statusHistory // Comentado até a coluna existir
       })
       .eq('id', id)
       .select()

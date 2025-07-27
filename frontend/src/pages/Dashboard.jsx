@@ -7,7 +7,6 @@ import Button from '../components/Button';
 import './Dashboard.css';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import Calendar from '../components/Calendar';
 
 const PAGES = [
   { key: 'dashboard', label: 'Dashboard', icon: <FiPieChart />, url: '/' },
@@ -79,12 +78,18 @@ export default function Dashboard() {
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
+    
+    // Primeiro dia do mês
     const firstDay = new Date(year, month, 1);
+    // Último dia do mês
     const lastDay = new Date(year, month + 1, 0);
+    
     const daysInMonth = lastDay.getDate();
-    const startingDay = firstDay.getDay();
+    const startingDay = firstDay.getDay(); // 0 = Domingo, 1 = Segunda, etc.
+    
     const days = [];
-    // Dias do mês anterior (apenas para alinhar o primeiro dia da semana)
+    
+    // Adicionar dias vazios do mês anterior para alinhar com os dias da semana
     for (let i = 0; i < startingDay; i++) {
       days.push({
         date: null,
@@ -92,10 +97,13 @@ export default function Dashboard() {
         events: []
       });
     }
-    // Dias do mês atual
+    
+    // Adicionar todos os dias do mês atual
     for (let i = 1; i <= daysInMonth; i++) {
       const currentDate = new Date(year, month, i);
       const dateString = currentDate.toISOString().split('T')[0];
+      
+      // Filtrar eventos para este dia
       const dayEvents = events.filter(event => {
         if (event.start_datetime) {
           const eventDate = new Date(event.start_datetime);
@@ -104,21 +112,26 @@ export default function Dashboard() {
         }
         return false;
       });
+      
       days.push({
         date: currentDate,
         isCurrentMonth: true,
         events: dayEvents
       });
     }
-    // Dias do próximo mês (apenas para completar a última semana)
-    const remaining = (7 - (days.length % 7)) % 7;
-    for (let i = 1; i <= remaining; i++) {
+    
+    // Adicionar dias vazios do próximo mês para completar a última semana
+    const totalDays = days.length;
+    const remainingDays = (7 - (totalDays % 7)) % 7;
+    
+    for (let i = 1; i <= remainingDays; i++) {
       days.push({
-        date: new Date(year, month + 1, i),
+        date: null,
         isCurrentMonth: false,
         events: []
       });
     }
+    
     return days;
   };
 
@@ -256,14 +269,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Calendário de Histórico */}
-      <div className="calendar-section">
-        <h3 className="section-title">
-          <FiCalendar style={{marginRight: 8}} />
-          Histórico de Requisições Aprovadas
-        </h3>
-        <Calendar />
-      </div>
       {/* Painel de conflitos */}
       {user && (user.role === 'ADM' || user.role === 'PASTOR') && requisicoesConflito.length > 0 && (
         <div className="dashboard-conflitos-card">
@@ -325,7 +330,7 @@ export default function Dashboard() {
                     <>
                       <div className="day-events">
                         {day.events.slice(0, 2).map(event => (
-                          <div key={event.id} className="event-dot" title={event.name || event.titulo}>
+                          <div key={event.id} className="event-dot" title={event.title}>
                             •
                           </div>
                         ))}
@@ -333,8 +338,8 @@ export default function Dashboard() {
                           <div className="event-more">+{day.events.length - 2}</div>
                         )}
                       </div>
-                      <div className="event-name-preview" title={day.events[0].name || day.events[0].titulo}>
-                        {day.events[0].name || day.events[0].titulo}
+                      <div className="event-name-preview" title={day.events[0].title}>
+                        {day.events[0].title}
                       </div>
                     </>
                   )}
