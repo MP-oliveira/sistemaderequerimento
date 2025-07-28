@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import Table from '../components/Table';
 import ActivityLog from '../components/ActivityLog';
 import { listarItensInventario, criarItemInventario, atualizarItemInventario, deletarItemInventario } from '../services/inventoryService';
 import { buscarHistoricoInventario } from '../services/activityLogService';
@@ -44,6 +43,7 @@ export default function Inventory() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [deleteItem, setDeleteItem] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Estado para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
@@ -221,9 +221,14 @@ export default function Inventory() {
       await criarItemInventario({ name: nome, category: categoria, quantity: quantidade });
       setSuccessMsg('Item adicionado com sucesso!');
       setNome('');
-      setQuantidade(1);
-      setCategoria('Geral');
+      setQuantidade('');
+      setCategoria('');
       buscarItens();
+      // Fechar modal após sucesso
+      setTimeout(() => {
+        setShowAddModal(false);
+        setSuccessMsg('');
+      }, 1500);
     } catch (err) {
       setFormError(err.message || 'Erro ao adicionar item');
     }
@@ -278,49 +283,6 @@ export default function Inventory() {
     }
   };
 
-  const columns = [
-    { key: 'name', label: 'Nome' },
-    { key: 'category', label: 'Categoria' },
-    { key: 'quantity_available', label: 'Quantidade' },
-    { key: 'disponibilidade', label: 'Disponibilidade' },
-    { key: 'last_used_at', label: 'Última Utilização', render: value => value ? new Date(value).toLocaleDateString('pt-BR') : '-' },
-    { key: 'last_used_by_name', label: 'Último Audiovisual', render: value => value || '-' },
-    { 
-      key: 'actions', 
-      label: 'Ações',
-      render: (_, item) => (
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Button 
-            onClick={() => buscarLogsItem(item.id, item.name)}
-            variant="secondary" 
-            size="sm"
-            style={{ fontSize: '0.8rem', padding: '4px 8px' }}
-          >
-            📋
-          </Button>
-          <Button
-            onClick={() => handleEdit(item)}
-            variant="icon-blue"
-            size="sm"
-            style={{ background: 'white', border: 'none', fontSize: '1.1rem', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
-            title="Editar"
-          >
-            <FiEdit className="icon-outline-blue" size={18} />
-          </Button>
-          <Button
-            onClick={() => handleDelete(item)}
-            variant="icon-blue"
-            size="sm"
-            style={{ background: 'white', border: 'none', fontSize: '1.1rem', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
-            title="Deletar"
-          >
-            <FiTrash2 className="icon-outline-blue" size={18} />
-          </Button>
-        </div>
-      )
-    }
-  ];
-
   return (
     <div className="inventory-page">
       {/* Notificação */}
@@ -330,46 +292,20 @@ export default function Inventory() {
         </div>
       )}
 
-      {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
-        <div className="card inventory-form-card">
-          <h1 className="inventory-form-title">Inventário</h1>
-          <form className="inventory-form" onSubmit={handleSubmit}>
-            <Input
-              label="Nome do item"
-              placeholder="Ex: Microfone, Projetor..."
-              value={nome}
-              onChange={e => setNome(e.target.value)}
-              required
-            />
-            <Input
-              label="Categoria"
-              placeholder="Ex: Som, Projeção, Geral..."
-              value={categoria}
-              onChange={e => setCategoria(e.target.value)}
-              required
-            />
-            <Input
-              label="Quantidade"
-              type="number"
-              min={1}
-              placeholder="1"
-              value={quantidade}
-              onChange={e => setQuantidade(e.target.value)}
-              required
-            />
-            {formError && <div className="inventory-error">{formError}</div>}
-            {successMsg && <div className="inventory-success-msg">{successMsg}</div>}
-            <Button type="submit" variant="primary" size="md" className="inventory-submit-btn" loading={loadingForm} disabled={loadingForm}>
-              Adicionar Item
-            </Button>
-          </form>
-        </div>
-      )}
-      
       <div className="card inventory-list-card">
         <div className="inventory-header">
           <h2 className="inventory-list-title">Itens do Inventário</h2>
           <div className="export-buttons">
+            {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
+              <Button 
+                onClick={() => setShowAddModal(true)}
+                variant="primary" 
+                size="sm"
+                style={{ marginRight: '8px' }}
+              >
+                ➕ Adicionar Item
+              </Button>
+            )}
             <Button 
               onClick={exportarParaPDF} 
               variant="secondary" 
@@ -392,16 +328,90 @@ export default function Inventory() {
         ) : listError ? (
           <div className="inventory-error">{listError}</div>
         ) : (
-          <Table
-            columns={columns}
-            data={itens.map(item => ({
-              ...item,
-              disponibilidade: Number(item.quantity_available) >= 2 ? 'Disponível' : (
-                <span style={{ color: 'red', fontWeight: 'bold' }}>Baixo estoque</span>
-              )
-            }))}
-            emptyMessage="Nenhum item encontrado."
-          />
+          <div className="inventory-list-container">
+            <h3 className="inventory-list-title">Itens do Inventário</h3>
+            {itens.length === 0 ? (
+              <div className="inventory-empty">
+                <span>📦</span>
+                <p>Nenhum item encontrado.</p>
+              </div>
+            ) : (
+              <div className="inventory-list">
+                {itens.map((item, index) => {
+                  const quantidade = Number(item.quantity_available);
+                  const categoria = item.category?.toLowerCase() || '';
+                  
+                  // Lógica de disponibilidade
+                  let isLowStock = false;
+                  if (categoria.includes('instrumento') || categoria.includes('musical')) {
+                    isLowStock = quantidade === 0;
+                  } else {
+                    isLowStock = quantidade < 2;
+                  }
+                  
+                  return (
+                    <div key={item.id} className="inventory-item">
+                      <div className="inventory-item-content">
+                        <div className="inventory-item-header">
+                          <span className="inventory-item-name">
+                            {item.name}
+                          </span>
+                          <span className="inventory-item-category">
+                            ({item.category})
+                          </span>
+                          <span className="inventory-item-quantity">
+                            {quantidade}
+                          </span>
+                        </div>
+                        
+                        {item.last_used_at && (
+                          <div className="inventory-item-usage">
+                            <span className="inventory-item-last-used">
+                              Última utilização: {new Date(item.last_used_at).toLocaleDateString('pt-BR')}
+                            </span>
+                            {item.last_used_by_name && (
+                              <span className="inventory-item-last-user">
+                                Por: {item.last_used_by_name}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="inventory-item-actions">
+                        <Button 
+                          onClick={() => buscarLogsItem(item.id, item.name)}
+                          variant="secondary" 
+                          size="sm"
+                          style={{ fontSize: '0.8rem', padding: '4px 8px' }}
+                        >
+                          📋
+                        </Button>
+                        <Button
+                          onClick={() => handleEdit(item)}
+                          variant="icon-blue"
+                          size="sm"
+                          style={{ background: 'white', border: 'none', fontSize: '1.1rem', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
+                          title="Editar"
+                        >
+                          <FiEdit className="icon-outline-blue" size={18} />
+                        </Button>
+                        <Button
+                          onClick={() => handleDelete(item)}
+                          variant="icon-blue"
+                          size="sm"
+                          style={{ background: 'white', border: 'none', fontSize: '1.1rem', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
+                          title="Deletar"
+                        >
+                          <FiTrash2 className="icon-outline-blue" size={18} />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -473,6 +483,43 @@ export default function Inventory() {
               <Button variant="danger" onClick={handleConfirmarDelete}>Deletar</Button>
             </div>
           </div>
+        </Modal>
+      )}
+
+      {/* Modal de Cadastro */}
+      {showAddModal && (
+        <Modal open={showAddModal} onClose={() => { setShowAddModal(false); setNome(''); setCategoria(''); setQuantidade(''); setFormError(''); setSuccessMsg(''); }} title="➕ Adicionar Item ao Inventário">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Input
+              label="Nome do item"
+              placeholder="Ex: Microfone, Projetor..."
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              required
+            />
+            <Input
+              label="Categoria"
+              placeholder="Ex: Som, Projeção, Geral..."
+              value={categoria}
+              onChange={e => setCategoria(e.target.value)}
+              required
+            />
+            <Input
+              label="Quantidade"
+              type="number"
+              min={1}
+              placeholder="1"
+              value={quantidade}
+              onChange={e => setQuantidade(e.target.value)}
+              required
+            />
+            {formError && <div className="inventory-error">{formError}</div>}
+            {successMsg && <div className="inventory-success-msg">{successMsg}</div>}
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16 }}>
+              <Button variant="secondary" onClick={() => { setShowAddModal(false); setNome(''); setCategoria(''); setQuantidade(''); setFormError(''); setSuccessMsg(''); }}>Cancelar</Button>
+              <Button type="submit" variant="primary" loading={loadingForm} disabled={loadingForm}>Adicionar</Button>
+            </div>
+          </form>
         </Modal>
       )}
     </div>

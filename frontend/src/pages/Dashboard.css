@@ -366,7 +366,7 @@
 }
 
 .calendar-nav-btn {
-  background: #2563eb;
+  background: #1A4B8B;
   color: white;
   border: none;
   border-radius: 8px;
@@ -381,7 +381,7 @@
 }
 
 .calendar-nav-btn:hover {
-  background: #1d4ed8;
+  background: #153f76;
 }
 
 .calendar-title {

@@ -20,12 +20,6 @@
   text-align: center;
 }
 
-.inventory-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
 .inventory-error {
   color: #ff4d4f;
   margin: 12px 0 0 0;
@@ -33,40 +27,13 @@
   font-weight: 500;
 }
 
-/* Novas classes para substituir estilos inline */
-.inventory-form-card {
-  max-width: 900px;
-  margin: 0 auto;
-}
 
-.inventory-form-title {
-  text-align: center;
-  margin-bottom: 24px;
-}
 
 .inventory-success-msg {
   color: #2d8cff;
   margin-top: 12px;
   text-align: center;
   font-weight: 500;
-}
-
-.inventory-submit-btn {
-  border: none;
-  cursor: pointer;
-  padding: 18px 20px;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  outline: none;
-  margin: 24px auto 0 auto;
-  font-family: 'Montserrat', Arial, sans-serif;
-  background: var(--ibva-yellow);
-  color: var(--ibva-blue);
-  display: block;
-  width: 100%;
-  max-width: 400px;
-  border-radius: 8px;
 }
 
 .inventory-loading {
@@ -216,17 +183,7 @@
   100% { transform: rotate(360deg); }
 }
 
-.inventory-form .input-group, .inventory-form select.input-field, .inventory-form input.input-field, .inventory-form textarea.input-field {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
 
-.inventory-form select.input-field, .inventory-form input.input-field, .inventory-form textarea.input-field {
-  min-width: 300px;
-  width: 100%;
-  max-width: 100%;
-}
 
 .icon-outline-blue {
   color: #2d8cff;
@@ -235,18 +192,169 @@
   stroke-width: 2.2;
 }
 
+/* Layout de lista similar ao ActivityLog */
+.inventory-list-container {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.inventory-list-title {
+  color: #2d8cff;
+  margin: 0 0 20px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.inventory-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.inventory-empty span {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.inventory-empty p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inventory-item {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 8px;
+  border-left: 4px solid #e0e0e0;
+  transition: all 0.2s ease;
+  align-items: flex-start;
+}
+
+.inventory-item:hover {
+  background: #f5f5f5;
+  transform: translateX(4px);
+}
+
+.inventory-item-icon {
+  font-size: 1.5rem;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.inventory-item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inventory-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.inventory-item-name {
+  font-weight: bold;
+  color: #333;
+  font-size: 1rem;
+}
+
+.inventory-item-category {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.inventory-item-quantity {
+  color: #2d8cff;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-left: auto;
+}
+
+.inventory-item-usage {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.inventory-item-last-used,
+.inventory-item-last-user {
+  background: #fff;
+  padding: 1px 4px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.inventory-item-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .inventory-list-container {
+    padding: 16px;
+    margin: 16px 0;
+  }
+  
+  .inventory-item {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .inventory-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .inventory-item-details {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .inventory-item-usage {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .inventory-item-actions {
+    align-self: flex-end;
+  }
+}
+
 @media (max-width: 1200px) {
   .inventory-page {
     max-width: 99vw;
     padding: 16px 2vw 24px 2vw;
   }
-  .inventory-form-card {
-    max-width: 99vw;
-  }
   .inventory-list-card {
-    max-width: 99vw;
-  }
-  .inventory-submit-btn {
     max-width: 99vw;
   }
 }
