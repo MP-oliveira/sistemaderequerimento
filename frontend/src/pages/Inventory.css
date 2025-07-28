@@ -46,32 +46,77 @@
   margin: 32px auto 0 auto;
 }
 
-.inventory-list-title {
-  margin-bottom: 16px;
-  text-align: center;
-}
+
 
 /* Estilos para o cabeçalho do inventário */
 .inventory-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 16px;
+  margin-bottom: 20px;
+}
+
+.inventory-header-top {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.inventory-header-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.inventory-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1A4B8B !important;
+  border: none !important;
+  color: white !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: background-color 0.2s !important;
+}
+
+.back-button:hover {
+  background: #153a6f !important;
 }
 
 .inventory-list-title {
   margin: 0;
   text-align: left;
-  color: #2d8cff;
+  color: #1A4B8B;
   font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .export-buttons {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.export-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: #666;
+  border-radius: 3px;
+  color: white;
+  text-align: center;
+  line-height: 16px;
+  font-size: 10px;
+  margin-right: 6px;
 }
 
 .export-buttons button {
@@ -85,7 +130,7 @@
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .export-buttons button:hover {
@@ -317,6 +362,36 @@
   flex-shrink: 0;
 }
 
+.action-button {
+  padding: 6px 8px !important;
+  min-width: auto !important;
+  border-radius: 4px !important;
+}
+
+.action-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: #666;
+  border-radius: 3px;
+  color: white;
+  text-align: center;
+  line-height: 16px;
+  font-size: 10px;
+}
+
+.logs-button .action-icon {
+  background: #17a2b8;
+}
+
+.edit-button .action-icon {
+  background: #28a745;
+}
+
+.delete-button .action-icon {
+  background: #dc3545;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .inventory-list-container {
@@ -366,15 +441,26 @@
   
   .inventory-header {
     flex-direction: column;
-    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .inventory-header-bottom {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .inventory-actions {
+    align-items: flex-start;
+    width: 100%;
   }
   
   .inventory-list-title {
-    text-align: center;
+    text-align: left;
   }
   
   .export-buttons {
-    justify-content: center;
+    justify-content: flex-start;
   }
   
   .logs-modal-content {

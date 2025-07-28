@@ -3,65 +3,218 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ibva-gray-bg);
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1000px; /* Ainda maior */
+  height: 1000px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.4; /* Bem mais visível */
+  z-index: 1;
+  pointer-events: none;
+  filter: brightness(1.4) contrast(1.3) saturate(1.2);
 }
 
 .login-card {
-  max-width: 400px;
+  max-width: 420px; /* Ligeiramente aumentado */
   width: 100%;
   margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0);
 }
 
 .login-form {
-  background: none;
-  padding: 0;
-  border-radius: 0;
-  box-shadow: none;
+  background: #ffffff00;
+  backdrop-filter: blur(15px) brightness(1.1);
+  -webkit-backdrop-filter: blur(15px) brightness(1.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  padding: 45px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 1px 0 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+/* Remove o pseudo-elemento que pode estar interferindo */
+.login-form::before {
+  display: none;
 }
 
 .login-form h2 {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  letter-spacing: -0.5px;
+}
+
+.login-form-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .login-form input {
   width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-bottom: 16px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 18px;
   font-size: 16px;
+  background: transparent; /* Completamente transparente */
+  color: #ffffff;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.login-form input::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 
+    0 0 0 2px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .login-form .error {
-  color: red;
-  margin-bottom: 12px;
+  color: #fecaca;
+  margin-bottom: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-weight: 500;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 8px rgba(239, 68, 68, 0.1);
 }
 
 .login-form button {
   width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  background: #2d8cff;
-  color: #fff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  color: #ffffff;
   border: none;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 15px rgba(37, 99, 235, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset; /* Brilho interno superior */
+  position: relative;
+  overflow: hidden;
+}
+
+.login-form button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.login-form button:hover::before {
+  left: 100%;
+}
+
+.login-form button:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(37, 99, 235, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.3) inset;
+}
+
+.login-form button:active {
+  transform: translateY(-1px);
 }
 
 .login-form button:disabled {
-  background: #a0c4ff;
+  background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 
+    0 4px 15px rgba(100, 116, 139, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
 }
 
-/* Novas classes para substituir estilos inline */
+/* Classes para substituir estilos inline */
 .login-loading {
-  color: #2d8cff;
+  color: #ffffff;
   font-weight: 500;
+  text-align: center;
+  font-size: 20px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  background: transparent;
+  backdrop-filter: blur(15px) brightness(1.1);
+  -webkit-backdrop-filter: blur(15px) brightness(1.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+  padding: 24px 32px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .login-submit-btn {
-  margin-top: 10px;
-} 
+  margin-top: 12px;
+}
+
+/* Adiciona um efeito de partículas/pontos de luz no fundo */
+.login-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 200px 200px, 300px 300px, 250px 250px;
+  animation: float 20s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(10px, -10px) rotate(120deg); }
+  66% { transform: translate(-5px, 15px) rotate(240deg); }
+}

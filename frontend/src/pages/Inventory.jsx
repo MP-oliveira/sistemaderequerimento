@@ -318,32 +318,37 @@ export default function Inventory() {
           </div>
           <div className="inventory-header-bottom">
             <h2 className="inventory-list-title">Itens do Inventário</h2>
-            {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
-              <Button 
-                onClick={() => setShowAddModal(true)}
-                variant="primary" 
-                size="sm"
-              >
-                ➕ Adicionar Item
-              </Button>
-            )}
-          </div>
-          <div className="export-buttons">
-            <Button 
-              onClick={exportarParaPDF} 
-              variant="secondary" 
-              size="sm"
-              style={{ marginRight: '8px' }}
-            >
-              📄 Exportar PDF
-            </Button>
-            <Button 
-              onClick={exportarParaExcel} 
-              variant="secondary" 
-              size="sm"
-            >
-              📊 Exportar Excel
-            </Button>
+            <div className="inventory-actions">
+              {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
+                <Button 
+                  onClick={() => setShowAddModal(true)}
+                  variant="primary" 
+                  size="sm"
+                >
+                  <span style={{ color: 'white', marginRight: '6px' }}>+</span>
+                  Adicionar Item
+                </Button>
+              )}
+              <div className="export-buttons">
+                <Button 
+                  onClick={exportarParaPDF} 
+                  variant="secondary" 
+                  size="sm"
+                  style={{ marginRight: '8px' }}
+                >
+                  <span className="export-icon">📄</span>
+                  Exportar PDF
+                </Button>
+                <Button 
+                  onClick={exportarParaExcel} 
+                  variant="secondary" 
+                  size="sm"
+                >
+                  <span className="export-icon">📊</span>
+                  Exportar Excel
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
         {loading ? (
@@ -352,7 +357,6 @@ export default function Inventory() {
           <div className="inventory-error">{listError}</div>
         ) : (
           <div className="inventory-list-container">
-            <h3 className="inventory-list-title">Itens do Inventário</h3>
             {itens.length === 0 ? (
               <div className="inventory-empty">
                 <span>📦</span>
@@ -406,27 +410,28 @@ export default function Inventory() {
                           onClick={() => buscarLogsItem(item.id, item.name)}
                           variant="secondary" 
                           size="sm"
-                          style={{ fontSize: '0.8rem', padding: '4px 8px' }}
+                          className="action-button logs-button"
+                          title="Histórico"
                         >
-                          📋
+                          <span className="action-icon">📋</span>
                         </Button>
                         <Button
                           onClick={() => handleEdit(item)}
-                          variant="icon-blue"
+                          variant="secondary"
                           size="sm"
-                          style={{ background: 'white', border: 'none', fontSize: '1.1rem', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
+                          className="action-button edit-button"
                           title="Editar"
                         >
-                          <FiEdit className="icon-outline-blue" size={18} />
+                          <span className="action-icon">✏️</span>
                         </Button>
                         <Button
                           onClick={() => handleDelete(item)}
-                          variant="icon-blue"
+                          variant="secondary"
                           size="sm"
-                          style={{ background: 'white', border: 'none', fontSize: '1.1rem', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
+                          className="action-button delete-button"
                           title="Deletar"
                         >
-                          <FiTrash2 className="icon-outline-blue" size={18} />
+                          <span className="action-icon">🗑️</span>
                         </Button>
                       </div>
                     </div>
