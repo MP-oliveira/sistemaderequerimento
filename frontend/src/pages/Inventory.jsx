@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FiEdit, FiTrash2, FiArrowLeft } from 'react-icons/fi';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import ActivityLog from '../components/ActivityLog';
@@ -11,7 +13,6 @@ import * as XLSX from 'xlsx';
 
 import './Inventory.css';
 import Modal from '../components/Modal';
-import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
 const STATUS_OPTIONS = [
   { value: 'DISPONIVEL', label: 'Disponível' },
@@ -21,6 +22,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function Inventory() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [itens, setItens] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -63,6 +65,15 @@ export default function Inventory() {
   function mostrarNotificacao(mensagem, tipo) {
     setNotificacao({ mensagem, tipo, mostrar: true });
   }
+
+  const handleVoltar = () => {
+    // Verificar o role do usuário para redirecionar para o dashboard correto
+    if (user && (user.role === 'ADM' || user.role === 'PASTOR')) {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   const buscarItens = async () => {
     setLoading(true);
@@ -294,18 +305,30 @@ export default function Inventory() {
 
       <div className="card inventory-list-card">
         <div className="inventory-header">
-          <h2 className="inventory-list-title">Itens do Inventário</h2>
-          <div className="export-buttons">
+          <div className="inventory-header-top">
+            <Button 
+              variant="primary"
+              size="sm" 
+              onClick={handleVoltar}
+              className="back-button"
+            >
+              <FiArrowLeft size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              Voltar
+            </Button>
+          </div>
+          <div className="inventory-header-bottom">
+            <h2 className="inventory-list-title">Itens do Inventário</h2>
             {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
               <Button 
                 onClick={() => setShowAddModal(true)}
                 variant="primary" 
                 size="sm"
-                style={{ marginRight: '8px' }}
               >
                 ➕ Adicionar Item
               </Button>
             )}
+          </div>
+          <div className="export-buttons">
             <Button 
               onClick={exportarParaPDF} 
               variant="secondary" 

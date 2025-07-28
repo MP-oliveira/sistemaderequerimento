@@ -161,16 +161,16 @@ export const listUsers = async (req, res) => {
   }
 };
 
-// Detalhar um usuário (apenas ADM)
+// Detalhar um usuário (apenas ADM ou PASTOR)
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Permitir que usuários vejam seus próprios dados OU que admins vejam qualquer usuário
-    if (!req.user || (req.user.userId !== id && req.user.role !== 'ADM')) {
+    // Permitir que ADM ou PASTOR vejam qualquer usuário
+    if (!req.user || (req.user.role !== 'ADM' && req.user.role !== 'PASTOR')) {
       return res.status(403).json({ 
         success: false, 
-        message: 'Acesso negado. Você só pode ver seus próprios dados.' 
+        message: 'Acesso negado. Apenas administradores ou pastores podem ver dados de usuários.' 
       });
     }
     

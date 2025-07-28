@@ -18,7 +18,10 @@ export function AuthProvider({ children }) {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('🔍 AuthContext - User data from API:', data);
         return data.data;
+      } else {
+        console.error('❌ AuthContext - Erro na resposta da API:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('❌ Erro ao carregar dados do usuário:', error);
@@ -51,6 +54,7 @@ export function AuthProvider({ children }) {
             });
           } else {
             // Fallback com dados do token
+            console.log('🔍 AuthContext - Usando fallback com dados do token');
             setUser({ 
               id: payload.userId,
               nome: 'Administrador',
@@ -91,6 +95,7 @@ export function AuthProvider({ children }) {
     };
     
     console.log('🔍 AuthContext - Final user info:', userInfo);
+    console.log('🔍 AuthContext - Role do usuário:', userInfo.role);
     setUser(userInfo);
     return userInfo;
   };

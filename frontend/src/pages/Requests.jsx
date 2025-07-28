@@ -670,37 +670,66 @@ export default function Requests() {
       </div>
 
       <div className="card requests-list-card">
-        <h3>Meus Requerimentos</h3>
         {loadingList ? (
           <div className="requests-loading">Carregando...</div>
         ) : listError ? (
           <div className="requests-error">{listError}</div>
         ) : requisicoesFiltradas.length === 0 ? (
-          <div className="requests-error">Nenhuma requisição encontrada.</div>
+          <div className="requests-empty">
+            <span>📋</span>
+            <p>Nenhuma requisição encontrada.</p>
+          </div>
         ) : (
-          <ul>
+          <div className="requests-list-container">
             {requisicoesFiltradas.map((row) => (
-              <li key={row.id} className="requests-list-item">
-                <div className="req-info">
-                  <span className="req-title">{row.description}</span>
-                  {row.event_name || row.location ? (
-                    <span className="req-local">
-                      {row.event_name ? `(${row.event_name})` : row.location ? `(${row.location})` : ''}
+              <div key={row.id} className="request-item">
+                <div className="request-item-content">
+                  <div className="request-item-header">
+                    <span className="request-item-title">
+                      {row.description}
                     </span>
-                  ) : null}
+                    <span className="request-item-status">
+                      ({row.status})
+                    </span>
+                    <span className="request-item-event">
+                      {row.event_name || row.location || ''}
+                    </span>
+                  </div>
+                  <div className="request-item-details">
+                    <span className="request-item-date">
+                      Data: {row.date}
+                    </span>
+                    {row.prioridade && (
+                      <span className="request-item-priority">
+                        Prioridade: {row.prioridade}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className="req-date">{row.date}</span>
-                <div className="req-actions">
-                  <button className="req-action-btn" title="Editar" onClick={() => handleEdit(row.id)}>
-                    <FiEdit size={16} />
-                  </button>
-                  <button className="req-action-btn delete" title="Deletar" onClick={() => handleDelete(row.id)}>
-                    <FiTrash2 size={16} />
-                  </button>
+                
+                <div className="request-item-actions">
+                  <Button 
+                    onClick={() => handleEdit(row.id)}
+                    variant="icon-blue" 
+                    size="sm"
+                    className="edit-button"
+                    title="Editar"
+                  >
+                    <FiEdit size={18} className="edit-icon" />
+                  </Button>
+                  <Button 
+                    onClick={() => handleDelete(row.id)}
+                    variant="icon-blue" 
+                    size="sm"
+                    className="delete-button"
+                    title="Deletar"
+                  >
+                    <FiTrash2 size={18} className="delete-icon" />
+                  </Button>
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 

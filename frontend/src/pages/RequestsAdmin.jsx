@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { FiEdit, FiTrash2, FiEye } from 'react-icons/fi';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
-import Table from '../components/Table';
 import AdminButtons from '../components/AdminButtons';
 import Input from '../components/Input';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada } from '../services/requestsService';
-import './Requests.css';
+import './RequestsAdmin.css';
 
 export default function RequestsAdmin() {
   const [requisicoes, setRequisicoes] = useState([]);
@@ -124,53 +124,114 @@ export default function RequestsAdmin() {
 
       <div className="card requests-list-card">
         <h2 className="requests-list-title">Administração de Requisições</h2>
-        <div className="filters-container">
-          <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)} className="filter-select">
-            <option value="">Status (todos)</option>
-            <option value="PENDENTE">Pendente</option>
-            <option value="PENDENTE_CONFLITO">Em Conflito</option>
-            <option value="APTO">Apto</option>
-            <option value="EXECUTADO">Executado</option>
-            <option value="FINALIZADO">Finalizado</option>
-            <option value="REJEITADO">Rejeitado</option>
-          </select>
-          <input
-            type="text"
-            value={filtroDepartamento}
-            onChange={e => setFiltroDepartamento(e.target.value)}
-            placeholder="Departamento (filtro)"
-            className="filter-input"
-            style={{ minWidth: 180 }}
-          />
-          <input
-            type="date"
-            value={filtroData}
-            onChange={e => setFiltroData(e.target.value)}
-            className="filter-input"
-          />
+        <div className="filters-section">
+          <h3 className="filters-title">Filtros</h3>
+          <div className="filters-container">
+            <div className="filter-group">
+              <label className="filter-label">Status</label>
+              <select 
+                value={filtroStatus} 
+                onChange={e => setFiltroStatus(e.target.value)} 
+                className="filter-select"
+                required
+              >
+                <option value="">Selecione um status</option>
+                <option value="PENDENTE">Pendente</option>
+                <option value="PENDENTE_CONFLITO">Em Conflito</option>
+                <option value="APTO">Apto</option>
+                <option value="EXECUTADO">Executado</option>
+                <option value="FINALIZADO">Finalizado</option>
+                <option value="REJEITADO">Rejeitado</option>
+              </select>
+            </div>
+            
+            <div className="filter-group">
+              <label className="filter-label">Departamento</label>
+              <input
+                type="text"
+                value={filtroDepartamento}
+                onChange={e => setFiltroDepartamento(e.target.value)}
+                placeholder="Digite o departamento..."
+                className="filter-input"
+              />
+            </div>
+            
+            <div className="filter-group">
+              <label className="filter-label">Data</label>
+              <input
+                type="date"
+                value={filtroData}
+                onChange={e => setFiltroData(e.target.value)}
+                placeholder="Selecione uma data"
+                className="filter-input"
+              />
+            </div>
+            
+            <div className="filter-actions">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={() => {
+                  setFiltroStatus('');
+                  setFiltroDepartamento('');
+                  setFiltroData('');
+                }}
+                className="clear-filters-btn"
+              >
+                Limpar Filtros
+              </Button>
+            </div>
+          </div>
         </div>
         {loading ? (
           <div className="requests-loading">Carregando...</div>
+        ) : filtrar(requisicoes).length === 0 ? (
+          <div className="requests-empty">
+            <span>📋</span>
+            <p>Nenhuma requisição encontrada.</p>
+          </div>
         ) : (
-          <Table
-            columns={[
-              { key: 'department', label: 'Departamento' },
-              { key: 'event_name', label: 'Evento' },
-              { key: 'date', label: 'Data' },
-              { key: 'status', label: 'Status' },
-              {
-                key: 'actions',
-                label: 'Ações',
-                render: (value, row) => (
-                  <>
-                    <Button size="sm" variant="primary" onClick={() => abrirDetalhe(row.id)} style={{ marginRight: 6 }}>Detalhes</Button>
-                  </>
-                )
-              }
-            ]}
-            data={filtrar(requisicoes)}
-            emptyMessage="Nenhuma requisição encontrada."
-          />
+          <div className="requests-list-container">
+            {filtrar(requisicoes).map((req) => (
+              <div key={req.id} className="request-item">
+                <div className="request-item-content">
+                  <div className="request-item-header">
+                    <span className="request-item-title">
+                      {req.department}
+                    </span>
+                    <span className="request-item-status">
+                      ({req.status})
+                    </span>
+                    <span className="request-item-event">
+                      {req.event_name || ''}
+                    </span>
+                  </div>
+                  <div className="request-item-details">
+                    <span className="request-item-date">
+                      Data: {req.date}
+                    </span>
+                    {req.location && (
+                      <span className="request-item-location">
+                        Local: {req.location}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="request-item-actions">
+                  <Button 
+                    onClick={() => abrirDetalhe(req.id)}
+                    variant="icon-blue" 
+                    size="sm"
+                    className="details-button"
+                    title="Ver Detalhes"
+                  >
+                    <FiEye size={18} className="details-icon" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

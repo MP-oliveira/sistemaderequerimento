@@ -305,36 +305,54 @@ export default function DashboardAdmin() {
             </div>
             
             {requisicoesPendentes.filter(req => req.status === 'PENDENTE' || req.status === 'PENDENTE_CONFLITO').length === 0 ? (
-              <div className="empty-state">
-                <p>🎉 Nenhuma requisição pendente de aprovação!</p>
+              <div className="requests-empty">
+                <span>🎉</span>
+                <p>Nenhuma requisição pendente de aprovação!</p>
                 <p>Todas as requisições foram processadas.</p>
               </div>
             ) : (
-              <div className="pending-requests">
+              <div className="requests-list-container">
                 {requisicoesPendentes
                   .filter(req => req.status === 'PENDENTE' || req.status === 'PENDENTE_CONFLITO')
                   .map((req) => (
-                  <div key={req.id} className="request-card">
-                    <div className="request-header">
-                      <h4>{req.department}</h4>
-                      <span 
-                        className="status-badge"
-                        style={{ backgroundColor: getStatusColor(req.status) }}
-                      >
-                        {getStatusLabel(req.status)}
-                      </span>
+                  <div key={req.id} className="request-item">
+                    <div className="request-item-content">
+                      <div className="request-item-header">
+                        <span className="request-item-title">
+                          {req.department}
+                        </span>
+                        <span 
+                          className="request-item-status"
+                          style={{ backgroundColor: getStatusColor(req.status), color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem' }}
+                        >
+                          {getStatusLabel(req.status)}
+                        </span>
+                        <span className="request-item-event">
+                          {req.event_name || req.location || ''}
+                        </span>
+                      </div>
+                      <div className="request-item-details">
+                        <span className="request-item-description">
+                          {req.description || req.event_name || 'Sem descrição'}
+                        </span>
+                        <span className="request-item-date">
+                          📅 {req.date}
+                        </span>
+                        {req.location && (
+                          <span className="request-item-location">
+                            📍 {req.location}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <p className="request-description">{req.description || req.event_name || 'Sem descrição'}</p>
-                    <div className="request-meta">
-                      <span>📅 {req.date}</span>
-                      {req.location && <span>📍 {req.location}</span>}
-                    </div>
-                    <div className="request-actions">
+                    
+                    <div className="request-item-actions">
                       <Button 
                         variant="success" 
                         size="sm"
                         onClick={() => aprovarRequisicaoHandler(req.id)}
-                        style={{ marginRight: '8px' }}
+                        className="approve-button"
+                        title="Aprovar"
                       >
                         ✅ Aprovar
                       </Button>
@@ -342,6 +360,8 @@ export default function DashboardAdmin() {
                         variant="danger" 
                         size="sm"
                         onClick={() => rejeitarRequisicaoHandler(req.id)}
+                        className="reject-button"
+                        title="Rejeitar"
                       >
                         ❌ Rejeitar
                       </Button>

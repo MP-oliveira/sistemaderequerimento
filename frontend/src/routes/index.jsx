@@ -36,6 +36,7 @@ function SmartDashboardRoute() {
   
   console.log('🔍 SmartDashboardRoute - User:', user);
   console.log('🔍 SmartDashboardRoute - User role:', user?.role);
+  console.log('🔍 SmartDashboardRoute - User role type:', typeof user?.role);
   
   if (!user) {
     console.log('🔍 SmartDashboardRoute - Redirecionando para login');

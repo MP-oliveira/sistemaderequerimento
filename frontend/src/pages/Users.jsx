@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import Table from '../components/Table';
+import { FiEdit, FiTrash2, FiArrowLeft } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
@@ -7,6 +9,8 @@ import { listarUsuarios, criarUsuario, atualizarUsuario, deletarUsuario } from '
 import './Users.css';
 
 export default function Users() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -42,7 +46,7 @@ export default function Users() {
     try {
       const data = await listarUsuarios();
       setUsuarios(Array.isArray(data) ? data : []);
-    } catch (err) {
+    } catch {
       mostrarNotificacao('Erro ao buscar usuários', 'erro');
     }
     setLoading(false);
@@ -63,7 +67,7 @@ export default function Users() {
       setEditingUser(null);
       setFormData({ name: '', email: '', role: 'USER', password: '' });
       buscarUsuarios();
-    } catch (err) {
+    } catch {
       mostrarNotificacao('Erro ao salvar usuário', 'erro');
     }
     setLoading(false);
@@ -85,7 +89,7 @@ export default function Users() {
       await deletarUsuario(id);
       mostrarNotificacao('Usuário deletado com sucesso!', 'sucesso');
       buscarUsuarios();
-    } catch (err) {
+    } catch {
       mostrarNotificacao('Erro ao deletar usuário', 'erro');
     }
   };
@@ -94,6 +98,15 @@ export default function Users() {
     setEditingUser(null);
     setFormData({ name: '', email: '', role: 'USER', password: '' });
     setShowModal(true);
+  };
+
+  const handleVoltar = () => {
+    // Verificar o role do usuário para redirecionar para o dashboard correto
+    if (user && (user.role === 'ADM' || user.role === 'PASTOR')) {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -107,33 +120,75 @@ export default function Users() {
 
       <div className="card users-card">
         <div className="users-header">
-          <h2 className="users-title">Usuários</h2>
-          <Button variant="primary" size="sm" onClick={handleOpenModal}>
-            + Adicionar Usuário
-          </Button>
+          <div className="users-header-top">
+            <Button 
+              variant="primary"
+              size="sm" 
+              onClick={handleVoltar}
+            >
+              <FiArrowLeft size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+              Voltar
+            </Button>
+          </div>
+          <div className="users-header-bottom">
+            <h2 className="users-title">Usuários</h2>
+            <Button variant="primary" size="sm" onClick={handleOpenModal}>
+              + Adicionar Usuário
+            </Button>
+          </div>
         </div>
         {loading ? (
           <div className="users-loading">Carregando...</div>
         ) : (
-          <Table
-            columns={[
-              { key: 'full_name', label: 'Nome' },
-              { key: 'email', label: 'Email' },
-              { key: 'role', label: 'Função' },
-              {
-                key: 'actions',
-                label: 'Ações',
-                render: (value, row) => (
-                  <>
-                    <Button size="sm" variant="primary" onClick={() => handleEdit(row)} style={{ marginRight: 6 }}>Editar</Button>
-                    <Button size="sm" variant="danger" onClick={() => handleDelete(row.id)}>Deletar</Button>
-                  </>
-                )
-              }
-            ]}
-            data={usuarios}
-            emptyMessage="Nenhum usuário encontrado."
-          />
+          <div className="users-list">
+            {usuarios.length === 0 ? (
+              <div className="users-empty">
+                <span>👥</span>
+                <p>Nenhum usuário encontrado.</p>
+              </div>
+            ) : (
+              <div className="users-list-container">
+                {usuarios.map(user => (
+                  <div key={user.id} className="user-item">
+                    <div className="user-item-content">
+                      <div className="user-item-header">
+                        <span className="user-item-name">
+                          {user.full_name || user.name}
+                        </span>
+                        <span className="user-item-role">
+                          ({user.role})
+                        </span>
+                        <span className="user-item-email">
+                          {user.email}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="user-item-actions">
+                      <Button 
+                        onClick={() => handleEdit(user)}
+                        variant="icon-blue" 
+                        size="sm"
+                        className="edit-button"
+                        title="Editar"
+                      >
+                        <FiEdit size={18} className="edit-icon" />
+                      </Button>
+                      <Button 
+                        onClick={() => handleDelete(user.id)}
+                        variant="icon-blue" 
+                        size="sm"
+                        className="delete-button"
+                        title="Deletar"
+                      >
+                        <FiTrash2 size={18} className="delete-icon" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
