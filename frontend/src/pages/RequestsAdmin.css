@@ -19,12 +19,28 @@
   margin-bottom: 0;
 }
 
+.requests-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
 .requests-list-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #1A4B8B;
-  margin-bottom: 18px;
+  margin: 0;
   text-align: left;
+}
+
+.add-request-btn {
+  background: #1A4B8B !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
 }
 
 .filters-section {

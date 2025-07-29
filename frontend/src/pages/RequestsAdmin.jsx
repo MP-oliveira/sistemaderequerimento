@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import AdminButtons from '../components/AdminButtons';
 import Input from '../components/Input';
-import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada } from '../services/requestsService';
+import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada, criarRequisicao } from '../services/requestsService';
 import './RequestsAdmin.css';
 
 export default function RequestsAdmin() {
@@ -18,6 +18,19 @@ export default function RequestsAdmin() {
   const [modalRejeitar, setModalRejeitar] = useState(false);
   const [rejeitarId, setRejeitarId] = useState(null);
   const [motivoRejeicao, setMotivoRejeicao] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState({
+    department: '',
+    event_name: '',
+    date: '',
+    location: '',
+    description: '',
+    start_datetime: '',
+    end_datetime: '',
+    expected_audience: '',
+    prioridade: 'Média',
+    supplier: ''
+  });
   
   // Estados para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
@@ -111,6 +124,32 @@ export default function RequestsAdmin() {
     }
   }
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await criarRequisicao(formData);
+      mostrarNotificacao('Requisição criada com sucesso!', 'sucesso');
+      setShowAddModal(false);
+      setFormData({ 
+        department: '', 
+        event_name: '', 
+        date: '', 
+        location: '', 
+        description: '',
+        start_datetime: '',
+        end_datetime: '',
+        expected_audience: '',
+        prioridade: 'Média',
+        supplier: ''
+      });
+      buscarRequisicoes();
+    } catch {
+      mostrarNotificacao('Erro ao criar requisição', 'erro');
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="requests-page">
       <AdminButtons />
@@ -123,7 +162,17 @@ export default function RequestsAdmin() {
       )}
 
       <div className="card requests-list-card">
-        <h2 className="requests-list-title">Gerenciar Requerimentos</h2>
+        <div className="requests-header">
+          <h2 className="requests-list-title">Gerenciar Requerimentos</h2>
+          <Button 
+            variant="primary" 
+            size="sm" 
+            onClick={() => setShowAddModal(true)}
+            className="add-request-btn"
+          >
+            + Adicionar Requerimento
+          </Button>
+        </div>
         <div className="filters-section">
           <h3 className="filters-title">Filtros</h3>
           <div className="filters-container">
@@ -329,6 +378,124 @@ export default function RequestsAdmin() {
           onChange={e => setMotivoRejeicao(e.target.value)}
           className="input-full"
         />
+      </Modal>
+
+      {/* Modal de Adicionar Requisição */}
+      <Modal
+        open={showAddModal}
+        title="Adicionar Requerimento"
+        onClose={() => setShowAddModal(false)}
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setShowAddModal(false)}>Cancelar</Button>
+            <Button variant="primary" size="sm" onClick={handleSubmit} disabled={loading}>Criar</Button>
+          </>
+        }
+      >
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {/* Primeira linha - Departamento e Nome do Evento */}
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Departamento"
+                value={formData.department}
+                onChange={e => setFormData({ ...formData, department: e.target.value })}
+                required
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Nome do Evento"
+                value={formData.event_name}
+                onChange={e => setFormData({ ...formData, event_name: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Segunda linha - Data e Local */}
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Data"
+                type="date"
+                value={formData.date}
+                onChange={e => setFormData({ ...formData, date: e.target.value })}
+                required
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Local"
+                value={formData.location}
+                onChange={e => setFormData({ ...formData, location: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {/* Terceira linha - Data/Hora de Início e Fim */}
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Data/Hora de Início"
+                type="datetime-local"
+                value={formData.start_datetime}
+                onChange={e => setFormData({ ...formData, start_datetime: e.target.value })}
+                required
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Data/Hora de Fim"
+                type="datetime-local"
+                value={formData.end_datetime}
+                onChange={e => setFormData({ ...formData, end_datetime: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Quarta linha - Público Esperado e Fornecedor */}
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Público Esperado"
+                type="number"
+                value={formData.expected_audience}
+                onChange={e => setFormData({ ...formData, expected_audience: e.target.value })}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Fornecedor"
+                value={formData.supplier}
+                onChange={e => setFormData({ ...formData, supplier: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {/* Quinta linha - Prioridade */}
+          <Input
+            label="Prioridade"
+            value={formData.prioridade}
+            onChange={e => setFormData({ ...formData, prioridade: e.target.value })}
+            type="select"
+            options={[
+              { value: 'Baixa', label: 'Baixa' },
+              { value: 'Média', label: 'Média' },
+              { value: 'Alta', label: 'Alta' },
+              { value: 'Urgente', label: 'Urgente' }
+            ]}
+          />
+
+          {/* Sexta linha - Descrição (largura total) */}
+          <Input
+            label="Descrição"
+            value={formData.description}
+            onChange={e => setFormData({ ...formData, description: e.target.value })}
+            multiline
+          />
+        </form>
       </Modal>
     </div>
   );

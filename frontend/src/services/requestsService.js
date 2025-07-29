@@ -8,12 +8,12 @@ function getAuthHeaders() {
   };
 }
 
-export async function criarRequisicao({ department, descricao, data, event_id, itens }) {
+export async function criarRequisicao(data) {
   try {
     const response = await fetch(`${API_URL}/api/requests`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ department, description: descricao, date: data, event_id, itens }),
+      body: JSON.stringify(data),
     });
     if (!response.ok) {
       const error = await response.json();
