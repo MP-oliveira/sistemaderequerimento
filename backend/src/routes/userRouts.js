@@ -3,6 +3,7 @@ import {
   createUser,
   listUsers,
   getUser,
+  getMyProfile,
   updateUser,
   toggleUserActive,
   deleteUser
@@ -16,6 +17,9 @@ router.post('/', authenticateToken, createUser);
 
 // Rota protegida: listar todos os usuários (apenas ADM)
 router.get('/', authenticateToken, listUsers);
+
+// Rota protegida: buscar dados do próprio usuário logado
+router.get('/me/profile', authenticateToken, getMyProfile);
 
 // Detalhar um usuário
 router.get('/:id', authenticateToken, getUser);

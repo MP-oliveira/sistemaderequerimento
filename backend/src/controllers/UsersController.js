@@ -162,6 +162,27 @@ export const listUsers = async (req, res) => {
 };
 
 // Detalhar um usuário (apenas ADM ou PASTOR)
+// Buscar dados do próprio usuário logado
+export const getMyProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, full_name, email, role, is_active, created_at')
+      .eq('id', userId)
+      .single();
+      
+    if (error || !user) {
+      return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
+    }
+    
+    res.json({ success: true, data: user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -177,7 +198,6 @@ export const getUser = async (req, res) => {
     const { data: user, error } = await supabase
       .from('users')
       .select('id, full_name, email, role, is_active, created_at')
-      .eq('id', id)
       .single();
       
     if (error || !user) {

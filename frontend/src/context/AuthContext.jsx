@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
 
   const loadUserData = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+      const response = await fetch(`http://localhost:3000/api/users/me/profile`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -57,8 +57,8 @@ export function AuthProvider({ children }) {
             console.log('🔍 AuthContext - Usando fallback com dados do token');
             setUser({ 
               id: payload.userId,
-              nome: 'Administrador',
-              email: 'admin@igreja.com',
+              nome: payload.name || 'Usuário',
+              email: payload.email || 'admin@igreja.com',
               role: payload.role,
               token 
             });

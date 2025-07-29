@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs';
 import { supabase } from '../config/supabaseClient.js';
 
 // Gerar token JWT
-const generateToken = (userId, role) => {
+const generateToken = (userId, role, name) => {
   return jwt.sign(
-    { userId, role },
+    { userId, role, name },
     process.env.JWT_SECRET,
     { expiresIn: '24h' }
   );
@@ -74,7 +74,7 @@ export const register = async (req, res) => {
     }
 
     // Gerar token
-    const token = generateToken(newUser.id, newUser.role);
+    const token = generateToken(newUser.id, newUser.role, newUser.full_name);
 
     res.status(201).json({
       success: true,
@@ -151,7 +151,7 @@ export const login = async (req, res) => {
     }
 
     // Gerar token JWT
-    const token = generateToken(user.id, user.role);
+    const token = generateToken(user.id, user.role, user.full_name);
 
     res.json({
       success: true,
