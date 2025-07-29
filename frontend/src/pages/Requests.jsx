@@ -5,10 +5,12 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
 import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao } from '../services/requestsService';
+import { salasOptions } from '../utils/salasConfig';
 import './Requests.css';
 
 export default function Requests() {
   const navigate = useNavigate();
+  
   const [requisicoes, setRequisicoes] = useState([]);
   const [filtroStatus, setFiltroStatus] = useState('');
   const [filtroDepartamento, setFiltroDepartamento] = useState('');
@@ -219,24 +221,24 @@ export default function Requests() {
                 value={filtroStatus} 
                 onChange={e => setFiltroStatus(e.target.value)} 
                 className="filter-select"
-                required
+          required
               >
                 <option value="">Selecione um status</option>
-                <option value="PENDENTE">Pendente</option>
-                <option value="PENDENTE_CONFLITO">Em Conflito</option>
-                <option value="APTO">Apto</option>
-                <option value="EXECUTADO">Executado</option>
-                <option value="FINALIZADO">Finalizado</option>
-                <option value="REJEITADO">Rejeitado</option>
-              </select>
+          <option value="PENDENTE">Pendente</option>
+          <option value="PENDENTE_CONFLITO">Em Conflito</option>
+          <option value="APTO">Apto</option>
+          <option value="EXECUTADO">Executado</option>
+          <option value="FINALIZADO">Finalizado</option>
+          <option value="REJEITADO">Rejeitado</option>
+        </select>
             </div>
             
             <div className="filter-group">
               <label className="filter-label">Departamento</label>
-              <input
-                type="text"
-                value={filtroDepartamento}
-                onChange={e => setFiltroDepartamento(e.target.value)}
+        <input
+          type="text"
+          value={filtroDepartamento}
+          onChange={e => setFiltroDepartamento(e.target.value)}
                 placeholder="Digite o departamento..."
                 className="filter-input"
               />
@@ -249,14 +251,14 @@ export default function Requests() {
                 value={filtroData}
                 onChange={e => setFiltroData(e.target.value)}
                 placeholder="Selecione uma data"
-                className="filter-input"
-              />
-            </div>
-            
+          className="filter-input"
+        />
+      </div>
+
             <div className="filter-actions">
-              <Button 
-                variant="secondary" 
-                size="sm" 
+          <Button 
+            variant="secondary" 
+            size="sm"
                 onClick={() => {
                   setFiltroStatus('');
                   setFiltroDepartamento('');
@@ -265,9 +267,9 @@ export default function Requests() {
                 className="clear-filters-btn"
               >
                 Limpar Filtros
-              </Button>
-            </div>
-          </div>
+          </Button>
+        </div>
+      </div>
         </div>
         {loading ? (
           <div className="requests-loading">Carregando...</div>
@@ -424,23 +426,39 @@ export default function Requests() {
           <form style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <Input
-                  label="Departamento"
-                  value={editReq.department || ''}
-                  onChange={e => handleEditField('department', e.target.value)}
-                  required
-                />
+            <Input
+              label="Departamento"
+              value={editReq.department || ''}
+              onChange={e => handleEditField('department', e.target.value)}
+              required
+            />
               </div>
               <div style={{ flex: 1 }}>
-                <Input
-                  label="Nome do Evento"
-                  value={editReq.event_name || ''}
-                  onChange={e => handleEditField('event_name', e.target.value)}
+            <Input
+              label="Nome do Evento"
+              value={editReq.event_name || ''}
+              onChange={e => handleEditField('event_name', e.target.value)}
                   required
                 />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <div className="input-group">
+                  <label className="input-label">Local</label>
+                  <select
+                    className="input-field"
+                    value={editReq.location || ''}
+                    onChange={e => handleEditField('location', e.target.value)}
+                  >
+                    {salasOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <div style={{ flex: 1 }}>
                 <Input
                   label="Data"
@@ -450,41 +468,34 @@ export default function Requests() {
                   required
                 />
               </div>
+            </div>
+            <div style={{ display: 'flex', gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <Input
-                  label="Local"
-                  value={editReq.location || ''}
-                  onChange={e => handleEditField('location', e.target.value)}
-                />
+            <Input
+              label="Data/Hora de Início"
+              type="datetime-local"
+              value={editReq.start_datetime || ''}
+              onChange={e => handleEditField('start_datetime', e.target.value)}
+                  required
+            />
+              </div>
+              <div style={{ flex: 1 }}>
+            <Input
+              label="Data/Hora de Fim"
+              type="datetime-local"
+              value={editReq.end_datetime || ''}
+              onChange={e => handleEditField('end_datetime', e.target.value)}
+                  required
+            />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <Input
-                  label="Data/Hora de Início"
-                  type="datetime-local"
-                  value={editReq.start_datetime || ''}
-                  onChange={e => handleEditField('start_datetime', e.target.value)}
-                  required
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <Input
-                  label="Data/Hora de Fim"
-                  type="datetime-local"
-                  value={editReq.end_datetime || ''}
-                  onChange={e => handleEditField('end_datetime', e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 16 }}>
-              <div style={{ flex: 1 }}>
-                <Input
-                  label="Público Esperado"
-                  type="number"
-                  value={editReq.expected_audience || ''}
-                  onChange={e => handleEditField('expected_audience', e.target.value)}
+            <Input
+              label="Público Esperado"
+              type="number"
+              value={editReq.expected_audience || ''}
+              onChange={e => handleEditField('expected_audience', e.target.value)}
                 />
               </div>
               <div style={{ flex: 1 }}>
@@ -577,11 +588,20 @@ export default function Requests() {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <Input
-                label="Local"
-                value={formData.location}
-                onChange={e => setFormData({ ...formData, location: e.target.value })}
-              />
+              <div className="input-group">
+                <label className="input-label">Local</label>
+                <select
+                  className="input-field"
+                  value={formData.location}
+                  onChange={e => setFormData({ ...formData, location: e.target.value })}
+                >
+                  {salasOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 

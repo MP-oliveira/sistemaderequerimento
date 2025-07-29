@@ -5,6 +5,7 @@ import Modal from '../components/Modal';
 import AdminButtons from '../components/AdminButtons';
 import Input from '../components/Input';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada, criarRequisicao } from '../services/requestsService';
+import { salasOptions } from '../utils/salasConfig';
 import './RequestsAdmin.css';
 
 export default function RequestsAdmin() {
@@ -425,11 +426,20 @@ export default function RequestsAdmin() {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <Input
-                label="Local"
-                value={formData.location}
-                onChange={e => setFormData({ ...formData, location: e.target.value })}
-              />
+              <div className="input-group">
+                <label className="input-label">Local</label>
+                <select
+                  className="input-field"
+                  value={formData.location}
+                  onChange={e => setFormData({ ...formData, location: e.target.value })}
+                >
+                  {salasOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
