@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiEdit, FiTrash2, FiArrowLeft } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiArrowLeft, FiEye } from 'react-icons/fi';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import ActivityLog from '../components/ActivityLog';
@@ -317,7 +317,7 @@ export default function Inventory() {
             </Button>
           </div>
           <div className="inventory-header-bottom">
-            <h2 className="inventory-list-title">Itens do Inventário</h2>
+            <h1 className="inventory-list-title">Itens do Inventário</h1>
             <div className="inventory-actions">
               {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
                 <Button 
@@ -413,7 +413,7 @@ export default function Inventory() {
                           className="action-button logs-button"
                           title="Histórico"
                         >
-                          <span className="action-icon">📋</span>
+                          <FiEye size={18} className="logs-icon" />
                         </Button>
                         <Button
                           onClick={() => handleEdit(item)}
@@ -422,7 +422,7 @@ export default function Inventory() {
                           className="action-button edit-button"
                           title="Editar"
                         >
-                          <span className="action-icon">✏️</span>
+                          <FiEdit size={18} className="edit-icon" />
                         </Button>
                         <Button
                           onClick={() => handleDelete(item)}
@@ -431,7 +431,7 @@ export default function Inventory() {
                           className="action-button delete-button"
                           title="Deletar"
                         >
-                          <span className="action-icon">🗑️</span>
+                          <FiTrash2 size={18} className="delete-icon" />
                         </Button>
                       </div>
                     </div>

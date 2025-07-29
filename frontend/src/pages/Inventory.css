@@ -67,6 +67,18 @@
   align-items: flex-start;
 }
 
+/* Botões Voltar e Adicionar Item na cor #1A4B8B */
+.inventory-header .btn-primary {
+  background: #1A4B8B !important;
+  color: white !important;
+  border: none !important;
+}
+
+.inventory-header .btn-primary:hover {
+  background: #1A4B8B !important;
+  color: white !important;
+}
+
 .inventory-actions {
   display: flex;
   flex-direction: column;
@@ -95,9 +107,9 @@
 .inventory-list-title {
   margin: 0;
   text-align: left;
-  color: #1A4B8B;
-  font-size: 1.5rem;
-  font-weight: 600;
+  color: #1A4B8B !important;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
 .export-buttons {
@@ -364,8 +376,14 @@
 
 .action-button {
   padding: 6px 8px !important;
-  min-width: auto !important;
+  min-width: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
 }
 
 .action-icon {
@@ -384,12 +402,62 @@
   background: #17a2b8;
 }
 
+/* Botão de histórico com fundo azul claro */
+.logs-button {
+  background: #17a2b8 !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* Botão de editar com fundo azul escuro */
+.edit-button {
+  background: #1A4B8B !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* Forçar a cor do botão de editar */
+.inventory-item-actions .edit-button,
+.inventory-item-actions .action-button.edit-button {
+  background: #1A4B8B !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* Forçar cursor pointer em todos os botões de ação */
+.inventory-item-actions .action-button,
+.inventory-item-actions .logs-button,
+.inventory-item-actions .edit-button,
+.inventory-item-actions .delete-button {
+  cursor: pointer !important;
+}
+
+/* Botão de deletar com fundo vermelho */
+.delete-button {
+  background: #c82333 !important;
+  border: none !important;
+  color: white !important;
+}
+
 .edit-button .action-icon {
-  background: #28a745;
+  background: #1A4B8B;
 }
 
 .delete-button .action-icon {
-  background: #dc3545;
+  background: #c82333;
+}
+
+/* Ícones FiEdit, FiTrash2 e FiEye */
+.edit-icon {
+  color: white !important;
+}
+
+.delete-icon {
+  color: white !important;
+}
+
+.logs-icon {
+  color: white !important;
 }
 
 /* Responsividade */
