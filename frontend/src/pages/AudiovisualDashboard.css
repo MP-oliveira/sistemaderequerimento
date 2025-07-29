@@ -38,13 +38,13 @@
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
-  text-align: center;
+  text-align: left;
 }
 
 .audiovisual-dashboard .dashboard-header p {
   color: var(--text-secondary);
   font-size: 1.125rem;
-  text-align: center;
+  text-align: left;
   margin: 0;
 }
 
@@ -54,10 +54,8 @@
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   margin-bottom: 2rem;
   width: 100%;
-  max-width: 1202px;
+  max-width: 1200px;
   gap: 4rem;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* Quick actions específico do audiovisual */
@@ -69,7 +67,7 @@
   padding: 2rem;
   width: 100%;
   max-width: 1202px;
-  margin: 0 auto 2rem auto;
+  margin-left: -30px;
 }
 
 .audiovisual-dashboard .quick-actions .section-title {
@@ -119,7 +117,7 @@
   padding: 2rem;
   width: 100%;
   min-width: 1202px;
-  margin-left: auto;
+  margin-left: -32px;
   margin-right: auto;
   box-sizing: border-box;
 }
@@ -130,6 +128,10 @@
   font-size: 1.25rem;
   font-weight: 600;
 }
+
+.audiovisual-dashboard .return-materials {
+  margin-left: -32px;
+} 
 
 /* Grid de requisições */
 .audiovisual-dashboard .requests-grid {
@@ -249,7 +251,7 @@
   padding: 2rem;
   width: 100%;
   min-width: 1202px;
-  margin-left: auto;
+  margin-left: -32px;
   margin-right: auto;
   box-sizing: border-box;
 }

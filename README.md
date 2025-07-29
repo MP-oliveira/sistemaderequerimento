@@ -1,18 +1,30 @@
-# 🏛️ Sistema de Requisições e Inventário - Igreja
+# 🏛️ Sistema de Requisições e Inventário - Igreja IBVA
 
-Sistema completo para gestão de requisições, inventário e eventos de uma igreja, desenvolvido com Node.js, React e Supabase.
+Sistema completo para gestão de requisições, inventário, eventos e usuários da Igreja Batista Vida Abundante (IBVA), desenvolvido com Node.js, React e Supabase.
 
 ## 🚀 Funcionalidades Implementadas
 
+### 🔐 **Sistema de Autenticação e Usuários**
+- ✅ **Login seguro** com JWT e criptografia bcrypt
+- ✅ **Controle de papéis**: ADM, PASTOR, SEC, AUDIOVISUAL, LIDER, USER
+- ✅ **Permissões granulares** por funcionalidade
+- ✅ **Gestão de usuários** (criar, editar, deletar)
+- ✅ **Proteção de rotas** baseada em papéis
+- ✅ **Sessões seguras** com expiração automática
+- ✅ **Logout automático** e limpeza de tokens
+
 ### 📋 **Gestão de Requisições**
-- ✅ **Criação de requisições** com departamento, descrição e data
+- ✅ **Criação de requisições** com formulário completo
+- ✅ **Sistema de prioridades**: Alta, Média, Baixa
 - ✅ **Sistema de aprovação** por pastores/administradores
 - ✅ **Execução de requisições** por audiovisual/secretaria
 - ✅ **Finalização com devolução** de itens
 - ✅ **Rejeição de requisições** com motivo obrigatório
-- ✅ **Controle de permissões** por papel de usuário
-- ✅ **Busca e filtros** avançados
-- ✅ **Detecção de conflitos** de agenda
+- ✅ **Busca e filtros** avançados (status, departamento, data)
+- ✅ **Detecção de conflitos** de agenda automática
+- ✅ **Histórico completo** de alterações
+- ✅ **Edição e exclusão** de requisições
+- ✅ **Status em tempo real**: PENDENTE, APTO, EXECUTADO, FINALIZADO, REJEITADO, PENDENTE_CONFLITO
 
 ### 📎 **Sistema de Comprovantes**
 - ✅ **Upload de arquivos** (PDF, imagens, documentos)
@@ -21,40 +33,70 @@ Sistema completo para gestão de requisições, inventário e eventos de uma igr
 - ✅ **Remoção de comprovantes** (com permissões)
 - ✅ **Validação de tipos** de arquivo
 - ✅ **Armazenamento seguro** no servidor
+- ✅ **Limite de tamanho** (10MB por arquivo)
 
 ### 📦 **Gestão de Inventário**
-- ✅ **Cadastro de itens** com categoria e quantidade
+- ✅ **CRUD completo** de itens de inventário
 - ✅ **Controle de estoque** automático
 - ✅ **Alertas de estoque baixo** (≤ 2 itens)
 - ✅ **Histórico de atividades** por item
-- ✅ **Exportação em PDF/Excel**
-- ✅ **Status de disponibilidade** (Disponível, Reservado, Manutenção, Indisponível)
+- ✅ **Exportação em PDF/Excel** com formatação profissional
+- ✅ **Status de disponibilidade**: DISPONIVEL, RESERVADO, MANUTENCAO, INDISPONIVEL
+- ✅ **Filtros avançados** (nome, categoria, status, localização)
+- ✅ **Integração automática** com requisições
+- ✅ **Validação de quantidade** (não permite valores negativos)
+- ✅ **Logs detalhados** de movimentações
 
 ### 📅 **Gestão de Eventos**
 - ✅ **Criação de eventos** com data/hora e local
 - ✅ **Detecção de conflitos** de agenda
 - ✅ **Calendário visual** no dashboard
 - ✅ **Histórico de alterações** por evento
-- ✅ **Integração com requisições**
+- ✅ **Integração com requisições** (criação automática)
+- ✅ **Status de eventos**: AGENDADO, EM_ANDAMENTO, CONCLUIDO, CANCELADO
+- ✅ **Filtros de busca** por nome, local, status, datas
 
-### 👥 **Sistema de Usuários e Permissões**
-- ✅ **Controle por papel**: ADM, PASTOR, SEC, AUDIOVISUAL, LIDER
-- ✅ **Autenticação segura** com JWT
-- ✅ **Permissões granulares** por funcionalidade
-- ✅ **Logs de atividades** por usuário
+### 📊 **Dashboard Inteligente**
+- ✅ **Dashboard personalizado** por papel de usuário
+- ✅ **Dashboard Admin** para pastores e administradores
+- ✅ **Dashboard Audiovisual** para equipe técnica
+- ✅ **Dashboard padrão** para usuários comuns
+- ✅ **Calendário interativo** com eventos e requisições
+- ✅ **Estatísticas em tempo real**
+- ✅ **Alertas de estoque baixo**
+- ✅ **Atividades recentes** em tempo real
+- ✅ **Indicadores visuais** de status
+- ✅ **Ações rápidas** para tarefas comuns
 
-### 📧 **Notificações por E-mail**
+### 📧 **Sistema de Notificações**
 - ✅ **Notificações automáticas** para nova requisição
 - ✅ **E-mails de aprovação/rejeição** para solicitantes
 - ✅ **Notificações por papel** (pastores, audiovisual, secretaria)
 - ✅ **Integração com Supabase**
+- ✅ **Toast notifications** para ações
+- ✅ **Mensagens de sucesso/erro**
+- ✅ **Confirmações** para ações críticas
+- ✅ **Feedback em tempo real**
 
-### 📊 **Dashboard Inteligente**
-- ✅ **Visão geral** com estatísticas
-- ✅ **Calendário de eventos** interativo
-- ✅ **Alertas de estoque baixo**
-- ✅ **Atividades recentes** em tempo real
-- ✅ **Indicadores visuais** de status
+### 🎨 **Interface do Usuário**
+- ✅ **Design responsivo** para mobile/desktop
+- ✅ **Componentes reutilizáveis** e consistentes
+- ✅ **Cores da marca IBVA** (#174ea6, #ffd600)
+- ✅ **UX intuitiva** e acessível
+- ✅ **Modais otimizados** com layout compacto
+- ✅ **Inputs uniformes** com altura padronizada
+- ✅ **Formulários responsivos** que cabem na tela
+- ✅ **Navegação intuitiva** com breadcrumbs
+
+### 📈 **Funcionalidades Avançadas**
+- ✅ **Detecção de conflitos** de agenda em tempo real
+- ✅ **Prevenção de duplicatas** e sobreposições
+- ✅ **Exportação de dados** em PDF e Excel
+- ✅ **Relatórios personalizados** por período
+- ✅ **Sistema de logs** completo para auditoria
+- ✅ **Backup automático** do Supabase
+- ✅ **Validação robusta** de dados
+- ✅ **Tratamento de erros** abrangente
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -64,19 +106,24 @@ Sistema completo para gestão de requisições, inventário e eventos de uma igr
 - **Multer** para upload de arquivos
 - **JWT** para autenticação
 - **Nodemailer** para e-mails
+- **bcrypt** para criptografia
+- **CORS** para segurança
 
 ### **Frontend**
-- **React** com Vite
+- **React 18** com Vite
 - **React Router** para navegação
-- **React Hot Toast** para notificações
+- **Context API** para gerenciamento de estado
 - **jsPDF** e **XLSX** para exportação
+- **React Icons** para ícones
 - **CSS Modules** para estilização
+- **Responsive Design** com media queries
 
 ### **Banco de Dados**
 - **Supabase PostgreSQL**
 - **Tabelas relacionais** otimizadas
 - **Triggers** para logs automáticos
 - **Políticas de segurança** (RLS)
+- **Backup automático**
 
 ## 📁 Estrutura do Projeto
 
@@ -85,22 +132,59 @@ sistemaderequerimento/
 ├── backend/
 │   ├── src/
 │   │   ├── controllers/     # Lógica de negócio
+│   │   │   ├── AuthController.js
+│   │   │   ├── RequestsController.js
+│   │   │   ├── InventoryController.js
+│   │   │   ├── UsersController.js
+│   │   │   ├── EventsController.js
+│   │   │   └── RequestItemsController.js
 │   │   ├── routes/         # Rotas da API
 │   │   ├── middlewares/    # Autenticação e permissões
 │   │   ├── config/         # Configuração Supabase
 │   │   ├── utils/          # Utilitários (e-mail, upload)
 │   │   └── server.js       # Servidor Express
-│   └── uploads/            # Arquivos enviados
+│   ├── uploads/            # Arquivos enviados
+│   └── scripts/            # Scripts de manutenção
 ├── frontend/
 │   ├── src/
 │   │   ├── components/     # Componentes React
+│   │   │   ├── Button.jsx
+│   │   │   ├── Input.jsx
+│   │   │   ├── Modal.jsx
+│   │   │   ├── Header.jsx
+│   │   │   ├── Calendar.jsx
+│   │   │   └── ActivityLog.jsx
 │   │   ├── pages/          # Páginas da aplicação
+│   │   │   ├── Login.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── DashboardAdmin.jsx
+│   │   │   ├── AudiovisualDashboard.jsx
+│   │   │   ├── Requests.jsx
+│   │   │   ├── Inventory.jsx
+│   │   │   └── Users.jsx
 │   │   ├── services/       # Serviços de API
 │   │   ├── context/        # Contexto de autenticação
 │   │   └── utils/          # Utilitários
 │   └── public/             # Arquivos estáticos
 └── README.md
 ```
+
+## 🔐 Sistema de Permissões
+
+### **Papéis de Usuário e Permissões**
+
+| Funcionalidade | ADM | PASTOR | SEC | AUDIOVISUAL | LIDER | USER |
+|----------------|-----|--------|-----|-------------|-------|------|
+| **Dashboard Admin** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Dashboard Audiovisual** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Criar Requisições** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Aprovar Requisições** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Executar Requisições** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| **Gerenciar Inventário** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **Criar Eventos** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| **Gerenciar Usuários** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Visualizar Relatórios** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Upload Comprovantes** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## 🔧 Instalação e Configuração
 
@@ -131,6 +215,8 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=seu_email@gmail.com
 EMAIL_PASS=sua_senha_de_app
+PORT=3000
+NODE_ENV=development
 ```
 
 ### **3. Configure o Frontend**
@@ -161,89 +247,18 @@ npm run dev
 - `inventory_history` - Histórico do inventário
 - `events` - Eventos da igreja
 - `event_history` - Histórico dos eventos
-
-## 🔐 Sistema de Permissões
-
-### **Papéis de Usuário**
-- **ADM**: Acesso total ao sistema
-- **PASTOR**: Aprova/rejeita requisições, gerencia eventos
-- **SEC**: Executa requisições, gerencia inventário
-- **AUDIOVISUAL**: Executa requisições, gerencia equipamentos
-- **LIDER**: Gerencia eventos e requisições básicas
-
-### **Controle de Acesso**
-- ✅ **Autenticação obrigatória** em todas as rotas
-- ✅ **Validação de permissões** por funcionalidade
-- ✅ **Logs de atividades** para auditoria
-- ✅ **Sessões seguras** com JWT
-
-## 📈 Funcionalidades Avançadas
-
-### **Detecção de Conflitos**
-- ✅ **Conflitos de agenda** entre eventos
-- ✅ **Conflitos de local/horário** em requisições
-- ✅ **Alertas em tempo real** durante criação
-- ✅ **Prevenção de duplicatas**
-
-### **Exportação de Dados**
-- ✅ **Relatórios em PDF** do inventário
-- ✅ **Planilhas Excel** com dados completos
-- ✅ **Formatação profissional** dos documentos
-- ✅ **Dados estruturados** e organizados
-
-### **Sistema de Logs**
-- ✅ **Histórico completo** de todas as ações
-- ✅ **Rastreamento por usuário** e item
-- ✅ **Logs de inventário** com quantidades
-- ✅ **Logs de eventos** com alterações
-
-## 🎨 Interface do Usuário
-
-### **Design Responsivo**
-- ✅ **Layout adaptativo** para mobile/desktop
-- ✅ **Componentes reutilizáveis** e consistentes
-- ✅ **Cores da marca** da igreja
-- ✅ **UX intuitiva** e acessível
-
-### **Componentes Principais**
-- **Modal**: Para formulários e confirmações
-- **Table**: Para listagens com ações
-- **Button**: Com variantes (primary, success, danger, etc.)
-- **Input**: Com validação e labels
-- **Comprovantes**: Upload e visualização de arquivos
-
-## 📧 Sistema de E-mails
-
-### **Notificações Automáticas**
-- ✅ **Nova requisição** → Pastores
-- ✅ **Requisição aprovada** → Solicitante + Audiovisual
-- ✅ **Requisição rejeitada** → Solicitante + Secretaria
-- ✅ **Requisição executada** → Solicitante
-
-### **Configuração de E-mail**
-```javascript
-// Exemplo de configuração
-const emailConfig = {
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: 'seu_email@gmail.com',
-    pass: 'sua_senha_de_app'
-  }
-}
-```
+- `departments` - Departamentos
 
 ## 🔄 Fluxo de Requisições
 
 ### **1. Criação**
 ```
-Usuário → Nova Requisição → Seleciona Itens → Envia
+Usuário → Nova Requisição → Preenche Formulário → Seleciona Prioridade → Envia
 ```
 
 ### **2. Aprovação**
 ```
-Pastor/ADM → Visualiza → Aprova/Rejeita → Notifica
+Pastor/ADM → Visualiza → Verifica Conflitos → Aprova/Rejeita → Notifica
 ```
 
 ### **3. Execução**
@@ -255,6 +270,59 @@ Audiovisual/SEC → Executa → Atualiza Inventário → Notifica
 ```
 Executor → Devolve Itens → Finaliza → Atualiza Inventário
 ```
+
+## 📊 Relatórios e Exportação
+
+### **Inventário**
+- ✅ **PDF profissional** com logo da IBVA
+- ✅ **Excel estruturado** com múltiplas abas
+- ✅ **Dados completos** (quantidade, status, local)
+- ✅ **Formatação automática** de colunas
+
+### **Histórico**
+- ✅ **Logs detalhados** por item/evento
+- ✅ **Rastreamento temporal** de alterações
+- ✅ **Usuários responsáveis** por cada ação
+- ✅ **Observações** e motivos
+
+## 🎨 Componentes Principais
+
+### **Button**
+```jsx
+<Button variant="primary" size="sm" loading={true}>
+  Botão Principal
+</Button>
+```
+
+### **Input**
+```jsx
+<Input 
+  label="Nome" 
+  placeholder="Digite seu nome"
+  error="Campo obrigatório"
+  type="select"
+  options={options}
+/>
+```
+
+### **Modal**
+```jsx
+<Modal 
+  open={showModal} 
+  title="Título do Modal"
+  onClose={() => setShowModal(false)}
+  actions={<Button>Confirmar</Button>}
+>
+  Conteúdo do modal
+</Modal>
+```
+
+## 📱 Responsividade
+
+O sistema é totalmente responsivo com breakpoints:
+- **Desktop**: > 1024px
+- **Tablet**: 768px - 1024px
+- **Mobile**: < 768px
 
 ## 🚨 Alertas e Notificações
 
@@ -270,20 +338,6 @@ Executor → Devolve Itens → Finaliza → Atualiza Inventário
 - ✅ **Confirmações** para ações críticas
 - ✅ **Feedback em tempo real**
 
-## 📊 Relatórios e Exportação
-
-### **Inventário**
-- ✅ **PDF profissional** com logo da igreja
-- ✅ **Excel estruturado** com múltiplas abas
-- ✅ **Dados completos** (quantidade, status, local)
-- ✅ **Formatação automática** de colunas
-
-### **Histórico**
-- ✅ **Logs detalhados** por item/evento
-- ✅ **Rastreamento temporal** de alterações
-- ✅ **Usuários responsáveis** por cada ação
-- ✅ **Observações** e motivos
-
 ## 🔧 Manutenção e Suporte
 
 ### **Logs do Sistema**
@@ -298,15 +352,46 @@ Executor → Devolve Itens → Finaliza → Atualiza Inventário
 - ✅ **Validação de tipos** de arquivo
 - ✅ **Limite de tamanho** (10MB por arquivo)
 
-## 🎯 Próximas Funcionalidades
+## 🎯 Funcionalidades Específicas
 
-### **Planejadas**
-- 📅 **Agenda compartilhada** entre departamentos
-- 📊 **Dashboard analítico** com gráficos
-- 📱 **App mobile** para notificações
-- 🔔 **Sistema de notificações** push
-- 📋 **Relatórios personalizados** por período
-- 🎨 **Temas personalizáveis** por igreja
+### **Sistema de Prioridades**
+- ✅ **Prioridade Alta**: Para eventos importantes/urgentes
+- ✅ **Prioridade Média**: Para eventos regulares (padrão)
+- ✅ **Prioridade Baixa**: Para eventos de menor importância
+
+### **Detecção de Conflitos**
+- ✅ **Conflitos de agenda** entre eventos
+- ✅ **Conflitos de local/horário** em requisições
+- ✅ **Alertas em tempo real** durante criação
+- ✅ **Prevenção de duplicatas**
+
+### **Dashboard Personalizado**
+- ✅ **Dashboard Admin**: Para pastores e administradores
+- ✅ **Dashboard Audiovisual**: Para equipe técnica
+- ✅ **Dashboard Padrão**: Para usuários comuns
+- ✅ **Redirecionamento automático** baseado no papel
+
+## 🚀 Deploy
+
+O projeto está configurado para deploy em qualquer plataforma:
+- **Vercel** (Frontend)
+- **Netlify** (Frontend)
+- **Railway** (Backend)
+- **Heroku** (Backend)
+- **Servidor próprio**
+
+## 📞 Suporte
+
+### **Contato**
+- **Email**: suporte@ibva.com
+- **Telefone**: (11) 99999-9999
+- **Documentação**: [Wiki do Projeto]
+
+### **FAQ**
+- **Como resetar senha?** → Contate o administrador
+- **Como adicionar usuário?** → Apenas ADM pode criar usuários
+- **Como exportar dados?** → Use os botões de exportação nas páginas
+- **Como configurar e-mail?** → Configure as variáveis de ambiente
 
 ## 🤝 Contribuição
 
@@ -323,25 +408,12 @@ Executor → Devolve Itens → Finaliza → Atualiza Inventário
 - ✅ **Conventional Commits** para mensagens
 - ✅ **TypeScript** (futuro)
 
-## 📞 Suporte
-
-### **Contato**
-- **Email**: suporte@igreja.com
-- **Telefone**: (11) 99999-9999
-- **Documentação**: [Wiki do Projeto]
-
-### **FAQ**
-- **Como resetar senha?** → Contate o administrador
-- **Como adicionar usuário?** → Apenas ADM pode criar usuários
-- **Como exportar dados?** → Use os botões de exportação nas páginas
-- **Como configurar e-mail?** → Configure as variáveis de ambiente
-
 ---
 
 ## 📝 Licença
 
-Este projeto é desenvolvido para uso interno da igreja. Todos os direitos reservados.
+Este projeto é desenvolvido para uso interno da Igreja Batista Vida Abundante (IBVA). Todos os direitos reservados.
 
 ---
 
-**Desenvolvido com ❤️ para a Igreja** 
+**Desenvolvido com ❤️ para a Igreja Batista Vida Abundante** 
