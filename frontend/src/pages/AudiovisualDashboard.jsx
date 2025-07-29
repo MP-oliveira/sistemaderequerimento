@@ -7,6 +7,7 @@ import Input from '../components/Input';
 import TodayMaterials from '../components/TodayMaterials';
 import ReturnMaterials from '../components/ReturnMaterials';
 import { notifyRequestExecuted } from '../utils/notificationUtils';
+import { formatTimeUTC } from '../utils/dateUtils';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiMapPin, FiUsers, FiCheck, FiX } from 'react-icons/fi';
 import './Dashboard.css';
 import './AudiovisualDashboard.css';
@@ -143,11 +144,7 @@ export default function AudiovisualDashboard() {
   };
 
   const formatEventTime = (dateString) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleTimeString('pt-BR', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    return formatTimeUTC(dateString);
   };
 
   const marcarComoExecutada = async (id) => {
@@ -312,7 +309,7 @@ export default function AudiovisualDashboard() {
                     <FiClock />
                     <span>
                       {requisicao.start_datetime && requisicao.end_datetime 
-                        ? `${new Date(requisicao.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - ${new Date(requisicao.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                        ? `${formatTimeUTC(requisicao.start_datetime)} - ${formatTimeUTC(requisicao.end_datetime)}`
                         : 'Horário não definido'
                       }
                     </span>

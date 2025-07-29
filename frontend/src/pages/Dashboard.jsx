@@ -4,6 +4,7 @@ import { listarRequisicoes, listarEventos } from '../services/requestsService';
 import ActivityLog from '../components/ActivityLog';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
+import { formatTimeUTC } from '../utils/dateUtils';
 import './Dashboard.css';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -171,12 +172,7 @@ export default function Dashboard() {
   };
 
   const formatEventTime = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('pt-BR', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    return formatTimeUTC(dateString);
   };
 
   const days = getDaysInMonth(currentDate);
@@ -375,8 +371,8 @@ export default function Dashboard() {
                     {ev.location ? `(${ev.location})` : ''}
                   </span>
                   <span className="event-time">
-                    {ev.start_datetime ? new Date(ev.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
-                    {ev.end_datetime ? ' - ' + new Date(ev.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                    {ev.start_datetime ? formatTimeUTC(ev.start_datetime) : ''}
+                    {ev.end_datetime ? ' - ' + formatTimeUTC(ev.end_datetime) : ''}
                   </span>
                 </li>
               ))}
@@ -409,8 +405,8 @@ export default function Dashboard() {
                   </span>
                   <span className="event-time">
                     {ev.start_datetime ? new Date(ev.start_datetime).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : ''}
-                    {ev.start_datetime ? ' ' + new Date(ev.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
-                    {ev.end_datetime ? ' - ' + new Date(ev.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                    {ev.start_datetime ? ' ' + formatTimeUTC(ev.start_datetime) : ''}
+                    {ev.end_datetime ? ' - ' + formatTimeUTC(ev.end_datetime) : ''}
                   </span>
                 </li>
               ))}

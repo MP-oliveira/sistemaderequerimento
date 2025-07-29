@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { listarItensDoDia, marcarItemComoSeparado } from '../services/requestItemsService';
-import { FiCheck, FiX, FiPackage, FiClock, FiMapPin } from 'react-icons/fi';
+import { formatTimeUTC } from '../utils/dateUtils';
 import './TodayMaterials.css';
+import { FiClock, FiMapPin, FiUsers, FiCheck, FiX, FiPackage } from 'react-icons/fi';
 
 export default function TodayMaterials() {
   const [materials, setMaterials] = useState([]);
@@ -32,11 +33,7 @@ export default function TodayMaterials() {
   };
 
   const formatTime = (dateString) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleTimeString('pt-BR', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    return formatTimeUTC(dateString);
   };
 
   // Agrupar materiais por requisição

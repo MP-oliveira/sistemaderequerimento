@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { buscarRequisicoesCalendario } from '../services/requestsService';
+import { formatTimeUTC } from '../utils/dateUtils';
 import './Calendar.css';
+import { FiChevronLeft, FiChevronRight, FiMapPin, FiClock, FiUsers } from 'react-icons/fi';
 
 export default function Calendar() {
   const [events, setEvents] = useState([]);
@@ -203,7 +205,7 @@ export default function Calendar() {
                 <strong>Data:</strong> {new Date(selectedEvent.start).toLocaleDateString('pt-BR')}
               </div>
               <div className="event-detail">
-                <strong>Horário:</strong> {new Date(selectedEvent.start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - {new Date(selectedEvent.end).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                <strong>Horário:</strong> {formatTimeUTC(selectedEvent.start)} - {formatTimeUTC(selectedEvent.end)}
               </div>
               {selectedEvent.approvedAt && (
                 <div className="event-detail">
