@@ -225,7 +225,7 @@ export const listRequests = async (req, res) => {
         )
       `);
     
-    if (req.user.role !== 'ADM' && req.user.role !== 'PASTOR') {
+    if (req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC') {
       query = query.or(`requester_id.eq.${req.user.userId},approved_by.eq.${req.user.userId},executed_by.eq.${req.user.userId}`);
     }
     
@@ -278,9 +278,9 @@ export const getRequest = async (req, res) => {
     if (error || !request) {
       return res.status(404).json({ success: false, message: 'Requisição não encontrada.' });
     }
-    // Permissão: só ADM ou PASTOR podem ver detalhes completos para edição
+    // Permissão: só ADM, PASTOR ou SEC podem ver detalhes completos para edição
     if (
-      req.user.role !== 'ADM' && req.user.role !== 'PASTOR'
+      req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC'
     ) {
       return res.status(403).json({ success: false, message: 'Acesso negado.' });
     }
