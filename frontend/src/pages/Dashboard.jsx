@@ -258,10 +258,7 @@ export default function Dashboard() {
               Adicionar Usuário
             </a>
           ) : null}
-          <a href="/inventario" className="action-btn">
-            <FiCalendar />
-            Agendar Evento
-          </a>
+
           <a href="/relatorio" className="action-btn">
             <FiDownload />
             Relatório
