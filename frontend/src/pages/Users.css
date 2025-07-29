@@ -232,6 +232,96 @@
   color: #2d8cff;
 }
 
+/* Estilos para o modal de usuários - ajustar largura dos inputs */
+.users-page .input-group {
+  width: 100% !important;
+  margin-right: 20px !important;
+}
+
+.users-page .input-field {
+  width: 100% !important;
+  margin-right: 20px !important;
+}
+
+/* Estilo para o select - remover seta padrão e adicionar customizada */
+.users-page select.input-field,
+.users-page .modal select.input-field,
+.users-page .modal-content select.input-field {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+  background-position: right 12px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px !important;
+  padding: 12px !important;
+  padding-right: 40px !important;
+  width: 100% !important;
+  margin-right: 20px !important;
+  box-sizing: border-box !important;
+  border-radius: 8px !important;
+  border: 1px solid #cccccc !important;
+  font-size: 1rem !important;
+  background: #f9f9f9 !important;
+  font-family: 'Montserrat', Arial, sans-serif !important;
+  transition: border 0.2s, box-shadow 0.2s !important;
+}
+
+.users-page select.input-field:focus,
+.users-page .modal select.input-field:focus,
+.users-page .modal-content select.input-field:focus {
+  border-color: var(--ibva-blue) !important;
+  box-shadow: 0 0 0 2px #2d8cff22 !important;
+  outline: none !important;
+}
+
+/* Forçar estilos específicos para o select no modal */
+.users-page .modal .input-group select,
+.users-page .modal-content .input-group select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+  background-position: right 12px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px !important;
+  border: 1.5px solid #ccc !important;
+  background-color: #f9f9f9 !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  padding-right: 40px !important;
+  font-size: 1rem !important;
+  font-family: 'Montserrat', Arial, sans-serif !important;
+  transition: border 0.2s, box-shadow 0.2s !important;
+  outline: none !important;
+}
+
+.users-page .modal .input-group select:focus,
+.users-page .modal-content .input-group select:focus {
+  border-color: var(--ibva-blue) !important;
+  box-shadow: 0 0 0 2px #2d8cff22 !important;
+  outline: none !important;
+}
+
+/* Alinhar botões do modal com o final dos inputs */
+.users-page .modal-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  margin-top: 20px !important;
+  margin-right: 20px !important;
+  width: 100% !important;
+}
+
+/* Placeholder mais claro para o select */
+.users-page select.input-field option[value=""] {
+  color: #9ca3af !important;
+}
+
+.users-page select.input-field option {
+  color: #333 !important;
+}
+
 @media (max-width: 1200px) {
   .users-page {
     max-width: 99vw;

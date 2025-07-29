@@ -241,6 +241,7 @@ export default function Users() {
               onChange={e => setFormData({ ...formData, role: e.target.value })}
               required
             >
+              <option value="" disabled>Selecione uma função</option>
               <option value="USER">Usuário</option>
               <option value="LIDER">Líder</option>
               <option value="SEC">Secretário</option>
