@@ -21,7 +21,7 @@ export default function Input({ label, error, type, options, ...props }) {
   return (
     <div className="input-group">
       {label && <label className="input-label">{label}</label>}
-      <input className={`input-field${error ? ' input-error' : ''}`} {...props} />
+      <input type={type} className={`input-field${error ? ' input-error' : ''}`} {...props} />
       {error && <div className="input-error-message">{error}</div>}
     </div>
   );

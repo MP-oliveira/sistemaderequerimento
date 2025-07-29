@@ -30,8 +30,7 @@ export default function Requests() {
     start_datetime: '',
     end_datetime: '',
     expected_audience: '',
-    prioridade: PRIORIDADE_DEFAULT,
-    supplier: ''
+    prioridade: PRIORIDADE_DEFAULT
   });
   
   // Estados para notificações
@@ -105,7 +104,18 @@ export default function Requests() {
     e.preventDefault();
     setLoading(true);
     try {
-      await criarRequisicao(formData);
+      // Combinar data com horas para criar datetime completo
+      const dataToSend = { ...formData };
+      
+      if (formData.date && formData.start_datetime) {
+        dataToSend.start_datetime = `${formData.date}T${formData.start_datetime}`;
+      }
+      
+      if (formData.date && formData.end_datetime) {
+        dataToSend.end_datetime = `${formData.date}T${formData.end_datetime}`;
+      }
+      
+      await criarRequisicao(dataToSend);
       mostrarNotificacao('Requisição criada com sucesso!', 'sucesso');
       setShowAddModal(false);
       setFormData({
@@ -118,7 +128,7 @@ export default function Requests() {
         end_datetime: '',
         expected_audience: '',
         prioridade: PRIORIDADE_DEFAULT,
-        supplier: ''
+    
       });
       buscarRequisicoes();
     } catch (error) {
@@ -141,7 +151,18 @@ export default function Requests() {
     if (!editReq) return;
     
     try {
-      await atualizarRequisicao(editReq.id, editReq);
+      // Combinar data com horas para criar datetime completo
+      const dataToSend = { ...editReq };
+      
+      if (editReq.date && editReq.start_datetime) {
+        dataToSend.start_datetime = `${editReq.date}T${editReq.start_datetime}`;
+      }
+      
+      if (editReq.date && editReq.end_datetime) {
+        dataToSend.end_datetime = `${editReq.date}T${editReq.end_datetime}`;
+      }
+      
+      await atualizarRequisicao(editReq.id, dataToSend);
       mostrarNotificacao('Requisição atualizada com sucesso!', 'sucesso');
       setEditModalOpen(false);
       setEditReq(null);
@@ -483,8 +504,8 @@ export default function Requests() {
             <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
             <Input
-              label="Data/Hora de Início"
-              type="datetime-local"
+              label="Hora de Início"
+              type="time"
               value={editReq.start_datetime || ''}
               onChange={e => handleEditField('start_datetime', e.target.value)}
                   required
@@ -492,8 +513,8 @@ export default function Requests() {
               </div>
               <div style={{ flex: 1 }}>
             <Input
-              label="Data/Hora de Fim"
-              type="datetime-local"
+              label="Hora de Fim"
+              type="time"
               value={editReq.end_datetime || ''}
               onChange={e => handleEditField('end_datetime', e.target.value)}
                   required
@@ -502,28 +523,23 @@ export default function Requests() {
             </div>
             <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
-            <Input
-              label="Público Esperado"
-              type="number"
-              value={editReq.expected_audience || ''}
-              onChange={e => handleEditField('expected_audience', e.target.value)}
+                <Input
+                  label="Público Esperado"
+                  type="number"
+                  value={editReq.expected_audience || ''}
+                  onChange={e => handleEditField('expected_audience', e.target.value)}
                 />
               </div>
               <div style={{ flex: 1 }}>
                 <Input
-                  label="Fornecedor"
-                  value={editReq.supplier || ''}
-                  onChange={e => handleEditField('supplier', e.target.value)}
+                  label="Prioridade"
+                  value={editReq.prioridade || ''}
+                  onChange={e => handleEditField('prioridade', e.target.value)}
+                  type="select"
+                  options={PRIORIDADE_OPTIONS}
                 />
               </div>
             </div>
-            <Input
-              label="Prioridade"
-              value={editReq.prioridade || ''}
-              onChange={e => handleEditField('prioridade', e.target.value)}
-              type="select"
-              options={PRIORIDADE_OPTIONS}
-            />
             <Input
               label="Descrição"
               value={editReq.description || ''}
@@ -620,12 +636,12 @@ export default function Requests() {
             </div>
           </div>
 
-          {/* Terceira linha - Data/Hora de Início e Fim */}
+          {/* Terceira linha - Hora de Início e Fim */}
           <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <Input
-                label="Data/Hora de Início"
-                type="datetime-local"
+                label="Hora de Início"
+                type="time"
                 value={formData.start_datetime}
                 onChange={e => setFormData({ ...formData, start_datetime: e.target.value })}
                 required
@@ -633,8 +649,8 @@ export default function Requests() {
             </div>
             <div style={{ flex: 1 }}>
               <Input
-                label="Data/Hora de Fim"
-                type="datetime-local"
+                label="Hora de Fim"
+                type="time"
                 value={formData.end_datetime}
                 onChange={e => setFormData({ ...formData, end_datetime: e.target.value })}
                 required
@@ -642,7 +658,7 @@ export default function Requests() {
             </div>
           </div>
 
-          {/* Quarta linha - Público Esperado e Fornecedor */}
+          {/* Quarta linha - Público Esperado e Prioridade */}
           <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <Input
@@ -654,21 +670,14 @@ export default function Requests() {
             </div>
             <div style={{ flex: 1 }}>
               <Input
-                label="Fornecedor"
-                value={formData.supplier}
-                onChange={e => setFormData({ ...formData, supplier: e.target.value })}
+                label="Prioridade"
+                value={formData.prioridade}
+                onChange={e => setFormData({ ...formData, prioridade: e.target.value })}
+                type="select"
+                options={PRIORIDADE_OPTIONS}
               />
             </div>
           </div>
-
-          {/* Quinta linha - Prioridade */}
-          <Input
-            label="Prioridade"
-            value={formData.prioridade}
-            onChange={e => setFormData({ ...formData, prioridade: e.target.value })}
-            type="select"
-            options={PRIORIDADE_OPTIONS}
-          />
 
           {/* Sexta linha - Descrição (largura total) */}
           <Input

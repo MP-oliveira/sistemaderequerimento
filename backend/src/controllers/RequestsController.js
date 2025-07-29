@@ -45,7 +45,6 @@ export const createRequest = async (req, res) => {
     console.log('🔍 [createRequest] req.body:', req.body);
     const {
       department = '',
-      supplier = '',
       expected_audience = '',
       location = '',
       start_datetime = '',
@@ -148,7 +147,6 @@ export const createRequest = async (req, res) => {
       .insert([{
         requester_id,
         department,
-        supplier,
         expected_audience,
         location,
         start_datetime,

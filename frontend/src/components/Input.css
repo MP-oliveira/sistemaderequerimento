@@ -72,9 +72,10 @@ select.input-field:focus {
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
-/* Garantir uniformidade para inputs de data e datetime */
+/* Garantir uniformidade para inputs de data, datetime e time */
 input[type="date"].input-field,
-input[type="datetime-local"].input-field {
+input[type="datetime-local"].input-field,
+input[type="time"].input-field {
   height: 36px;
   padding: 8px 12px;
 } 
