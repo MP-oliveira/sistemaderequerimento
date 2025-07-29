@@ -30,6 +30,18 @@
   align-items: center;
 }
 
+/* Botões Voltar e Adicionar Usuário na cor #1A4B8B */
+.users-header .btn-primary {
+  background: #1A4B8B !important;
+  color: white !important;
+  border: none !important;
+}
+
+.users-header .btn-primary:hover {
+  background: #1A4B8B !important;
+  color: white !important;
+}
+
 
 
 .users-card h2 {
@@ -153,7 +165,7 @@
 }
 
 .edit-button {
-  background: #2d8cff !important;
+  background: #1A4B8B !important;
   border: none !important;
   font-size: 1.1rem !important;
   padding: 4px 8px !important;
@@ -163,12 +175,22 @@
   cursor: pointer !important;
 }
 
+.edit-button.btn-icon-blue {
+  background: #1A4B8B !important;
+}
+
 .edit-icon {
   color: white !important;
 }
 
+/* Forçar a cor do botão de editar */
+.user-item-actions .edit-button,
+.user-item-actions .btn-icon-blue.edit-button {
+  background: #1A4B8B !important;
+}
+
 .delete-button {
-  background: #dc3545 !important;
+  background: #c82333 !important;
   border: none !important;
   font-size: 1.1rem !important;
   padding: 4px 8px !important;
