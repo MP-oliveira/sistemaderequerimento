@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiEdit, FiTrash2, FiArrowLeft, FiEye } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiArrowLeft, FiEye, FiX } from 'react-icons/fi';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import ActivityLog from '../components/ActivityLog';
@@ -448,8 +448,13 @@ export default function Inventory() {
         <div className="logs-modal-overlay" onClick={fecharLogs}>
           <div className="logs-modal-content" onClick={e => e.stopPropagation()}>
             <div className="logs-modal-header">
-              <h3>📋 Histórico de Atividades - {selectedItem?.name}</h3>
-              <button className="logs-modal-close" onClick={fecharLogs}>✕</button>
+              <div className="logs-modal-title-section">
+                <h3>Histórico de Atividades</h3>
+                <p className="logs-modal-subtitle">Histórico do Item: {selectedItem?.name}</p>
+              </div>
+              <button className="logs-modal-close" onClick={fecharLogs}>
+                <FiX size={20} />
+              </button>
             </div>
             <div className="logs-modal-body">
               {loadingLogs ? (

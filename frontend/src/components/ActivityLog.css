@@ -1,68 +1,72 @@
 .activity-log-container {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin: 20px 0;
-}
-
-.activity-log-title {
-  color: #2d8cff;
-  margin: 0 0 20px 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 10px;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
 }
 
 .activity-log-empty {
   text-align: center;
-  padding: 40px 20px;
-  color: #888;
+  padding: 60px 20px;
+  color: #6b7280;
+  background: #fff;
+  border-radius: 12px;
+  border: 2px dashed #e5e7eb;
 }
 
-.activity-log-empty span {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 10px;
+.activity-log-empty-icon {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
 }
 
-.activity-log-empty p {
+.activity-log-empty-title {
+  margin: 0 0 8px 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.activity-log-empty-message {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
 }
 
 .activity-log-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .activity-log-item {
   display: flex;
   gap: 16px;
   padding: 16px;
-  background: #fafafa;
-  border-radius: 8px;
-  border-left: 4px solid #e0e0e0;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #f3f4f6;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .activity-log-item:hover {
-  background: #f5f5f5;
-  transform: translateX(4px);
+  background: #fff;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #e5e7eb;
 }
 
 .activity-log-icon {
-  font-size: 1.5rem;
   min-width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .activity-log-content {
@@ -70,101 +74,118 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
 
 .activity-log-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 
 .activity-log-action {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
 }
 
 .activity-log-date {
-  color: #666;
-  font-size: 0.875rem;
-  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b7280;
+  font-size: 0.75rem;
+  background: #f9fafb;
   padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  border: 1px solid #f3f4f6;
+  white-space: nowrap;
 }
 
 .activity-log-user {
-  color: #555;
-  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #4b5563;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .activity-log-description {
-  color: #666;
-  font-size: 0.9rem;
-  background: #fff;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border-left: 3px solid #2d8cff;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.activity-log-description span {
+  flex: 1;
+  min-width: 0;
 }
 
 .activity-log-details {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.85rem;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: #4b5563;
+  background: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
 }
 
 .status-change,
 .quantity-change,
 .field-change {
-  background: #fff;
-  padding: 6px 10px;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-wrap: wrap;
 }
 
 .status-old,
 .quantity-old,
 .value-old {
-  color: #dc3545;
+  color: #ef4444;
   font-weight: 500;
 }
 
 .status-new,
 .quantity-new,
 .value-new {
-  color: #28a745;
+  color: #10b981;
   font-weight: 500;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
   .activity-log-container {
-    padding: 16px;
-    margin: 16px 0;
+    padding: 0;
   }
-  
+
   .activity-log-item {
     padding: 12px;
     gap: 12px;
   }
-  
+
   .activity-log-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-  
-  .activity-log-date {
-    align-self: flex-end;
-  }
-  
-  .activity-log-details {
-    flex-direction: column;
     gap: 8px;
+  }
+
+  .activity-log-date {
+    align-self: flex-start;
+  }
+
+  .activity-log-icon {
+    min-width: 36px;
+    height: 36px;
   }
 }
 

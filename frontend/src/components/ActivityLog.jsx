@@ -1,4 +1,23 @@
 import React from 'react';
+import { 
+  FiUser, 
+  FiFileText, 
+  FiClock, 
+  FiPlus, 
+  FiEdit, 
+  FiCheck, 
+  FiPlay, 
+  FiX, 
+  FiXCircle, 
+  FiLock, 
+  FiUnlock, 
+  FiTool, 
+  FiAlertTriangle, 
+  FiPackage, 
+  FiArrowUp, 
+  FiFlag, 
+  FiTrash2 
+} from 'react-icons/fi';
 import './ActivityLog.css';
 
 export default function ActivityLog({ logs, title = "Histórico de Atividades", emptyMessage = "Nenhuma atividade registrada." }) {
@@ -10,42 +29,42 @@ export default function ActivityLog({ logs, title = "Histórico de Atividades", 
 
   const getActionIcon = (action) => {
     const icons = {
-      'CRIACAO': '➕',
-      'EDICAO': '✏️',
-      'APROVACAO': '✅',
-      'EXECUCAO': '🚀',
-      'REJEICAO': '❌',
-      'CANCELAMENTO': '🚫',
-      'RESERVA': '🔒',
-      'LIBERACAO': '🔓',
-      'MANUTENCAO': '🔧',
-      'INDISPONIBILIZACAO': '⚠️',
-      'USO_REQUISICAO': '📦',
-      'DEVOLUCAO_EVENTO': '📤',
-      'FINALIZACAO': '🏁',
-      'REMOCAO': '🗑️'
+      'CRIACAO': 'FiPlus',
+      'EDICAO': 'FiEdit',
+      'APROVACAO': 'FiCheck',
+      'EXECUCAO': 'FiPlay',
+      'REJEICAO': 'FiX',
+      'CANCELAMENTO': 'FiXCircle',
+      'RESERVA': 'FiLock',
+      'LIBERACAO': 'FiUnlock',
+      'MANUTENCAO': 'FiTool',
+      'INDISPONIBILIZACAO': 'FiAlertTriangle',
+      'USO_REQUISICAO': 'FiPackage',
+      'DEVOLUCAO_EVENTO': 'FiArrowUp',
+      'FINALIZACAO': 'FiFlag',
+      'REMOCAO': 'FiTrash2'
     };
-    return icons[action] || '📝';
+    return icons[action] || 'FiFileText';
   };
 
   const getActionColor = (action) => {
     const colors = {
-      'CRIACAO': '#28a745',
-      'EDICAO': '#17a2b8',
-      'APROVACAO': '#28a745',
-      'EXECUCAO': '#007bff',
-      'REJEICAO': '#dc3545',
-      'CANCELAMENTO': '#6c757d',
-      'RESERVA': '#ffc107',
-      'LIBERACAO': '#28a745',
-      'MANUTENCAO': '#fd7e14',
-      'INDISPONIBILIZACAO': '#dc3545',
-      'USO_REQUISICAO': '#6f42c1',
-      'DEVOLUCAO_EVENTO': '#20c997',
-      'FINALIZACAO': '#28a745',
-      'REMOCAO': '#dc3545'
+      'CRIACAO': '#10b981',
+      'EDICAO': '#3b82f6',
+      'APROVACAO': '#10b981',
+      'EXECUCAO': '#3b82f6',
+      'REJEICAO': '#ef4444',
+      'CANCELAMENTO': '#6b7280',
+      'RESERVA': '#f59e0b',
+      'LIBERACAO': '#10b981',
+      'MANUTENCAO': '#f97316',
+      'INDISPONIBILIZACAO': '#ef4444',
+      'USO_REQUISICAO': '#8b5cf6',
+      'DEVOLUCAO_EVENTO': '#06b6d4',
+      'FINALIZACAO': '#10b981',
+      'REMOCAO': '#ef4444'
     };
-    return colors[action] || '#6c757d';
+    return colors[action] || '#6b7280';
   };
 
   const getActionLabel = (action) => {
@@ -68,13 +87,36 @@ export default function ActivityLog({ logs, title = "Histórico de Atividades", 
     return labels[action] || action;
   };
 
+  const renderIcon = (iconName, color) => {
+    const iconProps = { size: 16, color };
+    switch (iconName) {
+      case 'FiPlus': return <FiPlus {...iconProps} />;
+      case 'FiEdit': return <FiEdit {...iconProps} />;
+      case 'FiCheck': return <FiCheck {...iconProps} />;
+      case 'FiPlay': return <FiPlay {...iconProps} />;
+      case 'FiX': return <FiX {...iconProps} />;
+      case 'FiXCircle': return <FiXCircle {...iconProps} />;
+      case 'FiLock': return <FiLock {...iconProps} />;
+      case 'FiUnlock': return <FiUnlock {...iconProps} />;
+      case 'FiTool': return <FiTool {...iconProps} />;
+      case 'FiAlertTriangle': return <FiAlertTriangle {...iconProps} />;
+      case 'FiPackage': return <FiPackage {...iconProps} />;
+      case 'FiArrowUp': return <FiArrowUp {...iconProps} />;
+      case 'FiFlag': return <FiFlag {...iconProps} />;
+      case 'FiTrash2': return <FiTrash2 {...iconProps} />;
+      default: return <FiFileText {...iconProps} />;
+    }
+  };
+
   if (!logs || logs.length === 0) {
     return (
       <div className="activity-log-container">
-        <h3 className="activity-log-title">{title}</h3>
         <div className="activity-log-empty">
-          <span>📋</span>
-          <p>{emptyMessage}</p>
+          <div className="activity-log-empty-icon">
+            <FiFileText size={48} color="#9ca3af" />
+          </div>
+          <h4 className="activity-log-empty-title">Nenhuma atividade</h4>
+          <p className="activity-log-empty-message">{emptyMessage}</p>
         </div>
       </div>
     );
@@ -82,32 +124,34 @@ export default function ActivityLog({ logs, title = "Histórico de Atividades", 
 
   return (
     <div className="activity-log-container">
-      <h3 className="activity-log-title">{title}</h3>
       <div className="activity-log-list">
         {logs.map((log, index) => (
           <div key={log.id || index} className="activity-log-item">
-            <div className="activity-log-icon" style={{ color: getActionColor(log.action) }}>
-              {getActionIcon(log.action)}
+            <div className="activity-log-icon" style={{ backgroundColor: `${getActionColor(log.action)}15` }}>
+              {renderIcon(getActionIcon(log.action), getActionColor(log.action))}
             </div>
             <div className="activity-log-content">
               <div className="activity-log-header">
                 <span className="activity-log-action" style={{ color: getActionColor(log.action) }}>
                   {getActionLabel(log.action)}
                 </span>
-                <span className="activity-log-date">
-                  {formatDate(log.created_at)}
-                </span>
+                <div className="activity-log-date">
+                  <FiClock size={12} />
+                  <span>{formatDate(log.created_at)}</span>
+                </div>
               </div>
               
               {log.usuario && (
                 <div className="activity-log-user">
-                  👤 <strong>{log.usuario}</strong>
+                  <FiUser size={12} />
+                  <span>{log.usuario}</span>
                 </div>
               )}
               
               {log.observacao && (
                 <div className="activity-log-description">
-                  📝 {log.observacao}
+                  <FiFileText size={12} />
+                  <span>{log.observacao}</span>
                 </div>
               )}
               
