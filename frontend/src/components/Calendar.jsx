@@ -76,8 +76,12 @@ export default function Calendar() {
 
   const getStatusColor = (status) => {
     const colors = {
-      'APTO': '#10b981',
-      'EXECUTADO': '#3b82f6',
+      'PENDENTE': '#ff9800',
+      'APTO': '#4caf50',
+      'REJEITADO': '#f44336',
+      'EXECUTADO': '#9c27b0',
+      'PENDENTE_CONFLITO': '#ff5722',
+      'PREENCHIDO': '#2196f3',
       'FINALIZADO': '#8b5cf6'
     };
     return colors[status] || '#6b7280';
@@ -172,7 +176,14 @@ export default function Calendar() {
                 <strong>Status:</strong>
                 <span 
                   className="event-status-badge"
-                  style={{ backgroundColor: selectedEvent.color }}
+                  style={{ 
+                    backgroundColor: 'transparent',
+                    color: getStatusColor(selectedEvent.status),
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    fontWeight: '700'
+                  }}
                 >
                   {getStatusLabel(selectedEvent.status)}
                 </span>

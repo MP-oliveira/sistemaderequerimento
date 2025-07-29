@@ -176,7 +176,17 @@ export default function DashboardAdmin() {
       start_datetime: new Date(request.start_datetime).toLocaleString('pt-BR'),
       end_datetime: new Date(request.end_datetime).toLocaleString('pt-BR'),
       status: (
-        <span className="status-badge-table">
+        <span 
+          className="status-badge-table"
+          style={{ 
+            backgroundColor: 'transparent',
+            color: getStatusColor(request.status),
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '0.8rem',
+            fontWeight: '700'
+          }}
+        >
           {request.status}
         </span>
       )
@@ -323,24 +333,28 @@ export default function DashboardAdmin() {
                         </span>
                         <span 
                           className="request-item-status"
-                          style={{ backgroundColor: getStatusColor(req.status), color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem' }}
+                          style={{ 
+                            backgroundColor: 'transparent',
+                            color: getStatusColor(req.status),
+                            padding: '2px 8px', 
+                            borderRadius: '12px', 
+                            fontSize: '0.8rem',
+                            fontWeight: '700'
+                          }}
                         >
                           {getStatusLabel(req.status)}
                         </span>
                         <span className="request-item-event">
-                          {req.event_name || req.location || ''}
+                          {req.event_name || ''}
                         </span>
                       </div>
                       <div className="request-item-details">
                         <span className="request-item-description">
                           {req.description || req.event_name || 'Sem descrição'}
                         </span>
-                        <span className="request-item-date">
-                          📅 {req.date}
-                        </span>
                         {req.location && (
                           <span className="request-item-location">
-                            📍 {req.location}
+                            {req.location}
                           </span>
                         )}
                       </div>
@@ -363,7 +377,7 @@ export default function DashboardAdmin() {
                         className="reject-button"
                         title="Rejeitar"
                       >
-                        ❌ Rejeitar
+                        ✕ Rejeitar
                       </Button>
                     </div>
                   </div>
@@ -381,7 +395,7 @@ export default function DashboardAdmin() {
             <div className="actions-grid">
               <a href="/admin/requisicoes" className="action-btn">
                 <FiPlus />
-                Gerenciar Requisições
+                Gerenciar Requerimentos
               </a>
               <a href="/usuarios" className="action-btn">
                 <FiUserPlus />

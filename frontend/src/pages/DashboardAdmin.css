@@ -32,13 +32,16 @@
 .dashboard-header h1 {
   font-size: 2rem;
   font-weight: 700;
-  color: #000000;
+  color: #1a4b8c;
   margin-bottom: 8px;
+  text-align: left;
 }
 
 .dashboard-header p {
   color: #6b7280;
   font-size: 1.1rem;
+  text-align: left;
+  margin: 0;
 }
 
 /* Cards de Estatísticas */
@@ -76,12 +79,10 @@
 }
 
 .admin-stat-card:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .admin-stat-card:active {
-  transform: translateY(0);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -311,16 +312,17 @@
   background: #fafafa;
   border-radius: 8px;
   border-left: 4px solid #e0e0e0;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
   align-items: flex-start;
   margin-bottom: 6px;
   width: 100%;
   box-sizing: border-box;
+  justify-content: space-between;
+  position: relative;
 }
 
 .request-item:hover {
   background: #f5f5f5;
-  transform: translateX(4px);
 }
 
 .request-item-content {
@@ -360,6 +362,9 @@
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .request-item-description {
@@ -369,14 +374,11 @@
   min-width: 200px;
 }
 
-.request-item-date {
-  color: #666;
-  font-size: 0.9rem;
-}
-
 .request-item-location {
   color: #666;
   font-size: 0.9rem;
+  position: absolute;
+  right: 120px;
 }
 
 .request-item-actions {
@@ -384,10 +386,11 @@
   gap: 8px;
   align-items: center;
   flex-shrink: 0;
+  position: relative;
 }
 
 .approve-button {
-  background: #28a745 !important;
+  background: #218838 !important;
   border: none !important;
   font-size: 0.9rem !important;
   padding: 4px 8px !important;
@@ -396,10 +399,16 @@
   border-radius: 4px !important;
   cursor: pointer !important;
   color: white !important;
+  transition: all 0.2s ease !important;
+}
+
+.approve-button:hover {
+  background: #28a745 !important;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
 }
 
 .reject-button {
-  background: #dc3545 !important;
+  background: #c82333 !important;
   border: none !important;
   font-size: 0.9rem !important;
   padding: 4px 8px !important;
@@ -408,6 +417,73 @@
   border-radius: 4px !important;
   cursor: pointer !important;
   color: white !important;
+  transition: all 0.2s ease !important;
+}
+
+.reject-button * {
+  color: white !important;
+}
+
+.reject-button span {
+  color: white !important;
+}
+
+.reject-button emoji {
+  color: white !important;
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Forçar cor branca para qualquer texto dentro do botão de rejeitar */
+.reject-button,
+.reject-button::before,
+.reject-button::after,
+.reject-button *,
+.reject-button *::before,
+.reject-button *::after {
+  color: white !important;
+  fill: white !important;
+  stroke: white !important;
+}
+
+/* Sobrescrever especificamente a classe btn-danger quando aplicada ao reject-button */
+.reject-button.btn-danger,
+.reject-button.btn-danger *,
+.reject-button.btn-danger::before,
+.reject-button.btn-danger::after {
+  color: white !important;
+  fill: white !important;
+  stroke: white !important;
+}
+
+.reject-button:hover {
+  background: #dc3545 !important;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3) !important;
+  transform: none !important;
+}
+
+/* Remover qualquer transform dos botões */
+.approve-button,
+.reject-button,
+.approve-button:hover,
+.reject-button:hover {
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Remover transições específicas dos botões */
+.approve-button,
+.reject-button {
+  transition: none !important;
+}
+
+/* Garantir que não haja nenhum movimento nos botões */
+.approve-button,
+.reject-button,
+.approve-button *,
+.reject-button * {
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
 }
 
 /* Modal de Filtros */
@@ -426,6 +502,11 @@
   justify-content: center;
   padding-top: 20px;
   border-top: 1px solid #e5e7eb;
+}
+
+/* Botão "Ver Todas as Requisições" no modal footer */
+.modal-footer .btn {
+  border-radius: 4px !important;
 }
 
 .loading-state {
@@ -484,13 +565,14 @@
   transition: all 0.2s ease;
   font-size: 1rem;
   justify-content: center;
+  cursor: pointer;
 }
 
 .action-btn:hover {
-  background: var(--primary-blue);
+  background: #1A4B8B;
   color: var(--white);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  /* transform: translateY(-1px); */
+  box-shadow: 0 4px 12px rgba(26, 75, 139, 0.3);
 }
 
 /* Status Badge da Tabela */

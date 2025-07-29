@@ -22,25 +22,33 @@
   padding: 0.5rem 1rem !important;
   transition: all 0.2s !important;
   border-radius: 6px !important;
+  cursor: pointer !important;
 }
 
 .admin-btn:hover {
-  background: #f9fafb !important;
-  border-color: #d1d5db !important;
+  background: #1A4B8B !important;
+  border-color: #1A4B8B !important;
+  color: white !important;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(26, 75, 139, 0.3);
 }
 
 /* Botão selecionado (página atual) */
 .admin-btn.active {
-  background: #2563eb !important;
-  border-color: #1d4ed8 !important;
+  background: #1A4B8B !important;
+  border-color: #1A4B8B !important;
   color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(26, 75, 139, 0.4);
+  cursor: pointer !important;
 }
 
 .admin-btn.active:hover {
-  background: #1d4ed8 !important;
-  border-color: #1e40af !important;
+  background: #153f76 !important;
+  border-color: #153f76 !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 75, 139, 0.5);
 }
 
 /* Responsividade */

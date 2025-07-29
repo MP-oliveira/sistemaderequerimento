@@ -276,7 +276,27 @@ export default function AudiovisualDashboard() {
               <div key={requisicao.id} className="request-card">
                 <div className="request-header">
                   <h3>{requisicao.event_name || requisicao.description || `Requisição - ${requisicao.department}`}</h3>
-                  <span className="status-badge approved">Aprovado</span>
+                  <span 
+                    className="status-badge"
+                    style={{ 
+                      backgroundColor: 'transparent',
+                      color: requisicao.status === 'APTO' ? '#4caf50' : 
+                             requisicao.status === 'EXECUTADO' ? '#9c27b0' : 
+                             requisicao.status === 'PENDENTE' ? '#ff9800' : 
+                             requisicao.status === 'REJEITADO' ? '#f44336' : 
+                             requisicao.status === 'PENDENTE_CONFLITO' ? '#ff5722' : '#6b7280',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      fontWeight: '700'
+                    }}
+                  >
+                    {requisicao.status === 'APTO' ? 'Aprovado' : 
+                     requisicao.status === 'EXECUTADO' ? 'Executado' : 
+                     requisicao.status === 'PENDENTE' ? 'Pendente' : 
+                     requisicao.status === 'REJEITADO' ? 'Rejeitado' : 
+                     requisicao.status === 'PENDENTE_CONFLITO' ? 'Em Conflito' : requisicao.status}
+                  </span>
                 </div>
                 <div className="request-details">
                   <div className="detail-item">

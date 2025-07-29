@@ -119,7 +119,27 @@ export default function TodayMaterials() {
                 </div>
               </div>
               <div className="request-status">
-                <span className="status-badge approved">Aprovada</span>
+                <span 
+                  className="status-badge"
+                  style={{ 
+                    backgroundColor: 'transparent',
+                    color: request.status === 'APTO' ? '#4caf50' : 
+                           request.status === 'EXECUTADO' ? '#9c27b0' : 
+                           request.status === 'PENDENTE' ? '#ff9800' : 
+                           request.status === 'REJEITADO' ? '#f44336' : 
+                           request.status === 'PENDENTE_CONFLITO' ? '#ff5722' : '#6b7280',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    fontWeight: '700'
+                  }}
+                >
+                  {request.status === 'APTO' ? 'Aprovada' : 
+                   request.status === 'EXECUTADO' ? 'Executada' : 
+                   request.status === 'PENDENTE' ? 'Pendente' : 
+                   request.status === 'REJEITADO' ? 'Rejeitada' : 
+                   request.status === 'PENDENTE_CONFLITO' ? 'Em Conflito' : request.status}
+                </span>
               </div>
             </div>
 

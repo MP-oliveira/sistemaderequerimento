@@ -35,7 +35,7 @@ export default function AdminButtons() {
             size="sm" 
             className={`admin-btn ${isActive('/admin/requisicoes') ? 'active' : ''}`}
           >
-            📋 Gerenciar Requisições
+            📋 Gerenciar Requerimentos
           </Button>
         </Link>
         <Link to="/usuarios">

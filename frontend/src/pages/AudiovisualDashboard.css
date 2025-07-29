@@ -100,12 +100,13 @@
   text-decoration: none;
   font-weight: 500;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .audiovisual-dashboard .quick-actions .action-btn:hover {
-  background: var(--primary);
+  background: #1A4B8B;
   color: var(--white);
-  border-color: var(--primary);
+  border-color: #1A4B8B;
   transform: translateY(-1px);
 }
 

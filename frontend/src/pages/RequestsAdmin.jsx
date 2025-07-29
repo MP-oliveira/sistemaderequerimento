@@ -123,7 +123,7 @@ export default function RequestsAdmin() {
       )}
 
       <div className="card requests-list-card">
-        <h2 className="requests-list-title">Administração de Requisições</h2>
+        <h2 className="requests-list-title">Gerenciar Requerimentos</h2>
         <div className="filters-section">
           <h3 className="filters-title">Filtros</h3>
           <div className="filters-container">

@@ -49,6 +49,7 @@ a:hover {
 button,
 .btn {
   font-family: 'Montserrat', Arial, sans-serif;
+  border-radius: 4px; 
 }
 
 input,
