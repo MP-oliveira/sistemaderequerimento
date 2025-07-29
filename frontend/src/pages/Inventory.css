@@ -98,6 +98,7 @@
   font-size: 14px !important;
   font-weight: 500 !important;
   transition: background-color 0.2s !important;
+  cursor: pointer !important;
 }
 
 .back-button:hover {

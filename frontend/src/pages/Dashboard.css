@@ -67,9 +67,10 @@
 
 .dashboard-header {
   margin-bottom: 2rem;
-  text-align: center;
+  text-align: left;
   width: 100%;
   max-width: 1200px;
+  margin-left: 20px;
 }
 
 .dashboard-header h2 {
@@ -77,43 +78,41 @@
   font-weight: 700;
   color: var(--text-dark);
   margin-bottom: 0.5rem;
-  text-align: center;
+  text-align: left;
 }
 
 .dashboard-header p {
   color: var(--text-light);
   font-size: 1.125rem;
-  text-align: center;
-  margin: 0;
+  text-align: left;
+  margin-left: -40px;
 }
 
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  margin-bottom: 2rem;
-  width: 100%;
-  max-width: 1202px;
-  gap: 4rem;
-  margin-left: auto;
-  margin-right: auto;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  margin-bottom: 2rem !important;
+  width: 100% !important;
+  max-width: 1215px !important;
+  gap: 4rem !important;
+  margin-left: -50px !important;
 }
 
 .stat-card {
-  width: 90%;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e5e7eb;
-  padding: 18px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.2rem;
-  min-width: 0;
-  height: 100px;
-  justify-content: center;
-  transition: box-shadow 0.2s;
-  width: 340px;
+  width: 100% !important;
+  min-width: 0 !important;
+  background: #fff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #e5e7eb !important;
+  padding: 18px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0.3rem !important;
+  height: 100px !important;
+  justify-content: center !important;
+  transition: box-shadow 0.2s !important;
 }
 
 .stat-card:hover {
@@ -277,12 +276,13 @@
 
 /* Atividades */
 .activity-card-today {
-  margin-top: -16px;
-  margin-bottom: 24px;
+  margin-top: 20px;
+  margin-bottom: 52px;
 }
 
 .activity-card-recent {
-  margin-bottom: 24px;
+  margin-top: 20px;
+  margin-bottom: 52px;
 }
 
 .activity-title {
@@ -379,7 +379,7 @@
   padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
-  margin-bottom: 24px;
+  margin-bottom: 52px;
   width: 100%;
   max-width: 1200px;
 }
