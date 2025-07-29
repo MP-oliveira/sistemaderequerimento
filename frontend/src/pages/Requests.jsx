@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiEye } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiEye, FiArrowLeft } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
@@ -7,6 +8,7 @@ import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequ
 import './Requests.css';
 
 export default function Requests() {
+  const navigate = useNavigate();
   const [requisicoes, setRequisicoes] = useState([]);
   const [filtroStatus, setFiltroStatus] = useState('');
   const [filtroDepartamento, setFiltroDepartamento] = useState('');
@@ -165,13 +167,30 @@ export default function Requests() {
   };
 
   const handleEditField = (field, value) => {
-    if (editReq) {
-      setEditReq({ ...editReq, [field]: value });
-    }
+    setEditReq(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleVoltar = () => {
+    navigate('/dashboard');
   };
 
   return (
     <div className="requests-page">
+      {/* Botão Voltar */}
+      <div className="requests-header-top">
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={handleVoltar}
+        >
+          <FiArrowLeft size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+          Voltar
+        </Button>
+      </div>
+
       {/* Notificação da página */}
       {notificacao.mostrar && (
         <div className={`notificacao ${notificacao.tipo}`}>

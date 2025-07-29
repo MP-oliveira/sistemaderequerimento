@@ -10,6 +10,18 @@
   gap: 32px;
 }
 
+.requests-header-top {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.requests-header-top .btn-primary {
+  background: #1A4B8B !important;
+  color: white !important;
+  border: none !important;
+}
+
 .card {
   background: #fff;
   border-radius: 16px;
