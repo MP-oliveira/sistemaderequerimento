@@ -1,5 +1,5 @@
 import express from 'express';
-import RequestItemsController from '../controllers/RequestItemsController.js';
+import * as RequestItemsController from '../controllers/RequestItemsController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -21,5 +21,11 @@ router.get('/executed', authenticateToken, RequestItemsController.getExecutedIte
 
 // Rota para marcar item como retornado
 router.patch('/:id/return', authenticateToken, RequestItemsController.markItemAsReturned);
+
+// Novas rotas para checklist
+router.get('/request/:request_id/with-inventory', authenticateToken, RequestItemsController.getRequestItemsWithInventory);
+router.patch('/:id/unavailable', authenticateToken, RequestItemsController.markItemAsUnavailable);
+router.patch('/:id/available-separated', authenticateToken, RequestItemsController.markItemAsAvailableAndSeparated);
+router.patch('/:id/notes', authenticateToken, RequestItemsController.updateAudiovisualNotes);
 
 export default router; 

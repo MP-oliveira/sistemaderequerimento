@@ -293,13 +293,188 @@ const markItemAsReturned = async (req, res) => {
   }
 };
 
-export default {
+// Marcar item como indisponível com motivo
+const markItemAsUnavailable = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { unavailable_reason, audiovisual_notes } = req.body;
+    
+    // Verificar se o usuário é AUDIOVISUAL
+    if (req.user.role !== 'AUDIOVISUAL') {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Apenas audiovisual pode marcar itens como indisponíveis.' 
+      });
+    }
+    
+    const updateData = {
+      item_status: 'INDISPONIVEL',
+      unavailable_reason: unavailable_reason || null,
+      audiovisual_notes: audiovisual_notes || null,
+      is_separated: false,
+      separated_by: null,
+      separated_at: null
+    };
+    
+    const { data: item, error } = await supabase
+      .from('request_items')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+      
+    if (error || !item) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao atualizar item.', 
+        error: error?.message 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Item marcado como indisponível!',
+      data: item 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Marcar item como disponível e separado
+const markItemAsAvailableAndSeparated = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { audiovisual_notes } = req.body;
+    
+    // Verificar se o usuário é AUDIOVISUAL
+    if (req.user.role !== 'AUDIOVISUAL') {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Apenas audiovisual pode marcar itens como disponíveis.' 
+      });
+    }
+    
+    const updateData = {
+      item_status: 'SEPARADO',
+      is_separated: true,
+      separated_by: req.user.userId,
+      separated_at: new Date().toISOString(),
+      separation_datetime: new Date().toISOString(),
+      unavailable_reason: null,
+      audiovisual_notes: audiovisual_notes || null
+    };
+    
+    const { data: item, error } = await supabase
+      .from('request_items')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+      
+    if (error || !item) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao atualizar item.', 
+        error: error?.message 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Item marcado como disponível e separado!',
+      data: item 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Buscar itens de uma requisição com detalhes do inventário
+const getRequestItemsWithInventory = async (req, res) => {
+  try {
+    const { request_id } = req.params;
+    
+    const { data: items, error } = await supabase
+      .from('request_items')
+      .select(`
+        *,
+        inventory:inventory_id (
+          id,
+          name,
+          category,
+          location,
+          quantity_available,
+          status
+        )
+      `)
+      .eq('request_id', request_id)
+      .order('created_at', { ascending: true });
+      
+    if (error) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao buscar itens.', 
+        error: error.message 
+      });
+    }
+    
+    res.json({ success: true, data: items });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+// Atualizar observações do audiovisual
+const updateAudiovisualNotes = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { audiovisual_notes } = req.body;
+    
+    // Verificar se o usuário é AUDIOVISUAL
+    if (req.user.role !== 'AUDIOVISUAL') {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Apenas audiovisual pode atualizar observações.' 
+      });
+    }
+    
+    const { data: item, error } = await supabase
+      .from('request_items')
+      .update({ audiovisual_notes })
+      .eq('id', id)
+      .select()
+      .single();
+      
+    if (error || !item) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao atualizar observações.', 
+        error: error?.message 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Observações atualizadas!',
+      data: item 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+  }
+};
+
+export {
   createRequestItem,
   getRequestItems,
-  updateRequestItem,
-  deleteRequestItem,
   markItemAsSeparated,
   getTodayItems,
+  deleteRequestItem,
+  updateRequestItem,
   getExecutedItems,
-  markItemAsReturned
+  markItemAsReturned,
+  markItemAsUnavailable,
+  markItemAsAvailableAndSeparated,
+  getRequestItemsWithInventory,
+  updateAudiovisualNotes
 }; 

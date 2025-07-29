@@ -3,9 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { listarRequisicoes, executarRequisicao, retornarInstrumentos } from '../services/requestsService';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
+import RequestItemsChecklist from '../components/RequestItemsChecklist';
 import { formatTimeUTC } from '../utils/dateUtils';
 import './RequestsAudiovisual.css';
-import { FiArrowLeft, FiEye, FiCheck, FiX, FiClock, FiMapPin, FiUsers } from 'react-icons/fi';
+import { FiArrowLeft, FiEye, FiCheck, FiX, FiClock, FiMapPin, FiUsers, FiPackage } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 export default function RequestsAudiovisual() {
@@ -23,6 +24,8 @@ export default function RequestsAudiovisual() {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [returnNotes, setReturnNotes] = useState('');
+  const [showChecklist, setShowChecklist] = useState(false);
+  const [selectedRequestForChecklist, setSelectedRequestForChecklist] = useState(null);
 
   function mostrarNotificacao(mensagem, tipo) {
     setNotificacao({ mensagem, tipo });
@@ -77,6 +80,20 @@ export default function RequestsAudiovisual() {
     console.log('🎯 RequestsAudiovisual - handleVoltar chamado');
     console.log('🎯 RequestsAudiovisual - Navegando para /audiovisual/dashboard');
     navigate('/audiovisual/dashboard');
+  };
+
+  const openChecklist = (requisicao) => {
+    setSelectedRequestForChecklist(requisicao);
+    setShowChecklist(true);
+  };
+
+  const closeChecklist = () => {
+    setShowChecklist(false);
+    setSelectedRequestForChecklist(null);
+  };
+
+  const handleItemsUpdated = () => {
+    buscarRequisicoes();
   };
 
   // Filtrar requisições por status
@@ -214,6 +231,14 @@ export default function RequestsAudiovisual() {
                     <FiCheck size={16} />
                     Marcar como Executada
                   </Button>
+                  <Button
+                    onClick={() => openChecklist(requisicao)}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    <FiEye size={16} />
+                    Ver Checklist
+                  </Button>
                 </div>
               </div>
             ))}
@@ -328,6 +353,14 @@ export default function RequestsAudiovisual() {
           </div>
         </div>
       </Modal>
+
+      {/* Modal de Checklist */}
+      <RequestItemsChecklist
+        open={showChecklist}
+        onClose={closeChecklist}
+        request={selectedRequestForChecklist}
+        onItemsUpdated={handleItemsUpdated}
+      />
     </div>
   );
 } 

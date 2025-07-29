@@ -6,9 +6,10 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import TodayMaterials from '../components/TodayMaterials';
 import ReturnMaterials from '../components/ReturnMaterials';
+import RequestItemsChecklist from '../components/RequestItemsChecklist';
 import { notifyRequestExecuted } from '../utils/notificationUtils';
 import { formatTimeUTC } from '../utils/dateUtils';
-import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiMapPin, FiUsers, FiCheck, FiX } from 'react-icons/fi';
+import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiMapPin, FiUsers, FiCheck, FiX, FiEye } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import './AudiovisualDashboard.css';
@@ -28,6 +29,8 @@ export default function AudiovisualDashboard() {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [returnNotes, setReturnNotes] = useState('');
+  const [showChecklist, setShowChecklist] = useState(false);
+  const [selectedRequestForChecklist, setSelectedRequestForChecklist] = useState(null);
 
   function mostrarNotificacao(mensagem, tipo) {
     setNotificacao({ mensagem, tipo });
@@ -174,9 +177,25 @@ export default function AudiovisualDashboard() {
       // Recarregar dados
       const requisicoesData = await listarRequisicoes();
       setRequisicoes(requisicoesData || []);
-    } catch (err) {
+    } catch {
       mostrarNotificacao('Erro ao retornar instrumentos', 'erro');
     }
+  };
+
+  const openChecklist = (requisicao) => {
+    setSelectedRequestForChecklist(requisicao);
+    setShowChecklist(true);
+  };
+
+  const closeChecklist = () => {
+    setShowChecklist(false);
+    setSelectedRequestForChecklist(null);
+  };
+
+  const handleItemsUpdated = async () => {
+    // Recarregar dados após atualização do checklist
+    const requisicoesData = await listarRequisicoes();
+    setRequisicoes(requisicoesData || []);
   };
 
   const days = getDaysInMonth(currentDate);
@@ -261,92 +280,7 @@ export default function AudiovisualDashboard() {
       {/* Materiais do Dia */}
       <TodayMaterials />
 
-      {/* Requisições Aprovadas para Preparação */}
-      <div className="dashboard-section">
-        <h2>Requisições Aprovadas para Preparação</h2>
-        {requisicoesAprovadas.length > 0 ? (
-          <div className="requests-grid">
-            {requisicoesAprovadas.map((requisicao) => (
-              <div key={requisicao.id} className="request-card">
-                <div className="request-header">
-                  <h3>{requisicao.event_name || requisicao.description || `Requisição - ${requisicao.department}`}</h3>
-                  <span 
-                    className="status-badge"
-                    style={{ 
-                      backgroundColor: 'transparent',
-                      color: requisicao.status === 'APTO' ? '#4caf50' : 
-                             requisicao.status === 'EXECUTADO' ? '#9c27b0' : 
-                             requisicao.status === 'PENDENTE' ? '#ff9800' : 
-                             requisicao.status === 'REJEITADO' ? '#f44336' : 
-                             requisicao.status === 'PENDENTE_CONFLITO' ? '#ff5722' : '#6b7280',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      fontWeight: '700'
-                    }}
-                  >
-                    {requisicao.status === 'APTO' ? 'Aprovado' : 
-                     requisicao.status === 'EXECUTADO' ? 'Executado' : 
-                     requisicao.status === 'PENDENTE' ? 'Pendente' : 
-                     requisicao.status === 'REJEITADO' ? 'Rejeitado' : 
-                     requisicao.status === 'PENDENTE_CONFLITO' ? 'Em Conflito' : requisicao.status}
-                  </span>
-                </div>
-                <div className="request-details">
-                  <div className="detail-item">
-                    <FiCalendar />
-                    <span>
-                      {requisicao.start_datetime 
-                        ? new Date(requisicao.start_datetime).toLocaleDateString('pt-BR')
-                        : 'Data não definida'
-                      }
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <FiClock />
-                    <span>
-                      {requisicao.start_datetime && requisicao.end_datetime 
-                        ? `${formatTimeUTC(requisicao.start_datetime)} - ${formatTimeUTC(requisicao.end_datetime)}`
-                        : 'Horário não definido'
-                      }
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <FiMapPin />
-                    <span>{requisicao.location || 'Local não definido'}</span>
-                  </div>
-                  <div className="detail-item">
-                    <FiUsers />
-                    <span>
-                      {requisicao.expected_audience 
-                        ? `${requisicao.expected_audience} pessoas`
-                        : 'Público não definido'
-                      }
-                    </span>
-                  </div>
-                  {requisicao.department && (
-                    <div className="detail-item">
-                      <span>🏢 {requisicao.department}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="request-actions">
-                  <button 
-                    className="execute-button"
-                    onClick={() => marcarComoExecutada(requisicao.id)}
-                  >
-                    Marcar como Executada
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>Nenhuma requisição aprovada com dados completos para preparação.</p>
-        )}
-      </div>
-
-      {/* Instrumentos para Retorno */}
+      {/* Materiais Audiovisual */}
       <ReturnMaterials />
 
       {/* Calendário */}
@@ -440,48 +374,50 @@ export default function AudiovisualDashboard() {
         </div>
       </Modal>
 
-      {/* Modal de Retorno de Instrumentos */}
-      <Modal 
-        open={showReturnModal} 
+      {/* Modal de Retorno */}
+      <Modal
+        open={showReturnModal}
+        title="Finalizar Evento"
         onClose={() => setShowReturnModal(false)}
-        title="Retornar Instrumentos ao Inventário"
-      >
-        {selectedRequest && (
-          <div className="return-modal-content">
-            <div className="request-info">
-              <h4>{selectedRequest.department}</h4>
-              <p>{selectedRequest.description || selectedRequest.event_name}</p>
-              <p><strong>Data:</strong> {selectedRequest.date}</p>
-              {selectedRequest.location && <p><strong>Local:</strong> {selectedRequest.location}</p>}
-            </div>
-            
-            <div className="return-notes">
-              <label>Observações do Retorno (opcional):</label>
-              <Input
-                type="text"
-                value={returnNotes}
-                onChange={(e) => setReturnNotes(e.target.value)}
-                placeholder="Ex: Instrumentos em bom estado, microfones funcionando..."
-              />
-            </div>
-            
-            <div className="modal-actions">
-              <Button 
-                variant="secondary" 
-                onClick={() => setShowReturnModal(false)}
-              >
-                Cancelar
-              </Button>
-              <Button 
-                variant="success" 
-                onClick={confirmarRetorno}
-              >
-                Confirmar Retorno
-              </Button>
-            </div>
+        actions={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button variant="secondary" size="sm" onClick={() => setShowReturnModal(false)}>
+              Cancelar
+            </Button>
+            <Button variant="primary" size="sm" onClick={confirmarRetorno}>
+              Confirmar
+            </Button>
           </div>
-        )}
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <p>Confirme que o evento foi finalizado e os instrumentos foram devolvidos.</p>
+          <div>
+            <label>Observações (opcional):</label>
+            <textarea
+              value={returnNotes}
+              onChange={(e) => setReturnNotes(e.target.value)}
+              placeholder="Adicione observações sobre o evento..."
+              style={{
+                width: '100%',
+                minHeight: '80px',
+                padding: '8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                resize: 'vertical'
+              }}
+            />
+          </div>
+        </div>
       </Modal>
+
+      {/* Modal de Checklist */}
+      <RequestItemsChecklist
+        open={showChecklist}
+        onClose={closeChecklist}
+        request={selectedRequestForChecklist}
+        onItemsUpdated={handleItemsUpdated}
+      />
     </div>
   );
 } 
