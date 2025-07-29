@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiEdit, FiTrash2, FiEye, FiArrowLeft } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
@@ -12,6 +13,7 @@ import './Requests.css';
 
 export default function Requests() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const [requisicoes, setRequisicoes] = useState([]);
   const [filtroStatus, setFiltroStatus] = useState('');
@@ -66,16 +68,12 @@ export default function Requests() {
     setNotificacao({ mensagem, tipo, mostrar: true });
   }
 
-  function mostrarNotificacaoModal(mensagem, tipo) {
-    setNotificacaoModal({ mensagem, tipo, mostrar: true });
-  }
-
   async function buscarRequisicoes() {
     setLoading(true);
     try {
       const data = await listarRequisicoes();
       setRequisicoes(Array.isArray(data) ? data : []);
-    } catch (err) {
+    } catch {
       mostrarNotificacao('Erro ao buscar requisições', 'erro');
     }
     setLoading(false);
@@ -131,7 +129,7 @@ export default function Requests() {
     
       });
       buscarRequisicoes();
-    } catch (error) {
+    } catch {
       mostrarNotificacao('Erro ao criar requisição', 'erro');
     }
     setLoading(false);
@@ -142,7 +140,7 @@ export default function Requests() {
       const detalhe = await getRequisicaoDetalhada(id);
       setEditReq(detalhe);
       setEditModalOpen(true);
-    } catch (error) {
+    } catch {
       mostrarNotificacao('Erro ao carregar dados para edição', 'erro');
     }
   };
@@ -167,7 +165,7 @@ export default function Requests() {
       setEditModalOpen(false);
       setEditReq(null);
       buscarRequisicoes();
-    } catch (error) {
+    } catch {
       mostrarNotificacao('Erro ao atualizar requisição', 'erro');
     }
   };
@@ -186,7 +184,7 @@ export default function Requests() {
       setDeleteModalOpen(false);
       setDeleteReq(null);
       buscarRequisicoes();
-    } catch (error) {
+    } catch {
       mostrarNotificacao('Erro ao deletar requisição', 'erro');
     }
   };
@@ -199,7 +197,14 @@ export default function Requests() {
   };
 
   const handleVoltar = () => {
-    navigate('/dashboard');
+    // Verificar o role do usuário para redirecionar para o dashboard correto
+    if (user && (user.role === 'ADM' || user.role === 'PASTOR')) {
+      navigate('/admin/dashboard');
+    } else if (user && user.role === 'AUDIOVISUAL') {
+      navigate('/audiovisual/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (

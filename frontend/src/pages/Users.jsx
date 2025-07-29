@@ -104,6 +104,8 @@ export default function Users() {
     // Verificar o role do usuário para redirecionar para o dashboard correto
     if (user && (user.role === 'ADM' || user.role === 'PASTOR')) {
       navigate('/admin/dashboard');
+    } else if (user && user.role === 'AUDIOVISUAL') {
+      navigate('/audiovisual/dashboard');
     } else {
       navigate('/dashboard');
     }

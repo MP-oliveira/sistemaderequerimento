@@ -22,8 +22,14 @@ const STATUS_OPTIONS = [
 ];
 
 export default function Inventory() {
-  const navigate = useNavigate();
+  console.log('🎯 Inventory renderizado');
+  
   const { user } = useAuth();
+  const navigate = useNavigate();
+  
+  console.log('🎯 Inventory - User:', user);
+  console.log('🎯 Inventory - User role:', user?.role);
+  
   const [itens, setItens] = useState([]);
   const [loading, setLoading] = useState(false);
   const [listError, setListError] = useState('');
@@ -67,10 +73,18 @@ export default function Inventory() {
   }
 
   const handleVoltar = () => {
+    console.log('🎯 Inventory - handleVoltar chamado');
+    console.log('🎯 Inventory - User role:', user?.role);
+    
     // Verificar o role do usuário para redirecionar para o dashboard correto
     if (user && (user.role === 'ADM' || user.role === 'PASTOR')) {
+      console.log('🎯 Inventory - Navegando para /admin/dashboard');
       navigate('/admin/dashboard');
+    } else if (user && user.role === 'AUDIOVISUAL') {
+      console.log('🎯 Inventory - Navegando para /audiovisual/dashboard');
+      navigate('/audiovisual/dashboard');
     } else {
+      console.log('🎯 Inventory - Navegando para /dashboard');
       navigate('/dashboard');
     }
   };

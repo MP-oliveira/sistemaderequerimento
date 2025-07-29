@@ -24,6 +24,7 @@ export default function Header() {
   const getDashboardPath = () => {
     if (!user) return '/';
     if (isAdmin) return '/admin/dashboard';
+    if (user.role === 'AUDIOVISUAL') return '/audiovisual/dashboard';
     return '/dashboard';
   };
 

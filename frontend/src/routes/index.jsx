@@ -6,14 +6,15 @@ import Users from '../pages/Users';
 import Inventory from '../pages/Inventory';
 import Requests from '../pages/Requests';
 import RequestsAdmin from '../pages/RequestsAdmin';
+import RequestsAudiovisual from '../pages/RequestsAudiovisual';
 import DashboardAdmin from '../pages/DashboardAdmin';
 import AudiovisualDashboard from '../pages/AudiovisualDashboard';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 
 function PrivateRoute({ children }) {
+  const { user } = useAuth();
   try {
-    const { user } = useAuth();
     return user ? children : <Navigate to="/login" />;
   } catch (error) {
     console.error('Erro no PrivateRoute:', error);
@@ -22,21 +23,24 @@ function PrivateRoute({ children }) {
 }
 
 function AdminRoute({ children }) {
+  const { user } = useAuth();
   try {
-    const { user } = useAuth();
     return user && (user.role === 'ADM' || user.role === 'PASTOR') ? children : <Navigate to="/" />;
   } catch (error) {
+    console.error('Erro no AdminRoute:', error);
     return <Navigate to="/" />;
   }
 }
 
 // Componente que redireciona automaticamente baseado no papel do usuário
 function SmartDashboardRoute() {
+  console.log('🔍 SmartDashboardRoute - Executado');
   const { user } = useAuth();
   
   console.log('🔍 SmartDashboardRoute - User:', user);
   console.log('🔍 SmartDashboardRoute - User role:', user?.role);
   console.log('🔍 SmartDashboardRoute - User role type:', typeof user?.role);
+  console.log('🔍 SmartDashboardRoute - Current pathname:', window.location.pathname);
   
   if (!user) {
     console.log('🔍 SmartDashboardRoute - Redirecionando para login');
@@ -137,6 +141,16 @@ export default function AppRoutes() {
             <PrivateRoute>
               <Layout>
                 <AudiovisualDashboard />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/audiovisual/requisicoes"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <RequestsAudiovisual />
               </Layout>
             </PrivateRoute>
           }

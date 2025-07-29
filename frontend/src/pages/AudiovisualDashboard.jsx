@@ -9,6 +9,7 @@ import ReturnMaterials from '../components/ReturnMaterials';
 import { notifyRequestExecuted } from '../utils/notificationUtils';
 import { formatTimeUTC } from '../utils/dateUtils';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiMapPin, FiUsers, FiCheck, FiX } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import './AudiovisualDashboard.css';
 
@@ -246,18 +247,14 @@ export default function AudiovisualDashboard() {
           Ações Rápidas
         </h3>
         <div className="actions-grid">
-          <a href="/requisicoes" className="action-btn">
+          <Link to="/audiovisual/requisicoes" className="action-btn" onClick={() => console.log('🎯 AudiovisualDashboard - Link clicado: /audiovisual/requisicoes')}>
             <FiPlus />
             Ver Requisições
-          </a>
-          <a href="/inventario" className="action-btn">
+          </Link>
+          <Link to="/inventario" className="action-btn" onClick={() => console.log('🎯 AudiovisualDashboard - Link clicado: /inventario')}>
             <FiPackage />
             Gerenciar Inventário
-          </a>
-          <a href="/relatorio" className="action-btn">
-            <FiDownload />
-            Relatórios
-          </a>
+          </Link>
         </div>
       </div>
 
