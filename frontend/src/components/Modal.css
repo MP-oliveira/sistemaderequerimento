@@ -14,7 +14,7 @@
   min-width: 320px;
   max-width: 90vw;
   box-shadow: 0 8px 32px #2d8cff22;
-  padding: 32px 42px 24px 24px;
+  padding: 20px 20px 16px 20px;
   position: relative;
   animation: modalIn 0.2s;
   font-family: 'Montserrat', Arial, sans-serif;
@@ -29,7 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
@@ -48,7 +48,7 @@
 }
 
 .modal-content {
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 }
 
 .modal-actions {

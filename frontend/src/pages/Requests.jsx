@@ -7,6 +7,7 @@ import Input from '../components/Input';
 import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao } from '../services/requestsService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
+import { PRIORIDADE_OPTIONS, PRIORIDADE_DEFAULT } from '../utils/prioridadeConfig';
 import './Requests.css';
 
 export default function Requests() {
@@ -29,7 +30,7 @@ export default function Requests() {
     start_datetime: '',
     end_datetime: '',
     expected_audience: '',
-    prioridade: 'Média',
+    prioridade: PRIORIDADE_DEFAULT,
     supplier: ''
   });
   
@@ -116,7 +117,7 @@ export default function Requests() {
         start_datetime: '',
         end_datetime: '',
         expected_audience: '',
-        prioridade: 'Média',
+        prioridade: PRIORIDADE_DEFAULT,
         supplier: ''
       });
       buscarRequisicoes();
@@ -424,8 +425,8 @@ export default function Requests() {
         }
       >
         {editReq && (
-          <form style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ display: 'flex', gap: 16 }}>
+          <form style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
                 <div className="input-group">
                   <label className="input-label">Departamento</label>
@@ -452,7 +453,7 @@ export default function Requests() {
                 />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
                 <div className="input-group">
                   <label className="input-label">Local</label>
@@ -479,7 +480,7 @@ export default function Requests() {
                 />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
             <Input
               label="Data/Hora de Início"
@@ -499,7 +500,7 @@ export default function Requests() {
             />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
             <Input
               label="Público Esperado"
@@ -521,12 +522,7 @@ export default function Requests() {
               value={editReq.prioridade || ''}
               onChange={e => handleEditField('prioridade', e.target.value)}
               type="select"
-              options={[
-                { value: 'Baixa', label: 'Baixa' },
-                { value: 'Média', label: 'Média' },
-                { value: 'Alta', label: 'Alta' },
-                { value: 'Urgente', label: 'Urgente' }
-              ]}
+              options={PRIORIDADE_OPTIONS}
             />
             <Input
               label="Descrição"
@@ -565,9 +561,9 @@ export default function Requests() {
           </>
         }
       >
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* Primeira linha - Departamento e Nome do Evento */}
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <div className="input-group">
                 <label className="input-label">Departamento</label>
@@ -596,7 +592,7 @@ export default function Requests() {
           </div>
 
           {/* Segunda linha - Data e Local */}
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <Input
                 label="Data"
@@ -625,7 +621,7 @@ export default function Requests() {
           </div>
 
           {/* Terceira linha - Data/Hora de Início e Fim */}
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <Input
                 label="Data/Hora de Início"
@@ -647,7 +643,7 @@ export default function Requests() {
           </div>
 
           {/* Quarta linha - Público Esperado e Fornecedor */}
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <Input
                 label="Público Esperado"
@@ -671,12 +667,7 @@ export default function Requests() {
             value={formData.prioridade}
             onChange={e => setFormData({ ...formData, prioridade: e.target.value })}
             type="select"
-            options={[
-              { value: 'Baixa', label: 'Baixa' },
-              { value: 'Média', label: 'Média' },
-              { value: 'Alta', label: 'Alta' },
-              { value: 'Urgente', label: 'Urgente' }
-            ]}
+            options={PRIORIDADE_OPTIONS}
           />
 
           {/* Sexta linha - Descrição (largura total) */}

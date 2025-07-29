@@ -1,27 +1,37 @@
 .input-group {
-  margin-bottom: 18px;
-  margin-right: 20px;
+  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
   font-family: 'Montserrat', Arial, sans-serif;
+  width: 100%;
 }
 
 .input-label {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-weight: 600;
   color: var(--ibva-blue);
   font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 0.9rem;
 }
 
 .input-field {
-  padding: 12px;
+  padding: 8px 12px;
   border-radius: 8px;
   border: 1.5px solid #ccc;
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: border 0.2s, box-shadow 0.2s;
   font-family: 'Montserrat', Arial, sans-serif;
   background: #f9f9f9;
-  margin-right: 20px;
+  height: 36px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Estilo específico para textarea */
+textarea.input-field {
+  height: 50px;
+  min-height: 50px;
+  resize: vertical;
 }
 
 .input-field:focus {
@@ -41,6 +51,7 @@ select.input-field {
   background-size: 16px;
   padding-right: 40px;
   cursor: pointer;
+  height: 36px;
 }
 
 select.input-field:focus {
@@ -59,4 +70,11 @@ select.input-field:focus {
   font-size: 13px;
   margin-top: 4px;
   font-family: 'Montserrat', Arial, sans-serif;
+}
+
+/* Garantir uniformidade para inputs de data e datetime */
+input[type="date"].input-field,
+input[type="datetime-local"].input-field {
+  height: 36px;
+  padding: 8px 12px;
 } 
