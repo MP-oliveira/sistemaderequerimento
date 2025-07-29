@@ -6,6 +6,7 @@ import Modal from '../components/Modal';
 import Input from '../components/Input';
 import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao } from '../services/requestsService';
 import { salasOptions } from '../utils/salasConfig';
+import { departamentosOptions } from '../utils/departamentosConfig.js';
 import './Requests.css';
 
 export default function Requests() {
@@ -426,12 +427,21 @@ export default function Requests() {
           <form style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', gap: 16 }}>
               <div style={{ flex: 1 }}>
-            <Input
-              label="Departamento"
-              value={editReq.department || ''}
-              onChange={e => handleEditField('department', e.target.value)}
-              required
-            />
+                <div className="input-group">
+                  <label className="input-label">Departamento</label>
+                  <select
+                    className="input-field"
+                    value={editReq.department || ''}
+                    onChange={e => handleEditField('department', e.target.value)}
+                    required
+                  >
+                    {departamentosOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div style={{ flex: 1 }}>
             <Input
@@ -559,12 +569,21 @@ export default function Requests() {
           {/* Primeira linha - Departamento e Nome do Evento */}
           <div style={{ display: 'flex', gap: 16 }}>
             <div style={{ flex: 1 }}>
-              <Input
-                label="Departamento"
-                value={formData.department}
-                onChange={e => setFormData({ ...formData, department: e.target.value })}
-                required
-              />
+              <div className="input-group">
+                <label className="input-label">Departamento</label>
+                <select
+                  className="input-field"
+                  value={formData.department}
+                  onChange={e => setFormData({ ...formData, department: e.target.value })}
+                  required
+                >
+                  {departamentosOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div style={{ flex: 1 }}>
               <Input

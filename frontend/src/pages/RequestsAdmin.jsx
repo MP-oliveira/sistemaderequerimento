@@ -6,6 +6,7 @@ import AdminButtons from '../components/AdminButtons';
 import Input from '../components/Input';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada, criarRequisicao } from '../services/requestsService';
 import { salasOptions } from '../utils/salasConfig';
+import { departamentosOptions } from '../utils/departamentosConfig.js';
 import './RequestsAdmin.css';
 
 export default function RequestsAdmin() {
@@ -397,12 +398,21 @@ export default function RequestsAdmin() {
           {/* Primeira linha - Departamento e Nome do Evento */}
           <div style={{ display: 'flex', gap: 16 }}>
             <div style={{ flex: 1 }}>
-              <Input
-                label="Departamento"
-                value={formData.department}
-                onChange={e => setFormData({ ...formData, department: e.target.value })}
-                required
-              />
+              <div className="input-group">
+                <label className="input-label">Departamento</label>
+                <select
+                  className="input-field"
+                  value={formData.department}
+                  onChange={e => setFormData({ ...formData, department: e.target.value })}
+                  required
+                >
+                  {departamentosOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div style={{ flex: 1 }}>
               <Input
