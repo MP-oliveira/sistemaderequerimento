@@ -75,67 +75,55 @@ export const createRequest = async (req, res) => {
 
     // Verificação de conflito de local/data/horário
     if (location && start_datetime && end_datetime) {
-      // Buscar eventos existentes para o mesmo local e intervalo de datas
+      // Buscar eventos existentes para o mesmo local
       const { data: eventosConflitantes } = await supabase
         .from('events')
         .select('id, name, location, start_datetime, end_datetime')
         .eq('location', location);
-      function parseUTC(dateStr) {
-        if (!dateStr) return NaN;
-        // Se já tem timezone, retorna direto
-        if (dateStr.endsWith('Z') || dateStr.includes('+')) return Date.parse(dateStr);
-        // Se não tem, adiciona +00:00
-        return Date.parse(dateStr + '+00:00');
-      }
-      // Verificar conflito de menos de 1 hora entre eventos
-      const conflitoEvento = (eventosConflitantes || []).find(ev => {
-        const startA = parseUTC(start_datetime);
-        const endA = parseUTC(end_datetime);
-        const startB = parseUTC(ev.start_datetime);
-        const endB = parseUTC(ev.end_datetime);
-        console.log('[DEBUG] Comparando evento:', {
-          startA: start_datetime,
-          endA: end_datetime,
-          startB: ev.start_datetime,
-          endB: ev.end_datetime
-        });
-        if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
-        if (startA < endB && endA > startB) {
-          const diff1 = Math.abs(startA - endB) / (1000 * 60 * 60);
-          const diff2 = Math.abs(startB - endA) / (1000 * 60 * 60);
-          if (diff1 < 1 || diff2 < 1) {
-            return true;
-          }
-        }
-        return false;
-      });
-      // Buscar requisições já aprovadas para o mesmo local e intervalo de datas
+
+      // Buscar requisições já aprovadas para o mesmo local
       const { data: reqsConflitantes } = await supabase
         .from('requests')
         .select('id, location, start_datetime, end_datetime, status')
         .eq('location', location)
         .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO', 'PENDENTE', 'PENDENTE_CONFLITO']);
-      const conflitoReq = (reqsConflitantes || []).find(ev => {
-        const startA = parseUTC(start_datetime);
-        const endA = parseUTC(end_datetime);
+
+      function parseUTC(dateStr) {
+        if (!dateStr) return NaN;
+        if (dateStr.endsWith('Z') || dateStr.includes('+')) return Date.parse(dateStr);
+        return Date.parse(dateStr + '+00:00');
+      }
+
+      const startA = parseUTC(start_datetime);
+      const endA = parseUTC(end_datetime);
+      const intervaloMinimoMs = 15 * 60 * 1000; // 15 minutos em ms
+
+      // Checar eventos
+      const conflitoEvento = (eventosConflitantes || []).find(ev => {
         const startB = parseUTC(ev.start_datetime);
         const endB = parseUTC(ev.end_datetime);
-        console.log('[DEBUG] Comparando requisicao:', {
-          startA: start_datetime,
-          endA: end_datetime,
-          startB: ev.start_datetime,
-          endB: ev.end_datetime
-        });
         if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
-        if (startA < endB && endA > startB) {
-          const diff1 = Math.abs(startA - endB) / (1000 * 60 * 60);
-          const diff2 = Math.abs(startB - endA) / (1000 * 60 * 60);
-          if (diff1 < 1 || diff2 < 1) {
-            return true;
-          }
-        }
+
+        // Não pode começar menos de 15min depois do fim do evento anterior
+        if (startA < endB && endA > startB) return true; // sobreposição direta
+        if (startA >= endB && (startA - endB) < intervaloMinimoMs) return true;
+        if (endA <= startB && (startB - endA) < intervaloMinimoMs) return true;
         return false;
       });
+
+      // Checar requisições
+      const conflitoReq = (reqsConflitantes || []).find(ev => {
+        const startB = parseUTC(ev.start_datetime);
+        const endB = parseUTC(ev.end_datetime);
+        if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
+
+        // Não pode começar menos de 15min depois do fim da requisição anterior
+        if (startA < endB && endA > startB) return true; // sobreposição direta
+        if (startA >= endB && (startA - endB) < intervaloMinimoMs) return true;
+        if (endA <= startB && (startB - endA) < intervaloMinimoMs) return true;
+        return false;
+      });
+
       if (conflitoEvento || conflitoReq) {
         status = 'PENDENTE_CONFLITO';
         conflitoDetectado = true;
