@@ -27,6 +27,7 @@
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   box-sizing: border-box;
+  padding: 2rem 4rem; /* Aumentando o padding horizontal */
 }
 
 /* Header específico do audiovisual */
@@ -71,7 +72,7 @@
   padding: 2rem;
   width: 100%;
   max-width: 1202px;
-  margin-left: -30px;
+  margin-left: 0;
 }
 
 .audiovisual-dashboard .quick-actions .section-title {
@@ -116,7 +117,7 @@
 .audiovisual-dashboard .return-materials {
   width: 100%;
   max-width: 1202px;
-  margin-left: -30px;
+  margin-left: 0;
 }
 
 /* Calendário específico do audiovisual */
@@ -128,7 +129,7 @@
   padding: 2rem;
   width: 100%;
   max-width: 1202px;
-  margin-left: -30px;
+  margin-left: 0;
   margin-right: auto;
   box-sizing: border-box;
 }
@@ -178,43 +179,10 @@
 
 @media (max-width: 768px) {
   .audiovisual-dashboard {
-    padding: 1rem;
+    padding: 1rem 2rem; /* Reduzindo o padding no mobile */
     gap: 1rem;
   }
   
-  .audiovisual-dashboard .quick-actions {
-    margin-left: 0;
-  }
-  
-  .dashboard-row {
-    gap: 1rem;
-  }
-  
-  .audiovisual-dashboard .dashboard-section,
-  .audiovisual-dashboard .calendar-card {
-    min-width: auto;
-    padding: 1.5rem;
-  }
-  
-  .audiovisual-dashboard .requests-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .audiovisual-dashboard .request-card {
-    padding: 1rem;
-  }
-  
-  .audiovisual-dashboard .request-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .audiovisual-dashboard .request-header h3 {
-    margin-right: 0;
-  }
-
   .audiovisual-dashboard .quick-actions,
   .audiovisual-dashboard .return-materials,
   .audiovisual-dashboard .calendar-card {

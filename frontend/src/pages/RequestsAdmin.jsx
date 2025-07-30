@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiEye } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
-import AdminButtons from '../components/AdminButtons';
 import Input from '../components/Input';
-import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada, criarRequisicao } from '../services/requestsService';
+import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao } from '../services/requestsService';
+import { listarItensInventario } from '../services/inventoryService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
 import { PRIORIDADE_OPTIONS, PRIORIDADE_DEFAULT } from '../utils/prioridadeConfig';
-import './RequestsAdmin.css';
+import './Requests.css';
 
 export default function RequestsAdmin() {
   const [requisicoes, setRequisicoes] = useState([]);
@@ -34,13 +36,28 @@ export default function RequestsAdmin() {
     prioridade: PRIORIDADE_DEFAULT
   });
   
+  // Estados para itens do inventário
+  const [inventory, setInventory] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
+  
   // Estados para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
   const [notificacaoModal, setNotificacaoModal] = useState({ mensagem: '', tipo: '', mostrar: false });
 
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   useEffect(() => {
     buscarRequisicoes();
   }, []);
+
+  // Carregar inventário quando abrir o modal
+  useEffect(() => {
+    if (showAddModal) {
+      carregarInventario();
+    }
+  }, [showAddModal]);
 
   // Auto-hide das notificações
   useEffect(() => {
@@ -75,6 +92,45 @@ export default function RequestsAdmin() {
     }
     setLoading(false);
   }
+
+  async function carregarInventario() {
+    try {
+      const data = await listarItensInventario();
+      setInventory(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Erro ao carregar inventário:', error);
+      mostrarNotificacao('Erro ao carregar inventário', 'erro');
+    }
+  }
+
+  const adicionarItem = (item) => {
+    const itemExistente = selectedItems.find(selected => selected.id === item.id);
+    if (itemExistente) {
+      setSelectedItems(selectedItems.map(selected => 
+        selected.id === item.id 
+          ? { ...selected, quantity: selected.quantity + 1 }
+          : selected
+      ));
+    } else {
+      setSelectedItems([...selectedItems, { ...item, quantity: 1 }]);
+    }
+  };
+
+  const removerItem = (itemId) => {
+    setSelectedItems(selectedItems.filter(item => item.id !== itemId));
+  };
+
+  const alterarQuantidade = (itemId, novaQuantidade) => {
+    if (novaQuantidade <= 0) {
+      removerItem(itemId);
+    } else {
+      setSelectedItems(selectedItems.map(item => 
+        item.id === itemId 
+          ? { ...item, quantity: novaQuantidade }
+          : item
+      ));
+    }
+  };
 
   function filtrar(requisicoes) {
     return requisicoes.filter(r => {
@@ -141,21 +197,28 @@ export default function RequestsAdmin() {
         dataToSend.end_datetime = `${formData.date}T${formData.end_datetime}`;
       }
       
+      // Adicionar itens selecionados
+      dataToSend.itens = selectedItems.map(item => ({
+        inventory_id: item.id,
+        item_name: item.name,
+        quantity_requested: item.quantity
+      }));
+      
       await criarRequisicao(dataToSend);
       mostrarNotificacao('Requisição criada com sucesso!', 'sucesso');
       setShowAddModal(false);
-      setFormData({ 
-        department: '', 
-        event_name: '', 
-        date: '', 
-        location: '', 
+      setFormData({
+        department: '',
+        event_name: '',
+        date: '',
+        location: '',
         description: '',
         start_datetime: '',
         end_datetime: '',
         expected_audience: '',
-        prioridade: PRIORIDADE_DEFAULT,
-    
+        prioridade: PRIORIDADE_DEFAULT
       });
+      setSelectedItems([]); // Limpar itens selecionados
       buscarRequisicoes();
     } catch {
       mostrarNotificacao('Erro ao criar requisição', 'erro');
@@ -163,10 +226,31 @@ export default function RequestsAdmin() {
     setLoading(false);
   };
 
+  const handleVoltar = () => {
+    // Verificar o role do usuário para redirecionar para o dashboard correto
+    if (user && (user.role === 'ADM' || user.role === 'PASTOR')) {
+      navigate('/admin/dashboard');
+    } else if (user && user.role === 'AUDIOVISUAL') {
+      navigate('/audiovisual/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
+
   return (
     <div className="requests-page">
-      <AdminButtons />
-      
+      {/* Botão Voltar */}
+      <div className="requests-header-top">
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={handleVoltar}
+        >
+          <FiArrowLeft size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+          Voltar
+        </Button>
+      </div>
+
       {/* Notificação da página */}
       {notificacao.mostrar && (
         <div className={`notificacao ${notificacao.tipo}`}>
@@ -514,7 +598,139 @@ export default function RequestsAdmin() {
             onChange={e => setFormData({ ...formData, description: e.target.value })}
             multiline
           />
+
+          {/* Seção de Itens do Inventário */}
+          <div style={{ marginTop: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label style={{ fontWeight: '600', color: '#374151' }}>Itens do Inventário</label>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={() => setShowInventoryModal(true)}
+              >
+                <FiPlus size={14} />
+                Adicionar Item
+              </Button>
+            </div>
+            
+            {selectedItems.length > 0 ? (
+              <div style={{ 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '8px', 
+                padding: '0.75rem',
+                backgroundColor: '#f9fafb'
+              }}>
+                {selectedItems.map((item) => (
+                  <div key={item.id} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    padding: '0.5rem 0',
+                    borderBottom: '1px solid #e5e7eb'
+                  }}>
+                    <div>
+                      <span style={{ fontWeight: '500' }}>{item.name}</span>
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+                        Disponível: {item.quantity_available}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        type="number"
+                        min="1"
+                        max={item.quantity_available}
+                        value={item.quantity}
+                        onChange={(e) => alterarQuantidade(item.id, parseInt(e.target.value) || 0)}
+                        style={{
+                          width: '60px',
+                          padding: '0.25rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          textAlign: 'center'
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => removerItem(item.id)}
+                      >
+                        <FiX size={12} />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '8px', 
+                padding: '1rem',
+                textAlign: 'center',
+                color: '#6b7280',
+                backgroundColor: '#f9fafb'
+              }}>
+                Nenhum item selecionado
+              </div>
+            )}
+          </div>
         </form>
+      </Modal>
+
+      {/* Modal de Seleção de Itens do Inventário */}
+      <Modal
+        open={showInventoryModal}
+        title="Selecionar Itens do Inventário"
+        onClose={() => setShowInventoryModal(false)}
+        actions={
+          <Button variant="secondary" size="sm" onClick={() => setShowInventoryModal(false)}>
+            Fechar
+          </Button>
+        }
+      >
+        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          {inventory.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {inventory.map((item) => (
+                <div key={item.id} style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  padding: '0.75rem',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  backgroundColor: '#fff'
+                }}>
+                  <div>
+                    <div style={{ fontWeight: '500' }}>{item.name}</div>
+                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                      {item.description}
+                    </div>
+                    <div style={{ fontSize: '0.875rem', color: '#059669' }}>
+                      Disponível: {item.quantity_available}
+                    </div>
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      adicionarItem(item);
+                      setShowInventoryModal(false);
+                    }}
+                    disabled={item.quantity_available <= 0}
+                  >
+                    <FiPlus size={14} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+              Nenhum item disponível no inventário
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   );

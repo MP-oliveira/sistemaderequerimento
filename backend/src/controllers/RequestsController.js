@@ -167,6 +167,32 @@ export const createRequest = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Erro ao criar requisição.', error: error.message });
     }
 
+    // Aqui você pode salvar os itens da requisição em outra tabela se necessário
+    if (itens && itens.length > 0) {
+      try {
+        const itemsToInsert = itens.map(item => ({
+          request_id: request.id,
+          inventory_id: item.inventory_id,
+          item_name: item.item_name,
+          quantity_requested: item.quantity_requested
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('request_items')
+          .insert(itemsToInsert);
+
+        if (itemsError) {
+          console.error('❌ Erro ao inserir itens da requisição:', itemsError);
+          // Não falha a criação da requisição se os itens falharem
+        } else {
+          console.log('✅ Itens da requisição inseridos com sucesso');
+        }
+      } catch (itemsError) {
+        console.error('❌ Erro ao processar itens da requisição:', itemsError);
+        // Não falha a criação da requisição se os itens falharem
+      }
+    }
+
     // Buscar dados do solicitante para o e-mail
     const { data: solicitante } = await supabase
       .from('users')
