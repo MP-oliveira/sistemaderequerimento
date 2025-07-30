@@ -623,12 +623,14 @@
 
 .suggestion-time {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  flex: 1;
 }
 
 .suggestion-time-icon {
   font-size: 14px;
+  margin-top: 2px;
 }
 
 .suggestion-time-text {

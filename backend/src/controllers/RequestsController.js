@@ -216,45 +216,89 @@ export const checkRealTimeConflicts = async (req, res) => {
         }))
       ].sort((a, b) => a.inicio - b.inicio);
 
-      // Sugerir horários antes do primeiro evento
-      if (todosEventos.length > 0 && todosEventos[0].inicio > parseUTC(`${date}T08:00:00`)) {
-        const horarioSugerido = new Date(todosEventos[0].inicio - intervaloMinimoMs);
-        horariosDisponiveis.push({
-          inicio: horarioSugerido.toTimeString().substring(0, 5),
-          fim: new Date(todosEventos[0].inicio).toTimeString().substring(0, 5),
-          tipo: 'ANTES_DO_PRIMEIRO'
-        });
-      }
-
-      // Sugerir horários entre eventos
-      for (let i = 0; i < todosEventos.length - 1; i++) {
-        const eventoAtual = todosEventos[i];
-        const proximoEvento = todosEventos[i + 1];
-        const intervalo = proximoEvento.inicio - eventoAtual.fim;
+      // Para cada conflito, gerar duas sugestões
+      conflitos.forEach(conflito => {
+        // Usar os horários originais do conflito (já estão no formato correto)
+        const [conflitoHoraInicio, conflitoMinInicio] = conflito.inicio.split(':').map(Number);
+        const [conflitoHoraFim, conflitoMinFim] = conflito.fim.split(':').map(Number);
         
-        if (intervalo >= intervaloMinimoMs * 2) { // Pelo menos 30 min para sugerir
-          const inicioSugerido = new Date(eventoAtual.fim + intervaloMinimoMs);
-          const fimSugerido = new Date(proximoEvento.inicio - intervaloMinimoMs);
+        console.log('🔍 [checkRealTimeConflicts] Gerando sugestões para conflito:', {
+          nome: conflito.nome,
+          conflitoInicio: `${conflito.inicio}`,
+          conflitoFim: `${conflito.fim}`
+        });
+        
+        // Sugestão 1: 1 hora antes até 15 min antes do conflito
+        const sugestao1HoraInicio = conflitoHoraInicio - 1;
+        const sugestao1MinInicio = conflitoMinInicio;
+        const sugestao1HoraFim = conflitoHoraInicio;
+        const sugestao1MinFim = Math.max(0, conflitoMinInicio - 15);
+        
+        // Ajustar se os minutos ficaram negativos
+        let sugestao1HoraFimAjustada = sugestao1HoraFim;
+        let sugestao1MinFimAjustado = sugestao1MinFim;
+        if (sugestao1MinFim < 0) {
+          sugestao1HoraFimAjustada = sugestao1HoraFim - 1;
+          sugestao1MinFimAjustado = 60 + sugestao1MinFim;
+        }
+        
+        console.log('🔍 [checkRealTimeConflicts] Sugestão 1:', {
+          inicio: `${sugestao1HoraInicio.toString().padStart(2, '0')}:${sugestao1MinInicio.toString().padStart(2, '0')}`,
+          fim: `${sugestao1HoraFimAjustada.toString().padStart(2, '0')}:${sugestao1MinFimAjustado.toString().padStart(2, '0')}`,
+          valida: sugestao1HoraInicio >= 8
+        });
+        
+        if (sugestao1HoraInicio >= 8) {
           horariosDisponiveis.push({
-            inicio: inicioSugerido.toTimeString().substring(0, 5),
-            fim: fimSugerido.toTimeString().substring(0, 5),
-            tipo: 'ENTRE_EVENTOS'
+            inicio: `${sugestao1HoraInicio.toString().padStart(2, '0')}:${sugestao1MinInicio.toString().padStart(2, '0')}`,
+            fim: `${sugestao1HoraFimAjustada.toString().padStart(2, '0')}:${sugestao1MinFimAjustado.toString().padStart(2, '0')}`,
+            tipo: 'ANTES_DO_CONFLITO',
+            descricao: `1 hora antes de ${conflito.nome}`
           });
         }
-      }
-
-      // Sugerir horário após o último evento
-      if (todosEventos.length > 0) {
-        const ultimoEvento = todosEventos[todosEventos.length - 1];
-        if (ultimoEvento.fim < parseUTC(`${date}T22:00:00`)) {
-          const horarioSugerido = new Date(ultimoEvento.fim + intervaloMinimoMs);
+        
+        // Sugestão 2: 15 min depois do conflito até 22:00
+        const sugestao2HoraInicio = conflitoHoraFim;
+        const sugestao2MinInicio = conflitoMinFim + 15;
+        
+        // Ajustar se os minutos passaram de 60
+        let sugestao2HoraInicioAjustada = sugestao2HoraInicio;
+        let sugestao2MinInicioAjustado = sugestao2MinInicio;
+        if (sugestao2MinInicio >= 60) {
+          sugestao2HoraInicioAjustada = sugestao2HoraInicio + 1;
+          sugestao2MinInicioAjustado = sugestao2MinInicio - 60;
+        }
+        
+        console.log('🔍 [checkRealTimeConflicts] Sugestão 2:', {
+          inicio: `${sugestao2HoraInicioAjustada.toString().padStart(2, '0')}:${sugestao2MinInicioAjustado.toString().padStart(2, '0')}`,
+          fim: '22:00',
+          valida: sugestao2HoraInicioAjustada <= 22
+        });
+        
+        if (sugestao2HoraInicioAjustada <= 22) {
           horariosDisponiveis.push({
-            inicio: horarioSugerido.toTimeString().substring(0, 5),
+            inicio: `${sugestao2HoraInicioAjustada.toString().padStart(2, '0')}:${sugestao2MinInicioAjustado.toString().padStart(2, '0')}`,
             fim: '22:00',
-            tipo: 'APÓS_ÚLTIMO'
+            tipo: 'DEPOIS_DO_CONFLITO',
+            descricao: `15 min depois de ${conflito.nome}`
           });
         }
-      }
+      });
+
+      // Remover duplicatas baseado no horário de início
+      const horariosUnicos = [];
+      const horariosInicio = new Set();
+      
+      horariosDisponiveis.forEach(horario => {
+        if (!horariosInicio.has(horario.inicio)) {
+          horariosInicio.add(horario.inicio);
+          horariosUnicos.push(horario);
+        }
+      });
+      
+      // Substituir o array original pelos horários únicos
+      horariosDisponiveis.length = 0;
+      horariosDisponiveis.push(...horariosUnicos);
     }
 
     const temConflitoDireto = conflitos.some(c => c.conflito === 'SOBREPOSIÇÃO_DIRETA');

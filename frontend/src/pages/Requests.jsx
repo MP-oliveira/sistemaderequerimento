@@ -85,6 +85,7 @@ export default function Requests() {
     horariosDisponiveis: []
   });
   const [validandoConflito, setValidandoConflito] = useState(false);
+  const [sugestaoAplicada, setSugestaoAplicada] = useState(false);
 
   useEffect(() => {
     buscarRequisicoes();
@@ -102,6 +103,7 @@ export default function Requests() {
         conflitos: [],
         horariosDisponiveis: []
       });
+      setSugestaoAplicada(false);
     }
   }, [showAddModal]);
 
@@ -343,6 +345,12 @@ export default function Requests() {
         conflitos: [],
         horariosDisponiveis: []
       });
+      return;
+    }
+
+    // Se uma sugestão foi aplicada, não verificar conflitos imediatamente
+    if (sugestaoAplicada) {
+      setSugestaoAplicada(false);
       return;
     }
 
@@ -928,9 +936,20 @@ export default function Requests() {
                       <div key={index} className="suggestion-item">
                         <div className="suggestion-time">
                           <span className="suggestion-time-icon">🕐</span>
-                          <span className="suggestion-time-text">
-                            {horario.inicio} - {horario.fim}
-                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span className="suggestion-time-text">
+                              {horario.inicio} - {horario.fim}
+                            </span>
+                            {horario.descricao && (
+                              <span style={{ 
+                                fontSize: '11px', 
+                                color: '#6b7280',
+                                fontStyle: 'italic'
+                              }}>
+                                {horario.descricao}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <button
                           type="button"
@@ -941,6 +960,14 @@ export default function Requests() {
                               start_datetime: horario.inicio,
                               end_datetime: horario.fim
                             });
+                            // Limpar informações de conflito após aplicar sugestão
+                            setConflitoInfo({
+                              temConflito: false,
+                              mensagem: '',
+                              conflitos: [],
+                              horariosDisponiveis: []
+                            });
+                            setSugestaoAplicada(true); // Marcar que uma sugestão foi aplicada
                           }}
                         >
                           Usar
