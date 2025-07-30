@@ -77,9 +77,9 @@ const ReturnMaterials = () => {
     setExpandedRequests(newExpanded);
   };
 
-  const handleToggleReturned = async (itemId) => {
+  const handleToggleReturned = async (itemId, currentStatus) => {
     try {
-      await markItemAsReturned(itemId);
+      await markItemAsReturned(itemId, currentStatus);
       await carregarDados();
     } catch (error) {
       console.error('Erro ao marcar item como retornado:', error);
@@ -101,14 +101,16 @@ const ReturnMaterials = () => {
           audiovisual_notes: audiovisualNotes
         })
       });
-      
-      if (response.ok) {
-        setShowUnavailableModal(false);
-        setUnavailableReason('');
-        setAudiovisualNotes('');
-        setSelectedItem(null);
-        await carregarDados();
+
+      if (!response.ok) {
+        throw new Error('Erro ao marcar item como indisponível');
       }
+
+      await carregarDados();
+      setShowUnavailableModal(false);
+      setSelectedItem(null);
+      setUnavailableReason('');
+      setAudiovisualNotes('');
     } catch (error) {
       console.error('Erro ao marcar item como indisponível:', error);
     }
@@ -116,22 +118,21 @@ const ReturnMaterials = () => {
 
   const markItemAsAvailableAndSeparated = async (itemId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/request-items/${itemId}/available-separated`, {
+      const response = await fetch(`http://localhost:3000/api/request-items/${itemId}/available-and-separated`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          audiovisual_notes: audiovisualNotes
-        })
+        }
       });
-      
-      if (response.ok) {
-        await carregarDados();
+
+      if (!response.ok) {
+        throw new Error('Erro ao marcar item como disponível e separado');
       }
+
+      await carregarDados();
     } catch (error) {
-      console.error('Erro ao marcar item como disponível:', error);
+      console.error('Erro ao marcar item como disponível e separado:', error);
     }
   };
 
@@ -149,13 +150,15 @@ const ReturnMaterials = () => {
           audiovisual_notes: audiovisualNotes
         })
       });
-      
-      if (response.ok) {
-        setShowNotesModal(false);
-        setAudiovisualNotes('');
-        setSelectedItem(null);
-        await carregarDados();
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar observações');
       }
+
+      await carregarDados();
+      setShowNotesModal(false);
+      setSelectedItem(null);
+      setAudiovisualNotes('');
     } catch (error) {
       console.error('Erro ao atualizar observações:', error);
     }
@@ -175,30 +178,30 @@ const ReturnMaterials = () => {
   };
 
   const getStatusIcon = (item) => {
-    if (item.is_separated) {
-      return <FiCheck size={16} className="status-icon separated" />;
-    } else if (item.is_returned) {
-      return <FiCheck size={16} className="status-icon returned" />;
+    if (item.is_returned) {
+      return <FiCheck size={16} style={{ color: '#2196f3' }} />;
+    } else if (item.is_separated) {
+      return <FiPackage size={16} style={{ color: '#4caf50' }} />;
     } else {
-      return <FiClock size={16} className="status-icon pending" />;
+      return <FiAlertTriangle size={16} style={{ color: '#ff9800' }} />;
     }
   };
 
   const getStatusText = (item) => {
-    if (item.is_separated) {
-      return 'Separado';
-    } else if (item.is_returned) {
+    if (item.is_returned) {
       return 'Retornado';
+    } else if (item.is_separated) {
+      return 'Separado';
     } else {
       return 'Pendente';
     }
   };
 
   const getStatusColor = (item) => {
-    if (item.is_separated) {
-      return '#4caf50';
-    } else if (item.is_returned) {
+    if (item.is_returned) {
       return '#2196f3';
+    } else if (item.is_separated) {
+      return '#4caf50';
     } else {
       return '#ff9800';
     }
@@ -315,6 +318,10 @@ const ReturnMaterials = () => {
             const requestId = grupo.request.id;
             const isExpanded = expandedRequests.has(requestId);
             
+            // Calcular contadores para esta requisição
+            const totalCount = grupo.items.length;
+            const returnedCount = grupo.items.filter(item => item.is_returned).length;
+            
             return (
               <div key={index} className="request-group">
                 <div 
@@ -331,26 +338,47 @@ const ReturnMaterials = () => {
                       <span className="request-location">{grupo.request.location}</span>
                     </div>
                   </div>
+                  <div className="request-status">
+                    <div className="status-info">
+                      <span className="items-count">
+                        {returnedCount}/{totalCount} itens retornados
+                      </span>
+                    </div>
+                  </div>
                   <FiChevronDown className={`expand-icon ${isExpanded ? 'expanded' : ''}`} />
                 </div>
                 
                 <div className={`request-content ${isExpanded ? 'expanded' : ''}`}>
                   <div className="items-return-list">
                     {grupo.items.map((item) => (
-                      <div key={item.id} className="return-item">
+                      <div 
+                        key={item.id} 
+                        className={`return-item ${item.is_returned ? 'returned' : ''}`}
+                      >
                         <div className="item-info">
                           <span className="item-name">{item.item_name}</span>
                           <span className="item-quantity">Qtd: {item.quantity_requested}</span>
                         </div>
                         <button
-                          className="return-button"
-                          onClick={() => handleToggleReturned(item.id)}
-                          title="Marcar como retornado"
+                          className={`return-btn ${item.is_returned ? 'returned' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleReturned(item.id, item.is_returned);
+                          }}
+                          title={item.is_returned ? 'Desmarcar como retornado' : 'Marcar como retornado'}
                         >
-                          <FiCheck />
+                          {item.is_returned ? <FiCheck size={16} /> : <FiX size={16} />}
                         </button>
                       </div>
                     ))}
+                  </div>
+                  <div className="request-progress">
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${totalCount > 0 ? (returnedCount / totalCount) * 100 : 0}%` }}></div>
+                    </div>
+                    <span className="progress-text">
+                      {returnedCount} de {totalCount} instrumentos retornados
+                    </span>
                   </div>
                 </div>
               </div>

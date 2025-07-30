@@ -121,15 +121,19 @@ export const getExecutedItems = async () => {
   }
 };
 
-export const markItemAsReturned = async (itemId) => {
+export const markItemAsReturned = async (itemId, currentStatus) => {
   try {
     const response = await fetch(`${API_URL}/api/request-items/${itemId}/return`, {
       method: 'PATCH',
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ 
+        is_returned: !currentStatus 
+      })
     });
 
     if (!response.ok) {
-      throw new Error('Erro ao marcar item como retornado');
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao marcar item como retornado');
     }
 
     return await response.json();

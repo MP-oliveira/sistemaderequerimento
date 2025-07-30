@@ -99,9 +99,16 @@
 .request-department,
 .request-date,
 .request-location {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  background: #e5e7eb;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.request-header.expanded .request-department,
+.request-header.expanded .request-date,
+.request-header.expanded .request-location {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .expand-icon {
@@ -110,8 +117,8 @@
 }
 
 .request-header.expanded .expand-icon {
-  color: white;
   transform: rotate(180deg);
+  color: white;
 }
 
 .request-content {
@@ -124,7 +131,6 @@
   max-height: 1000px;
 }
 
-/* Seção: Checklist de Itens para Despachar */
 .items-checklist {
   padding: 1rem;
   display: flex;
@@ -133,41 +139,44 @@
 }
 
 .checklist-item {
-  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-  padding: 0.75rem;
   transition: all 0.2s ease;
 }
 
 .checklist-item:hover {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .checklist-item.separado {
-  border-left: 3px solid #4caf50;
+  border-left: 4px solid #4caf50;
   background: #f0f9ff;
 }
 
 .checklist-item.indisponivel {
-  border-left: 3px solid #f44336;
+  border-left: 4px solid #f44336;
   background: #fef2f2;
 }
 
 .checklist-item.pendente {
-  border-left: 3px solid #ff9800;
+  border-left: 4px solid #ff9800;
   background: #fff7ed;
 }
 
 .checklist-item .item-info {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
 }
 
 .item-name {
-  font-weight: 500;
+  font-weight: 600;
   color: #1f2937;
   font-size: 0.9rem;
 }
@@ -178,18 +187,20 @@
   background: #f3f4f6;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
 }
 
 .item-status {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin: 0 1rem;
 }
 
 .status-icon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 .status-icon.separated {
@@ -205,160 +216,215 @@
 }
 
 .status-text {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .item-unavailable-reason,
 .item-notes {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: #fff;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
   font-size: 0.8rem;
-  line-height: 1.4;
+  color: #6b7280;
+  background: #f9fafb;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  border-left: 3px solid #e5e7eb;
 }
 
 .item-unavailable-reason {
-  border-left: 2px solid #f44336;
+  color: #dc2626;
   background: #fef2f2;
+  border-left-color: #f87171;
 }
 
 .item-notes {
-  border-left: 2px solid #3b82f6;
-  background: #eff6ff;
+  color: #059669;
+  background: #f0fdf4;
+  border-left-color: #34d399;
 }
 
 .item-actions {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  align-items: center;
 }
 
 .item-actions button {
   font-size: 0.8rem;
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.75rem;
 }
 
-/* Seção: Lista de Itens para Retorno */
 .items-return-list {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .return-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fff;
+  padding: 0.75rem;
+  background: white;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-  padding: 0.75rem;
   transition: all 0.2s ease;
 }
 
 .return-item:hover {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.return-item.returned {
+  border-left: 4px solid #2196f3;
+  background: #f0f9ff;
 }
 
 .return-item .item-info {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  flex: 1;
 }
 
-.return-button {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+/* Botão de retorno similar ao separate-btn do TodayMaterials */
+.return-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
+  border: 2px solid #dc3545;
+  background: white;
+  color: #dc3545;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
-.return-button:hover {
-  background: #2563eb;
-  transform: scale(1.05);
+.return-btn:hover {
+  background: #dc3545;
+  color: white;
+  transform: scale(1.1);
 }
 
-.return-button:active {
-  transform: scale(0.95);
+.return-btn.returned {
+  border-color: #2196f3;
+  background: #2196f3;
+  color: white;
 }
 
-/* Estado vazio */
-.no-materials {
+.return-btn.returned:hover {
+  background: #1976d2;
+  border-color: #1976d2;
+}
+
+/* Barra de progresso para retorno */
+.request-progress {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2196f3, #1976d2);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Status info para contadores */
+.status-info {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  gap: 0.5rem;
+}
+
+.items-count {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.request-header.expanded .items-count {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.no-materials {
   text-align: center;
+  padding: 2rem;
   color: #6b7280;
 }
 
 .no-materials svg {
-  color: #d1d5db;
   margin-bottom: 1rem;
+  opacity: 0.5;
 }
 
 .no-materials h3 {
   margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
   color: #374151;
+  font-size: 1.1rem;
 }
 
 .no-materials p {
   margin: 0;
   font-size: 0.9rem;
-  color: #6b7280;
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
   .return-materials {
-    max-width: 100%;
     padding: 1rem;
   }
-  
+
   .request-info {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .checklist-item .item-info {
+    min-width: 0;
+  }
+
+  .item-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .item-actions button {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .return-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
-  .item-actions {
-    flex-direction: column;
-  }
-  
-  .item-actions button {
-    width: 100%;
-  }
-  
-  .return-item {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
-  }
-  
-  .return-button {
+
+  .return-btn {
     align-self: flex-end;
   }
 } 

@@ -333,36 +333,86 @@ const getExecutedItems = async (req, res) => {
 const markItemAsReturned = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
-
-    // Verificar se o item existe
+    
+    console.log('🔍 [markItemAsReturned] Iniciando...');
+    console.log('   Item ID:', id);
+    console.log('   User:', req.user);
+    console.log('   User role:', req.user?.role);
+    
+    // Verificar se o usuário é AUDIOVISUAL
+    if (req.user.role !== 'AUDIOVISUAL') {
+      console.log('❌ [markItemAsReturned] Usuário não é AUDIOVISUAL:', req.user.role);
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Apenas audiovisual pode marcar itens como retornados.' 
+      });
+    }
+    
+    console.log('✅ [markItemAsReturned] Usuário autorizado');
+    
+    // Verificar se o item existe e está separado
     const { data: item, error: fetchError } = await supabase
       .from('request_items')
-      .select('id, inventory_id')
+      .select('id, is_separated, is_returned')
       .eq('id', id)
       .single();
 
     if (fetchError || !item) {
+      console.error('❌ [markItemAsReturned] Item não encontrado:', fetchError);
       return res.status(404).json({ 
         success: false, 
         message: 'Item não encontrado' 
       });
     }
-
-    // Por enquanto, apenas retornar sucesso
-    // Quando as colunas forem adicionadas, podemos implementar a lógica completa
-    console.log(`Item ${id} marcado como retornado pelo usuário ${userId}`);
-
+    
+    console.log('🔍 [markItemAsReturned] Item encontrado:', item);
+    
+    // Verificar se o item está separado (pré-requisito para retorno)
+    if (!item.is_separated) {
+      console.log('❌ [markItemAsReturned] Item não está separado');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Item deve estar separado antes de ser marcado como retornado.' 
+      });
+    }
+    
+    // Alternar o status de retorno
+    const newReturnedStatus = !item.is_returned;
+    
+    const updateData = {
+      is_returned: newReturnedStatus,
+      returned_by: newReturnedStatus ? req.user.userId : null,
+      returned_at: newReturnedStatus ? new Date().toISOString() : null
+    };
+    
+    console.log('🔍 [markItemAsReturned] Dados para atualização:', updateData);
+    
+    const { data: updatedItem, error } = await supabase
+      .from('request_items')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+      
+    if (error || !updatedItem) {
+      console.error('❌ [markItemAsReturned] Erro ao atualizar item:', error);
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao atualizar item.', 
+        error: error?.message 
+      });
+    }
+    
+    console.log('✅ [markItemAsReturned] Item atualizado com sucesso:', updatedItem);
+    
     res.json({ 
       success: true, 
-      message: 'Item marcado como retornado com sucesso' 
+      message: newReturnedStatus ? 'Item marcado como retornado!' : 'Item desmarcado como retornado!',
+      data: updatedItem 
     });
   } catch (error) {
-    console.error('Erro ao marcar item como retornado:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erro interno do servidor' 
-    });
+    console.error('❌ [markItemAsReturned] Erro interno:', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
 };
 
