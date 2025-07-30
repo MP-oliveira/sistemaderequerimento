@@ -618,6 +618,105 @@ const verificarConflitosAprovacao = async (requestData) => {
   }
 };
 
+// Verificar disponibilidade de materiais em tempo real
+export const checkInventoryAvailability = async (req, res) => {
+  try {
+    const { itens = [] } = req.body;
+
+    console.log('🔍 [checkInventoryAvailability] Verificando disponibilidade de materiais:', itens);
+
+    if (!itens || itens.length === 0) {
+      return res.status(200).json({
+        success: true,
+        temConflito: false,
+        materiaisIndisponiveis: [],
+        message: 'Nenhum material selecionado para verificação.'
+      });
+    }
+
+    const materiaisIndisponiveis = [];
+    const materiaisBaixoEstoque = [];
+
+    // Verificar cada item
+    for (const item of itens) {
+      if (!item.inventory_id || !item.quantity_requested) continue;
+
+      // Buscar item do inventário
+      const { data: inv, error: errInv } = await supabase
+        .from('inventory')
+        .select('*')
+        .eq('id', item.inventory_id)
+        .single();
+
+      if (errInv || !inv) {
+        console.log(`⚠️ [checkInventoryAvailability] Erro ao buscar item ${item.inventory_id}:`, errInv);
+        continue;
+      }
+
+      console.log(`📦 [checkInventoryAvailability] Verificando: ${inv.name}`);
+      console.log(`   Quantidade disponível: ${inv.quantity_available}`);
+      console.log(`   Quantidade solicitada: ${item.quantity_requested}`);
+      console.log(`   Status atual: ${inv.status}`);
+
+      // Verificar se há quantidade suficiente
+      if (inv.quantity_available < item.quantity_requested) {
+        materiaisIndisponiveis.push({
+          id: inv.id,
+          nome: inv.name,
+          quantidade_disponivel: inv.quantity_available,
+          quantidade_solicitada: item.quantity_requested,
+          quantidade_faltante: item.quantity_requested - inv.quantity_available,
+          status: inv.status,
+          categoria: inv.category
+        });
+        console.log(`❌ [checkInventoryAvailability] ${inv.name} - Quantidade insuficiente`);
+      } else if (inv.quantity_available - item.quantity_requested <= 2) {
+        // Verificar se ficará com baixo estoque
+        materiaisBaixoEstoque.push({
+          id: inv.id,
+          nome: inv.name,
+          quantidade_disponivel: inv.quantity_available,
+          quantidade_solicitada: item.quantity_requested,
+          quantidade_restante: inv.quantity_available - item.quantity_requested,
+          status: inv.status,
+          categoria: inv.category
+        });
+        console.log(`⚠️ [checkInventoryAvailability] ${inv.name} - Baixo estoque após uso`);
+      } else {
+        console.log(`✅ [checkInventoryAvailability] ${inv.name} - Disponível`);
+      }
+    }
+
+    const temConflito = materiaisIndisponiveis.length > 0;
+    const temBaixoEstoque = materiaisBaixoEstoque.length > 0;
+
+    const response = {
+      success: true,
+      temConflito,
+      temBaixoEstoque,
+      materiaisIndisponiveis,
+      materiaisBaixoEstoque,
+      message: temConflito 
+        ? 'Alguns materiais não estão disponíveis na quantidade solicitada.'
+        : temBaixoEstoque
+        ? 'Todos os materiais estão disponíveis, mas alguns ficarão com baixo estoque.'
+        : 'Todos os materiais estão disponíveis na quantidade solicitada.'
+    };
+
+    console.log('🔍 [checkInventoryAvailability] Resposta final:', response);
+
+    return res.status(200).json(response);
+
+  } catch (error) {
+    console.error('❌ Erro ao verificar disponibilidade de materiais:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor ao verificar disponibilidade de materiais', 
+      error: error.message 
+    });
+  }
+};
+
 // Criar uma nova requisição
 export const createRequest = async (req, res) => {
   try {
@@ -982,6 +1081,87 @@ export const approveRequest = async (req, res) => {
 
     // Se não há conflitos ou apenas conflitos de intervalo que foram tratados, aprovar normalmente
     console.log('✅ [approveRequest] Nenhum conflito direto detectado. Aprovando requisição...');
+
+    // Tornar materiais indisponíveis quando a requisição for aprovada
+    console.log('🔍 [approveRequest] Tornando materiais indisponíveis...');
+    const { data: requestItems, error: itemsError } = await supabase
+      .from('request_items')
+      .select('*')
+      .eq('request_id', id);
+
+    if (itemsError) {
+      console.log('⚠️ [approveRequest] Erro ao buscar itens da requisição:', itemsError);
+    } else if (requestItems && requestItems.length > 0) {
+      console.log(`📦 [approveRequest] Processando ${requestItems.length} itens...`);
+      
+      for (const reqItem of requestItems) {
+        if (!reqItem.inventory_id || !reqItem.quantity_requested) continue;
+
+        // Buscar item do inventário
+        const { data: inv, error: errInv } = await supabase
+          .from('inventory')
+          .select('*')
+          .eq('id', reqItem.inventory_id)
+          .single();
+
+        if (errInv || !inv) {
+          console.log(`⚠️ [approveRequest] Erro ao buscar item ${reqItem.inventory_id}:`, errInv);
+          continue;
+        }
+
+        // Calcular nova quantidade disponível
+        const novaQuantidade = Math.max(0, inv.quantity_available - reqItem.quantity_requested);
+        
+        // Determinar novo status baseado na quantidade
+        let novoStatus = inv.status;
+        if (novaQuantidade === 0) {
+          novoStatus = 'INDISPONIVEL';
+        } else if (novaQuantidade <= 2) {
+          novoStatus = 'BAIXO_ESTOQUE';
+        } else {
+          novoStatus = 'DISPONIVEL';
+        }
+
+        console.log(`📦 [approveRequest] Item: ${inv.name}`);
+        console.log(`   Quantidade anterior: ${inv.quantity_available}`);
+        console.log(`   Quantidade solicitada: ${reqItem.quantity_requested}`);
+        console.log(`   Nova quantidade: ${novaQuantidade}`);
+        console.log(`   Status anterior: ${inv.status}`);
+        console.log(`   Novo status: ${novoStatus}`);
+
+        // Atualizar inventário
+        const { error: updateError } = await supabase
+          .from('inventory')
+          .update({
+            quantity_available: novaQuantidade,
+            status: novoStatus,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', reqItem.inventory_id);
+
+        if (updateError) {
+          console.log(`❌ [approveRequest] Erro ao atualizar item ${inv.name}:`, updateError);
+        } else {
+          console.log(`✅ [approveRequest] Item ${inv.name} atualizado com sucesso`);
+          
+          // Registrar histórico
+          try {
+            await logInventoryHistory({
+              inventory_id: reqItem.inventory_id,
+              user_id: req.user.userId,
+              action: 'APROVACAO_REQUISICAO',
+              status_anterior: inv.status,
+              status_novo: novoStatus,
+              quantidade_anterior: inv.quantity_available,
+              quantidade_nova: novaQuantidade,
+              observacao: `Item reservado para requisição aprovada ${id} - ${requestData.event_name || 'Evento'}`
+            });
+          } catch (historyError) {
+            console.log(`⚠️ [approveRequest] Erro ao registrar histórico:`, historyError);
+          }
+        }
+      }
+    }
 
     // Preparar histórico de status
     // const statusHistory = requestData.status_history || [];

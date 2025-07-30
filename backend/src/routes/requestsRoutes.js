@@ -17,7 +17,8 @@ import {
   returnInstruments,
   getApprovedRequestsForCalendar,
   checkConflicts,
-  checkRealTimeConflicts
+  checkRealTimeConflicts,
+  checkInventoryAvailability
 } from '../controllers/RequestsController.js';
 
 const router = express.Router();
@@ -48,5 +49,6 @@ router.put('/:id/return-instruments', authenticateToken, returnInstruments);
 // Rotas para verificação de conflitos
 router.post('/check-conflicts', authenticateToken, checkConflicts);
 router.post('/check-realtime-conflicts', authenticateToken, checkRealTimeConflicts);
+router.post('/check-inventory-availability', authenticateToken, checkInventoryAvailability);
 
 export default router;

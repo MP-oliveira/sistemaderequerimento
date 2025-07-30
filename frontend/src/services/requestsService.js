@@ -25,6 +25,23 @@ export async function verificarConflitosTempoReal(data) {
   }
 }
 
+export async function verificarDisponibilidadeMateriais(itens) {
+  try {
+    const response = await fetch(`${API_URL}/api/requests/check-inventory-availability`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ itens }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao verificar disponibilidade de materiais');
+    }
+    return await response.json();
+  } catch (err) {
+    throw err;
+  }
+}
+
 export async function verificarConflitos(data) {
   try {
     const response = await fetch(`${API_URL}/api/requests/check-conflicts`, {

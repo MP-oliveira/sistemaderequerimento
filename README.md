@@ -1,129 +1,351 @@
-# 🏛️ Sistema de Requisições e Inventário - Igreja IBVA
+# 🏛️ Sistema de Requisições - Igreja Batista Vida Abundante
 
-Sistema completo para gestão de requisições, inventário, eventos e usuários da Igreja Batista Vida Abundante (IBVA), desenvolvido com Node.js, React e Supabase.
+Sistema completo de gerenciamento de requisições para eventos e controle de inventário da Igreja Batista Vida Abundante.
 
-## 🚀 Funcionalidades Implementadas
+## 📋 Índice
 
-### 🔐 **Sistema de Autenticação e Usuários**
-- ✅ **Login seguro** com JWT e criptografia bcrypt
-- ✅ **Controle de papéis**: ADM, PASTOR, SEC, AUDIOVISUAL, LIDER, USER
-- ✅ **Permissões granulares** por funcionalidade
-- ✅ **Gestão de usuários** (criar, editar, deletar)
-- ✅ **Proteção de rotas** baseada em papéis
-- ✅ **Sessões seguras** com expiração automática
-- ✅ **Logout automático** e limpeza de tokens
+- [Visão Geral](#visão-geral)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias](#tecnologias)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Uso](#uso)
+- [API](#api)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Contribuição](#contribuição)
 
-### 📋 **Gestão de Requisições**
-- ✅ **Criação de requisições** com formulário completo
-- ✅ **Sistema de prioridades**: Alta, Média, Baixa
-- ✅ **Sistema de aprovação** por pastores/administradores
-- ✅ **Execução de requisições** por audiovisual/secretaria
-- ✅ **Finalização com devolução** de itens
-- ✅ **Rejeição de requisições** com motivo obrigatório
-- ✅ **Busca e filtros** avançados (status, departamento, data)
-- ✅ **Detecção de conflitos** de agenda automática
-- ✅ **Histórico completo** de alterações
-- ✅ **Edição e exclusão** de requisições
-- ✅ **Status em tempo real**: PENDENTE, APTO, EXECUTADO, FINALIZADO, REJEITADO, PENDENTE_CONFLITO
+## 🎯 Visão Geral
 
-### 📎 **Sistema de Comprovantes**
-- ✅ **Upload de arquivos** (PDF, imagens, documentos)
-- ✅ **Visualização de comprovantes** por requisição
-- ✅ **Download de arquivos** enviados
-- ✅ **Remoção de comprovantes** (com permissões)
-- ✅ **Validação de tipos** de arquivo
-- ✅ **Armazenamento seguro** no servidor
-- ✅ **Limite de tamanho** (10MB por arquivo)
+O Sistema de Requisições é uma aplicação web completa desenvolvida para gerenciar requisições de espaços, equipamentos e materiais da Igreja Batista Vida Abundante. O sistema oferece controle de conflitos de horários, gestão de inventário em tempo real e interface intuitiva para diferentes níveis de usuário.
 
-### 📦 **Gestão de Inventário**
-- ✅ **CRUD completo** de itens de inventário
-- ✅ **Controle de estoque** automático
-- ✅ **Alertas de estoque baixo** (≤ 2 itens)
-- ✅ **Histórico de atividades** por item
-- ✅ **Exportação em PDF/Excel** com formatação profissional
-- ✅ **Status de disponibilidade**: DISPONIVEL, RESERVADO, MANUTENCAO, INDISPONIVEL
-- ✅ **Filtros avançados** (nome, categoria, status, localização)
-- ✅ **Integração automática** com requisições
-- ✅ **Validação de quantidade** (não permite valores negativos)
-- ✅ **Logs detalhados** de movimentações
+## ✨ Funcionalidades
 
-### 📅 **Gestão de Eventos**
-- ✅ **Criação de eventos** com data/hora e local
-- ✅ **Detecção de conflitos** de agenda
-- ✅ **Calendário visual** no dashboard
-- ✅ **Histórico de alterações** por evento
-- ✅ **Integração com requisições** (criação automática)
-- ✅ **Status de eventos**: AGENDADO, EM_ANDAMENTO, CONCLUIDO, CANCELADO
-- ✅ **Filtros de busca** por nome, local, status, datas
+### 🔐 Sistema de Autenticação e Autorização
 
-### 📊 **Dashboard Inteligente**
-- ✅ **Dashboard personalizado** por papel de usuário
-- ✅ **Dashboard Admin** para pastores e administradores
-- ✅ **Dashboard Audiovisual** para equipe técnica
-- ✅ **Dashboard padrão** para usuários comuns
-- ✅ **Calendário interativo** com eventos e requisições
-- ✅ **Estatísticas em tempo real**
-- ✅ **Alertas de estoque baixo**
-- ✅ **Atividades recentes** em tempo real
-- ✅ **Indicadores visuais** de status
-- ✅ **Ações rápidas** para tarefas comuns
+- **Login Multi-nível**: Suporte para diferentes tipos de usuário (Líderes, Pastores, Administradores)
+- **Controle de Acesso**: Permissões específicas por tipo de usuário
+- **Sessões Seguras**: Autenticação JWT com tokens seguros
+- **Proteção de Rotas**: Middleware de autenticação em todas as rotas protegidas
 
-### 📧 **Sistema de Notificações**
-- ✅ **Notificações automáticas** para nova requisição
-- ✅ **E-mails de aprovação/rejeição** para solicitantes
-- ✅ **Notificações por papel** (pastores, audiovisual, secretaria)
-- ✅ **Integração com Supabase**
-- ✅ **Toast notifications** para ações
-- ✅ **Mensagens de sucesso/erro**
-- ✅ **Confirmações** para ações críticas
-- ✅ **Feedback em tempo real**
+### 📅 Gestão de Requisições
 
-### 🎨 **Interface do Usuário**
-- ✅ **Design responsivo** para mobile/desktop
-- ✅ **Componentes reutilizáveis** e consistentes
-- ✅ **Cores da marca IBVA** (#174ea6, #ffd600)
-- ✅ **UX intuitiva** e acessível
-- ✅ **Modais otimizados** com layout compacto
-- ✅ **Inputs uniformes** com altura padronizada
-- ✅ **Formulários responsivos** que cabem na tela
-- ✅ **Navegação intuitiva** com breadcrumbs
+#### **Criação de Requisições**
+- Formulário completo para criação de requisições
+- Seleção de departamento, local, data e horário
+- Descrição detalhada do evento
+- Estimativa de público esperado
+- Sistema de prioridades (NORMAL, ALTA, URGENTE)
 
-### 📈 **Funcionalidades Avançadas**
-- ✅ **Detecção de conflitos** de agenda em tempo real
-- ✅ **Prevenção de duplicatas** e sobreposições
-- ✅ **Exportação de dados** em PDF e Excel
-- ✅ **Relatórios personalizados** por período
-- ✅ **Sistema de logs** completo para auditoria
-- ✅ **Backup automático** do Supabase
-- ✅ **Validação robusta** de dados
-- ✅ **Tratamento de erros** abrangente
+#### **Validação em Tempo Real**
+- **Verificação de Conflitos**: Detecção automática de conflitos de horário e local
+- **Alertas Visuais**: Interface intuitiva com cores e ícones
+- **Sugestões Inteligentes**: Horários alternativos sugeridos automaticamente
+- **Feedback Imediato**: Validação conforme o usuário digita
 
-## 🛠️ Tecnologias Utilizadas
+#### **Sistema de Conflitos Avançado**
+- **Conflitos Diretos**: Impede criação quando há sobreposição total
+- **Conflitos de Intervalo**: Marca como `PENDENTE_CONFLITO` quando há menos de 15 minutos entre eventos
+- **Regra de Aprovação**: Conflitos só ocorrem com requisições aprovadas (`APTO`, `EXECUTADO`, `FINALIZADO`)
+- **Múltiplas Requisições Pendentes**: Permite múltiplas requisições pendentes para o mesmo horário/local
+
+#### **Sugestões de Horários**
+- **Sugestão 1**: 1 hora antes até 15 minutos antes do conflito
+- **Sugestão 2**: 15 minutos depois do conflito até 22:00
+- **Aplicação Automática**: Botão "Usar" para aplicar sugestão automaticamente
+- **Validação Inteligente**: Verifica se sugestões são válidas antes de mostrar
+
+### 🏢 Gestão de Locais e Salas
+
+#### **Configuração de Locais**
+- **Anexo 1 - Salão**: Capacidade e características específicas
+- **Anexo 2 - Salão**: Configurações independentes
+- **Templo Principal**: Espaço principal da igreja
+- **Sala de Reunião**: Espaço para reuniões menores
+- **Área Externa**: Espaços ao ar livre
+
+#### **Controle de Disponibilidade**
+- Verificação em tempo real de disponibilidade
+- Histórico de uso por local
+- Capacidade e limitações por espaço
+
+### 📦 Sistema de Inventário Avançado
+
+#### **Controle de Materiais**
+- **Cadastro Completo**: Nome, descrição, categoria, quantidade total
+- **Status Automático**: `DISPONIVEL`, `BAIXO_ESTOQUE`, `INDISPONIVEL`
+- **Quantidade Disponível**: Controle preciso de unidades disponíveis
+- **Categorização**: Organização por tipos (AUDIO, VIDEO, CABOS, etc.)
+
+#### **Reserva Automática de Materiais**
+- **Aprovação Inteligente**: Materiais são reservados automaticamente na aprovação
+- **Controle de Quantidade**: Apenas a quantidade solicitada é reservada
+- **Status Dinâmico**: Atualização automática de status baseada na quantidade
+- **Histórico Completo**: Registro de todas as movimentações
+
+#### **Verificação em Tempo Real**
+- **Alertas de Indisponibilidade**: Materiais sem quantidade suficiente
+- **Alertas de Baixo Estoque**: Materiais que ficarão com ≤ 2 unidades
+- **Interface Visual**: Cores e ícones para diferentes tipos de alerta
+- **Informações Detalhadas**: Quantidade disponível, solicitada e faltante
+
+#### **Retorno de Materiais**
+- **Sistema de Devolução**: Materiais retornam ao estoque após uso
+- **Restauração de Status**: Status atualizado automaticamente
+- **Histórico de Movimentações**: Registro completo de entrada e saída
+
+### 👥 Gestão de Usuários
+
+#### **Tipos de Usuário**
+- **Líderes**: Podem criar requisições e visualizar status
+- **Pastores**: Podem aprovar/rejeitar requisições
+- **Administradores**: Acesso completo ao sistema
+- **Audiovisual**: Controle específico de equipamentos
+
+#### **Perfis e Permissões**
+- Controle granular de acesso por funcionalidade
+- Interface adaptada por tipo de usuário
+- Logs de atividades por usuário
+
+### 📊 Dashboard e Relatórios
+
+#### **Dashboard do Usuário**
+- **Requisições Ativas**: Visualização das próprias requisições
+- **Status em Tempo Real**: Atualizações automáticas de status
+- **Histórico Pessoal**: Todas as requisições do usuário
+- **Ações Rápidas**: Botões para ações comuns
+
+#### **Dashboard Administrativo**
+- **Visão Geral**: Todas as requisições do sistema
+- **Filtros Avançados**: Por status, data, departamento, local
+- **Ações em Massa**: Aprovação/rejeição múltipla
+- **Estatísticas**: Métricas de uso e ocupação
+
+#### **Dashboard Audiovisual**
+- **Controle de Equipamentos**: Gestão específica de materiais
+- **Status de Inventário**: Visão detalhada de disponibilidade
+- **Retorno de Materiais**: Interface para devolução
+- **Relatórios de Uso**: Estatísticas de utilização
+
+### 🔔 Sistema de Notificações
+
+#### **Alertas em Tempo Real**
+- **Conflitos de Horário**: Notificações imediatas
+- **Indisponibilidade de Materiais**: Alertas visuais
+- **Status de Requisições**: Atualizações automáticas
+- **Sugestões Inteligentes**: Propostas de horários alternativos
+
+#### **Interface de Validação**
+- **Cores Significativas**: Vermelho para erro, laranja para aviso, verde para sucesso
+- **Ícones Intuitivos**: Símbolos visuais para diferentes tipos de alerta
+- **Informações Detalhadas**: Dados completos sobre conflitos e disponibilidade
+- **Ações Rápidas**: Botões para aplicar sugestões ou resolver conflitos
+
+### 📱 Interface Responsiva
+
+#### **Design Moderno**
+- **Interface Limpa**: Design minimalista e profissional
+- **Responsividade**: Funciona em desktop, tablet e mobile
+- **Acessibilidade**: Contraste adequado e navegação por teclado
+- **Performance**: Carregamento rápido e interações fluidas
+
+#### **Experiência do Usuário**
+- **Feedback Visual**: Confirmações visuais de ações
+- **Loading States**: Indicadores de carregamento
+- **Validação em Tempo Real**: Verificação conforme digitação
+- **Navegação Intuitiva**: Fluxo lógico e fácil de usar
+
+## 🛠️ Tecnologias
 
 ### **Backend**
-- **Node.js** com Express
-- **Supabase** (PostgreSQL + Auth)
-- **Multer** para upload de arquivos
-- **JWT** para autenticação
-- **Nodemailer** para e-mails
-- **bcrypt** para criptografia
-- **CORS** para segurança
+- **Node.js**: Runtime JavaScript
+- **Express.js**: Framework web
+- **Supabase**: Banco de dados PostgreSQL
+- **JWT**: Autenticação e autorização
+- **CORS**: Cross-origin resource sharing
 
 ### **Frontend**
-- **React 18** com Vite
-- **React Router** para navegação
-- **Context API** para gerenciamento de estado
-- **jsPDF** e **XLSX** para exportação
-- **React Icons** para ícones
-- **CSS Modules** para estilização
-- **Responsive Design** com media queries
+- **React**: Biblioteca JavaScript
+- **Vite**: Build tool e dev server
+- **CSS3**: Estilização moderna
+- **Fetch API**: Comunicação com backend
 
 ### **Banco de Dados**
-- **Supabase PostgreSQL**
-- **Tabelas relacionais** otimizadas
-- **Triggers** para logs automáticos
-- **Políticas de segurança** (RLS)
-- **Backup automático**
+- **PostgreSQL**: Banco de dados relacional
+- **Supabase**: Plataforma de backend-as-a-service
+- **Row Level Security**: Segurança em nível de linha
+
+## 🚀 Instalação
+
+### **Pré-requisitos**
+- Node.js 18+ 
+- npm ou yarn
+- Conta no Supabase
+
+### **1. Clone o Repositório**
+```bash
+git clone <url-do-repositorio>
+cd sistemaderequerimento
+```
+
+### **2. Instale as Dependências**
+```bash
+# Backend
+cd backend
+npm install
+
+# Frontend
+cd ../frontend
+npm install
+```
+
+### **3. Configure as Variáveis de Ambiente**
+```bash
+# Backend (.env)
+SUPABASE_URL=sua_url_do_supabase
+SUPABASE_ANON_KEY=sua_chave_anonima
+SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role
+JWT_SECRET=seu_jwt_secret
+PORT=3000
+NODE_ENV=development
+
+# Frontend (.env)
+VITE_API_URL=http://localhost:3000
+```
+
+### **4. Configure o Banco de Dados**
+Execute os scripts SQL no Supabase:
+- `database/create_comprovantes_table.sql`
+- Configurações de RLS (Row Level Security)
+
+### **5. Inicie os Servidores**
+```bash
+# Backend (Terminal 1)
+cd backend
+npm start
+
+# Frontend (Terminal 2)
+cd frontend
+npm run dev
+```
+
+## ⚙️ Configuração
+
+### **Configuração do Supabase**
+1. Crie um projeto no Supabase
+2. Configure as tabelas necessárias
+3. Configure RLS (Row Level Security)
+4. Configure as políticas de acesso
+
+### **Configuração de Usuários**
+1. Crie usuários administradores
+2. Configure departamentos
+3. Defina permissões por tipo de usuário
+
+### **Configuração de Locais**
+1. Configure os locais disponíveis
+2. Defina capacidades e limitações
+3. Configure horários de funcionamento
+
+## 📖 Uso
+
+### **Para Líderes**
+1. Faça login no sistema
+2. Acesse "Nova Requisição"
+3. Preencha os dados do evento
+4. Selecione materiais necessários
+5. Verifique conflitos em tempo real
+6. Envie a requisição
+
+### **Para Pastores**
+1. Acesse o dashboard administrativo
+2. Visualize requisições pendentes
+3. Verifique conflitos e disponibilidade
+4. Aprove ou rejeite requisições
+5. Monitore o uso de materiais
+
+### **Para Administradores**
+1. Gerencie usuários e permissões
+2. Configure locais e materiais
+3. Visualize relatórios e estatísticas
+4. Monitore o sistema completo
+
+## 🔌 API
+
+### **Endpoints de Requisições**
+
+#### **POST /api/requests**
+Cria uma nova requisição
+```json
+{
+  "department": "JOVENS",
+  "event_name": "Culto de Jovens",
+  "date": "2025-01-15",
+  "location": "Anexo 1 - Salão",
+  "start_datetime": "2025-01-15T19:00",
+  "end_datetime": "2025-01-15T22:00",
+  "description": "Culto semanal dos jovens",
+  "expected_audience": 50,
+  "prioridade": "NORMAL"
+}
+```
+
+#### **GET /api/requests**
+Lista todas as requisições (com filtros)
+
+#### **PUT /api/requests/:id/approve**
+Aprova uma requisição
+
+#### **PUT /api/requests/:id/reject**
+Rejeita uma requisição
+
+#### **POST /api/requests/check-conflicts**
+Verifica conflitos de horário
+```json
+{
+  "date": "2025-01-15",
+  "location": "Anexo 1 - Salão",
+  "start_time": "19:00",
+  "end_time": "22:00"
+}
+```
+
+#### **POST /api/requests/check-inventory-availability**
+Verifica disponibilidade de materiais
+```json
+{
+  "itens": [
+    {
+      "inventory_id": "uuid",
+      "quantity_requested": 2
+    }
+  ]
+}
+```
+
+### **Endpoints de Inventário**
+
+#### **GET /api/inventory**
+Lista todos os itens do inventário
+
+#### **POST /api/inventory**
+Cria um novo item
+
+#### **PUT /api/inventory/:id**
+Atualiza um item
+
+### **Endpoints de Autenticação**
+
+#### **POST /api/auth/login**
+Login de usuário
+```json
+{
+  "email": "usuario@igreja.com",
+  "password": "senha123"
+}
+```
+
+#### **POST /api/auth/register**
+Registro de usuário
 
 ## 📁 Estrutura do Projeto
 
@@ -131,288 +353,69 @@ Sistema completo para gestão de requisições, inventário, eventos e usuários
 sistemaderequerimento/
 ├── backend/
 │   ├── src/
-│   │   ├── controllers/     # Lógica de negócio
-│   │   │   ├── AuthController.js
+│   │   ├── controllers/
 │   │   │   ├── RequestsController.js
-│   │   │   ├── InventoryController.js
-│   │   │   ├── UsersController.js
-│   │   │   ├── EventsController.js
-│   │   │   └── RequestItemsController.js
-│   │   ├── routes/         # Rotas da API
-│   │   ├── middlewares/    # Autenticação e permissões
-│   │   ├── config/         # Configuração Supabase
-│   │   ├── utils/          # Utilitários (e-mail, upload)
-│   │   └── server.js       # Servidor Express
-│   ├── uploads/            # Arquivos enviados
-│   └── scripts/            # Scripts de manutenção
+│   │   │   ├── AuthController.js
+│   │   │   └── InventoryController.js
+│   │   ├── routes/
+│   │   │   ├── requestsRoutes.js
+│   │   │   └── authRoutes.js
+│   │   ├── middlewares/
+│   │   │   ├── authMiddleware.js
+│   │   │   └── roleMiddleware.js
+│   │   └── config/
+│   │       └── supabaseClient.js
+│   ├── database/
+│   │   └── create_comprovantes_table.sql
+│   └── package.json
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     # Componentes React
-│   │   │   ├── Button.jsx
-│   │   │   ├── Input.jsx
-│   │   │   ├── Modal.jsx
-│   │   │   ├── Header.jsx
-│   │   │   ├── Calendar.jsx
-│   │   │   └── ActivityLog.jsx
-│   │   ├── pages/          # Páginas da aplicação
-│   │   │   ├── Login.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── DashboardAdmin.jsx
-│   │   │   ├── AudiovisualDashboard.jsx
+│   │   ├── pages/
 │   │   │   ├── Requests.jsx
-│   │   │   ├── Inventory.jsx
-│   │   │   └── Users.jsx
-│   │   ├── services/       # Serviços de API
-│   │   ├── context/        # Contexto de autenticação
-│   │   └── utils/          # Utilitários
-│   └── public/             # Arquivos estáticos
+│   │   │   ├── RequestsAdmin.jsx
+│   │   │   └── Dashboard.jsx
+│   │   ├── components/
+│   │   │   ├── Modal.jsx
+│   │   │   └── Table.jsx
+│   │   ├── services/
+│   │   │   └── requestsService.js
+│   │   └── utils/
+│   │       └── dateUtils.js
+│   └── package.json
 └── README.md
 ```
-
-## 🔐 Sistema de Permissões
-
-### **Papéis de Usuário e Permissões**
-
-| Funcionalidade | ADM | PASTOR | SEC | AUDIOVISUAL | LIDER | USER |
-|----------------|-----|--------|-----|-------------|-------|------|
-| **Dashboard Admin** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Dashboard Audiovisual** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| **Criar Requisições** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Aprovar Requisições** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Executar Requisições** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| **Gerenciar Inventário** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Criar Eventos** | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
-| **Gerenciar Usuários** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Visualizar Relatórios** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Upload Comprovantes** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-
-## 🔧 Instalação e Configuração
-
-### **Pré-requisitos**
-- Node.js 18+
-- npm ou yarn
-- Conta no Supabase
-
-### **1. Clone o repositório**
-```bash
-git clone <url-do-repositorio>
-cd sistemaderequerimento
-```
-
-### **2. Configure o Backend**
-```bash
-cd backend
-npm install
-```
-
-Crie um arquivo `.env` na pasta `backend`:
-```env
-SUPABASE_URL=sua_url_do_supabase
-SUPABASE_ANON_KEY=sua_chave_anonima
-SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role
-JWT_SECRET=seu_jwt_secret
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=seu_email@gmail.com
-EMAIL_PASS=sua_senha_de_app
-PORT=3000
-NODE_ENV=development
-```
-
-### **3. Configure o Frontend**
-```bash
-cd frontend
-npm install
-```
-
-### **4. Execute o projeto**
-```bash
-# Terminal 1 - Backend
-cd backend
-npm start
-
-# Terminal 2 - Frontend
-cd frontend
-npm run dev
-```
-
-## 🗄️ Estrutura do Banco de Dados
-
-### **Tabelas Principais**
-- `users` - Usuários do sistema
-- `requests` - Requisições
-- `request_items` - Itens das requisições
-- `request_comprovantes` - Comprovantes das requisições
-- `inventory` - Itens do inventário
-- `inventory_history` - Histórico do inventário
-- `events` - Eventos da igreja
-- `event_history` - Histórico dos eventos
-- `departments` - Departamentos
-
-## 🔄 Fluxo de Requisições
-
-### **1. Criação**
-```
-Usuário → Nova Requisição → Preenche Formulário → Seleciona Prioridade → Envia
-```
-
-### **2. Aprovação**
-```
-Pastor/ADM → Visualiza → Verifica Conflitos → Aprova/Rejeita → Notifica
-```
-
-### **3. Execução**
-```
-Audiovisual/SEC → Executa → Atualiza Inventário → Notifica
-```
-
-### **4. Finalização**
-```
-Executor → Devolve Itens → Finaliza → Atualiza Inventário
-```
-
-## 📊 Relatórios e Exportação
-
-### **Inventário**
-- ✅ **PDF profissional** com logo da IBVA
-- ✅ **Excel estruturado** com múltiplas abas
-- ✅ **Dados completos** (quantidade, status, local)
-- ✅ **Formatação automática** de colunas
-
-### **Histórico**
-- ✅ **Logs detalhados** por item/evento
-- ✅ **Rastreamento temporal** de alterações
-- ✅ **Usuários responsáveis** por cada ação
-- ✅ **Observações** e motivos
-
-## 🎨 Componentes Principais
-
-### **Button**
-```jsx
-<Button variant="primary" size="sm" loading={true}>
-  Botão Principal
-</Button>
-```
-
-### **Input**
-```jsx
-<Input 
-  label="Nome" 
-  placeholder="Digite seu nome"
-  error="Campo obrigatório"
-  type="select"
-  options={options}
-/>
-```
-
-### **Modal**
-```jsx
-<Modal 
-  open={showModal} 
-  title="Título do Modal"
-  onClose={() => setShowModal(false)}
-  actions={<Button>Confirmar</Button>}
->
-  Conteúdo do modal
-</Modal>
-```
-
-## 📱 Responsividade
-
-O sistema é totalmente responsivo com breakpoints:
-- **Desktop**: > 1024px
-- **Tablet**: 768px - 1024px
-- **Mobile**: < 768px
-
-## 🚨 Alertas e Notificações
-
-### **Alertas de Estoque**
-- ✅ **Estoque baixo** (≤ 2 itens)
-- ✅ **Itens indisponíveis** (quantidade = 0)
-- ✅ **Notificações visuais** no dashboard
-- ✅ **Relatórios automáticos**
-
-### **Notificações do Sistema**
-- ✅ **Toast notifications** para ações
-- ✅ **Mensagens de sucesso/erro**
-- ✅ **Confirmações** para ações críticas
-- ✅ **Feedback em tempo real**
-
-## 🔧 Manutenção e Suporte
-
-### **Logs do Sistema**
-- ✅ **Logs de erro** detalhados
-- ✅ **Logs de acesso** por usuário
-- ✅ **Logs de performance** da API
-- ✅ **Monitoramento** de uploads
-
-### **Backup e Segurança**
-- ✅ **Backup automático** do Supabase
-- ✅ **Arquivos seguros** em uploads/
-- ✅ **Validação de tipos** de arquivo
-- ✅ **Limite de tamanho** (10MB por arquivo)
-
-## 🎯 Funcionalidades Específicas
-
-### **Sistema de Prioridades**
-- ✅ **Prioridade Alta**: Para eventos importantes/urgentes
-- ✅ **Prioridade Média**: Para eventos regulares (padrão)
-- ✅ **Prioridade Baixa**: Para eventos de menor importância
-
-### **Detecção de Conflitos**
-- ✅ **Conflitos de agenda** entre eventos
-- ✅ **Conflitos de local/horário** em requisições
-- ✅ **Alertas em tempo real** durante criação
-- ✅ **Prevenção de duplicatas**
-
-### **Dashboard Personalizado**
-- ✅ **Dashboard Admin**: Para pastores e administradores
-- ✅ **Dashboard Audiovisual**: Para equipe técnica
-- ✅ **Dashboard Padrão**: Para usuários comuns
-- ✅ **Redirecionamento automático** baseado no papel
-
-## 🚀 Deploy
-
-O projeto está configurado para deploy em qualquer plataforma:
-- **Vercel** (Frontend)
-- **Netlify** (Frontend)
-- **Railway** (Backend)
-- **Heroku** (Backend)
-- **Servidor próprio**
-
-## 📞 Suporte
-
-### **Contato**
-- **Email**: suporte@ibva.com
-- **Telefone**: (11) 99999-9999
-- **Documentação**: [Wiki do Projeto]
-
-### **FAQ**
-- **Como resetar senha?** → Contate o administrador
-- **Como adicionar usuário?** → Apenas ADM pode criar usuários
-- **Como exportar dados?** → Use os botões de exportação nas páginas
-- **Como configurar e-mail?** → Configure as variáveis de ambiente
 
 ## 🤝 Contribuição
 
 ### **Como Contribuir**
 1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
 ### **Padrões de Código**
-- ✅ **ESLint** para JavaScript/React
-- ✅ **Prettier** para formatação
-- ✅ **Conventional Commits** para mensagens
-- ✅ **TypeScript** (futuro)
+- Use ESLint para linting
+- Siga as convenções de nomenclatura
+- Documente funções complexas
+- Teste suas mudanças
 
----
+### **Relatórios de Bug**
+- Use o template de issue
+- Inclua passos para reproduzir
+- Adicione screenshots se relevante
+- Especifique ambiente e versões
 
-## 📝 Licença
+## 📄 Licença
 
-Este projeto é desenvolvido para uso interno da Igreja Batista Vida Abundante (IBVA). Todos os direitos reservados.
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 📞 Suporte
+
+Para suporte e dúvidas:
+- Email: suporte@igreja.com
+- Documentação: [Link para documentação]
+- Issues: [GitHub Issues]
 
 ---
 

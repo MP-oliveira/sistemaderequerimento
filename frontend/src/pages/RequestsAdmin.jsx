@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
-import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao, aprovarRequisicao, rejeitarRequisicao } from '../services/requestsService';
+import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao, aprovarRequisicao, rejeitarRequisicao, verificarDisponibilidadeMateriais } from '../services/requestsService';
 import { listarItensInventario } from '../services/inventoryService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
@@ -45,6 +45,16 @@ export default function RequestsAdmin() {
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
   const [notificacaoModal, setNotificacaoModal] = useState({ mensagem: '', tipo: '', mostrar: false });
 
+  // Estados para validação de disponibilidade de materiais
+  const [disponibilidadeInfo, setDisponibilidadeInfo] = useState({
+    temConflito: false,
+    temBaixoEstoque: false,
+    mensagem: '',
+    materiaisIndisponiveis: [],
+    materiaisBaixoEstoque: []
+  });
+  const [validandoDisponibilidade, setValidandoDisponibilidade] = useState(false);
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -56,6 +66,15 @@ export default function RequestsAdmin() {
   useEffect(() => {
     if (showAddModal) {
       carregarInventario();
+    } else {
+      // Limpar informações de disponibilidade quando fechar o modal
+      setDisponibilidadeInfo({
+        temConflito: false,
+        temBaixoEstoque: false,
+        mensagem: '',
+        materiaisIndisponiveis: [],
+        materiaisBaixoEstoque: []
+      });
     }
   }, [showAddModal]);
 
@@ -99,37 +118,95 @@ export default function RequestsAdmin() {
       setInventory(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Erro ao carregar inventário:', error);
-      mostrarNotificacao('Erro ao carregar inventário', 'erro');
     }
   }
 
+  // Função para verificar disponibilidade de materiais em tempo real
+  const verificarDisponibilidadeTempoReal = async (itens) => {
+    if (!itens || itens.length === 0) {
+      setDisponibilidadeInfo({
+        temConflito: false,
+        temBaixoEstoque: false,
+        mensagem: '',
+        materiaisIndisponiveis: [],
+        materiaisBaixoEstoque: []
+      });
+      return;
+    }
+
+    setValidandoDisponibilidade(true);
+    try {
+      const resultado = await verificarDisponibilidadeMateriais(itens);
+
+      setDisponibilidadeInfo({
+        temConflito: resultado.temConflito,
+        temBaixoEstoque: resultado.temBaixoEstoque,
+        mensagem: resultado.message,
+        materiaisIndisponiveis: resultado.materiaisIndisponiveis || [],
+        materiaisBaixoEstoque: resultado.materiaisBaixoEstoque || []
+      });
+    } catch (error) {
+      console.error('Erro ao verificar disponibilidade de materiais:', error);
+      setDisponibilidadeInfo({
+        temConflito: false,
+        temBaixoEstoque: false,
+        mensagem: '',
+        materiaisIndisponiveis: [],
+        materiaisBaixoEstoque: []
+      });
+    } finally {
+      setValidandoDisponibilidade(false);
+    }
+  };
+
   const adicionarItem = (item) => {
-    const itemExistente = selectedItems.find(selected => selected.id === item.id);
+    const itemExistente = selectedItems.find(i => i.id === item.id);
     if (itemExistente) {
-      setSelectedItems(selectedItems.map(selected => 
-        selected.id === item.id 
-          ? { ...selected, quantity: selected.quantity + 1 }
-          : selected
-      ));
+      alterarQuantidade(item.id, itemExistente.quantity + 1);
     } else {
-      setSelectedItems([...selectedItems, { ...item, quantity: 1 }]);
+      const novoItem = {
+        id: item.id,
+        name: item.name,
+        quantity: 1,
+        inventory_id: item.id,
+        item_name: item.name,
+        quantity_requested: 1
+      };
+      const novosItens = [...selectedItems, novoItem];
+      setSelectedItems(novosItens);
+      
+      // Verificar disponibilidade em tempo real
+      verificarDisponibilidadeTempoReal(novosItens);
     }
   };
 
   const removerItem = (itemId) => {
-    setSelectedItems(selectedItems.filter(item => item.id !== itemId));
+    const novosItens = selectedItems.filter(item => item.id !== itemId);
+    setSelectedItems(novosItens);
+    
+    // Verificar disponibilidade em tempo real
+    verificarDisponibilidadeTempoReal(novosItens);
   };
 
   const alterarQuantidade = (itemId, novaQuantidade) => {
     if (novaQuantidade <= 0) {
       removerItem(itemId);
-    } else {
-      setSelectedItems(selectedItems.map(item => 
-        item.id === itemId 
-          ? { ...item, quantity: novaQuantidade }
-          : item
-      ));
+      return;
     }
+    
+    const novosItens = selectedItems.map(item => 
+      item.id === itemId 
+        ? { 
+            ...item, 
+            quantity: novaQuantidade,
+            quantity_requested: novaQuantidade
+          }
+        : item
+    );
+    setSelectedItems(novosItens);
+    
+    // Verificar disponibilidade em tempo real
+    verificarDisponibilidadeTempoReal(novosItens);
   };
 
   function filtrar(requisicoes) {
@@ -713,6 +790,65 @@ export default function RequestsAdmin() {
               </div>
             )}
           </div>
+
+          {/* Validação de Disponibilidade de Materiais */}
+          {(disponibilidadeInfo.temConflito || disponibilidadeInfo.temBaixoEstoque) && (
+            <div className={`conflict-validation-container ${disponibilidadeInfo.temConflito ? 'conflict-error' : 'conflict-warning'}`}>
+              <div className="conflict-header">
+                <span className="conflict-icon">
+                  {disponibilidadeInfo.temConflito ? '❌' : '⚠️'}
+                </span>
+                <span className="conflict-message">
+                  {disponibilidadeInfo.mensagem}
+                </span>
+                {validandoDisponibilidade && (
+                  <span className="loading-spinner">⏳</span>
+                )}
+              </div>
+
+              {/* Materiais Indisponíveis */}
+              {disponibilidadeInfo.materiaisIndisponiveis.length > 0 && (
+                <div className="conflicts-list">
+                  <div className="conflicts-title">
+                    📦 Materiais indisponíveis:
+                  </div>
+                  {disponibilidadeInfo.materiaisIndisponiveis.map((material, index) => (
+                    <div key={index} className="conflict-item">
+                      <span className="conflict-type-icon">📦</span>
+                      <span className="conflict-name">{material.nome}</span>
+                      <span className="conflict-separator">•</span>
+                      <span className="conflict-time">
+                        Disponível: {material.quantidade_disponivel} | 
+                        Solicitado: {material.quantidade_solicitada} | 
+                        Faltam: {material.quantidade_faltante}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Materiais com Baixo Estoque */}
+              {disponibilidadeInfo.materiaisBaixoEstoque.length > 0 && (
+                <div className="conflicts-list">
+                  <div className="conflicts-title">
+                    ⚠️ Materiais com baixo estoque após uso:
+                  </div>
+                  {disponibilidadeInfo.materiaisBaixoEstoque.map((material, index) => (
+                    <div key={index} className="conflict-item">
+                      <span className="conflict-type-icon">⚠️</span>
+                      <span className="conflict-name">{material.nome}</span>
+                      <span className="conflict-separator">•</span>
+                      <span className="conflict-time">
+                        Disponível: {material.quantidade_disponivel} | 
+                        Solicitado: {material.quantidade_solicitada} | 
+                        Restarão: {material.quantidade_restante}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </form>
       </Modal>
 

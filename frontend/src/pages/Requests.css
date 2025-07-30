@@ -686,3 +686,69 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 } 
+
+/* Estilos para validação de disponibilidade de materiais */
+.conflict-validation-container.conflict-error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.conflict-validation-container.conflict-warning {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+}
+
+.conflicts-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.conflict-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.conflict-type-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.conflict-name {
+  font-weight: 500;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+.conflict-separator {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.conflict-time {
+  color: #6b7280;
+  font-size: 0.75rem;
+  flex: 1;
+  text-align: right;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+} 
