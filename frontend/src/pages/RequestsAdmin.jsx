@@ -619,48 +619,55 @@ export default function RequestsAdmin() {
                 border: '1px solid #e5e7eb', 
                 borderRadius: '8px', 
                 padding: '0.75rem',
-                backgroundColor: '#f9fafb'
+                backgroundColor: '#f9fafb',
+                maxHeight: '120px',
+                overflowY: 'auto'
               }}>
-                {selectedItems.map((item) => (
-                  <div key={item.id} style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    padding: '0.5rem 0',
-                    borderBottom: '1px solid #e5e7eb'
-                  }}>
-                    <div>
-                      <span style={{ fontWeight: '500' }}>{item.name}</span>
-                      <span style={{ color: '#6b7280', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-                        Disponível: {item.quantity_available}
-                      </span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  {selectedItems.map((item) => (
+                    <div key={item.id} style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column',
+                      padding: '0.5rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      backgroundColor: '#fff'
+                    }}>
+                      <div style={{ marginBottom: '0.5rem' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>{item.name}</div>
+                        <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+                          Disponível: {item.quantity_available}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <input
+                          type="number"
+                          min="1"
+                          max={item.quantity_available}
+                          value={item.quantity}
+                          onChange={(e) => alterarQuantidade(item.id, parseInt(e.target.value) || 0)}
+                          style={{
+                            width: '50px',
+                            padding: '0.25rem',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            textAlign: 'center',
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          onClick={() => removerItem(item.id)}
+                          style={{ padding: '0.25rem', minWidth: 'auto' }}
+                        >
+                          <FiX size={10} />
+                        </Button>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <input
-                        type="number"
-                        min="1"
-                        max={item.quantity_available}
-                        value={item.quantity}
-                        onChange={(e) => alterarQuantidade(item.id, parseInt(e.target.value) || 0)}
-                        style={{
-                          width: '60px',
-                          padding: '0.25rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '4px',
-                          textAlign: 'center'
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="danger"
-                        size="sm"
-                        onClick={() => removerItem(item.id)}
-                      >
-                        <FiX size={12} />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             ) : (
               <div style={{ 
@@ -689,7 +696,7 @@ export default function RequestsAdmin() {
           </Button>
         }
       >
-        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
           {inventory.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {inventory.map((item) => (

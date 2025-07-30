@@ -25,5 +25,7 @@ export const departamentosOptions = [
   { value: 'Saúde', label: '🏥 Saúde - Líder Dr Cristiano Góes/ Dr Victor Bergsten' },
   { value: 'Audiovisual', label: '📹 Audiovisual - Líder Ulisses Herdy' },
   { value: 'AOC', label: '👶 AOC - Líder Bruna Marnet/ Gabriela Ferreira' },
-  { value: 'Obras', label: '🔨 Obras - Jaime Abreu/ João Oliva' }
+  { value: 'Obras', label: '🔨 Obras - Jaime Abreu/ João Oliva' },
+  { value: 'Somos Um', label: '🤝 Somos Um - Líder Ricardo/ Nathalia Cayres' },
+  { value: 'Kids', label: '👶 Kids - Líder Nikson/ Rosana Carvalho e Eduardo/ Marcela Rebouças' }
 ]; 

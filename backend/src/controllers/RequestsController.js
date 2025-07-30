@@ -156,7 +156,6 @@ export const createRequest = async (req, res) => {
         description,
         date,
         event_name,
-        itens,
         event_id,
         rejection_reason
       }])
