@@ -28,10 +28,21 @@ export default function TodayMaterials() {
   };
 
   const handleToggleSeparated = async (itemId, currentStatus) => {
+    console.log('🔍 [TodayMaterials] handleToggleSeparated chamado');
+    console.log('   Item ID:', itemId);
+    console.log('   Status atual:', currentStatus);
+    console.log('   Novo status:', !currentStatus);
+    
     try {
+      console.log('🔍 [TodayMaterials] Chamando API...');
       await marcarItemComoSeparado(itemId, !currentStatus);
+      console.log('✅ [TodayMaterials] API chamada com sucesso');
+      console.log('🔍 [TodayMaterials] Recarregando materiais...');
       await carregarMateriais();
-    } catch (err) {}
+      console.log('✅ [TodayMaterials] Materiais recarregados');
+    } catch (err) {
+      console.error('❌ [TodayMaterials] Erro ao marcar item como separado:', err);
+    }
   };
 
   const formatTime = (dateString) => {
@@ -188,7 +199,11 @@ export default function TodayMaterials() {
                     </div>
                     <button
                       className={`separate-btn ${item.is_separated ? 'separated' : ''}`}
-                      onClick={() => handleToggleSeparated(item.id, item.is_separated)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('🔍 [TodayMaterials] Botão clicado para item:', item.id);
+                        handleToggleSeparated(item.id, item.is_separated);
+                      }}
                       title={item.is_separated ? 'Desmarcar como separado' : 'Marcar como separado'}
                     >
                       {item.is_separated ? <FiCheck size={16} /> : <FiX size={16} />}

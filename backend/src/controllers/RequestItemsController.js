@@ -62,19 +62,30 @@ const markItemAsSeparated = async (req, res) => {
     const { id } = req.params;
     const { is_separated } = req.body;
     
+    console.log('🔍 [markItemAsSeparated] Iniciando...');
+    console.log('   Item ID:', id);
+    console.log('   is_separated:', is_separated);
+    console.log('   User:', req.user);
+    console.log('   User role:', req.user?.role);
+    
     // Verificar se o usuário é AUDIOVISUAL
     if (req.user.role !== 'AUDIOVISUAL') {
+      console.log('❌ [markItemAsSeparated] Usuário não é AUDIOVISUAL:', req.user.role);
       return res.status(403).json({ 
         success: false, 
         message: 'Apenas audiovisual pode marcar itens como separados.' 
       });
     }
     
+    console.log('✅ [markItemAsSeparated] Usuário autorizado');
+    
     const updateData = {
       is_separated: is_separated,
       separated_by: is_separated ? req.user.userId : null,
       separated_at: is_separated ? new Date().toISOString() : null
     };
+    
+    console.log('🔍 [markItemAsSeparated] Dados para atualização:', updateData);
     
     const { data: item, error } = await supabase
       .from('request_items')
@@ -84,6 +95,7 @@ const markItemAsSeparated = async (req, res) => {
       .single();
       
     if (error || !item) {
+      console.error('❌ [markItemAsSeparated] Erro ao atualizar item:', error);
       return res.status(400).json({ 
         success: false, 
         message: 'Erro ao atualizar item.', 
@@ -91,12 +103,15 @@ const markItemAsSeparated = async (req, res) => {
       });
     }
     
+    console.log('✅ [markItemAsSeparated] Item atualizado com sucesso:', item);
+    
     res.json({ 
       success: true, 
       message: is_separated ? 'Item marcado como separado!' : 'Item desmarcado como separado!',
       data: item 
     });
   } catch (error) {
+    console.error('❌ [markItemAsSeparated] Erro interno:', error);
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
 };
