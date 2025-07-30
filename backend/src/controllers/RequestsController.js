@@ -248,7 +248,8 @@ export const listRequests = async (req, res) => {
         )
       `);
     
-    if (req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC') {
+    // Usuários AUDIOVISUAL podem ver todas as requisições (especialmente as aprovadas)
+    if (req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC' && req.user.role !== 'AUDIOVISUAL') {
       query = query.or(`requester_id.eq.${req.user.userId},approved_by.eq.${req.user.userId},executed_by.eq.${req.user.userId}`);
     }
     

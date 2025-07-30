@@ -117,7 +117,7 @@ export default function Requests() {
           ? { ...item, quantity: novaQuantidade }
           : item
       ));
-    }
+  }
   };
 
   async function buscarRequisicoes() {
@@ -262,7 +262,7 @@ export default function Requests() {
     } else if (user && user.role === 'AUDIOVISUAL') {
       navigate('/audiovisual/dashboard');
     } else {
-      navigate('/dashboard');
+    navigate('/dashboard');
     }
   };
 
@@ -587,11 +587,11 @@ export default function Requests() {
             </div>
             <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
-                <Input
-                  label="Público Esperado"
-                  type="number"
-                  value={editReq.expected_audience || ''}
-                  onChange={e => handleEditField('expected_audience', e.target.value)}
+            <Input
+              label="Público Esperado"
+              type="number"
+              value={editReq.expected_audience || ''}
+              onChange={e => handleEditField('expected_audience', e.target.value)}
                 />
               </div>
               <div style={{ flex: 1 }}>

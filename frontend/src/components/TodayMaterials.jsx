@@ -20,6 +20,7 @@ export default function TodayMaterials() {
       const data = await listarItensDoDia();
       setMaterials(data || []);
     } catch (err) {
+      console.error('❌ [TodayMaterials] Erro ao carregar materiais:', err);
       setMaterials([]);
     }
     setLoading(false);

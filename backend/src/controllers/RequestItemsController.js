@@ -107,7 +107,36 @@ const getTodayItems = async (req, res) => {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+    
+    console.log('🔍 [getTodayItems] Buscando itens para:', startOfDay.toISOString(), 'até', endOfDay.toISOString());
 
+    // Primeiro, buscar requisições aprovadas para hoje
+    const { data: todayRequests, error: requestsError } = await supabase
+      .from('requests')
+      .select('id, event_name, start_datetime, end_datetime, location, expected_audience, status, date, department, description')
+      .eq('status', 'APTO')
+      .or(`start_datetime.gte.${startOfDay.toISOString()},start_datetime.lte.${endOfDay.toISOString()},date.eq.${today.toISOString().split('T')[0]}`);
+
+    if (requestsError) {
+      console.error('❌ Erro ao buscar requisições de hoje:', requestsError);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+
+    console.log('🔍 [getTodayItems] Requisições de hoje encontradas:', todayRequests?.length || 0);
+
+    if (!todayRequests || todayRequests.length === 0) {
+      return res.json({ 
+        success: true, 
+        data: [] 
+      });
+    }
+
+    // Buscar itens dessas requisições
+    const requestIds = todayRequests.map(req => req.id);
+    
     const { data, error } = await supabase
       .from('request_items')
       .select(`
@@ -129,27 +158,31 @@ const getTodayItems = async (req, res) => {
           start_datetime,
           end_datetime,
           location,
-          expected_audience
+          expected_audience,
+          status,
+          date,
+          department,
+          description
         )
       `)
-      .gte('requests.start_datetime', startOfDay.toISOString())
-      .lte('requests.start_datetime', endOfDay.toISOString())
-      .eq('requests.status', 'APTO');
+      .in('request_id', requestIds);
 
     if (error) {
-      console.error('Erro ao buscar itens do dia:', error);
+      console.error('❌ Erro ao buscar itens do dia:', error);
       return res.status(500).json({ 
         success: false, 
         message: 'Erro interno do servidor' 
       });
     }
 
+    console.log('🔍 [getTodayItems] Itens encontrados:', data?.length || 0);
+
     res.json({ 
       success: true, 
       data: data || [] 
     });
   } catch (error) {
-    console.error('Erro ao buscar itens do dia:', error);
+    console.error('❌ Erro ao buscar itens do dia:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Erro interno do servidor' 
@@ -201,6 +234,34 @@ const updateRequestItem = async (req, res) => {
 
 const getExecutedItems = async (req, res) => {
   try {
+    console.log('🔍 [getExecutedItems] Buscando itens executados...');
+    
+    // Primeiro, buscar requisições aprovadas
+    const { data: approvedRequests, error: requestsError } = await supabase
+      .from('requests')
+      .select('id')
+      .in('status', ['APTO', 'PREENCHIDO']);
+    
+    if (requestsError) {
+      console.error('❌ Erro ao buscar requisições:', requestsError);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+    
+    console.log('🔍 [getExecutedItems] Requisições aprovadas encontradas:', approvedRequests?.length || 0);
+    
+    if (!approvedRequests || approvedRequests.length === 0) {
+      return res.json({ 
+        success: true, 
+        data: [] 
+      });
+    }
+    
+    // Buscar itens dessas requisições
+    const requestIds = approvedRequests.map(req => req.id);
+    
     const { data, error } = await supabase
       .from('request_items')
       .select(`
@@ -210,6 +271,12 @@ const getExecutedItems = async (req, res) => {
         item_name,
         quantity_requested,
         description,
+        is_separated,
+        separated_by,
+        separated_at,
+        is_returned,
+        returned_by,
+        returned_at,
         inventory (
           name,
           description
@@ -217,39 +284,29 @@ const getExecutedItems = async (req, res) => {
         requests (
           event_name,
           start_datetime,
-          end_datetime
+          end_datetime,
+          status,
+          department
         )
-      `);
+      `)
+      .in('request_id', requestIds);
 
     if (error) {
-      console.error('Erro ao buscar itens executados:', error);
+      console.error('❌ Erro ao buscar itens executados:', error);
       return res.status(500).json({ 
         success: false, 
         message: 'Erro interno do servidor' 
       });
     }
 
-    const items = data.map(item => ({
-      id: item.id,
-      request_id: item.request_id,
-      inventory_id: item.inventory_id,
-      item_name: item.item_name,
-      quantity_requested: item.quantity_requested,
-      description: item.description,
-      inventory_item_name: item.inventory?.name,
-      inventory_item_description: item.inventory?.description,
-      request_title: item.requests?.event_name,
-      request_event_name: item.requests?.event_name,
-      request_start_time: item.requests?.start_datetime,
-      request_end_time: item.requests?.end_datetime
-    }));
+    console.log('🔍 [getExecutedItems] Itens encontrados:', data?.length || 0);
 
     res.json({ 
       success: true, 
-      data: items 
+      data: data || [] 
     });
   } catch (error) {
-    console.error('Erro ao buscar itens executados:', error);
+    console.error('❌ Erro ao buscar itens executados:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Erro interno do servidor' 

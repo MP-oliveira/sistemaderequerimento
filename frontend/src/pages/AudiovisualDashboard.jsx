@@ -45,7 +45,21 @@ export default function AudiovisualDashboard() {
         const requisicoesData = await listarRequisicoes();
         setRequisicoes(requisicoesData || []);
         
+        console.log('🎯 [AudiovisualDashboard] Requisições carregadas:', requisicoesData?.length || 0);
+        console.log('🎯 [AudiovisualDashboard] Requisições:', requisicoesData);
+        
+        // Procurar pela requisição Kids
+        const kidsRequest = requisicoesData?.find(req => req.event_name === 'Vigilia Kids');
+        if (kidsRequest) {
+          console.log('✅ [AudiovisualDashboard] Requisição Kids encontrada:', kidsRequest);
+        } else {
+          console.log('❌ [AudiovisualDashboard] Requisição Kids NÃO encontrada');
+        }
+        
         const reqsParaAgenda = (requisicoesData || []).filter(req => ['APTO', 'EXECUTADO', 'FINALIZADO'].includes(req.status));
+        
+        console.log('🎯 [AudiovisualDashboard] Requisições para agenda:', reqsParaAgenda.length);
+        
         const eventosReqs = reqsParaAgenda.map(req => ({
           id: req.id,
           title: req.event_name || req.description || 'Requisição',
@@ -65,8 +79,10 @@ export default function AudiovisualDashboard() {
           type: 'evento',
         }));
         setEvents([...eventosFormatados, ...eventosReqs]);
+        
+        console.log('🎯 [AudiovisualDashboard] Total de eventos:', [...eventosFormatados, ...eventosReqs].length);
       } catch (err) {
-        console.error('Erro ao carregar eventos:', err);
+        console.error('❌ [AudiovisualDashboard] Erro ao carregar eventos:', err);
         setEvents([]);
       }
       setLoading(false);
@@ -208,6 +224,28 @@ export default function AudiovisualDashboard() {
   const requisicoesExecutadas = requisicoes.filter(req => req.status === 'EXECUTADO');
   const requisicoesFinalizadas = requisicoes.filter(req => req.status === 'FINALIZADO');
 
+  // Debug logs
+  console.log('🎯 [AudiovisualDashboard] Total de requisições:', requisicoes.length);
+  console.log('🎯 [AudiovisualDashboard] Requisições aprovadas:', requisicoesAprovadas.length);
+  console.log('🎯 [AudiovisualDashboard] Requisições aprovadas:', requisicoesAprovadas);
+  
+  // Verificar se a requisição Kids está nas aprovadas
+  const kidsRequestAprovada = requisicoesAprovadas.find(req => req.event_name === 'Vigilia Kids');
+  if (kidsRequestAprovada) {
+    console.log('✅ [AudiovisualDashboard] Requisição Kids está nas aprovadas:', kidsRequestAprovada);
+  } else {
+    console.log('❌ [AudiovisualDashboard] Requisição Kids NÃO está nas aprovadas');
+    // Verificar por que não está
+    const kidsRequest = requisicoes.find(req => req.event_name === 'Vigilia Kids');
+    if (kidsRequest) {
+      console.log('🔍 [AudiovisualDashboard] Requisição Kids encontrada mas não aprovada:', kidsRequest);
+      console.log('   Status:', kidsRequest.status);
+      console.log('   Tem start_datetime?', !!kidsRequest.start_datetime);
+      console.log('   Tem event_name?', !!kidsRequest.event_name);
+      console.log('   Tem location?', !!kidsRequest.location);
+    }
+  }
+
   return (
     <div className="dashboard-container audiovisual-dashboard">
       {/* Notificação */}
@@ -282,6 +320,67 @@ export default function AudiovisualDashboard() {
 
       {/* Materiais Audiovisual */}
       <ReturnMaterials />
+
+      {/* Requisições Aprovadas para Preparação */}
+      {requisicoesAprovadas.length > 0 && (
+        <div className="card">
+          <h3 className="section-title">
+            <FiCheck style={{marginRight: 8}} />
+            Requisições Aprovadas para Preparação
+          </h3>
+          <div className="requests-grid">
+            {requisicoesAprovadas.map((requisicao) => (
+              <div key={requisicao.id} className="request-card">
+                <div className="request-header">
+                  <h4>{requisicao.event_name || requisicao.description || 'Evento'}</h4>
+                  <span className="status-badge apto">APTO</span>
+                </div>
+                
+                <div className="request-details">
+                  <div className="detail-item">
+                    <FiUsers size={14} />
+                    <span>{requisicao.department}</span>
+                  </div>
+                  <div className="detail-item">
+                    <FiClock size={14} />
+                    <span>
+                      {requisicao.start_datetime && requisicao.end_datetime 
+                        ? `${formatTimeUTC(requisicao.start_datetime)} - ${formatTimeUTC(requisicao.end_datetime)}`
+                        : 'Horário não definido'
+                      }
+                    </span>
+                  </div>
+                  {requisicao.location && (
+                    <div className="detail-item">
+                      <FiMapPin size={14} />
+                      <span>{requisicao.location}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="request-actions">
+                  <Button
+                    onClick={() => marcarComoExecutada(requisicao.id)}
+                    variant="primary"
+                    size="sm"
+                  >
+                    <FiCheck size={16} />
+                    Marcar como Executada
+                  </Button>
+                  <Button
+                    onClick={() => openChecklist(requisicao)}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    <FiEye size={16} />
+                    Ver Checklist
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Calendário */}
       <div className="card calendar-card">

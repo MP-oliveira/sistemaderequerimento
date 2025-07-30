@@ -33,7 +33,7 @@ export async function listarItensRequisicao(requestId) {
 // Listar itens do dia para audiovisual
 export async function listarItensDoDia() {
   try {
-    const response = await fetch(`${API_URL}/api/request-items/today/items`, {
+    const response = await fetch(`${API_URL}/api/request-items/today`, {
       headers: getAuthHeaders()
     });
     if (!response.ok) {
