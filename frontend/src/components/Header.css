@@ -87,41 +87,100 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
+/* Responsivo - iPad Pro */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-header {
+    padding: 0 20px;
+    height: 60px;
+  }
+
+  .header-title {
+    font-size: 1.4rem;
+  }
+  
+  .header-logo {
+    height: 32px;
+  }
+  
+  .header-user-name {
+    font-size: 0.9rem;
+  }
+  
+  .header-login-btn,
+  .header-logout-btn {
+    padding: 4px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Responsivo - Tablet (iPad) */
+@media (min-width: 481px) and (max-width: 768px) {
   .main-header {
     padding: 0 16px;
+    height: 56px;
   }
 
   .header-title {
     font-size: 1.2rem;
   }
   
-  .header-user-name {
-    display: none;
-  }
-  
   .header-logo {
     height: 28px;
   }
   
+  .header-user-name {
+    font-size: 0.85rem;
+  }
+  
   .header-right {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
+    gap: 12px;
+  }
+  
+  .header-login-btn,
+  .header-logout-btn {
+    padding: 4px 10px;
+    font-size: 0.85rem;
   }
 }
 
+/* Responsivo - Mobile (iPhone 16, iPhone 16 Pro Max) */
 @media (max-width: 480px) {
   .main-header {
     padding: 0 12px;
+    height: 52px;
   }
 
   .header-title {
     font-size: 1rem;
+    letter-spacing: 0.3px;
   }
-
+  
   .header-logo {
     height: 24px;
+  }
+  
+  .header-user-name {
+    font-size: 0.8rem;
+    display: none; /* Oculta em mobile para economizar espaço */
+  }
+  
+  .header-right {
+    gap: 8px;
+  }
+  
+  .header-login-btn,
+  .header-logout-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+  
+  .header-center {
+    flex: 1;
+    margin: 0 8px;
+  }
+  
+  .header-left {
+    flex: 0 0 auto;
   }
 }

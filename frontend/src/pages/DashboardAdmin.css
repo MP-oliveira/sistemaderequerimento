@@ -739,3 +739,168 @@
     grid-template-columns: 1fr;
   }
 } 
+
+/* Responsivo - iPad Pro */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dashboard-admin {
+    padding: 20px 0 32px 0;
+    gap: 24px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .dashboard-header p {
+    font-size: 1rem;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .admin-stat-card {
+    padding: 20px;
+    min-height: 85px;
+  }
+
+  .admin-stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .admin-stat-content h3 {
+    font-size: 1.3rem;
+  }
+
+  .admin-stat-content p {
+    font-size: 0.85rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+}
+
+/* Responsivo - Tablet (iPad) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .dashboard-admin {
+    padding: 16px 0 24px 0;
+    gap: 20px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.95rem;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .admin-stat-card {
+    padding: 16px;
+    min-height: 80px;
+  }
+
+  .admin-stat-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .admin-stat-content h3 {
+    font-size: 1.2rem;
+  }
+
+  .admin-stat-content p {
+    font-size: 0.8rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+  }
+
+  .action-btn {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Responsivo - Mobile (iPhone 16, iPhone 16 Pro Max) */
+@media (max-width: 480px) {
+  .dashboard-admin {
+    padding: 12px 0 20px 0;
+    gap: 16px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.9rem;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .admin-stat-card {
+    padding: 14px;
+    min-height: 70px;
+  }
+
+  .admin-stat-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .admin-stat-content h3 {
+    font-size: 1.1rem;
+  }
+
+  .admin-stat-content p {
+    font-size: 0.75rem;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .action-btn {
+    padding: 14px 16px;
+    font-size: 0.85rem;
+    justify-content: center;
+  }
+
+  .request-item {
+    padding: 12px;
+  }
+
+  .request-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .request-item-actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .approve-button,
+  .reject-button {
+    width: 100%;
+    justify-content: center;
+  }
+} 

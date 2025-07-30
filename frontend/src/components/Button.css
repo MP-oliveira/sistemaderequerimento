@@ -116,3 +116,86 @@
   background: none;
   box-shadow: none;
 } 
+
+/* Responsivo - iPad Pro */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .btn {
+    padding: 10px 24px;
+    font-size: 0.95rem;
+  }
+  
+  .btn-md {
+    font-size: 0.95rem;
+    padding: 10px 24px;
+  }
+  
+  .btn-sm {
+    font-size: 0.85rem;
+    padding: 7px 16px;
+  }
+  
+  .btn-lg {
+    font-size: 1rem;
+    padding: 14px 32px;
+  }
+}
+
+/* Responsivo - Tablet (iPad) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .btn {
+    padding: 9px 20px;
+    font-size: 0.9rem;
+  }
+  
+  .btn-md {
+    font-size: 0.9rem;
+    padding: 9px 20px;
+  }
+  
+  .btn-sm {
+    font-size: 0.8rem;
+    padding: 6px 14px;
+  }
+  
+  .btn-lg {
+    font-size: 0.95rem;
+    padding: 12px 28px;
+  }
+}
+
+/* Responsivo - Mobile (iPhone 16, iPhone 16 Pro Max) */
+@media (max-width: 480px) {
+  .btn {
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    margin: 0 2px;
+  }
+  
+  .btn-md {
+    font-size: 0.85rem;
+    padding: 12px 20px;
+  }
+  
+  .btn-sm {
+    font-size: 0.75rem;
+    padding: 8px 12px;
+  }
+  
+  .btn-lg {
+    font-size: 0.9rem;
+    padding: 14px 24px;
+  }
+  
+  /* Botões em coluna para mobile */
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn-group .btn {
+    width: 100%;
+    justify-content: center;
+  }
+} 

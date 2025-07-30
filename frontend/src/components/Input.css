@@ -79,3 +79,104 @@ input[type="time"].input-field {
   height: 36px;
   padding: 8px 12px;
 } 
+
+/* Responsivo - iPad Pro */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .input-group {
+    margin-bottom: 10px;
+  }
+  
+  .input-label {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+  
+  .input-field {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    height: 40px;
+  }
+  
+  textarea.input-field {
+    height: 60px;
+    min-height: 60px;
+  }
+  
+  input[type="date"].input-field,
+  input[type="datetime-local"].input-field,
+  input[type="time"].input-field {
+    height: 40px;
+    padding: 10px 14px;
+  }
+}
+
+/* Responsivo - Tablet (iPad) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .input-group {
+    margin-bottom: 8px;
+  }
+  
+  .input-label {
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+  }
+  
+  .input-field {
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    height: 38px;
+  }
+  
+  textarea.input-field {
+    height: 55px;
+    min-height: 55px;
+  }
+  
+  input[type="date"].input-field,
+  input[type="datetime-local"].input-field,
+  input[type="time"].input-field {
+    height: 38px;
+    padding: 9px 12px;
+  }
+}
+
+/* Responsivo - Mobile (iPhone 16, iPhone 16 Pro Max) */
+@media (max-width: 480px) {
+  .input-group {
+    margin-bottom: 12px;
+  }
+  
+  .input-label {
+    font-size: 0.75rem;
+    margin-bottom: 6px;
+  }
+  
+  .input-field {
+    padding: 12px 14px;
+    font-size: 16px; /* Evita zoom no iOS */
+    height: 44px;
+    border-radius: 6px;
+  }
+  
+  textarea.input-field {
+    height: 80px;
+    min-height: 80px;
+  }
+  
+  input[type="date"].input-field,
+  input[type="datetime-local"].input-field,
+  input[type="time"].input-field {
+    height: 44px;
+    padding: 12px 14px;
+  }
+  
+  .input-error-message {
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  
+  /* Melhorar usabilidade em mobile */
+  .input-field:focus {
+    box-shadow: 0 0 0 3px #2d8cff22;
+  }
+} 

@@ -189,3 +189,118 @@
     margin-left: 0;
   }
 } 
+
+/* Responsivo - iPad Pro */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .audiovisual-dashboard {
+    padding: 1.5rem 2rem;
+    gap: 1.5rem;
+  }
+
+  .audiovisual-dashboard .dashboard-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .audiovisual-dashboard .dashboard-header p {
+    font-size: 1rem;
+  }
+
+  .audiovisual-dashboard .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+  }
+
+  .audiovisual-dashboard .quick-actions,
+  .audiovisual-dashboard .return-materials,
+  .audiovisual-dashboard .calendar-card {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  .audiovisual-dashboard .quick-actions .actions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+/* Responsivo - Tablet (iPad) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .audiovisual-dashboard {
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+  }
+
+  .audiovisual-dashboard .dashboard-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .audiovisual-dashboard .dashboard-header p {
+    font-size: 0.95rem;
+  }
+
+  .audiovisual-dashboard .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .audiovisual-dashboard .quick-actions,
+  .audiovisual-dashboard .return-materials,
+  .audiovisual-dashboard .calendar-card {
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  .audiovisual-dashboard .quick-actions .actions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .audiovisual-dashboard .quick-actions .action-btn {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Responsivo - Mobile (iPhone 16, iPhone 16 Pro Max) */
+@media (max-width: 480px) {
+  .audiovisual-dashboard {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .audiovisual-dashboard .dashboard-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .audiovisual-dashboard .dashboard-header p {
+    font-size: 0.9rem;
+  }
+
+  .audiovisual-dashboard .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .audiovisual-dashboard .quick-actions,
+  .audiovisual-dashboard .return-materials,
+  .audiovisual-dashboard .calendar-card {
+    padding: 0.75rem;
+    max-width: 100%;
+  }
+
+  .audiovisual-dashboard .quick-actions .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .audiovisual-dashboard .quick-actions .action-btn {
+    padding: 1rem;
+    font-size: 0.85rem;
+    justify-content: center;
+  }
+
+  .audiovisual-dashboard .quick-actions .section-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+} 

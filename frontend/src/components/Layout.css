@@ -1,15 +1,34 @@
 .main-content {
   margin-left: 0;
-  margin-top: 56px;
+  margin-top: 64px; /* Altura do header */
   padding: 0;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - 64px);
   background: #f5f6fa;
   transition: margin-left 0.2s;
 }
 
-@media (max-width: 900px) {
+/* Responsivo - iPad Pro */
+@media (min-width: 769px) and (max-width: 1024px) {
   .main-content {
-    margin-left: 0;
+    margin-top: 60px;
+    min-height: calc(100vh - 60px);
+  }
+}
+
+/* Responsivo - Tablet (iPad) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .main-content {
+    margin-top: 56px;
+    min-height: calc(100vh - 56px);
+    padding: 0;
+  }
+}
+
+/* Responsivo - Mobile (iPhone 16, iPhone 16 Pro Max) */
+@media (max-width: 480px) {
+  .main-content {
+    margin-top: 52px;
+    min-height: calc(100vh - 52px);
     padding: 0;
   }
 } 
