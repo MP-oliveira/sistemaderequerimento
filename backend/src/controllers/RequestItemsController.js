@@ -104,18 +104,19 @@ const markItemAsSeparated = async (req, res) => {
 // Buscar itens do dia para audiovisual
 const getTodayItems = async (req, res) => {
   try {
+    // Usar fuso horário local (Brasília)
     const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+    const todayLocal = new Date(today.getTime() - (today.getTimezoneOffset() * 60000));
+    const todayStr = todayLocal.toISOString().split('T')[0];
     
-    console.log('🔍 [getTodayItems] Buscando itens para:', startOfDay.toISOString(), 'até', endOfDay.toISOString());
+    console.log('🔍 [getTodayItems] Buscando itens para hoje (local):', todayStr);
 
-    // Primeiro, buscar requisições aprovadas para hoje
+    // Buscar requisições aprovadas para hoje (apenas pela data)
     const { data: todayRequests, error: requestsError } = await supabase
       .from('requests')
       .select('id, event_name, start_datetime, end_datetime, location, expected_audience, status, date, department, description')
       .eq('status', 'APTO')
-      .or(`start_datetime.gte.${startOfDay.toISOString()},start_datetime.lte.${endOfDay.toISOString()},date.eq.${today.toISOString().split('T')[0]}`);
+      .eq('date', todayStr);
 
     if (requestsError) {
       console.error('❌ Erro ao buscar requisições de hoje:', requestsError);
