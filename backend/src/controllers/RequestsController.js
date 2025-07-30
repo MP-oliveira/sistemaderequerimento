@@ -39,6 +39,156 @@ const upload = multer({
   }
 });
 
+// Verificar conflitos de horário sem criar requisição
+export const checkConflicts = async (req, res) => {
+  try {
+    const {
+      location = '',
+      start_datetime = '',
+      end_datetime = '',
+    } = req.body;
+
+    if (!location || !start_datetime || !end_datetime) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Local, data de início e data de término são obrigatórios para verificar conflitos.' 
+      });
+    }
+
+    // Buscar eventos existentes para o mesmo local
+    const { data: eventosConflitantes } = await supabase
+      .from('events')
+      .select('id, name, location, start_datetime, end_datetime')
+      .eq('location', location);
+
+    // Buscar requisições já aprovadas para o mesmo local
+    const { data: reqsConflitantes } = await supabase
+      .from('requests')
+      .select('id, location, start_datetime, end_datetime, status, event_name')
+      .eq('location', location)
+      .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO']);
+
+    function parseUTC(dateStr) {
+      if (!dateStr) return NaN;
+      if (dateStr.endsWith('Z') || dateStr.includes('+')) return Date.parse(dateStr);
+      return Date.parse(dateStr + '+00:00');
+    }
+
+    const startA = parseUTC(start_datetime);
+    const endA = parseUTC(end_datetime);
+    const intervaloMinimoMs = 15 * 60 * 1000; // 15 minutos em ms
+
+    const conflitos = [];
+
+    // Verificar conflitos com eventos
+    (eventosConflitantes || []).forEach(ev => {
+      const startB = parseUTC(ev.start_datetime);
+      const endB = parseUTC(ev.end_datetime);
+      if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return;
+
+      // Verificar sobreposição direta
+      if (startA < endB && endA > startB) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime,
+          fim: ev.end_datetime,
+          conflito: 'SOBREPOSIÇÃO_DIRETA'
+        });
+      }
+      
+      // Verificar intervalo mínimo
+      if (startA >= endB && (startA - endB) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime,
+          fim: ev.end_datetime,
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startA - endB) / 60000) // minutos
+        });
+      }
+      if (endA <= startB && (startB - endA) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime,
+          fim: ev.end_datetime,
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startB - endA) / 60000) // minutos
+        });
+      }
+    });
+
+    // Verificar conflitos com requisições
+    (reqsConflitantes || []).forEach(req => {
+      const startB = parseUTC(req.start_datetime);
+      const endB = parseUTC(req.end_datetime);
+      if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return;
+
+      // Verificar sobreposição direta
+      if (startA < endB && endA > startB) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime,
+          fim: req.end_datetime,
+          status: req.status,
+          conflito: 'SOBREPOSIÇÃO_DIRETA'
+        });
+      }
+      
+      // Verificar intervalo mínimo
+      if (startA >= endB && (startA - endB) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime,
+          fim: req.end_datetime,
+          status: req.status,
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startA - endB) / 60000) // minutos
+        });
+      }
+      if (endA <= startB && (startB - endA) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime,
+          fim: req.end_datetime,
+          status: req.status,
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startB - endA) / 60000) // minutos
+        });
+      }
+    });
+
+    const temConflitoDireto = conflitos.some(c => c.conflito === 'SOBREPOSIÇÃO_DIRETA');
+    const temConflitoIntervalo = conflitos.some(c => c.conflito === 'INTERVALO_INSUFICIENTE');
+
+    return res.status(200).json({
+      success: true,
+      temConflito: conflitos.length > 0,
+      temConflitoDireto,
+      temConflitoIntervalo,
+      conflitos,
+      message: temConflitoDireto 
+        ? 'Existe conflito direto de horário. Não é possível criar esta requisição.'
+        : temConflitoIntervalo 
+        ? 'Existe conflito de intervalo. A requisição será marcada como pendente de conflito.'
+        : 'Nenhum conflito encontrado.'
+    });
+
+  } catch (error) {
+    console.error('❌ Erro ao verificar conflitos:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor ao verificar conflitos', 
+      error: error.message 
+    });
+  }
+};
+
 // Criar uma nova requisição
 export const createRequest = async (req, res) => {
   try {
@@ -81,12 +231,12 @@ export const createRequest = async (req, res) => {
         .select('id, name, location, start_datetime, end_datetime')
         .eq('location', location);
 
-      // Buscar requisições já aprovadas para o mesmo local
+      // Buscar requisições já aprovadas para o mesmo local (apenas APTO, EXECUTADO, FINALIZADO)
       const { data: reqsConflitantes } = await supabase
         .from('requests')
         .select('id, location, start_datetime, end_datetime, status')
         .eq('location', location)
-        .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO', 'PENDENTE', 'PENDENTE_CONFLITO']);
+        .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO']);
 
       function parseUTC(dateStr) {
         if (!dateStr) return NaN;
@@ -104,27 +254,53 @@ export const createRequest = async (req, res) => {
         const endB = parseUTC(ev.end_datetime);
         if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
 
-        // Não pode começar menos de 15min depois do fim do evento anterior
-        if (startA < endB && endA > startB) return true; // sobreposição direta
+        // Verificar sobreposição direta
+        if (startA < endB && endA > startB) return true;
+        
+        // Verificar intervalo mínimo de 15 minutos
         if (startA >= endB && (startA - endB) < intervaloMinimoMs) return true;
         if (endA <= startB && (startB - endA) < intervaloMinimoMs) return true;
         return false;
       });
 
       // Checar requisições
-      const conflitoReq = (reqsConflitantes || []).find(ev => {
-        const startB = parseUTC(ev.start_datetime);
-        const endB = parseUTC(ev.end_datetime);
+      const conflitoReq = (reqsConflitantes || []).find(req => {
+        const startB = parseUTC(req.start_datetime);
+        const endB = parseUTC(req.end_datetime);
         if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
 
-        // Não pode começar menos de 15min depois do fim da requisição anterior
-        if (startA < endB && endA > startB) return true; // sobreposição direta
+        // Verificar sobreposição direta
+        if (startA < endB && endA > startB) return true;
+        
+        // Verificar intervalo mínimo de 15 minutos
         if (startA >= endB && (startA - endB) < intervaloMinimoMs) return true;
         if (endA <= startB && (startB - endA) < intervaloMinimoMs) return true;
         return false;
       });
 
       if (conflitoEvento || conflitoReq) {
+        // Se há conflito direto (sobreposição), impedir a criação
+        const conflitoDireto = (eventosConflitantes || []).find(ev => {
+          const startB = parseUTC(ev.start_datetime);
+          const endB = parseUTC(ev.end_datetime);
+          if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
+          return startA < endB && endA > startB;
+        }) || (reqsConflitantes || []).find(req => {
+          const startB = parseUTC(req.start_datetime);
+          const endB = parseUTC(req.end_datetime);
+          if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return false;
+          return startA < endB && endA > startB;
+        });
+
+        if (conflitoDireto) {
+          return res.status(400).json({ 
+            success: false, 
+            message: 'Não é possível criar esta requisição. Existe conflito de horário com uma requisição/evento já aprovado para este local.',
+            conflito: true
+          });
+        }
+
+        // Se há apenas conflito de intervalo (menos de 15 min), marcar como PENDENTE_CONFLITO
         status = 'PENDENTE_CONFLITO';
         conflitoDetectado = true;
       }

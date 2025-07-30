@@ -5,7 +5,18 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
-import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao } from '../services/requestsService';
+import { 
+  criarRequisicao, 
+  listarRequisicoes, 
+  aprovarRequisicao, 
+  rejeitarRequisicao, 
+  executarRequisicao, 
+  finalizarRequisicao, 
+  deletarRequisicao, 
+  atualizarRequisicao, 
+  getRequisicaoDetalhada,
+  verificarConflitos
+} from '../services/requestsService.js';
 import { listarItensInventario } from '../services/inventoryService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
@@ -165,6 +176,39 @@ export default function Requests() {
         dataToSend.end_datetime = `${formData.date}T${formData.end_datetime}`;
       }
       
+      // Verificar conflitos antes de criar a requisição
+      if (formData.location && dataToSend.start_datetime && dataToSend.end_datetime) {
+        try {
+          const conflitoResult = await verificarConflitos({
+            location: formData.location,
+            start_datetime: dataToSend.start_datetime,
+            end_datetime: dataToSend.end_datetime
+          });
+          
+          if (conflitoResult.temConflitoDireto) {
+            mostrarNotificacao(conflitoResult.message, 'erro');
+            setLoading(false);
+            return;
+          }
+          
+          if (conflitoResult.temConflitoIntervalo) {
+            const confirmar = window.confirm(
+              `${conflitoResult.message}\n\nConflitos encontrados:\n${conflitoResult.conflitos.map(c => 
+                `- ${c.tipo}: ${c.nome} (${c.inicio} - ${c.fim})`
+              ).join('\n')}\n\nDeseja continuar mesmo assim?`
+            );
+            
+            if (!confirmar) {
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Erro ao verificar conflitos:', error);
+          // Continuar mesmo se a verificação falhar
+        }
+      }
+      
       // Adicionar itens selecionados
       dataToSend.itens = selectedItems.map(item => ({
         inventory_id: item.id,
@@ -188,8 +232,12 @@ export default function Requests() {
       });
       setSelectedItems([]); // Limpar itens selecionados
       buscarRequisicoes();
-    } catch {
-      mostrarNotificacao('Erro ao criar requisição', 'erro');
+    } catch (error) {
+      if (error.message && error.message.includes('conflito')) {
+        mostrarNotificacao(error.message, 'erro');
+      } else {
+        mostrarNotificacao('Erro ao criar requisição', 'erro');
+      }
     }
     setLoading(false);
   };

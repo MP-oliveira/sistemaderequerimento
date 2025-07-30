@@ -15,11 +15,15 @@ import {
   removeComprovante,
   uploadMiddleware,
   deleteRequest,
-  updateRequest
+  updateRequest,
+  checkConflicts
 } from '../controllers/RequestsController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
+
+// Verificar conflitos de horário
+router.post('/check-conflicts', authenticateToken, checkConflicts);
 
 // Criar requisição
 router.post('/', authenticateToken, createRequest);
