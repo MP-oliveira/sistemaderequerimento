@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FiCheck, FiX, FiPackage, FiClock, FiAlertTriangle, FiEdit3, FiChevronDown } from 'react-icons/fi';
-import { getExecutedItems, markItemAsReturned } from '../services/requestItemsService';
+import { FiCheck, FiX, FiPackage, FiClock, FiAlertTriangle, FiEdit3, FiChevronDown, FiChevronRight, FiMapPin } from 'react-icons/fi';
+import { getExecutedItems, markItemAsReturned, marcarItemComoSeparado } from '../services/requestItemsService';
 import { listarRequisicoes } from '../services/requestsService';
 import Modal from './Modal';
 import Button from './Button';
 import './ReturnMaterials.css';
+import './TodayMaterials.css';
 
 const ReturnMaterials = () => {
   const [executedItems, setExecutedItems] = useState([]);
@@ -57,15 +58,45 @@ const ReturnMaterials = () => {
     return Object.values(grupos);
   };
 
-  // Itens para despachar (status PENDENTE ou SEPARADO)
-  const itensParaDespachar = executedItems.filter(item => 
-    !item.is_separated || item.is_separated === false
-  );
+  // Itens para despachar (status PENDENTE ou SEPARADO) - apenas eventos próximos
+  const itensParaDespachar = executedItems.filter(item => {
+    // Verificar se o item não está separado
+    const naoSeparado = !item.is_separated || item.is_separated === false;
+    
+    if (!naoSeparado) return false;
+    
+    // Verificar se o evento é próximo (hoje ou próximos 7 dias)
+    if (item.requests && item.requests.date) {
+      const eventDate = new Date(item.requests.date);
+      const today = new Date();
+      const nextWeek = new Date();
+      nextWeek.setDate(today.getDate() + 7);
+      
+      return eventDate >= today && eventDate <= nextWeek;
+    }
+    
+    return false;
+  });
 
-  // Itens para retorno (status EXECUTADO)
-  const itensParaRetorno = executedItems.filter(item => 
-    item.is_separated === true
-  );
+  // Itens para retorno (status EXECUTADO) - apenas eventos recentes
+  const itensParaRetorno = executedItems.filter(item => {
+    // Verificar se o item está separado
+    const separado = item.is_separated === true;
+    
+    if (!separado) return false;
+    
+    // Verificar se o evento é recente (últimos 7 dias ou hoje)
+    if (item.requests && item.requests.date) {
+      const eventDate = new Date(item.requests.date);
+      const today = new Date();
+      const lastWeek = new Date();
+      lastWeek.setDate(today.getDate() - 7);
+      
+      return eventDate >= lastWeek && eventDate <= today;
+    }
+    
+    return false;
+  });
 
   const toggleRequest = (requestId) => {
     const newExpanded = new Set(expandedRequests);
@@ -83,6 +114,15 @@ const ReturnMaterials = () => {
       await carregarDados();
     } catch (error) {
       console.error('Erro ao marcar item como retornado:', error);
+    }
+  };
+
+  const handleToggleSeparated = async (itemId, currentStatus) => {
+    try {
+      await marcarItemComoSeparado(itemId, !currentStatus);
+      await carregarDados();
+    } catch (error) {
+      console.error('Erro ao marcar item como separado:', error);
     }
   };
 
@@ -219,85 +259,143 @@ const ReturnMaterials = () => {
   const gruposParaDespachar = agruparItensPorRequisicao(itensParaDespachar);
   const gruposParaRetorno = agruparItensPorRequisicao(itensParaRetorno);
 
+  // Calcular totais para o resumo
+  const totalParaDespachar = gruposParaDespachar.reduce((total, grupo) => total + grupo.items.length, 0);
+  const totalSeparados = gruposParaDespachar.reduce((total, grupo) => 
+    total + grupo.items.filter(item => item.is_separated).length, 0
+  );
+  const totalPendentes = totalParaDespachar - totalSeparados;
+
+  const totalParaRetorno = gruposParaRetorno.reduce((total, grupo) => total + grupo.items.length, 0);
+  const totalRetornados = gruposParaRetorno.reduce((total, grupo) => 
+    total + grupo.items.filter(item => item.is_returned).length, 0
+  );
+  const totalNaoRetornados = totalParaRetorno - totalRetornados;
+
   return (
     <div className="return-materials">
-      <h3>Materiais Audiovisual</h3>
-      
-      {/* Seção: Materiais para Despachar */}
-      <div className="materials-section">
+      {/* Header com resumo igual ao TodayMaterials */}
+      <div className="materials-header">
         <h3 className="section-title">
-          <FiPackage size={18} />
-          Materiais para Despachar ({gruposParaDespachar.length})
+          <FiPackage style={{marginRight: 8}} />
+          Materiais para Despachar (Próximos 7 dias)
         </h3>
-        
+        <div className="materials-summary">
+          <div className="summary-item">
+            <span className="summary-number">{totalParaDespachar}</span>
+            <span className="summary-label">Total</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-number success">{totalSeparados}</span>
+            <span className="summary-label">Separados</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-number warning">{totalPendentes}</span>
+            <span className="summary-label">Pendentes</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Seção: Materiais para Despachar */}
+      <div className="materials-list">
         {gruposParaDespachar.length > 0 ? (
           gruposParaDespachar.map((grupo, index) => {
             const requestId = grupo.request.id;
             const isExpanded = expandedRequests.has(requestId);
             
+            // Calcular contadores para esta requisição
+            const totalCount = grupo.items.length;
+            const separatedCount = grupo.items.filter(item => item.is_separated).length;
+            
             return (
-              <div key={index} className="request-group">
+              <div key={index} className="request-materials-card">
                 <div 
-                  className={`request-header ${isExpanded ? 'expanded' : ''}`}
+                  className="request-header accordion-header"
                   onClick={() => toggleRequest(requestId)}
                 >
-                  <div>
-                    <h4 className="request-title">
-                      {grupo.request.event_name || grupo.request.description || 'Requisição não identificada'}
-                    </h4>
-                    <div className="request-info">
-                      <span className="request-department">{grupo.request.department}</span>
-                      <span className="request-date">{grupo.request.date}</span>
-                      <span className="request-location">{grupo.request.location}</span>
+                  <div className="request-info">
+                    <div className="request-title-row">
+                      <button className="accordion-toggle">
+                        {isExpanded ? <FiChevronDown size={16} /> : <FiChevronRight size={16} />}
+                      </button>
+                      <h4>{grupo.request.event_name || grupo.request.description || 'Requisição não identificada'}</h4>
+                    </div>
+                    <div className="request-meta">
+                      <span className="department">{grupo.request.department}</span>
+                      <span className="time">
+                        <FiClock size={14} />
+                        {grupo.request.date}
+                      </span>
+                      {grupo.request.location && (
+                        <span className="location">
+                          <FiMapPin size={14} />
+                          {grupo.request.location}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <FiChevronDown className={`expand-icon ${isExpanded ? 'expanded' : ''}`} />
-                </div>
-                
-                <div className={`request-content ${isExpanded ? 'expanded' : ''}`}>
-                  <div className="items-checklist">
-                    {grupo.items.map((item) => (
-                      <div key={item.id} className={`checklist-item ${item.is_separated ? 'separado' : 'pendente'}`}>
-                        <div className="item-info">
-                          <span className="item-name">{item.item_name}</span>
-                          <span className="item-quantity">Qtd: {item.quantity_requested}</span>
-                        </div>
-                        
-                        <div className="item-status">
-                          {getStatusIcon(item)}
-                          <span 
-                            className="status-text"
-                            style={{ color: getStatusColor(item) }}
-                          >
-                            {getStatusText(item)}
-                          </span>
-                        </div>
-
-                        <div className="item-actions">
-                          {!item.is_separated && (
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              onClick={() => markItemAsAvailableAndSeparated(item.id)}
-                            >
-                              <FiCheck size={14} />
-                              Marcar como Separado
-                            </Button>
-                          )}
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openNotesModal(item)}
-                          >
-                            <FiEdit3 size={14} />
-                            Observações
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="request-status">
+                    <div className="status-info">
+                      <span 
+                        className="status-badge"
+                        style={{ 
+                          backgroundColor: 'transparent',
+                          color: '#4caf50',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.8rem',
+                          fontWeight: '700'
+                        }}
+                      >
+                        APTO
+                      </span>
+                      <span className="items-count">
+                        {separatedCount}/{totalCount} itens
+                      </span>
+                    </div>
                   </div>
                 </div>
+                
+                {isExpanded && (
+                  <div className="materials-items accordion-content">
+                    <h5>Materiais Necessários:</h5>
+                    <div className="items-list">
+                      {grupo.items.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className={`material-item ${item.is_separated ? 'separated' : ''}`}
+                        >
+                          <div className="item-info">
+                            <span className="item-name">{item.item_name}</span>
+                            <span className="item-quantity">Qtd: {item.quantity_requested}</span>
+                            {item.description && (
+                              <span className="item-description">{item.description}</span>
+                            )}
+                          </div>
+                          
+                          <button
+                            className={`separate-btn ${item.is_separated ? 'separated' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleSeparated(item.id, item.is_separated);
+                            }}
+                            title={item.is_separated ? 'Desmarcar como separado' : 'Marcar como separado'}
+                          >
+                            {item.is_separated ? <FiCheck size={16} /> : <FiX size={16} />}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="request-progress">
+                      <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${totalCount > 0 ? (separatedCount / totalCount) * 100 : 0}%` }}></div>
+                      </div>
+                      <span className="progress-text">
+                        {separatedCount} de {totalCount} materiais separados
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })
@@ -308,85 +406,133 @@ const ReturnMaterials = () => {
 
       {/* Seção: Retorno de Instrumentos */}
       <div className="materials-section">
-        <h3 className="section-title">
-          <FiClock size={18} />
-          Retorno de Instrumentos ({gruposParaRetorno.length})
-        </h3>
+        <div className="materials-header">
+          <h3 className="section-title">
+            <FiClock style={{marginRight: 8}} />
+            Retorno de Instrumentos (Últimos 7 dias)
+          </h3>
+          <div className="materials-summary">
+            <div className="summary-item">
+              <span className="summary-number">{totalParaRetorno}</span>
+              <span className="summary-label">Total</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-number success">{totalRetornados}</span>
+              <span className="summary-label">Retornados</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-number warning">{totalNaoRetornados}</span>
+              <span className="summary-label">Pendentes</span>
+            </div>
+          </div>
+        </div>
         
-        {gruposParaRetorno.length > 0 ? (
-          gruposParaRetorno.map((grupo, index) => {
-            const requestId = grupo.request.id;
-            const isExpanded = expandedRequests.has(requestId);
-            
-            // Calcular contadores para esta requisição
-            const totalCount = grupo.items.length;
-            const returnedCount = grupo.items.filter(item => item.is_returned).length;
-            
-            return (
-              <div key={index} className="request-group">
-                <div 
-                  className={`request-header ${isExpanded ? 'expanded' : ''}`}
-                  onClick={() => toggleRequest(requestId)}
-                >
-                  <div>
-                    <h4 className="request-title">
-                      {grupo.request.event_name || grupo.request.description || 'Requisição não identificada'}
-                    </h4>
+        <div className="materials-list">
+          {gruposParaRetorno.length > 0 ? (
+            gruposParaRetorno.map((grupo, index) => {
+              const requestId = grupo.request.id;
+              const isExpanded = expandedRequests.has(requestId);
+              
+              // Calcular contadores para esta requisição
+              const totalCount = grupo.items.length;
+              const returnedCount = grupo.items.filter(item => item.is_returned).length;
+              
+              return (
+                <div key={index} className="request-materials-card">
+                  <div 
+                    className="request-header accordion-header"
+                    onClick={() => toggleRequest(requestId)}
+                  >
                     <div className="request-info">
-                      <span className="request-department">{grupo.request.department}</span>
-                      <span className="request-date">{grupo.request.date}</span>
-                      <span className="request-location">{grupo.request.location}</span>
-                    </div>
-                  </div>
-                  <div className="request-status">
-                    <div className="status-info">
-                      <span className="items-count">
-                        {returnedCount}/{totalCount} itens retornados
-                      </span>
-                    </div>
-                  </div>
-                  <FiChevronDown className={`expand-icon ${isExpanded ? 'expanded' : ''}`} />
-                </div>
-                
-                <div className={`request-content ${isExpanded ? 'expanded' : ''}`}>
-                  <div className="items-return-list">
-                    {grupo.items.map((item) => (
-                      <div 
-                        key={item.id} 
-                        className={`return-item ${item.is_returned ? 'returned' : ''}`}
-                      >
-                        <div className="item-info">
-                          <span className="item-name">{item.item_name}</span>
-                          <span className="item-quantity">Qtd: {item.quantity_requested}</span>
-                        </div>
-                        <button
-                          className={`return-btn ${item.is_returned ? 'returned' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleReturned(item.id, item.is_returned);
-                          }}
-                          title={item.is_returned ? 'Desmarcar como retornado' : 'Marcar como retornado'}
-                        >
-                          {item.is_returned ? <FiCheck size={16} /> : <FiX size={16} />}
+                      <div className="request-title-row">
+                        <button className="accordion-toggle">
+                          {isExpanded ? <FiChevronDown size={16} /> : <FiChevronRight size={16} />}
                         </button>
+                        <h4>{grupo.request.event_name || grupo.request.description || 'Requisição não identificada'}</h4>
                       </div>
-                    ))}
-                  </div>
-                  <div className="request-progress">
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${totalCount > 0 ? (returnedCount / totalCount) * 100 : 0}%` }}></div>
+                      <div className="request-meta">
+                        <span className="department">{grupo.request.department}</span>
+                        <span className="time">
+                          <FiClock size={14} />
+                          {grupo.request.date}
+                        </span>
+                        {grupo.request.location && (
+                          <span className="location">
+                            <FiMapPin size={14} />
+                            {grupo.request.location}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <span className="progress-text">
-                      {returnedCount} de {totalCount} instrumentos retornados
-                    </span>
+                    <div className="request-status">
+                      <div className="status-info">
+                        <span 
+                          className="status-badge"
+                          style={{ 
+                            backgroundColor: 'transparent',
+                            color: '#9c27b0',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.8rem',
+                            fontWeight: '700'
+                          }}
+                        >
+                          EXECUTADO
+                        </span>
+                        <span className="items-count">
+                          {returnedCount}/{totalCount} itens
+                        </span>
+                      </div>
+                    </div>
                   </div>
+                  
+                  {isExpanded && (
+                    <div className="materials-items accordion-content">
+                      <h5>Materiais para Retorno:</h5>
+                      <div className="items-list">
+                        {grupo.items.map((item) => (
+                          <div 
+                            key={item.id} 
+                            className={`material-item ${item.is_returned ? 'returned' : ''}`}
+                          >
+                            <div className="item-info">
+                              <span className="item-name">{item.item_name}</span>
+                              <span className="item-quantity">Qtd: {item.quantity_requested}</span>
+                              {item.description && (
+                                <span className="item-description">{item.description}</span>
+                              )}
+                            </div>
+                            
+                            <button
+                              className={`separate-btn ${item.is_returned ? 'returned' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleReturned(item.id, item.is_returned);
+                              }}
+                              title={item.is_returned ? 'Desmarcar como retornado' : 'Marcar como retornado'}
+                            >
+                              {item.is_returned ? <FiCheck size={16} /> : <FiX size={16} />}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="request-progress">
+                        <div className="progress-bar">
+                          <div className="progress-fill" style={{ width: `${totalCount > 0 ? (returnedCount / totalCount) * 100 : 0}%` }}></div>
+                        </div>
+                        <span className="progress-text">
+                          {returnedCount} de {totalCount} materiais retornados
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            );
-          })
-        ) : (
-          <p>Nenhum material para retorno</p>
-        )}
+              );
+            })
+          ) : (
+            <p>Nenhum material para retorno</p>
+          )}
+        </div>
       </div>
 
       {gruposParaDespachar.length === 0 && gruposParaRetorno.length === 0 && (
