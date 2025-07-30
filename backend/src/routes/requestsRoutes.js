@@ -16,11 +16,15 @@ import {
   uploadMiddleware,
   deleteRequest,
   updateRequest,
-  checkConflicts
+  checkConflicts,
+  checkRealTimeConflicts
 } from '../controllers/RequestsController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
+
+// Verificar conflitos em tempo real
+router.post('/check-realtime-conflicts', authenticateToken, checkRealTimeConflicts);
 
 // Verificar conflitos de horário
 router.post('/check-conflicts', authenticateToken, checkConflicts);

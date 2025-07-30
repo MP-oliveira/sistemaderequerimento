@@ -8,6 +8,23 @@ function getAuthHeaders() {
   };
 }
 
+export async function verificarConflitosTempoReal(data) {
+  try {
+    const response = await fetch(`${API_URL}/api/requests/check-realtime-conflicts`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao verificar conflitos em tempo real');
+    }
+    return await response.json();
+  } catch (err) {
+    throw err;
+  }
+}
+
 export async function verificarConflitos(data) {
   try {
     const response = await fetch(`${API_URL}/api/requests/check-conflicts`, {

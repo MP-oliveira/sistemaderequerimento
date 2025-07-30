@@ -39,6 +39,255 @@ const upload = multer({
   }
 });
 
+// Verificar conflitos em tempo real (para validação no frontend)
+export const checkRealTimeConflicts = async (req, res) => {
+  try {
+    const {
+      date = '',
+      location = '',
+      start_time = '',
+      end_time = ''
+    } = req.body;
+
+    console.log('🔍 [checkRealTimeConflicts] Dados recebidos:', { date, location, start_time, end_time });
+
+    if (!date || !location || !start_time || !end_time) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Data, local, horário de início e fim são obrigatórios.' 
+      });
+    }
+
+    // Construir datetime completo
+    const start_datetime = `${date}T${start_time}`;
+    const end_datetime = `${date}T${end_time}`;
+
+    console.log('🔍 [checkRealTimeConflicts] Datetime construído:', { start_datetime, end_datetime });
+
+    // Buscar eventos existentes para o mesmo local na mesma data
+    const { data: eventosConflitantes } = await supabase
+      .from('events')
+      .select('id, name, location, start_datetime, end_datetime')
+      .eq('location', location)
+      .gte('start_datetime', `${date}T00:00:00`)
+      .lte('start_datetime', `${date}T23:59:59`);
+
+    // Buscar requisições já aprovadas para o mesmo local na mesma data
+    const { data: reqsConflitantes } = await supabase
+      .from('requests')
+      .select('id, location, start_datetime, end_datetime, status, event_name')
+      .eq('location', location)
+      .eq('date', date)
+      .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO']);
+
+    console.log('🔍 [checkRealTimeConflicts] Eventos encontrados:', eventosConflitantes?.length || 0);
+    console.log('🔍 [checkRealTimeConflicts] Requisições encontradas:', reqsConflitantes?.length || 0);
+
+    function parseUTC(dateStr) {
+      if (!dateStr) return NaN;
+      if (dateStr.endsWith('Z') || dateStr.includes('+')) return Date.parse(dateStr);
+      return Date.parse(dateStr + '+00:00');
+    }
+
+    const startA = parseUTC(start_datetime);
+    const endA = parseUTC(end_datetime);
+    const intervaloMinimoMs = 15 * 60 * 1000; // 15 minutos em ms
+
+    console.log('🔍 [checkRealTimeConflicts] Horários convertidos:', { startA, endA });
+
+    const conflitos = [];
+    const horariosDisponiveis = [];
+
+    // Verificar conflitos com eventos
+    (eventosConflitantes || []).forEach(ev => {
+      const startB = parseUTC(ev.start_datetime);
+      const endB = parseUTC(ev.end_datetime);
+      if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return;
+
+      console.log('🔍 [checkRealTimeConflicts] Verificando evento:', { 
+        nome: ev.name, 
+        startB, 
+        endB, 
+        startA, 
+        endA,
+        sobreposicao: startA < endB && endA > startB
+      });
+
+      // Verificar sobreposição direta
+      if (startA < endB && endA > startB) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5), // apenas HH:MM
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
+          conflito: 'SOBREPOSIÇÃO_DIRETA'
+        });
+      }
+      
+      // Verificar intervalo mínimo
+      if (startA >= endB && (startA - endB) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5),
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startA - endB) / 60000)
+        });
+      }
+      if (endA <= startB && (startB - endA) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5),
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startB - endA) / 60000)
+        });
+      }
+    });
+
+    // Verificar conflitos com requisições
+    (reqsConflitantes || []).forEach(req => {
+      const startB = parseUTC(req.start_datetime);
+      const endB = parseUTC(req.end_datetime);
+      if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return;
+
+      console.log('🔍 [checkRealTimeConflicts] Verificando requisição:', { 
+        nome: req.event_name, 
+        startB, 
+        endB, 
+        startA, 
+        endA,
+        sobreposicao: startA < endB && endA > startB
+      });
+
+      // Verificar sobreposição direta
+      if (startA < endB && endA > startB) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
+          status: req.status,
+          conflito: 'SOBREPOSIÇÃO_DIRETA'
+        });
+      }
+      
+      // Verificar intervalo mínimo
+      if (startA >= endB && (startA - endB) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
+          status: req.status,
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startA - endB) / 60000)
+        });
+      }
+      if (endA <= startB && (startB - endA) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
+          status: req.status,
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startB - endA) / 60000)
+        });
+      }
+    });
+
+    console.log('🔍 [checkRealTimeConflicts] Conflitos encontrados:', conflitos.length);
+
+    // Gerar sugestões de horários disponíveis
+    if (conflitos.length > 0) {
+      const todosEventos = [
+        ...(eventosConflitantes || []).map(ev => ({
+          inicio: parseUTC(ev.start_datetime),
+          fim: parseUTC(ev.end_datetime),
+          nome: ev.name
+        })),
+        ...(reqsConflitantes || []).map(req => ({
+          inicio: parseUTC(req.start_datetime),
+          fim: parseUTC(req.end_datetime),
+          nome: req.event_name || 'Requisição'
+        }))
+      ].sort((a, b) => a.inicio - b.inicio);
+
+      // Sugerir horários antes do primeiro evento
+      if (todosEventos.length > 0 && todosEventos[0].inicio > parseUTC(`${date}T08:00:00`)) {
+        const horarioSugerido = new Date(todosEventos[0].inicio - intervaloMinimoMs);
+        horariosDisponiveis.push({
+          inicio: horarioSugerido.toTimeString().substring(0, 5),
+          fim: new Date(todosEventos[0].inicio).toTimeString().substring(0, 5),
+          tipo: 'ANTES_DO_PRIMEIRO'
+        });
+      }
+
+      // Sugerir horários entre eventos
+      for (let i = 0; i < todosEventos.length - 1; i++) {
+        const eventoAtual = todosEventos[i];
+        const proximoEvento = todosEventos[i + 1];
+        const intervalo = proximoEvento.inicio - eventoAtual.fim;
+        
+        if (intervalo >= intervaloMinimoMs * 2) { // Pelo menos 30 min para sugerir
+          const inicioSugerido = new Date(eventoAtual.fim + intervaloMinimoMs);
+          const fimSugerido = new Date(proximoEvento.inicio - intervaloMinimoMs);
+          horariosDisponiveis.push({
+            inicio: inicioSugerido.toTimeString().substring(0, 5),
+            fim: fimSugerido.toTimeString().substring(0, 5),
+            tipo: 'ENTRE_EVENTOS'
+          });
+        }
+      }
+
+      // Sugerir horário após o último evento
+      if (todosEventos.length > 0) {
+        const ultimoEvento = todosEventos[todosEventos.length - 1];
+        if (ultimoEvento.fim < parseUTC(`${date}T22:00:00`)) {
+          const horarioSugerido = new Date(ultimoEvento.fim + intervaloMinimoMs);
+          horariosDisponiveis.push({
+            inicio: horarioSugerido.toTimeString().substring(0, 5),
+            fim: '22:00',
+            tipo: 'APÓS_ÚLTIMO'
+          });
+        }
+      }
+    }
+
+    const temConflitoDireto = conflitos.some(c => c.conflito === 'SOBREPOSIÇÃO_DIRETA');
+    const temConflitoIntervalo = conflitos.some(c => c.conflito === 'INTERVALO_INSUFICIENTE');
+
+    const response = {
+      success: true,
+      temConflito: conflitos.length > 0,
+      temConflitoDireto,
+      temConflitoIntervalo,
+      conflitos,
+      horariosDisponiveis,
+      message: temConflitoDireto 
+        ? 'Horário neste local indisponível. Tente outro local ou horário.'
+        : temConflitoIntervalo 
+        ? 'Intervalo insuficiente entre eventos. Escolha um horário com pelo menos 15 minutos de intervalo.'
+        : 'Horário disponível!'
+    };
+
+    console.log('🔍 [checkRealTimeConflicts] Resposta final:', response);
+
+    return res.status(200).json(response);
+
+  } catch (error) {
+    console.error('❌ Erro ao verificar conflitos em tempo real:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor ao verificar conflitos', 
+      error: error.message 
+    });
+  }
+};
+
 // Verificar conflitos de horário sem criar requisição
 export const checkConflicts = async (req, res) => {
   try {

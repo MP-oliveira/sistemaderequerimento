@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
+import Table from '../components/Table';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
 import { 
@@ -15,13 +16,27 @@ import {
   deletarRequisicao, 
   atualizarRequisicao, 
   getRequisicaoDetalhada,
-  verificarConflitos
+  verificarConflitos,
+  verificarConflitosTempoReal
 } from '../services/requestsService.js';
 import { listarItensInventario } from '../services/inventoryService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
 import { PRIORIDADE_OPTIONS, PRIORIDADE_DEFAULT } from '../utils/prioridadeConfig';
 import './Requests.css';
+
+// Função debounce para evitar muitas requisições
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 export default function Requests() {
   const navigate = useNavigate();
@@ -62,6 +77,15 @@ export default function Requests() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteReq, setDeleteReq] = useState(null);
 
+  // Estados para validação em tempo real
+  const [conflitoInfo, setConflitoInfo] = useState({
+    temConflito: false,
+    mensagem: '',
+    conflitos: [],
+    horariosDisponiveis: []
+  });
+  const [validandoConflito, setValidandoConflito] = useState(false);
+
   useEffect(() => {
     buscarRequisicoes();
   }, []);
@@ -70,6 +94,14 @@ export default function Requests() {
   useEffect(() => {
     if (showAddModal) {
       carregarInventario();
+    } else {
+      // Limpar informações de conflito quando fechar o modal
+      setConflitoInfo({
+        temConflito: false,
+        mensagem: '',
+        conflitos: [],
+        horariosDisponiveis: []
+      });
     }
   }, [showAddModal]);
 
@@ -297,11 +329,56 @@ export default function Requests() {
   };
 
   const handleEditField = (field, value) => {
-    setEditReq(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    if (editReq) {
+      setEditReq({ ...editReq, [field]: value });
+    }
   };
+
+  // Função para verificar conflitos em tempo real
+  const verificarConflitoTempoReal = async (date, location, start_time, end_time) => {
+    if (!date || !location || !start_time || !end_time) {
+      setConflitoInfo({
+        temConflito: false,
+        mensagem: '',
+        conflitos: [],
+        horariosDisponiveis: []
+      });
+      return;
+    }
+
+    setValidandoConflito(true);
+    try {
+      const resultado = await verificarConflitosTempoReal({
+        date,
+        location,
+        start_time,
+        end_time
+      });
+
+      setConflitoInfo({
+        temConflito: resultado.temConflito,
+        mensagem: resultado.message,
+        conflitos: resultado.conflitos || [],
+        horariosDisponiveis: resultado.horariosDisponiveis || []
+      });
+    } catch (error) {
+      console.error('Erro ao verificar conflitos:', error);
+      setConflitoInfo({
+        temConflito: false,
+        mensagem: '',
+        conflitos: [],
+        horariosDisponiveis: []
+      });
+    } finally {
+      setValidandoConflito(false);
+    }
+  };
+
+  // Debounce para evitar muitas requisições
+  const debouncedVerificarConflito = useCallback(
+    debounce(verificarConflitoTempoReal, 500),
+    []
+  );
 
   const handleVoltar = () => {
     // Verificar o role do usuário para redirecionar para o dashboard correto
@@ -619,7 +696,10 @@ export default function Requests() {
               label="Hora de Início"
               type="time"
               value={editReq.start_datetime || ''}
-              onChange={e => handleEditField('start_datetime', e.target.value)}
+              onChange={e => {
+                handleEditField('start_datetime', e.target.value);
+                debouncedVerificarConflito(editReq.date, editReq.location, e.target.value, editReq.end_datetime);
+              }}
                   required
             />
               </div>
@@ -628,7 +708,10 @@ export default function Requests() {
               label="Hora de Fim"
               type="time"
               value={editReq.end_datetime || ''}
-              onChange={e => handleEditField('end_datetime', e.target.value)}
+              onChange={e => {
+                handleEditField('end_datetime', e.target.value);
+                debouncedVerificarConflito(editReq.date, editReq.location, editReq.start_datetime, e.target.value);
+              }}
                   required
             />
               </div>
@@ -726,7 +809,10 @@ export default function Requests() {
                 label="Data"
                 type="date"
                 value={formData.date}
-                onChange={e => setFormData({ ...formData, date: e.target.value })}
+                onChange={e => {
+                  setFormData({ ...formData, date: e.target.value });
+                  debouncedVerificarConflito(e.target.value, formData.location, formData.start_datetime, formData.end_datetime);
+                }}
                 required
               />
             </div>
@@ -736,7 +822,10 @@ export default function Requests() {
                 <select
                   className="input-field"
                   value={formData.location}
-                  onChange={e => setFormData({ ...formData, location: e.target.value })}
+                  onChange={e => {
+                    setFormData({ ...formData, location: e.target.value });
+                    debouncedVerificarConflito(formData.date, e.target.value, formData.start_datetime, formData.end_datetime);
+                  }}
                 >
                   {salasOptions.map(option => (
                     <option key={option.value} value={option.value}>
@@ -755,7 +844,10 @@ export default function Requests() {
                 label="Hora de Início"
                 type="time"
                 value={formData.start_datetime}
-                onChange={e => setFormData({ ...formData, start_datetime: e.target.value })}
+                onChange={e => {
+                  setFormData({ ...formData, start_datetime: e.target.value });
+                  debouncedVerificarConflito(formData.date, formData.location, e.target.value, formData.end_datetime);
+                }}
                 required
               />
             </div>
@@ -764,11 +856,102 @@ export default function Requests() {
                 label="Hora de Fim"
                 type="time"
                 value={formData.end_datetime}
-                onChange={e => setFormData({ ...formData, end_datetime: e.target.value })}
+                onChange={e => {
+                  setFormData({ ...formData, end_datetime: e.target.value });
+                  debouncedVerificarConflito(formData.date, formData.location, formData.start_datetime, e.target.value);
+                }}
                 required
               />
             </div>
           </div>
+
+          {/* Mensagem de conflito em tempo real */}
+          {conflitoInfo.temConflito && (
+            <div className={`conflict-validation-container ${
+              conflitoInfo.conflitos.some(c => c.conflito === 'SOBREPOSIÇÃO_DIRETA') 
+                ? 'conflict-container-error' 
+                : 'conflict-container-warning'
+            }`}
+            style={{
+              padding: '16px',
+              borderRadius: '12px',
+              marginTop: '12px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
+              {/* Header da mensagem */}
+              <div className="conflict-header">
+                <div className="conflict-icon">
+                  {validandoConflito ? (
+                    <div className="loading-spinner"></div>
+                  ) : (
+                    conflitoInfo.conflitos.some(c => c.conflito === 'SOBREPOSIÇÃO_DIRETA') ? '❌' : '⚠️'
+                  )}
+                </div>
+                <div className="conflict-message">
+                  {validandoConflito ? 'Verificando disponibilidade...' : conflitoInfo.mensagem}
+                </div>
+              </div>
+              
+              {/* Lista de conflitos */}
+              {conflitoInfo.conflitos.length > 0 && (
+                <div className="conflicts-list">
+                  <div className="conflicts-title">
+                    📋 Conflitos encontrados:
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {conflitoInfo.conflitos.map((conflito, index) => (
+                      <div key={index} className="conflict-item">
+                        <span className={`conflict-type-icon ${
+                          conflito.tipo === 'EVENTO' ? 'conflict-type-event' : 'conflict-type-request'
+                        }`}>
+                          {conflito.tipo === 'EVENTO' ? '📅' : '📋'}
+                        </span>
+                        <span className="conflict-name">{conflito.nome}</span>
+                        <span className="conflict-separator">•</span>
+                        <span className="conflict-time">
+                          {conflito.inicio} - {conflito.fim}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Sugestões de horários */}
+              {conflitoInfo.horariosDisponiveis.length > 0 && (
+                <div className="suggestions-list">
+                  <div className="suggestions-title">
+                    🕐 Horários disponíveis sugeridos:
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {conflitoInfo.horariosDisponiveis.map((horario, index) => (
+                      <div key={index} className="suggestion-item">
+                        <div className="suggestion-time">
+                          <span className="suggestion-time-icon">🕐</span>
+                          <span className="suggestion-time-text">
+                            {horario.inicio} - {horario.fim}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="use-button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              start_datetime: horario.inicio,
+                              end_datetime: horario.fim
+                            });
+                          }}
+                        >
+                          Usar
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Quarta linha - Público Esperado e Prioridade */}
           <div style={{ display: 'flex', gap: 20 }}>
