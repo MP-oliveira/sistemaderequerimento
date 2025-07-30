@@ -354,11 +354,157 @@ export const checkConflicts = async (req, res) => {
       .select('id, name, location, start_datetime, end_datetime')
       .eq('location', location);
 
-    // Buscar requisições já aprovadas para o mesmo local
+    // Buscar requisições já aprovadas para o mesmo local (apenas APTO, EXECUTADO, FINALIZADO)
     const { data: reqsConflitantes } = await supabase
       .from('requests')
       .select('id, location, start_datetime, end_datetime, status, event_name')
       .eq('location', location)
+      .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO']);
+
+    function parseUTC(dateStr) {
+      if (!dateStr) return NaN;
+      if (dateStr.endsWith('Z') || dateStr.includes('+')) return Date.parse(dateStr);
+      return Date.parse(dateStr + '+00:00');
+    }
+
+    const startA = parseUTC(start_datetime);
+    const endA = parseUTC(end_datetime);
+    const intervaloMinimoMs = 15 * 60 * 1000; // 15 minutos em ms
+
+    const conflitos = [];
+
+    // Checar eventos
+    (eventosConflitantes || []).forEach(ev => {
+      const startB = parseUTC(ev.start_datetime);
+      const endB = parseUTC(ev.end_datetime);
+      if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return;
+
+      // Verificar sobreposição direta
+      if (startA < endB && endA > startB) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5),
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
+          conflito: 'SOBREPOSIÇÃO_DIRETA'
+        });
+      }
+      
+      // Verificar intervalo mínimo
+      if (startA >= endB && (startA - endB) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5),
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startA - endB) / 60000)
+        });
+      }
+      if (endA <= startB && (startB - endA) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'EVENTO',
+          nome: ev.name,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5),
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startB - endA) / 60000)
+        });
+      }
+    });
+
+    // Checar requisições
+    (reqsConflitantes || []).forEach(req => {
+      const startB = parseUTC(req.start_datetime);
+      const endB = parseUTC(req.end_datetime);
+      if (isNaN(startA) || isNaN(endA) || isNaN(startB) || isNaN(endB)) return;
+
+      // Verificar sobreposição direta
+      if (startA < endB && endA > startB) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
+          status: req.status,
+          conflito: 'SOBREPOSIÇÃO_DIRETA'
+        });
+      }
+      
+      // Verificar intervalo mínimo
+      if (startA >= endB && (startA - endB) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
+          status: req.status,
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startA - endB) / 60000)
+        });
+      }
+      if (endA <= startB && (startB - endA) < intervaloMinimoMs) {
+        conflitos.push({
+          tipo: 'REQUISIÇÃO',
+          nome: req.event_name || 'Requisição',
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
+          status: req.status,
+          conflito: 'INTERVALO_INSUFICIENTE',
+          intervalo: Math.round((startB - endA) / 60000)
+        });
+      }
+    });
+
+    const temConflitoDireto = conflitos.some(c => c.conflito === 'SOBREPOSIÇÃO_DIRETA');
+    const temConflitoIntervalo = conflitos.some(c => c.conflito === 'INTERVALO_INSUFICIENTE');
+
+    return res.status(200).json({
+      success: true,
+      temConflito: conflitos.length > 0,
+      temConflitoDireto,
+      temConflitoIntervalo,
+      conflitos,
+      message: temConflitoDireto 
+        ? 'Conflito direto detectado. Não é possível aprovar esta requisição.'
+        : temConflitoIntervalo 
+        ? 'Conflito de intervalo detectado. Requisição será marcada como PENDENTE_CONFLITO.'
+        : 'Nenhum conflito detectado.'
+    });
+
+  } catch (error) {
+    console.error('❌ Erro ao verificar conflitos:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor ao verificar conflitos', 
+      error: error.message 
+    });
+  }
+};
+
+// Verificar conflitos quando uma requisição é aprovada
+const verificarConflitosAprovacao = async (requestData) => {
+  try {
+    const { location, start_datetime, end_datetime, date } = requestData;
+    
+    if (!location || !start_datetime || !end_datetime) {
+      return { temConflito: false, conflitos: [] };
+    }
+
+    // Buscar eventos existentes para o mesmo local na mesma data
+    const { data: eventosConflitantes } = await supabase
+      .from('events')
+      .select('id, name, location, start_datetime, end_datetime')
+      .eq('location', location)
+      .gte('start_datetime', `${date}T00:00:00`)
+      .lte('start_datetime', `${date}T23:59:59`);
+
+    // Buscar requisições já aprovadas para o mesmo local na mesma data
+    const { data: reqsConflitantes } = await supabase
+      .from('requests')
+      .select('id, location, start_datetime, end_datetime, status, event_name')
+      .eq('location', location)
+      .eq('date', date)
       .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO']);
 
     function parseUTC(dateStr) {
@@ -384,8 +530,8 @@ export const checkConflicts = async (req, res) => {
         conflitos.push({
           tipo: 'EVENTO',
           nome: ev.name,
-          inicio: ev.start_datetime,
-          fim: ev.end_datetime,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5),
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
           conflito: 'SOBREPOSIÇÃO_DIRETA'
         });
       }
@@ -395,20 +541,20 @@ export const checkConflicts = async (req, res) => {
         conflitos.push({
           tipo: 'EVENTO',
           nome: ev.name,
-          inicio: ev.start_datetime,
-          fim: ev.end_datetime,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5),
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
           conflito: 'INTERVALO_INSUFICIENTE',
-          intervalo: Math.round((startA - endB) / 60000) // minutos
+          intervalo: Math.round((startA - endB) / 60000)
         });
       }
       if (endA <= startB && (startB - endA) < intervaloMinimoMs) {
         conflitos.push({
           tipo: 'EVENTO',
           nome: ev.name,
-          inicio: ev.start_datetime,
-          fim: ev.end_datetime,
+          inicio: ev.start_datetime.split('T')[1].substring(0, 5),
+          fim: ev.end_datetime.split('T')[1].substring(0, 5),
           conflito: 'INTERVALO_INSUFICIENTE',
-          intervalo: Math.round((startB - endA) / 60000) // minutos
+          intervalo: Math.round((startB - endA) / 60000)
         });
       }
     });
@@ -424,8 +570,8 @@ export const checkConflicts = async (req, res) => {
         conflitos.push({
           tipo: 'REQUISIÇÃO',
           nome: req.event_name || 'Requisição',
-          inicio: req.start_datetime,
-          fim: req.end_datetime,
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
           status: req.status,
           conflito: 'SOBREPOSIÇÃO_DIRETA'
         });
@@ -436,22 +582,22 @@ export const checkConflicts = async (req, res) => {
         conflitos.push({
           tipo: 'REQUISIÇÃO',
           nome: req.event_name || 'Requisição',
-          inicio: req.start_datetime,
-          fim: req.end_datetime,
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
           status: req.status,
           conflito: 'INTERVALO_INSUFICIENTE',
-          intervalo: Math.round((startA - endB) / 60000) // minutos
+          intervalo: Math.round((startA - endB) / 60000)
         });
       }
       if (endA <= startB && (startB - endA) < intervaloMinimoMs) {
         conflitos.push({
           tipo: 'REQUISIÇÃO',
           nome: req.event_name || 'Requisição',
-          inicio: req.start_datetime,
-          fim: req.end_datetime,
+          inicio: req.start_datetime.split('T')[1].substring(0, 5),
+          fim: req.end_datetime.split('T')[1].substring(0, 5),
           status: req.status,
           conflito: 'INTERVALO_INSUFICIENTE',
-          intervalo: Math.round((startB - endA) / 60000) // minutos
+          intervalo: Math.round((startB - endA) / 60000)
         });
       }
     });
@@ -459,26 +605,16 @@ export const checkConflicts = async (req, res) => {
     const temConflitoDireto = conflitos.some(c => c.conflito === 'SOBREPOSIÇÃO_DIRETA');
     const temConflitoIntervalo = conflitos.some(c => c.conflito === 'INTERVALO_INSUFICIENTE');
 
-    return res.status(200).json({
-      success: true,
+    return {
       temConflito: conflitos.length > 0,
       temConflitoDireto,
       temConflitoIntervalo,
-      conflitos,
-      message: temConflitoDireto 
-        ? 'Existe conflito direto de horário. Não é possível criar esta requisição.'
-        : temConflitoIntervalo 
-        ? 'Existe conflito de intervalo. A requisição será marcada como pendente de conflito.'
-        : 'Nenhum conflito encontrado.'
-    });
+      conflitos
+    };
 
   } catch (error) {
-    console.error('❌ Erro ao verificar conflitos:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Erro interno do servidor ao verificar conflitos', 
-      error: error.message 
-    });
+    console.error('❌ Erro ao verificar conflitos na aprovação:', error);
+    return { temConflito: false, conflitos: [] };
   }
 };
 
@@ -800,6 +936,52 @@ export const approveRequest = async (req, res) => {
     if (!['PENDENTE', 'PENDENTE_CONFLITO'].includes(requestData.status)) {
       return res.status(400).json({ success: false, message: 'Só é possível aprovar requisições com status PENDENTE ou PENDENTE_CONFLITO.' });
     }
+
+    // Verificar conflitos antes de aprovar
+    console.log('🔍 [approveRequest] Verificando conflitos antes da aprovação...');
+    const resultadoConflitos = await verificarConflitosAprovacao(requestData);
+    
+    if (resultadoConflitos.temConflito) {
+      console.log('⚠️ [approveRequest] Conflitos detectados:', resultadoConflitos.conflitos);
+      
+      // Se há conflito direto, impedir a aprovação
+      if (resultadoConflitos.temConflitoDireto) {
+        return res.status(400).json({
+          success: false,
+          message: 'Não é possível aprovar esta requisição. Existe conflito direto de horário com uma requisição/evento já aprovado para este local.',
+          conflitos: resultadoConflitos.conflitos,
+          tipoConflito: 'DIRETO'
+        });
+      }
+      
+      // Se há apenas conflito de intervalo, marcar como PENDENTE_CONFLITO
+      if (resultadoConflitos.temConflitoIntervalo) {
+        const { data: request, error } = await supabase
+          .from('requests')
+          .update({
+            status: 'PENDENTE_CONFLITO',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single();
+        
+        if (error || !request) {
+          return res.status(400).json({ success: false, message: 'Erro ao atualizar status da requisição.', error: error?.message });
+        }
+        
+        return res.status(200).json({
+          success: true,
+          message: 'Requisição marcada como PENDENTE_CONFLITO devido a conflito de intervalo.',
+          conflitos: resultadoConflitos.conflitos,
+          tipoConflito: 'INTERVALO',
+          request
+        });
+      }
+    }
+
+    // Se não há conflitos ou apenas conflitos de intervalo que foram tratados, aprovar normalmente
+    console.log('✅ [approveRequest] Nenhum conflito direto detectado. Aprovando requisição...');
 
     // Preparar histórico de status
     // const statusHistory = requestData.status_history || [];

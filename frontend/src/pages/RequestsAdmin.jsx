@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
-import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao } from '../services/requestsService';
+import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao, aprovarRequisicao, rejeitarRequisicao } from '../services/requestsService';
 import { listarItensInventario } from '../services/inventoryService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
@@ -153,14 +153,45 @@ export default function RequestsAdmin() {
 
   async function aprovar(id) {
     try {
-      await aprovarRequisicao(id);
-      mostrarNotificacao('Requisição aprovada com sucesso!', 'sucesso');
-      mostrarNotificacaoModal('Requisição aprovada com sucesso!', 'sucesso');
+      const resultado = await aprovarRequisicao(id);
+      
+      // Verificar se há conflitos
+      if (resultado.tipoConflito) {
+        if (resultado.tipoConflito === 'DIRETO') {
+          mostrarNotificacao('Não é possível aprovar. Existe conflito direto de horário.', 'erro');
+          mostrarNotificacaoModal('Não é possível aprovar. Existe conflito direto de horário.', 'erro');
+        } else if (resultado.tipoConflito === 'INTERVALO') {
+          mostrarNotificacao('Requisição marcada como PENDENTE_CONFLITO devido a conflito de intervalo.', 'aviso');
+          mostrarNotificacaoModal('Requisição marcada como PENDENTE_CONFLITO devido a conflito de intervalo.', 'aviso');
+        }
+      } else {
+        mostrarNotificacao('Requisição aprovada com sucesso!', 'sucesso');
+        mostrarNotificacaoModal('Requisição aprovada com sucesso!', 'sucesso');
+      }
+      
       buscarRequisicoes();
       setModalDetalhe(false);
-    } catch {
-      mostrarNotificacao('Erro ao aprovar requisição', 'erro');
-      mostrarNotificacaoModal('Erro ao aprovar requisição', 'erro');
+    } catch (error) {
+      try {
+        // Tentar parsear o erro como JSON para verificar se há conflitos
+        const errorData = JSON.parse(error.message);
+        if (errorData.tipoConflito) {
+          if (errorData.tipoConflito === 'DIRETO') {
+            mostrarNotificacao('Não é possível aprovar. Existe conflito direto de horário.', 'erro');
+            mostrarNotificacaoModal('Não é possível aprovar. Existe conflito direto de horário.', 'erro');
+          } else if (errorData.tipoConflito === 'INTERVALO') {
+            mostrarNotificacao('Requisição marcada como PENDENTE_CONFLITO devido a conflito de intervalo.', 'aviso');
+            mostrarNotificacaoModal('Requisição marcada como PENDENTE_CONFLITO devido a conflito de intervalo.', 'aviso');
+          }
+        } else {
+          mostrarNotificacao(errorData.message || 'Erro ao aprovar requisição', 'erro');
+          mostrarNotificacaoModal(errorData.message || 'Erro ao aprovar requisição', 'erro');
+        }
+      } catch {
+        // Se não conseguir parsear como JSON, mostrar erro genérico
+        mostrarNotificacao('Erro ao aprovar requisição', 'erro');
+        mostrarNotificacaoModal('Erro ao aprovar requisição', 'erro');
+      }
     }
   }
 

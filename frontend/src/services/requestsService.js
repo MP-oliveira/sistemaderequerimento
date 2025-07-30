@@ -77,14 +77,25 @@ export async function listarRequisicoes() {
 export async function aprovarRequisicao(id) {
   try {
     const response = await fetch(`${API_URL}/api/requests/${id}/approve`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: getAuthHeaders(),
     });
+    
+    const data = await response.json();
+    
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erro ao aprovar requisição');
+      // Se há conflitos, retornar informações detalhadas
+      if (data.tipoConflito) {
+        throw new Error(JSON.stringify({
+          message: data.message,
+          tipoConflito: data.tipoConflito,
+          conflitos: data.conflitos
+        }));
+      }
+      throw new Error(data.message || 'Erro ao aprovar requisição');
     }
-    return await response.json();
+    
+    return data;
   } catch (err) {
     throw err;
   }
@@ -93,7 +104,7 @@ export async function aprovarRequisicao(id) {
 export async function rejeitarRequisicao(id, motivo) {
   try {
     const response = await fetch(`${API_URL}/api/requests/${id}/reject`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify({ rejection_reason: motivo }),
     });
@@ -110,7 +121,7 @@ export async function rejeitarRequisicao(id, motivo) {
 export async function executarRequisicao(id) {
   try {
     const response = await fetch(`${API_URL}/api/requests/${id}/execute`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: getAuthHeaders(),
     });
     if (!response.ok) {
@@ -126,9 +137,9 @@ export async function executarRequisicao(id) {
 export async function finalizarRequisicao(id, itensDevolvidos) {
   try {
     const response = await fetch(`${API_URL}/api/requests/${id}/finish`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ itensDevolvidos }),
+      body: JSON.stringify({ itens_devolvidos: itensDevolvidos }),
     });
     if (!response.ok) {
       const error = await response.json();
@@ -233,13 +244,9 @@ export async function removerComprovante(comprovanteId) {
 export async function atualizarRequisicao(id, data) {
   try {
     const response = await fetch(`${API_URL}/api/requests/${id}`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify({
-        description: data.description,
-        event_name: data.event_name,
-        date: data.date
-      }),
+      body: JSON.stringify(data),
     });
     if (!response.ok) {
       const error = await response.json();
@@ -302,16 +309,14 @@ export async function getRequisicaoDetalhada(id) {
 export async function retornarInstrumentos(id, returnNotes = '') {
   try {
     const response = await fetch(`${API_URL}/api/requests/${id}/return-instruments`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ return_notes: returnNotes })
+      body: JSON.stringify({ return_notes: returnNotes }),
     });
-
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Erro ao retornar instrumentos');
     }
-
     return await response.json();
   } catch (err) {
     throw err;

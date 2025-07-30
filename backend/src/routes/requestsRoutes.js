@@ -1,4 +1,5 @@
 import express from 'express';
+import { authenticateToken } from '../middlewares/authMiddleware.js';
 import { 
   createRequest, 
   listRequests, 
@@ -7,65 +8,45 @@ import {
   executeRequest, 
   rejectRequest, 
   finishRequest,
-  returnInstruments,
-  getApprovedRequestsForCalendar,
   uploadComprovante,
   listComprovantes,
   downloadComprovante,
   removeComprovante,
-  uploadMiddleware,
-  deleteRequest,
   updateRequest,
+  deleteRequest,
+  returnInstruments,
+  getApprovedRequestsForCalendar,
   checkConflicts,
   checkRealTimeConflicts
 } from '../controllers/RequestsController.js';
-import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Verificar conflitos em tempo real
-router.post('/check-realtime-conflicts', authenticateToken, checkRealTimeConflicts);
-
-// Verificar conflitos de horário
-router.post('/check-conflicts', authenticateToken, checkConflicts);
-
-// Criar requisição
+// Rotas para requisições
 router.post('/', authenticateToken, createRequest);
-
-// Listar requisições (do usuário ou todas se ADM)
 router.get('/', authenticateToken, listRequests);
-
-// Buscar requisições aprovadas para calendário
-router.get('/calendar/approved', authenticateToken, getApprovedRequestsForCalendar);
-
-// Detalhar requisição
+router.get('/calendar', authenticateToken, getApprovedRequestsForCalendar);
 router.get('/:id', authenticateToken, getRequest);
-
-// Aprovar requisição
-router.patch('/:id/approve', authenticateToken, approveRequest);
-
-// Executar requisição
-router.patch('/:id/execute', authenticateToken, executeRequest);
-
-// Rejeitar requisição
-router.patch('/:id/reject', authenticateToken, rejectRequest);
-
-// Finalizar requisição (devolução de itens)
-router.patch('/:id/finish', authenticateToken, finishRequest);
-
-// Retornar instrumentos ao inventário
-router.patch('/:id/return-instruments', authenticateToken, returnInstruments);
-
-// Atualizar requisição
-router.patch('/:id', authenticateToken, updateRequest);
-
-// Comprovantes
-router.post('/:request_id/comprovantes', authenticateToken, uploadMiddleware, uploadComprovante);
-router.get('/:request_id/comprovantes', authenticateToken, listComprovantes);
-router.get('/comprovantes/:id/download', authenticateToken, downloadComprovante);
-router.delete('/comprovantes/:id', authenticateToken, removeComprovante);
-
-// Deletar requisição
+router.put('/:id', authenticateToken, updateRequest);
 router.delete('/:id', authenticateToken, deleteRequest);
+
+// Rotas para aprovação e execução
+router.put('/:id/approve', authenticateToken, approveRequest);
+router.put('/:id/execute', authenticateToken, executeRequest);
+router.put('/:id/reject', authenticateToken, rejectRequest);
+router.put('/:id/finish', authenticateToken, finishRequest);
+
+// Rotas para comprovantes
+router.post('/:id/comprovantes', authenticateToken, uploadComprovante);
+router.get('/:id/comprovantes', authenticateToken, listComprovantes);
+router.get('/:id/comprovantes/:filename', authenticateToken, downloadComprovante);
+router.delete('/:id/comprovantes/:filename', authenticateToken, removeComprovante);
+
+// Rotas para retorno de instrumentos
+router.put('/:id/return-instruments', authenticateToken, returnInstruments);
+
+// Rotas para verificação de conflitos
+router.post('/check-conflicts', authenticateToken, checkConflicts);
+router.post('/check-realtime-conflicts', authenticateToken, checkRealTimeConflicts);
 
 export default router;
