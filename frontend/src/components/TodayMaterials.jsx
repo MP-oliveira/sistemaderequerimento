@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { listarItensDoDia, marcarItemComoSeparado } from '../services/requestItemsService';
 import { formatTimeUTC } from '../utils/dateUtils';
 import './TodayMaterials.css';
-import { FiClock, FiMapPin, FiUsers, FiCheck, FiX, FiPackage } from 'react-icons/fi';
+import { FiClock, FiMapPin, FiUsers, FiCheck, FiX, FiPackage, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 
 export default function TodayMaterials() {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [expandedRequests, setExpandedRequests] = useState(new Set());
 
   useEffect(() => {
     carregarMateriais();
@@ -35,6 +36,16 @@ export default function TodayMaterials() {
 
   const formatTime = (dateString) => {
     return formatTimeUTC(dateString);
+  };
+
+  const toggleRequest = (requestId) => {
+    const newExpanded = new Set(expandedRequests);
+    if (newExpanded.has(requestId)) {
+      newExpanded.delete(requestId);
+    } else {
+      newExpanded.add(requestId);
+    }
+    setExpandedRequests(newExpanded);
   };
 
   // Agrupar materiais por requisição
@@ -97,11 +108,24 @@ export default function TodayMaterials() {
       </div>
 
       <div className="materials-list">
-        {Object.values(materialsByRequest).map(({ request, items }) => (
+        {Object.values(materialsByRequest).map(({ request, items }) => {
+          const isExpanded = expandedRequests.has(request.id);
+          const separatedCount = items.filter(item => item.is_separated).length;
+          const totalCount = items.length;
+          
+          return (
           <div key={request.id} className="request-materials-card">
-            <div className="request-header">
+              <div 
+                className="request-header accordion-header"
+                onClick={() => toggleRequest(request.id)}
+              >
               <div className="request-info">
+                  <div className="request-title-row">
+                    <button className="accordion-toggle">
+                      {isExpanded ? <FiChevronDown size={16} /> : <FiChevronRight size={16} />}
+                    </button>
                 <h4>{request.event_name || request.description || 'Evento'}</h4>
+                  </div>
                 <div className="request-meta">
                   <span className="department">{request.department}</span>
                   <span className="time">
@@ -117,6 +141,7 @@ export default function TodayMaterials() {
                 </div>
               </div>
               <div className="request-status">
+                  <div className="status-info">
                 <span 
                   className="status-badge"
                   style={{ 
@@ -138,10 +163,15 @@ export default function TodayMaterials() {
                    request.status === 'REJEITADO' ? 'Rejeitada' : 
                    request.status === 'PENDENTE_CONFLITO' ? 'Em Conflito' : request.status}
                 </span>
+                    <span className="items-count">
+                      {separatedCount}/{totalCount} itens
+                    </span>
+                  </div>
               </div>
             </div>
 
-            <div className="materials-items">
+              {isExpanded && (
+                <div className="materials-items accordion-content">
               <h5>Materiais Necessários:</h5>
               <div className="items-list">
                 {items.map((item) => (
@@ -165,18 +195,20 @@ export default function TodayMaterials() {
                     </button>
                   </div>
                 ))}
-              </div>
             </div>
             <div className="request-progress">
               <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${items.length > 0 ? (items.filter(item => item.is_separated).length / items.length) * 100 : 0}%` }}></div>
+                      <div className="progress-fill" style={{ width: `${totalCount > 0 ? (separatedCount / totalCount) * 100 : 0}%` }}></div>
               </div>
               <span className="progress-text">
-                {items.filter(item => item.is_separated).length} de {items.length} materiais separados
+                      {separatedCount} de {totalCount} materiais separados
               </span>
             </div>
           </div>
-        ))}
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

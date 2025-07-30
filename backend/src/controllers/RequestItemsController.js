@@ -136,7 +136,7 @@ const getTodayItems = async (req, res) => {
 
     // Buscar itens dessas requisições
     const requestIds = todayRequests.map(req => req.id);
-    
+
     const { data, error } = await supabase
       .from('request_items')
       .select(`
