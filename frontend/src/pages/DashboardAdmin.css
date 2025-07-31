@@ -127,6 +127,25 @@
   color: #fff !important;
   fill: #fff !important;
   stroke: #fff !important;
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+}
+
+/* Regras específicas para ícones Feather */
+.admin-stat-icon svg[data-feather] {
+  color: #fff !important;
+  fill: none !important;
+  stroke: #fff !important;
+  stroke-width: 2 !important;
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+}
+
+/* Fallback para qualquer ícone */
+.admin-stat-icon * {
+  color: #fff !important;
+  fill: #fff !important;
+  stroke: #fff !important;
 }
 
 .admin-stat-content {

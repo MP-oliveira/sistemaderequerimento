@@ -3,7 +3,7 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Table from '../components/Table';
 import AdminButtons from '../components/AdminButtons';
-import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag } from 'react-icons/fi';
+import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag, FiList, FiCheckSquare, FiXSquare, FiPlay, FiFileText, FiPause, FiAlertCircle, FiCheck, FiX, FiActivity, FiThumbsUp, FiThumbsDown, FiShield, FiStar, FiAward } from 'react-icons/fi';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao } from '../services/requestsService';
 import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparation } from '../utils/notificationUtils';
 import './DashboardAdmin.css';
@@ -218,7 +218,7 @@ export default function DashboardAdmin() {
           <div className="admin-stats-grid">
             <div className="admin-stat-card" onClick={() => abrirFiltro('TOTAL')}>
               <div className="admin-stat-icon blue">
-                <FiBarChart2 />
+                <FiList />
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.total}</h3>
@@ -228,7 +228,7 @@ export default function DashboardAdmin() {
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('PENDENTE')}>
               <div className="admin-stat-icon yellow">
-                <FiClock />
+                <FiPause />
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.pendentes}</h3>
@@ -238,7 +238,7 @@ export default function DashboardAdmin() {
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('PENDENTE_CONFLITO')}>
               <div className="admin-stat-icon orange">
-                <FiAlertTriangle />
+                <FiShield />
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.conflitos}</h3>
@@ -248,7 +248,7 @@ export default function DashboardAdmin() {
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('APTO')}>
               <div className="admin-stat-icon success">
-                <FiCheckCircle />
+                <FiThumbsUp />
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.aprovadas}</h3>
@@ -258,7 +258,7 @@ export default function DashboardAdmin() {
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('REJEITADO')}>
               <div className="admin-stat-icon red">
-                <FiXCircle />
+                <FiX />
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.rejeitadas}</h3>
@@ -268,7 +268,7 @@ export default function DashboardAdmin() {
             
             <div className="admin-stat-card" onClick={() => abrirFiltro('EXECUTADO')}>
               <div className="admin-stat-icon purple">
-                <FiFlag />
+                <FiActivity />
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.executadas}</h3>
