@@ -24,18 +24,22 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100vh;
+  height: auto !important;
+  min-height: 100vh !important;
   width: 100vw;
-  overflow: hidden;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   box-sizing: border-box;
 }
 
 #root {
-  height: 100vh;
+  height: auto !important;
+  min-height: 100vh !important;
   width: 100vw;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
 }
 
 html,

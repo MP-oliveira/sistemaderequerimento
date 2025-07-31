@@ -194,7 +194,7 @@ export default function DashboardAdmin() {
   };
 
   const requisicoesPendentes = requisicoes.filter(r => r.status === 'PENDENTE').slice(0, 5);
-
+  
   return (
     <div className="dashboard-admin">
       <AdminButtons />
@@ -229,6 +229,7 @@ export default function DashboardAdmin() {
             <div className="admin-stat-card" onClick={() => abrirFiltro('PENDENTE')}>
               <div className="admin-stat-icon yellow">
                 <FiPause />
+                {stats.pendentes > 0 && <span className="stat-badge">{stats.pendentes}</span>}
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.pendentes}</h3>
@@ -239,6 +240,7 @@ export default function DashboardAdmin() {
             <div className="admin-stat-card" onClick={() => abrirFiltro('PENDENTE_CONFLITO')}>
               <div className="admin-stat-icon orange">
                 <FiShield />
+                {stats.conflitos > 0 && <span className="stat-badge">{stats.conflitos}</span>}
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.conflitos}</h3>
@@ -249,6 +251,7 @@ export default function DashboardAdmin() {
             <div className="admin-stat-card" onClick={() => abrirFiltro('APTO')}>
               <div className="admin-stat-icon success">
                 <FiThumbsUp />
+                {stats.aprovadas > 0 && <span className="stat-badge success">{stats.aprovadas}</span>}
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.aprovadas}</h3>
@@ -259,6 +262,7 @@ export default function DashboardAdmin() {
             <div className="admin-stat-card" onClick={() => abrirFiltro('REJEITADO')}>
               <div className="admin-stat-icon red">
                 <FiX />
+                {stats.rejeitadas > 0 && <span className="stat-badge">{stats.rejeitadas}</span>}
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.rejeitadas}</h3>
@@ -269,6 +273,7 @@ export default function DashboardAdmin() {
             <div className="admin-stat-card" onClick={() => abrirFiltro('EXECUTADO')}>
               <div className="admin-stat-icon purple">
                 <FiActivity />
+                {stats.executadas > 0 && <span className="stat-badge purple">{stats.executadas}</span>}
               </div>
               <div className="admin-stat-content">
                 <h3>{stats.executadas}</h3>
