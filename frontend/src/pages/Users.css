@@ -335,6 +335,21 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
+  .users-header-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .users-header-bottom h2 {
+    margin-bottom: 0;
+  }
+
+  .users-header-bottom .btn-primary {
+    font-size: 0.9rem !important;
+    padding: 8px 16px !important;
+  }
+
   .users-list-container {
     padding: 16px;
     margin: 16px 0;
