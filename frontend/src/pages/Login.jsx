@@ -41,39 +41,41 @@ export default function Login() {
   }
 
   return (
-    <div className="login-bg">
-      <div
-        className="login-watermark"
-        style={{ backgroundImage: `url(${ibvaLogo})` }}
-      ></div>
-      <div className="login-card">
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="login-form-content">
-            <h2>Login</h2>
-            <input
-              type="email"
-              placeholder="E-mail"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Senha"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-            {error && <div className="error">{error}</div>}
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary login-submit-btn"
-          >
-            {loading ? 'Entrando...' : 'Entrar'}
-          </button>
-        </form>
+    <div className="login-page">
+      <div className="login-bg">
+        <div
+          className="login-watermark"
+          style={{ backgroundImage: `url(${ibvaLogo})` }}
+        ></div>
+        <div className="login-card">
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="login-form-content">
+              <h2>Login</h2>
+              <input
+                type="email"
+                placeholder="E-mail"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Senha"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+              {error && <div className="error">{error}</div>}
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary login-submit-btn"
+            >
+              {loading ? 'Entrando...' : 'Entrar'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

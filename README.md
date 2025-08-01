@@ -177,7 +177,7 @@ O Sistema de Requisições é uma aplicação web completa desenvolvida para ger
 ## 🚀 Instalação
 
 ### **Pré-requisitos**
-- Node.js 18+ 
+- Node.js 18+
 - npm ou yarn
 - Conta no Supabase
 

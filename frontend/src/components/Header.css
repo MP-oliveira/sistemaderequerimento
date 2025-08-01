@@ -20,7 +20,8 @@
 .header-left {
   display: flex;
   align-items: center;
-  flex: 1;
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 .header-logo {
@@ -28,6 +29,7 @@
   width: auto;
   filter: brightness(0) invert(1);
   transition: filter 0.2s;
+  flex-shrink: 0;
 }
 
 .header-logo:hover {
@@ -38,25 +40,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 2;
+  flex: 1;
+  min-width: 0;
+  position: relative;
 }
 
 .header-title {
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #fff;
+  color: #fff !important;
   font-family: 'Montserrat', Arial, sans-serif;
   margin: 0;
-  text-align: center;
+  text-align: center !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 16px;
-  flex: 1;
+  flex: 0 0 auto;
   justify-content: flex-end;
+  min-width: 0;
 }
 
 .header-user-name {
@@ -150,13 +159,32 @@
     height: 52px;
   }
 
+  .header-left {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  .header-center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .header-title {
     font-size: 1rem;
     letter-spacing: 0.3px;
+    text-align: center !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
   
   .header-logo {
     height: 24px;
+    flex-shrink: 0;
   }
   
   .header-user-name {
@@ -166,6 +194,8 @@
   
   .header-right {
     gap: 8px;
+    flex: 0 0 auto;
+    min-width: 0;
   }
   
   .header-login-btn,
@@ -173,14 +203,114 @@
     padding: 6px 12px;
     font-size: 0.8rem;
     border-radius: 6px;
+    flex-shrink: 0;
   }
-  
-  .header-center {
-    flex: 1;
-    margin: 0 8px;
+}
+
+/* iPhone 12 Pro e menores */
+@media (max-width: 390px) {
+  .main-header {
+    padding: 0 8px;
+    height: 48px;
   }
-  
+
   .header-left {
     flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  .header-center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-title {
+    font-size: 0.9rem;
+    letter-spacing: 0.2px;
+    text-align: center !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .header-logo {
+    height: 22px;
+    flex-shrink: 0;
+  }
+  
+  .header-user-name {
+    display: none;
+  }
+  
+  .header-right {
+    gap: 6px;
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+  
+  .header-login-btn,
+  .header-logout-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+}
+
+/* iPhone 14/15/16 Pro Max */
+@media (min-width: 391px) and (max-width: 430px) {
+  .main-header {
+    padding: 0 10px;
+    height: 50px;
+  }
+
+  .header-left {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  .header-center {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-title {
+    font-size: 0.95rem;
+    letter-spacing: 0.25px;
+    text-align: center !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  
+  .header-logo {
+    height: 23px;
+    flex-shrink: 0;
+  }
+  
+  .header-user-name {
+    display: none;
+  }
+  
+  .header-right {
+    gap: 7px;
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+  
+  .header-login-btn,
+  .header-logout-btn {
+    padding: 5px 11px;
+    font-size: 0.78rem;
+    border-radius: 5px;
+    flex-shrink: 0;
   }
 }

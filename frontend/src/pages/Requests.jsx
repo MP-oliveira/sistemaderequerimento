@@ -9,10 +9,6 @@ import Input from '../components/Input';
 import { 
   criarRequisicao, 
   listarRequisicoes, 
-  aprovarRequisicao, 
-  rejeitarRequisicao, 
-  executarRequisicao, 
-  finalizarRequisicao, 
   deletarRequisicao, 
   atualizarRequisicao, 
   getRequisicaoDetalhada,
