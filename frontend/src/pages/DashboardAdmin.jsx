@@ -93,7 +93,7 @@ export default function DashboardAdmin() {
     if (!dataString) return '';
     try {
       return new Date(dataString).toLocaleDateString('pt-BR');
-    } catch (error) {
+    } catch {
       return '';
     }
   };
@@ -172,43 +172,9 @@ export default function DashboardAdmin() {
     carregarDados();
   }, []);
 
-  // Configuração das colunas da tabela
-  const columns = [
-    { key: 'event_name', label: 'Evento' },
-    { key: 'department', label: 'Departamento' },
-    { key: 'requester', label: 'Solicitante' },
-    { key: 'start_datetime', label: 'Data/Hora Início' },
-    { key: 'end_datetime', label: 'Data/Hora Fim' },
-    { key: 'location', label: 'Local' },
-    { key: 'status', label: 'Status' }
-  ];
 
-  // Formatar dados para a tabela
-  const formatTableData = (requests) => {
-    return requests.map(request => ({
-      ...request,
-      start_datetime: new Date(request.start_datetime).toLocaleString('pt-BR'),
-      end_datetime: new Date(request.end_datetime).toLocaleString('pt-BR'),
-      status: (
-        <span 
-          className="status-badge-table"
-          style={{ 
-            backgroundColor: 'transparent',
-            color: getStatusColor(request.status),
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '0.8rem',
-            fontWeight: '700'
-          }}
-        >
-          {request.status}
-        </span>
-      )
-    }));
-  };
 
-  const requisicoesPendentes = requisicoes.filter(r => r.status === 'PENDENTE').slice(0, 5);
-  
+  const requisicoesPendentes = requisicoes.filter(r => r.status === 'PENDENTE' || r.status === 'PENDENTE_CONFLITO').slice(0, 5);
   return (
     <div className="dashboard-admin">
       <AdminButtons />
@@ -333,7 +299,7 @@ export default function DashboardAdmin() {
               </Button>
             </div>
             
-            {requisicoesPendentes.filter(req => req.status === 'PENDENTE' || req.status === 'PENDENTE_CONFLITO').length === 0 ? (
+            {requisicoesPendentes.length === 0 ? (
               <div className="requests-empty">
                 <span>🎉</span>
                 <p>Nenhuma requisição pendente de aprovação!</p>
@@ -341,9 +307,7 @@ export default function DashboardAdmin() {
               </div>
             ) : (
               <div className="requests-list-container">
-                {requisicoesPendentes
-                  .filter(req => req.status === 'PENDENTE' || req.status === 'PENDENTE_CONFLITO')
-                  .map((req) => (
+                {requisicoesPendentes.map((req) => (
                   <div key={req.id} className="request-item">
                     <div className="request-item-content">
                       <div className="request-item-header">
@@ -429,6 +393,82 @@ export default function DashboardAdmin() {
                 Relatórios Admin
               </a>
             </div>
+          </div>
+
+          {/* Lista de Requisições */}
+          <div className="dashboard-section">
+            <div className="section-header">
+              <h2>Todas as Requisições</h2>
+              <Button 
+                variant="primary" 
+                size="sm" 
+                onClick={() => window.location.href = '/admin/requisicoes'}
+              >
+                Ver Todas
+              </Button>
+            </div>
+            
+            {requisicoes.length === 0 ? (
+              <div className="requests-empty">
+                <span>📋</span>
+                <p>Nenhuma requisição encontrada!</p>
+              </div>
+            ) : (
+              <div className="requests-list-container">
+                {requisicoes.slice(0, 10).map((req) => (
+                  <div key={req.id} className="request-item">
+                    <div className="request-item-content">
+                      <div className="request-item-header">
+                        <span className="request-item-title">
+                          {req.department}
+                        </span>
+                        <span 
+                          className="request-item-status"
+                          style={{ 
+                            backgroundColor: 'transparent',
+                            color: getStatusColor(req.status),
+                            padding: '2px 8px', 
+                            borderRadius: '12px', 
+                            fontSize: '0.8rem',
+                            fontWeight: '700'
+                          }}
+                        >
+                          ({req.status})
+                        </span>
+                        <span className="request-item-event">
+                          {req.event_name || ''}
+                        </span>
+                      </div>
+                      <div className="request-item-details">
+                        <span className="request-item-date">
+                          Data: {formatarData(req.start_datetime)}
+                        </span>
+                        {req.location && (
+                          <span className="request-item-location">
+                            Local: {req.location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="request-item-actions">
+                      <Button 
+                        onClick={() => {
+                          setReqDetalhe(req);
+                          setModalDetalhe(true);
+                        }}
+                        variant="icon-blue" 
+                        size="sm"
+                        className="details-button"
+                        title="Ver Detalhes"
+                      >
+                        <FiEye size={18} className="details-icon" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}
