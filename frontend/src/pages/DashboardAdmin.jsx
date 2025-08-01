@@ -344,8 +344,8 @@ export default function DashboardAdmin() {
                     </div>
                     
                     <div className="request-item-actions">
-                      <Button 
-                        variant="success" 
+                                            <Button
+                        variant="success"
                         size="sm"
                         onClick={() => aprovarRequisicaoHandler(req.id)}
                         className="approve-button"
@@ -353,6 +353,29 @@ export default function DashboardAdmin() {
                       >
                         ✅ Aprovar
                       </Button>
+                      <button 
+                        onClick={() => aprovarRequisicaoHandler(req.id)}
+                        className="mobile-approve-native"
+                        title="Aprovar"
+                        style={{
+                          display: 'none',
+                          background: '#10b981',
+                          color: 'white',
+                          border: 'none',
+                          padding: '0',
+                          borderRadius: '8px',
+                          fontSize: '1.2rem',
+                          cursor: 'pointer',
+                          width: '50px',
+                          minWidth: '50px',
+                          height: '50px',
+                          margin: '0 5px',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        ✅
+                      </button>
                       <Button 
                         variant="danger" 
                         size="sm"
@@ -362,6 +385,29 @@ export default function DashboardAdmin() {
                       >
                         ✕ Rejeitar
                       </Button>
+                      <button 
+                        onClick={() => rejeitarRequisicaoHandler(req.id)}
+                        className="mobile-reject-native"
+                        title="Rejeitar"
+                        style={{
+                          display: 'none',
+                          background: '#ef4444',
+                          color: 'white',
+                          border: 'none',
+                          padding: '0',
+                          borderRadius: '8px',
+                          fontSize: '1.2rem',
+                          cursor: 'pointer',
+                          width: '50px',
+                          minWidth: '50px',
+                          height: '50px',
+                          margin: '0 5px',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        ✕
+                      </button>
                     </div>
                   </div>
                 ))}
