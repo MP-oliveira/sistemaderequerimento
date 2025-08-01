@@ -771,7 +771,8 @@ body, html {
 
   .quick-actions {
     margin: 0;
-    padding: 20px 16px;
+    /* padding: 20px 16px; */
+    width: 350px;
   }
 
   .actions-grid {
@@ -977,5 +978,280 @@ body, html {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
+  }
+}
+
+/* Container dos cards centralizado */
+@media (max-width: 768px) {
+  .filtered-requests {
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .filtered-requests {
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Cards do Modal - Baseado no modelo da foto */
+.requests-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  padding-bottom: 32px;
+}
+
+.request-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.request-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.request-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.request-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  flex: 1;
+}
+
+.request-card-status {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.request-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.request-card-info {
+  font-size: 0.9rem;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.request-card-info strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.request-card-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.request-card-view-btn {
+  background: #14b8a6;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 4px rgba(20, 184, 166, 0.3);
+}
+
+.request-card-view-btn svg {
+  color: white !important;
+  stroke: white !important;
+  fill: none !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.request-card-view-btn * {
+  color: white !important;
+  stroke: white !important;
+  fill: none !important;
+}
+
+/* Forçar cor branca para o ícone */
+.request-card-view-btn svg,
+.request-card-view-btn svg * {
+  color: white !important;
+  stroke: white !important;
+  fill: none !important;
+}
+
+.request-card-view-btn:hover {
+  background: #0d9488;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(20, 184, 166, 0.4);
+}
+
+.request-card-view-btn:active {
+  transform: scale(0.95);
+}
+
+/* Modal de Detalhes */
+.request-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-item strong {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.detail-item span {
+  color: #374151;
+  font-size: 1rem;
+}
+
+.status-badge {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 4px;
+  align-self: flex-start;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.status-badge.pendente {
+  color: #ff9800;
+}
+
+.status-badge.apto {
+  color: #4caf50;
+}
+
+.status-badge.rejeitado {
+  color: #f44336;
+}
+
+.status-badge.executado {
+  color: #9c27b0;
+}
+
+.status-badge.pendente_conflito {
+  color: #ff5722;
+}
+
+.status-badge.preenchido {
+  color: #2196f3;
+}
+
+/* Responsividade dos cards */
+@media (max-width: 768px) {
+  .requests-cards-grid {
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  .request-card {
+    padding: 16px;
+  }
+
+  .request-card-title {
+    font-size: 1rem;
+  }
+
+  .request-card-status {
+    font-size: 0.75rem;
+  }
+
+  .request-card-info {
+    font-size: 0.85rem;
+  }
+
+  .request-card-view-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .request-details {
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .detail-item {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 430px) {
+  .requests-cards-grid {
+    gap: 10px;
+    padding: 2px 0;
+  }
+
+  .request-card {
+    padding: 14px;
+  }
+
+  .request-card-title {
+    font-size: 0.95rem;
+  }
+
+  .request-card-status {
+    font-size: 0.7rem;
+  }
+
+  .request-card-info {
+    font-size: 0.8rem;
+  }
+
+  .request-card-view-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .request-details {
+    gap: 10px;
+    padding: 10px 0;
+  }
+
+  .detail-item {
+    padding: 8px;
   }
 } 

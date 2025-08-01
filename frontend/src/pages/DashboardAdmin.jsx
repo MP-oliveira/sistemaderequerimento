@@ -3,7 +3,7 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Table from '../components/Table';
 import AdminButtons from '../components/AdminButtons';
-import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag, FiList, FiCheckSquare, FiXSquare, FiPlay, FiFileText, FiPause, FiAlertCircle, FiCheck, FiX, FiActivity, FiThumbsUp, FiThumbsDown, FiShield, FiStar, FiAward } from 'react-icons/fi';
+import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag, FiList, FiCheckSquare, FiXSquare, FiPlay, FiFileText, FiPause, FiAlertCircle, FiCheck, FiX, FiActivity, FiThumbsUp, FiThumbsDown, FiShield, FiStar, FiAward, FiEye } from 'react-icons/fi';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao } from '../services/requestsService';
 import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparation } from '../utils/notificationUtils';
 import './DashboardAdmin.css';
@@ -26,6 +26,10 @@ export default function DashboardAdmin() {
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [currentFilter, setCurrentFilter] = useState('');
   const [filterLoading, setFilterLoading] = useState(false);
+
+  // Estados para o modal de detalhes
+  const [modalDetalhe, setModalDetalhe] = useState(false);
+  const [reqDetalhe, setReqDetalhe] = useState(null);
 
   function mostrarNotificacao(mensagem, tipo) {
     setNotificacao({ mensagem, tipo });
@@ -81,6 +85,16 @@ export default function DashboardAdmin() {
       mostrarNotificacao('Erro ao carregar requisições filtradas', 'erro');
     } finally {
       setFilterLoading(false);
+    }
+  };
+
+  // Função para formatar data
+  const formatarData = (dataString) => {
+    if (!dataString) return '';
+    try {
+      return new Date(dataString).toLocaleDateString('pt-BR');
+    } catch (error) {
+      return '';
     }
   };
 
@@ -435,11 +449,61 @@ export default function DashboardAdmin() {
           </div>
         ) : (
           <div className="filtered-requests">
-            <Table 
-              columns={columns}
-              data={formatTableData(filteredRequests)}
-              className="admin-table"
-            />
+            <div className="requests-cards-grid">
+              {filteredRequests.map((request, index) => (
+                <div key={request.id || index} className="request-card">
+                  <div className="request-card-header">
+                    <h3 className="request-card-title">
+                      {request.event_name || request.description || 'Sem título'}
+                    </h3>
+                    <span className="request-card-status">
+                      ({request.status})
+                    </span>
+                  </div>
+                  
+                  <div className="request-card-content">
+                    {request.start_datetime && (
+                      <div className="request-card-info">
+                        <strong>Data:</strong> {formatarData(request.start_datetime)}
+                      </div>
+                    )}
+                    
+                    {request.location && (
+                      <div className="request-card-info">
+                        <strong>Local:</strong> {request.location}
+                      </div>
+                    )}
+                    
+                    {request.department && (
+                      <div className="request-card-info">
+                        <strong>Departamento:</strong> {request.department}
+                      </div>
+                    )}
+                    
+                    {request.requester && (
+                      <div className="request-card-info">
+                        <strong>Solicitante:</strong> {request.requester}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="request-card-actions">
+                    <button 
+                      className="request-card-view-btn"
+                      onClick={() => {
+                        // Abrir modal com detalhes da requisição
+                        setReqDetalhe(request);
+                        setModalDetalhe(true);
+                      }}
+                      title="Ver detalhes"
+                    >
+                      <FiEye size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
             <div className="modal-footer">
               <Button 
                 variant="primary" 
@@ -448,6 +512,70 @@ export default function DashboardAdmin() {
                 Ver Todas as Requisições
               </Button>
             </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal de Detalhes da Requisição */}
+      <Modal 
+        open={modalDetalhe} 
+        onClose={() => setModalDetalhe(false)}
+        title="Detalhes da Requisição"
+      >
+        {reqDetalhe && (
+          <div className="request-details">
+            <div className="detail-item">
+              <strong>Evento:</strong> {reqDetalhe.event_name || reqDetalhe.description || 'Sem título'}
+            </div>
+            
+            <div className="detail-item">
+              <strong>Status:</strong> 
+              <span className={`status-badge ${reqDetalhe.status.toLowerCase()}`}>
+                {reqDetalhe.status}
+              </span>
+            </div>
+            
+            {reqDetalhe.start_datetime && (
+              <div className="detail-item">
+                <strong>Data de Início:</strong> {formatarData(reqDetalhe.start_datetime)}
+              </div>
+            )}
+            
+            {reqDetalhe.end_datetime && (
+              <div className="detail-item">
+                <strong>Data de Fim:</strong> {formatarData(reqDetalhe.end_datetime)}
+              </div>
+            )}
+            
+            {reqDetalhe.location && (
+              <div className="detail-item">
+                <strong>Local:</strong> {reqDetalhe.location}
+              </div>
+            )}
+            
+            {reqDetalhe.department && (
+              <div className="detail-item">
+                <strong>Departamento:</strong> {reqDetalhe.department}
+              </div>
+            )}
+            
+            {reqDetalhe.requester && (
+              <div className="detail-item">
+                <strong>Solicitante:</strong> {reqDetalhe.requester}
+              </div>
+            )}
+            
+            {reqDetalhe.expected_audience && (
+              <div className="detail-item">
+                <strong>Público Esperado:</strong> {reqDetalhe.expected_audience}
+              </div>
+            )}
+            
+            {reqDetalhe.description && (
+              <div className="detail-item">
+                <strong>Descrição:</strong> {reqDetalhe.description}
+              </div>
+            )}
           </div>
         )}
       </Modal>

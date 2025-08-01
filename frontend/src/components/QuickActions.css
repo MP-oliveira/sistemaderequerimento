@@ -46,3 +46,9 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(26, 75, 139, 0.3);
 } 
+
+@media (max-width: 768px) {
+  .quick-actions {
+    max-width: 340px;
+  }
+}
