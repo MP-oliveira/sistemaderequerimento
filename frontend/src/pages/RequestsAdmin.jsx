@@ -10,6 +10,7 @@ import { listarItensInventario } from '../services/inventoryService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
 import { PRIORIDADE_OPTIONS, PRIORIDADE_DEFAULT } from '../utils/prioridadeConfig';
+import { formatTimeUTC } from '../utils/dateUtils';
 import './Requests.css';
 
 export default function RequestsAdmin() {
@@ -100,6 +101,19 @@ export default function RequestsAdmin() {
   function mostrarNotificacaoModal(mensagem, tipo) {
     setNotificacaoModal({ mensagem, tipo, mostrar: true });
   }
+
+  // Função para formatar data e hora
+  const formatarDataHora = (dataString) => {
+    if (!dataString) return '';
+    try {
+      const date = new Date(dataString);
+      const data = date.toLocaleDateString('pt-BR');
+      const hora = formatTimeUTC(dataString);
+      return `${data} ${hora}`;
+    } catch (error) {
+      return '';
+    }
+  };
 
   async function buscarRequisicoes() {
     setLoading(true);
@@ -520,8 +534,8 @@ export default function RequestsAdmin() {
             <div><b>Data:</b> {reqDetalhe.date}</div>
             <div><b>Evento:</b> {reqDetalhe.event_name}</div>
             <div><b>Local:</b> {reqDetalhe.location}</div>
-            <div><b>Início:</b> {reqDetalhe.start_datetime}</div>
-            <div><b>Fim:</b> {reqDetalhe.end_datetime}</div>
+            <div><b>Início:</b> {formatarDataHora(reqDetalhe.start_datetime)}</div>
+            <div><b>Fim:</b> {formatarDataHora(reqDetalhe.end_datetime)}</div>
             <div><b>Público Esperado:</b> {reqDetalhe.expected_audience}</div>
             <div><b>Descrição:</b> {reqDetalhe.description}</div>
             <div><b>Solicitante:</b> {reqDetalhe.requester}</div>

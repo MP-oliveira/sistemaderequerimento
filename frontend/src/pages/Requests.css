@@ -489,6 +489,16 @@
   .request-item-actions {
     width: 100%;
     justify-content: flex-end;
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .details-button,
+  .edit-button,
+  .delete-button {
+    min-width: 28px !important;
+    height: 28px !important;
+    padding: 6px !important;
   }
 
   .filters-container {
@@ -502,6 +512,27 @@
   .clear-filters-btn {
     width: 100%;
   }
+
+  /* Ajustes para o header no mobile */
+  .requests-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .requests-list-title {
+    font-size: 1.3rem;
+    width: 100%;
+    text-align: left;
+  }
+
+  .add-request-btn {
+    align-self: flex-start;
+    padding: 8px 12px !important;
+    font-size: 0.9rem !important;
+    min-width: auto;
+    max-width: 200px;
+  }
 }
 
 @media (max-width: 1200px) {
@@ -512,6 +543,117 @@
 
   .card {
     max-width: 99vw;
+  }
+}
+
+/* Ajustes específicos para mobile (iPhone e dispositivos pequenos) */
+@media (max-width: 480px) {
+  .requests-page {
+    padding: 12px 8px 20px 8px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .requests-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .requests-list-title {
+    font-size: 1.2rem;
+    width: 100%;
+    text-align: left;
+    line-height: 1.3;
+  }
+
+  .add-request-btn {
+    align-self: flex-start;
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+    min-width: auto;
+    max-width: 180px;
+    border-radius: 6px;
+  }
+
+  .filters-section {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .filters-title {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  .filter-label {
+    font-size: 0.8rem;
+  }
+
+  .filter-select, .filter-input {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  /* Ajustes para os botões de ação no mobile */
+  .request-item-actions {
+    flex-direction: row;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+
+  .details-button,
+  .edit-button,
+  .delete-button {
+    min-width: 26px !important;
+    height: 26px !important;
+    padding: 5px !important;
+  }
+}
+
+/* Ajustes específicos para iPhone 12 Pro e menores */
+@media (max-width: 390px) {
+  .requests-page {
+    padding: 8px 6px 16px 6px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .requests-header {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .requests-list-title {
+    font-size: 1.1rem;
+  }
+
+  .add-request-btn {
+    padding: 5px 8px !important;
+    font-size: 0.75rem !important;
+    max-width: 160px;
+  }
+
+  /* Ajustes para os botões de ação no iPhone pequeno */
+  .request-item-actions {
+    flex-direction: row;
+    gap: 3px;
+    justify-content: flex-end;
+  }
+
+  .details-button,
+  .edit-button,
+  .delete-button {
+    min-width: 24px !important;
+    height: 24px !important;
+    padding: 4px !important;
   }
 } 
 
