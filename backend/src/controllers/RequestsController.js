@@ -1189,6 +1189,93 @@ export const approveRequest = async (req, res) => {
     if (error || !request) {
       return res.status(400).json({ success: false, message: 'Erro ao aprovar requisição.', error: error?.message });
     }
+
+    // Rejeitar automaticamente outras requisições conflitantes na mesma sala e horário
+    console.log('🔄 [approveRequest] Rejeitando requisições conflitantes automaticamente...');
+    const { data: requisiçõesConflitantes, error: conflitoError } = await supabase
+      .from('requests')
+      .select('id, event_name, requester_id, department, start_datetime, end_datetime')
+      .eq('location', requestData.location)
+      .eq('date', requestData.date)
+      .in('status', ['PENDENTE', 'PENDENTE_CONFLITO'])
+      .neq('id', id); // Excluir a requisição que acabou de ser aprovada
+
+    const requisiçõesRejeitadas = [];
+
+    if (conflitoError) {
+      console.log('⚠️ [approveRequest] Erro ao buscar requisições conflitantes:', conflitoError);
+    } else if (requisiçõesConflitantes && requisiçõesConflitantes.length > 0) {
+      console.log(`🔄 [approveRequest] Encontradas ${requisiçõesConflitantes.length} requisições conflitantes para rejeitar automaticamente`);
+      
+      for (const reqConflitante of requisiçõesConflitantes) {
+        // Verificar se há sobreposição de horário
+        const startA = new Date(requestData.start_datetime);
+        const endA = new Date(requestData.end_datetime);
+        const startB = new Date(reqConflitante.start_datetime);
+        const endB = new Date(reqConflitante.end_datetime);
+        
+        // Verificar sobreposição de horário
+        if (startA < endB && endA > startB) {
+          console.log(`🔄 [approveRequest] Rejeitando requisição conflitante ${reqConflitante.id}: ${reqConflitante.event_name}`);
+          
+          // Rejeitar a requisição conflitante
+          const { error: rejectError } = await supabase
+            .from('requests')
+            .update({
+              status: 'REJEITADO',
+              rejection_reason: `Rejeitado automaticamente devido à aprovação da requisição #${id} (${requestData.event_name}) para o mesmo local e horário.`,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', reqConflitante.id);
+
+          if (rejectError) {
+            console.log(`❌ [approveRequest] Erro ao rejeitar requisição ${reqConflitante.id}:`, rejectError);
+          } else {
+            console.log(`✅ [approveRequest] Requisição ${reqConflitante.id} rejeitada automaticamente`);
+            requisiçõesRejeitadas.push({
+              id: reqConflitante.id,
+              event_name: reqConflitante.event_name,
+              department: reqConflitante.department
+            });
+            
+            // Enviar e-mail de notificação para o solicitante da requisição rejeitada
+            try {
+              const { data: usuarioRejeitado } = await supabase
+                .from('users')
+                .select('email, full_name')
+                .eq('id', reqConflitante.requester_id)
+                .single();
+
+              if (usuarioRejeitado && usuarioRejeitado.email) {
+                const mensagemRejeicao = `Olá ${usuarioRejeitado.full_name},
+
+Sua requisição #${reqConflitante.id} (${reqConflitante.event_name}) foi rejeitada automaticamente.
+
+Motivo: Outra requisição (#${id} - ${requestData.event_name}) foi aprovada para o mesmo local e horário.
+
+Departamento: ${reqConflitante.department}
+Data: ${requestData.date}
+Local: ${requestData.location}
+
+Você pode criar uma nova requisição para outro horário ou local disponível.
+
+Atenciosamente,
+Sistema de Requerimentos`;
+
+                await enviarEmail(
+                  usuarioRejeitado.email,
+                  'Requisição Rejeitada Automaticamente',
+                  mensagemRejeicao
+                );
+                console.log(`✅ [approveRequest] E-mail de rejeição enviado para ${usuarioRejeitado.email}`);
+              }
+            } catch (emailError) {
+              console.log(`⚠️ [approveRequest] Erro ao enviar e-mail de rejeição:`, emailError);
+            }
+          }
+        }
+      }
+    }
     
     // Enviar e-mail automático ao usuário solicitante
     const { data: usuario } = await supabase
@@ -1263,8 +1350,11 @@ Acesse o sistema para executar esta requisição.`;
     
     res.json({ 
       success: true, 
-      message: 'Requisição aprovada e evento criado automaticamente.', 
-      data: request 
+      message: requisiçõesRejeitadas.length > 0 
+        ? `Requisição aprovada! ${requisiçõesRejeitadas.length} requisição(ões) conflitante(s) foi/foram rejeitada(s) automaticamente.`
+        : 'Requisição aprovada com sucesso!', 
+      data: request,
+      requisicoesRejeitadas: requisiçõesRejeitadas
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });

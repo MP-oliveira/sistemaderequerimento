@@ -128,11 +128,21 @@ export default function DashboardAdmin() {
   // Função para aprovar requisição
   const aprovarRequisicaoHandler = async (id) => {
     try {
-      await aprovarRequisicao(id);
-      mostrarNotificacao('Requisição aprovada com sucesso!', 'sucesso');
+      const resultado = await aprovarRequisicao(id);
       
       // Buscar dados da requisição para notificação
       const requisicao = requisicoes.find(req => req.id === id);
+      
+      // Verificar se houve rejeições automáticas
+      if (resultado && resultado.requisicoesRejeitadas && resultado.requisicoesRejeitadas.length > 0) {
+        mostrarNotificacao(
+          `Requisição aprovada! ${resultado.requisicoesRejeitadas.length} requisição(ões) conflitante(s) foi/foram rejeitada(s) automaticamente.`, 
+          'sucesso'
+        );
+      } else {
+        mostrarNotificacao('Requisição aprovada com sucesso!', 'sucesso');
+      }
+      
       if (requisicao) {
         // Notificar SEC sobre aprovação
         notifyRequestApproved(requisicao);
