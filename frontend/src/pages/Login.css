@@ -1,5 +1,7 @@
-/* Força o background a ocupar toda a tela */
-html, body {
+/* Força o background a ocupar toda a tela - APENAS para a página de login */
+.login-page html, 
+.login-page body,
+.login-page #root {
   margin: 0 !important;
   padding: 0 !important;
   height: 100vh !important;
@@ -8,7 +10,18 @@ html, body {
   background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%) !important;
 }
 
-#root {
+/* Fallback para quando não há classe login-page */
+body:has(.login-bg),
+html:has(.login-bg) {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  overflow: hidden !important;
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%) !important;
+}
+
+#root:has(.login-bg) {
   height: 100vh !important;
   width: 100vw !important;
   margin: 0 !important;
