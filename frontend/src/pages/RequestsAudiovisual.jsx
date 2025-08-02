@@ -180,46 +180,50 @@ export default function RequestsAudiovisual() {
             <p>Carregando requisições...</p>
           </div>
         ) : requisicoesAprovadas.length > 0 ? (
-          <div className="audiovisual-requests-grid">
+          <div className="audiovisual-requests-list">
             {requisicoesAprovadas.map((requisicao) => (
-              <div key={requisicao.id} className="audiovisual-request-card">
-                <div className="audiovisual-request-header">
-                  <h4>{requisicao.event_name || requisicao.description || 'Evento'}</h4>
-                  <span 
-                    className="audiovisual-status-badge"
-                    style={{ 
-                      backgroundColor: 'transparent',
-                      color: '#4caf50',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      fontWeight: '700'
-                    }}
-                  >
-                    APTO
-                  </span>
-                </div>
-                
-                <div className="audiovisual-request-details">
-                  <div className="audiovisual-detail-item">
-                    <FiUsers size={14} />
-                    <span>{requisicao.department}</span>
-                  </div>
-                  <div className="audiovisual-detail-item">
-                    <FiClock size={14} />
-                    <span>
-                      {requisicao.start_datetime && requisicao.end_datetime 
-                        ? `${formatTimeUTC(requisicao.start_datetime)} - ${formatTimeUTC(requisicao.end_datetime)}`
-                        : 'Horário não definido'
-                      }
+              <div key={requisicao.id} className="audiovisual-request-item">
+                <div className="audiovisual-request-content">
+                  <div className="audiovisual-request-header">
+                    <span className="audiovisual-request-title">
+                      {requisicao.event_name || requisicao.description || 'Evento'}
+                    </span>
+                    <span 
+                      className="audiovisual-status-badge"
+                      style={{ 
+                        backgroundColor: 'transparent',
+                        color: '#4caf50',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        fontWeight: '700'
+                      }}
+                    >
+                      APTO
                     </span>
                   </div>
-                  {requisicao.location && (
+                  
+                  <div className="audiovisual-request-details">
                     <div className="audiovisual-detail-item">
-                      <FiMapPin size={14} />
-                      <span>{requisicao.location}</span>
+                      <FiUsers size={14} />
+                      <span>{requisicao.department}</span>
                     </div>
-                  )}
+                    <div className="audiovisual-detail-item">
+                      <FiClock size={14} />
+                      <span>
+                        {requisicao.start_datetime && requisicao.end_datetime 
+                          ? `${formatTimeUTC(requisicao.start_datetime)} - ${formatTimeUTC(requisicao.end_datetime)}`
+                          : 'Horário não definido'
+                        }
+                      </span>
+                    </div>
+                    {requisicao.location && (
+                      <div className="audiovisual-detail-item">
+                        <FiMapPin size={14} />
+                        <span>{requisicao.location}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="audiovisual-request-actions">
@@ -259,46 +263,50 @@ export default function RequestsAudiovisual() {
             <FiClock style={{marginRight: 8}} />
             Requisições em Preparação
           </h3>
-          <div className="audiovisual-requests-grid">
+          <div className="audiovisual-requests-list">
             {requisicoesExecutadas.map((requisicao) => (
-              <div key={requisicao.id} className="audiovisual-request-card">
-                <div className="audiovisual-request-header">
-                  <h4>{requisicao.event_name || requisicao.description || 'Evento'}</h4>
-                  <span 
-                    className="audiovisual-status-badge"
-                    style={{ 
-                      backgroundColor: 'transparent',
-                      color: '#9c27b0',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      fontWeight: '700'
-                    }}
-                  >
-                    EXECUTADO
-                  </span>
-                </div>
-                
-                <div className="audiovisual-request-details">
-                  <div className="audiovisual-detail-item">
-                    <FiUsers size={14} />
-                    <span>{requisicao.department}</span>
-                  </div>
-                  <div className="audiovisual-detail-item">
-                    <FiClock size={14} />
-                    <span>
-                      {requisicao.start_datetime && requisicao.end_datetime 
-                        ? `${formatTimeUTC(requisicao.start_datetime)} - ${formatTimeUTC(requisicao.end_datetime)}`
-                        : 'Horário não definido'
-                      }
+              <div key={requisicao.id} className="audiovisual-request-item">
+                <div className="audiovisual-request-content">
+                  <div className="audiovisual-request-header">
+                    <span className="audiovisual-request-title">
+                      {requisicao.event_name || requisicao.description || 'Evento'}
+                    </span>
+                    <span 
+                      className="audiovisual-status-badge"
+                      style={{ 
+                        backgroundColor: 'transparent',
+                        color: '#9c27b0',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        fontWeight: '700'
+                      }}
+                    >
+                      EXECUTADO
                     </span>
                   </div>
-                  {requisicao.location && (
+                  
+                  <div className="audiovisual-request-details">
                     <div className="audiovisual-detail-item">
-                      <FiMapPin size={14} />
-                      <span>{requisicao.location}</span>
+                      <FiUsers size={14} />
+                      <span>{requisicao.department}</span>
                     </div>
-                  )}
+                    <div className="audiovisual-detail-item">
+                      <FiClock size={14} />
+                      <span>
+                        {requisicao.start_datetime && requisicao.end_datetime 
+                          ? `${formatTimeUTC(requisicao.start_datetime)} - ${formatTimeUTC(requisicao.end_datetime)}`
+                          : 'Horário não definido'
+                        }
+                      </span>
+                    </div>
+                    {requisicao.location && (
+                      <div className="audiovisual-detail-item">
+                        <FiMapPin size={14} />
+                        <span>{requisicao.location}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="audiovisual-request-actions">
