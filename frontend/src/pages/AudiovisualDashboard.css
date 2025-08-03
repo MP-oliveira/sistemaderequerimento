@@ -28,6 +28,7 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   box-sizing: border-box;
   padding: 2rem 4rem; /* Aumentando o padding horizontal */
+  margin-left: -15px !important; /* Puxa o conteúdo para a esquerda */
 }
 
 /* Header específico do audiovisual */
