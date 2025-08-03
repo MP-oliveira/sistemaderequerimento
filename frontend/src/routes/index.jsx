@@ -9,6 +9,7 @@ import RequestsAdmin from '../pages/RequestsAdmin';
 import RequestsAudiovisual from '../pages/RequestsAudiovisual';
 import DashboardAdmin from '../pages/DashboardAdmin';
 import AudiovisualDashboard from '../pages/AudiovisualDashboard';
+import ServicoGeralDashboard from '../pages/ServicoGeralDashboard';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 
@@ -57,6 +58,12 @@ function SmartDashboardRoute() {
   if (user.role === 'AUDIOVISUAL') {
     console.log('🔍 SmartDashboardRoute - Redirecionando audiovisual para dashboard audiovisual');
     return <Navigate to="/audiovisual/dashboard" />;
+  }
+  
+  // Se for serviço geral, vai para o dashboard serviço geral
+  if (user.role === 'SERVICO_GERAL') {
+    console.log('🔍 SmartDashboardRoute - Redirecionando serviço geral para dashboard serviço geral');
+    return <Navigate to="/servico-geral/dashboard" />;
   }
   
   // Se for secretário, líder ou usuário normal, vai para o dashboard normal
@@ -151,6 +158,16 @@ export default function AppRoutes() {
             <PrivateRoute>
               <Layout>
                 <RequestsAudiovisual />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/servico-geral/dashboard"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ServicoGeralDashboard />
               </Layout>
             </PrivateRoute>
           }

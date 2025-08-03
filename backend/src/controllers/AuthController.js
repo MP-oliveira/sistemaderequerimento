@@ -29,7 +29,7 @@ export const register = async (req, res) => {
     }
 
     // Valores permitidos para o ENUM
-    const allowedRoles = ['LIDER', 'PASTOR', 'ADM', 'SEC', 'AUDIOVISUAL'];
+    const allowedRoles = ['LIDER', 'PASTOR', 'ADM', 'SEC', 'AUDIOVISUAL', 'SERVICO_GERAL'];
     // Se não vier role, usa 'LIDER'. Se vier, valida.
     const userRole = allowedRoles.includes(role) ? role : 'LIDER';
 

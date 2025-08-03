@@ -29,12 +29,12 @@ export const createUser = async (req, res) => {
     }
 
     // Validar papel
-    const allowedRoles = ['USER', 'LIDER', 'SEC', 'AUDIOVISUAL', 'PASTOR', 'ADM'];
+    const allowedRoles = ['USER', 'LIDER', 'SEC', 'AUDIOVISUAL', 'PASTOR', 'ADM', 'SERVICO_GERAL'];
     if (!allowedRoles.includes(papel)) {
       console.log('❌ createUser - Papel inválido:', papel);
       return res.status(400).json({
         success: false,
-        message: 'Papel inválido. Papéis permitidos: USER, LIDER, SEC, AUDIOVISUAL, PASTOR, ADM'
+        message: 'Papel inválido. Papéis permitidos: USER, LIDER, SEC, AUDIOVISUAL, PASTOR, ADM, SERVICO_GERAL'
       });
     }
 
@@ -221,13 +221,13 @@ export const updateUser = async (req, res) => {
     
     // Validar papel se fornecido
     if (role) {
-      const allowedRoles = ['USER', 'LIDER', 'SEC', 'AUDIOVISUAL', 'PASTOR', 'ADM'];
-      if (!allowedRoles.includes(role)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Papel inválido. Papéis permitidos: USER, LIDER, SEC, AUDIOVISUAL, PASTOR, ADM'
-        });
-      }
+          const allowedRoles = ['USER', 'LIDER', 'SEC', 'AUDIOVISUAL', 'PASTOR', 'ADM', 'SERVICO_GERAL'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Papel inválido. Papéis permitidos: USER, LIDER, SEC, AUDIOVISUAL, PASTOR, ADM, SERVICO_GERAL'
+      });
+    }
     }
     
     const updateData = {};
