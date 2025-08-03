@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { listarRequisicoes, listarEventos } from '../services/requestsService';
 import Modal from '../components/Modal';
-import TodayMaterials from '../components/TodayMaterials';
-import ReturnMaterials from '../components/ReturnMaterials';
+import TodayMaterialsServicoGeral from '../components/TodayMaterialsServicoGeral';
+import ReturnMaterialsOnly from '../components/ReturnMaterialsOnly';
 import { formatTimeUTC } from '../utils/dateUtils';
 import { FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiCalendar, FiMapPin, FiUsers } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -158,26 +158,10 @@ export default function ServicoGeralDashboard() {
       </div>
 
       {/* Materiais para Despachar (Próximos 7 dias) */}
-      <div className="materials-section">
-        <div className="materials-header">
-          <h3 className="section-title">
-            <FiPackage style={{marginRight: 8}} />
-            Materiais para Despachar (Próximos 7 dias)
-          </h3>
-        </div>
-        <TodayMaterials />
-      </div>
+      <TodayMaterialsServicoGeral />
 
       {/* Retorno de Materiais (Próximos 7 dias) */}
-      <div className="materials-section">
-        <div className="materials-header">
-          <h3 className="section-title">
-            <FiClock style={{marginRight: 8}} />
-            Retorno de Materiais (Próximos 7 dias)
-          </h3>
-        </div>
-        <ReturnMaterials />
-      </div>
+      <ReturnMaterialsOnly />
 
       {/* Calendário */}
       <div className="card calendar-card">

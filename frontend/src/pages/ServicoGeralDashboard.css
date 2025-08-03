@@ -78,6 +78,21 @@
   margin: 0;
 }
 
+/* Correção específica para os componentes no dashboard de serviço geral */
+.servico-geral-dashboard .return-materials,
+.servico-geral-dashboard .today-materials {
+  width: 100% !important;
+  max-width: 1202px !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  min-width: auto !important;
+  background: var(--white) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  border: 1px solid var(--border) !important;
+  padding: 2rem !important;
+}
+
 /* Calendário específico do serviço geral */
 .servico-geral-dashboard .calendar-card {
   background: var(--white);

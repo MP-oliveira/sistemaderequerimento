@@ -411,12 +411,12 @@ const ReturnMaterials = () => {
         )}
       </div>
 
-      {/* Seção: Retorno de Instrumentos */}
+      {/* Seção: Retorno de Materiais */}
       <div className="materials-section">
         <div className="materials-header">
           <h3 className="section-title">
             <FiClock style={{marginRight: 8}} />
-            Retorno de Instrumentos (Últimos 7 dias)
+            Retorno de Materiais (Próximos 7 dias)
           </h3>
           <div className="materials-summary">
             <div className="summary-item">
