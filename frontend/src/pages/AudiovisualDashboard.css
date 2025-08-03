@@ -119,7 +119,7 @@
 /* Ajuste para o ReturnMaterials ter a mesma largura das ações rápidas */
 .audiovisual-dashboard .return-materials {
   width: 100%;
-  max-width: 1202px;
+  max-width: 1270px;
   margin-left: 0;
 }
 
@@ -131,7 +131,7 @@
   border: 1px solid #e5e7eb;
   padding: 2rem;
   width: 100%;
-  max-width: 1202px;
+  max-width: 1270px;
   margin-left: 0;
   margin-right: auto;
   box-sizing: border-box;
