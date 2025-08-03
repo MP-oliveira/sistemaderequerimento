@@ -206,6 +206,121 @@ const getTodayItems = async (req, res) => {
   }
 };
 
+// Listar itens do dia filtrados por categoria (AUDIOVISUAL ou SERVICO_GERAL)
+const getTodayItemsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    
+    // Usar fuso horário local (Brasília)
+    const today = new Date();
+    const todayLocal = new Date(today.getTime() - (today.getTimezoneOffset() * 60000));
+    const todayStr = todayLocal.toISOString().split('T')[0];
+    
+    console.log('🔍 [getTodayItemsByCategory] Buscando itens para hoje (local):', todayStr);
+    console.log('🔍 [getTodayItemsByCategory] Categoria:', category);
+
+    // Definir categorias baseado no parâmetro
+    let targetCategories = [];
+    if (category === 'audiovisual') {
+      targetCategories = ['AUDIO_VIDEO', 'INSTRUMENTO_MUSICAL'];
+    } else if (category === 'servico-geral') {
+      targetCategories = ['SERVICO_GERAL'];
+    } else {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Categoria inválida. Use "audiovisual" ou "servico-geral".' 
+      });
+    }
+
+    // Buscar requisições aprovadas para hoje
+    const { data: todayRequests, error: requestsError } = await supabase
+      .from('requests')
+      .select('id, event_name, start_datetime, end_datetime, location, expected_audience, status, date, department, description')
+      .eq('status', 'APTO')
+      .eq('date', todayStr);
+
+    if (requestsError) {
+      console.error('❌ Erro ao buscar requisições de hoje:', requestsError);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+
+    console.log('🔍 [getTodayItemsByCategory] Requisições de hoje encontradas:', todayRequests?.length || 0);
+
+    if (!todayRequests || todayRequests.length === 0) {
+      return res.json({ 
+        success: true, 
+        data: [] 
+      });
+    }
+
+    // Buscar itens dessas requisições
+    const requestIds = todayRequests.map(req => req.id);
+
+    const { data, error } = await supabase
+      .from('request_items')
+      .select(`
+        id,
+        request_id,
+        inventory_id,
+        item_name,
+        quantity_requested,
+        description,
+        is_separated,
+        separated_by,
+        separated_at,
+        inventory (
+          name,
+          description,
+          category
+        ),
+        requests (
+          event_name,
+          start_datetime,
+          end_datetime,
+          location,
+          expected_audience,
+          status,
+          date,
+          department,
+          description
+        )
+      `)
+      .in('request_id', requestIds);
+
+    if (error) {
+      console.error('❌ Erro ao buscar itens do dia:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+
+    // Filtrar itens por categoria do inventário
+    const filteredData = data.filter(item => {
+      if (!item.inventory || !item.inventory.category) {
+        return false; // Se não tem categoria, não mostrar
+      }
+      return targetCategories.includes(item.inventory.category);
+    });
+
+    console.log('🔍 [getTodayItemsByCategory] Itens filtrados encontrados:', filteredData?.length || 0);
+
+    res.json({ 
+      success: true, 
+      data: filteredData || [] 
+    });
+  } catch (error) {
+    console.error('❌ Erro ao buscar itens do dia por categoria:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor' 
+    });
+  }
+};
+
 // Remover item de uma requisição
 const deleteRequestItem = async (req, res) => {
   try {
@@ -592,6 +707,7 @@ export {
   getRequestItems,
   markItemAsSeparated,
   getTodayItems,
+  getTodayItemsByCategory,
   deleteRequestItem,
   updateRequestItem,
   getExecutedItems,

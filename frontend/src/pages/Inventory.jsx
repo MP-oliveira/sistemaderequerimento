@@ -7,6 +7,7 @@ import ActivityLog from '../components/ActivityLog';
 import { listarItensInventario, criarItemInventario, atualizarItemInventario, deletarItemInventario } from '../services/inventoryService';
 import { buscarHistoricoInventario } from '../services/activityLogService';
 import { useAuth } from '../context/AuthContext';
+import { INVENTORY_CATEGORIES } from '../utils/inventoryCategories';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -500,9 +501,14 @@ export default function Inventory() {
             />
             <Input
               label="Categoria"
+              type="select"
               value={editItem.category}
               onChange={e => setEditItem({ ...editItem, category: e.target.value })}
               required
+              options={[
+                { value: "", label: "Selecione uma categoria" },
+                ...INVENTORY_CATEGORIES
+              ]}
             />
             <Input
               label="Quantidade"
@@ -546,10 +552,14 @@ export default function Inventory() {
             />
             <Input
               label="Categoria"
-              placeholder="Ex: Som, Projeção, Geral..."
+              type="select"
               value={categoria}
               onChange={e => setCategoria(e.target.value)}
               required
+              options={[
+                { value: "", label: "Selecione uma categoria" },
+                ...INVENTORY_CATEGORIES
+              ]}
             />
             <Input
               label="Quantidade"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { listarItensDoDia, marcarItemComoSeparado } from '../services/requestItemsService';
+import { listarItensDoDiaServicoGeral, marcarItemComoSeparado } from '../services/requestItemsService';
 import { formatTimeUTC } from '../utils/dateUtils';
 import './TodayMaterials.css';
 import { FiClock, FiMapPin, FiUsers, FiCheck, FiX, FiPackage, FiChevronDown, FiChevronRight } from 'react-icons/fi';
@@ -18,14 +18,8 @@ export default function TodayMaterialsServicoGeral() {
   const carregarMateriais = async () => {
     setLoading(true);
     try {
-      const data = await listarItensDoDia();
-      // Filtrar apenas materiais de serviço geral (temporariamente mostrar todos até implementar categorias)
-      const materiaisServicoGeral = data ? data.filter(item => {
-        // Se não há categoria definida, mostrar todos por enquanto
-        if (!item.category) return true;
-        return item.category === 'SERVICO_GERAL';
-      }) : [];
-      setMaterials(materiaisServicoGeral);
+      const data = await listarItensDoDiaServicoGeral();
+      setMaterials(data || []);
     } catch (err) {
       console.error('❌ [TodayMaterialsServicoGeral] Erro ao carregar materiais:', err);
       setMaterials([]);

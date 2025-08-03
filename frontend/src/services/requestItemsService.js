@@ -33,7 +33,24 @@ export async function listarItensRequisicao(requestId) {
 // Listar itens do dia para audiovisual
 export async function listarItensDoDia() {
   try {
-    const response = await fetch(`${API_URL}/api/request-items/today`, {
+    const response = await fetch(`${API_URL}/api/request-items/today/audiovisual`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao buscar itens do dia');
+    }
+    const data = await response.json();
+    return data.data || data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Listar itens do dia para serviço geral
+export async function listarItensDoDiaServicoGeral() {
+  try {
+    const response = await fetch(`${API_URL}/api/request-items/today/servico-geral`, {
       headers: getAuthHeaders()
     });
     if (!response.ok) {

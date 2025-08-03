@@ -16,6 +16,9 @@ router.patch('/:id/separate', authenticateToken, RequestItemsController.markItem
 // Rota para buscar itens do dia
 router.get('/today', authenticateToken, RequestItemsController.getTodayItems);
 
+// Rota para buscar itens do dia por categoria
+router.get('/today/:category', authenticateToken, RequestItemsController.getTodayItemsByCategory);
+
 // Rota para buscar itens executados
 router.get('/executed', authenticateToken, RequestItemsController.getExecutedItems);
 
