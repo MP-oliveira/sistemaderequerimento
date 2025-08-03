@@ -46,9 +46,16 @@ const ReturnMaterials = () => {
     
     items.forEach(item => {
       const requestId = item.request_id;
+      const request = requisicoes.find(req => req.id === requestId);
+      
+      // Pular requisições finalizadas
+      if (request && request.status === 'FINALIZADO') {
+        return;
+      }
+      
       if (!grupos[requestId]) {
         grupos[requestId] = {
-          request: requisicoes.find(req => req.id === requestId) || {},
+          request: request || {},
           items: []
         };
       }

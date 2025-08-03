@@ -126,6 +126,85 @@ O Sistema de Requisições é uma aplicação web completa desenvolvida para ger
 - **Retorno de Materiais**: Interface para devolução
 - **Relatórios de Uso**: Estatísticas de utilização
 
+##### **Fluxo Completo do Dashboard Audiovisual**
+
+O dashboard audiovisual é o centro de controle para gerenciar todo o ciclo de vida das requisições, desde a preparação até a finalização e devolução dos instrumentos.
+
+###### **🚀 Carregamento Inicial**
+- **Requisições**: Todas as requisições do sistema
+- **Eventos**: Eventos cadastrados no sistema
+- **Materiais do Dia**: Itens para eventos de hoje (status APTO)
+- **Materiais para Retorno**: Itens de eventos recentes (status EXECUTADO)
+
+###### **📊 Cards de Estatísticas**
+- **Requisições Aprovadas**: Total de requisições no sistema
+- **Em Preparação**: Requisições com status `EXECUTADO`
+- **Finalizadas**: Requisições com status `FINALIZADO`
+
+###### **⚡ Ações Rápidas**
+- **Ver Requisições**: Acesso à página de gerenciamento de requisições audiovisual
+- **Gerenciar Inventário**: Acesso ao sistema de inventário
+
+###### **📦 Materiais do Dia (TodayMaterials)**
+- **Fonte**: Requisições com status `APTO` para hoje
+- **Funcionalidades**:
+  - Visualizar materiais necessários para eventos de hoje
+  - Separar itens como preparados (✓)
+  - Barra de progresso mostrando separação
+  - Expandir/recolher detalhes por requisição
+
+###### **🔄 Retorno de Instrumentos (ReturnMaterials)**
+
+**A) Materiais para Despachar (Próximos 7 dias)**
+- **Filtro**: Itens não separados de eventos próximos
+- **Ação**: Marcar como separado
+- **Status**: `APTO` → `EXECUTADO`
+
+**B) Retorno de Instrumentos (Últimos 7 dias)**
+- **Filtro**: Itens separados de eventos recentes
+- **Ação**: Marcar como retornado
+- **Status**: `EXECUTADO` → `FINALIZADO`
+
+###### **📅 Calendário**
+- **Eventos Exibidos**: Requisições (APTO, EXECUTADO, FINALIZADO) + Eventos cadastrados
+- **Funcionalidades**: Navegação mensal, visualização por dia, modal com detalhes
+
+###### **🔄 Fluxo de Status das Requisições**
+```
+PENDENTE → APTO → EXECUTADO → FINALIZADO
+    ↓         ↓        ↓          ↓
+  Aguardando Aprovado Preparando Finalizado
+  Aprovação           Material    (Devolvido)
+```
+
+###### **🎯 Ações Principais do Audiovisual**
+
+**Preparação de Materiais:**
+1. Ver materiais do dia
+2. Separar itens necessários
+3. Marcar como separado
+
+**Execução de Eventos:**
+1. Ver requisições executadas
+2. Preparar materiais
+3. Executar evento
+
+**Finalização:**
+1. Ver materiais para retorno
+2. Marcar itens como retornados
+3. Finalizar requisição
+
+###### **🔧 Atualizações em Tempo Real**
+- Recarregamento automático após ações
+- Notificações de sucesso/erro
+- Confirmações de ações
+- Alertas de conflitos
+
+###### **📱 Responsividade**
+- **Desktop**: Layout completo com todas as seções
+- **Tablet**: Layout ajustado com seções empilhadas
+- **Mobile**: Layout otimizado para toque
+
 ### 🔔 Sistema de Notificações
 
 #### **Alertas em Tempo Real**

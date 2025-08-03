@@ -252,11 +252,11 @@ const getExecutedItems = async (req, res) => {
   try {
     console.log('🔍 [getExecutedItems] Buscando itens executados...');
     
-    // Primeiro, buscar requisições aprovadas
+    // Primeiro, buscar requisições aprovadas (excluindo FINALIZADO)
     const { data: approvedRequests, error: requestsError } = await supabase
       .from('requests')
       .select('id')
-      .in('status', ['APTO', 'PREENCHIDO']);
+      .in('status', ['APTO', 'PREENCHIDO', 'EXECUTADO']);
     
     if (requestsError) {
       console.error('❌ Erro ao buscar requisições:', requestsError);
