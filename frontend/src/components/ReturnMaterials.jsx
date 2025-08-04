@@ -85,10 +85,17 @@ const ReturnMaterials = () => {
     return false;
   });
 
+  // Debug: Log dos dados carregados
+  console.log('🔍 [ReturnMaterials] executedItems:', executedItems);
+  console.log('🔍 [ReturnMaterials] requisicoes:', requisicoes);
+
   // Itens para retorno (status EXECUTADO) - apenas eventos recentes
   const itensParaRetorno = executedItems.filter(item => {
+    console.log('🔍 [ReturnMaterials] Verificando item:', item);
+    
     // Verificar se o item está separado
     const separado = item.is_separated === true;
+    console.log('🔍 [ReturnMaterials] Item separado:', separado);
     
     if (!separado) return false;
     
@@ -99,11 +106,17 @@ const ReturnMaterials = () => {
       const lastWeek = new Date();
       lastWeek.setDate(today.getDate() - 7);
       
-      return eventDate >= lastWeek && eventDate <= today;
+      const isRecent = eventDate >= lastWeek && eventDate <= today;
+      console.log('🔍 [ReturnMaterials] Evento recente:', isRecent, 'Data:', item.requests.date);
+      
+      return isRecent;
     }
     
+    console.log('🔍 [ReturnMaterials] Sem data de evento');
     return false;
   });
+  
+  console.log('🔍 [ReturnMaterials] itensParaRetorno:', itensParaRetorno);
 
   const toggleRequest = (requestId) => {
     const newExpanded = new Set(expandedRequests);

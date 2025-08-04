@@ -222,7 +222,7 @@ const getTodayItemsByCategory = async (req, res) => {
     // Definir categorias baseado no parâmetro
     let targetCategories = [];
     if (category === 'audiovisual') {
-      targetCategories = ['AUDIO_VIDEO', 'INSTRUMENTO_MUSICAL'];
+      targetCategories = ['AUDIO_VIDEO', 'INSTRUMENTO_MUSICAL', 'Instrumento Musical', 'Som', 'SOM', 'AUDIO'];
     } else if (category === 'servico-geral') {
       targetCategories = ['SERVICO_GERAL'];
     } else {
@@ -231,6 +231,8 @@ const getTodayItemsByCategory = async (req, res) => {
         message: 'Categoria inválida. Use "audiovisual" ou "servico-geral".' 
       });
     }
+
+    console.log('🔍 [getTodayItemsByCategory] Target categories:', targetCategories);
 
     // Buscar requisições aprovadas para hoje
     const { data: todayRequests, error: requestsError } = await supabase
@@ -248,6 +250,12 @@ const getTodayItemsByCategory = async (req, res) => {
     }
 
     console.log('🔍 [getTodayItemsByCategory] Requisições de hoje encontradas:', todayRequests?.length || 0);
+    if (todayRequests && todayRequests.length > 0) {
+      console.log('🔍 [getTodayItemsByCategory] Detalhes das requisições:');
+      todayRequests.forEach(req => {
+        console.log('   - ID:', req.id, 'Date:', req.date, 'Status:', req.status, 'Department:', req.department);
+      });
+    }
 
     if (!todayRequests || todayRequests.length === 0) {
       return res.json({ 
@@ -259,6 +267,8 @@ const getTodayItemsByCategory = async (req, res) => {
     // Buscar itens dessas requisições
     const requestIds = todayRequests.map(req => req.id);
 
+    console.log('🔍 [getTodayItemsByCategory] Request IDs para buscar:', requestIds);
+    
     const { data, error } = await supabase
       .from('request_items')
       .select(`
@@ -290,6 +300,9 @@ const getTodayItemsByCategory = async (req, res) => {
       `)
       .in('request_id', requestIds);
 
+    console.log('🔍 [getTodayItemsByCategory] Query executada. Erro:', error);
+    console.log('🔍 [getTodayItemsByCategory] Dados retornados:', data?.length || 0);
+
     if (error) {
       console.error('❌ Erro ao buscar itens do dia:', error);
       return res.status(500).json({ 
@@ -300,13 +313,34 @@ const getTodayItemsByCategory = async (req, res) => {
 
     // Filtrar itens por categoria do inventário
     const filteredData = data.filter(item => {
+      console.log('🔍 [getTodayItemsByCategory] Verificando item:', item.item_name, 'Categoria:', item.inventory?.category);
       if (!item.inventory || !item.inventory.category) {
+        console.log('🔍 [getTodayItemsByCategory] Item sem categoria:', item.item_name);
         return false; // Se não tem categoria, não mostrar
       }
-      return targetCategories.includes(item.inventory.category);
+      const isIncluded = targetCategories.includes(item.inventory.category);
+      console.log('🔍 [getTodayItemsByCategory] Item incluído:', item.item_name, isIncluded);
+      return isIncluded;
     });
 
     console.log('🔍 [getTodayItemsByCategory] Itens filtrados encontrados:', filteredData?.length || 0);
+    if (filteredData && filteredData.length > 0) {
+      console.log('🔍 [getTodayItemsByCategory] Detalhes dos itens filtrados:');
+      filteredData.forEach(item => {
+        console.log('   - Item:', item.item_name, 'Categoria:', item.inventory?.category, 'Request ID:', item.request_id);
+      });
+    }
+
+    // Debug: mostrar todos os itens (não filtrados) para entender o problema
+    console.log('🔍 [getTodayItemsByCategory] Todos os itens encontrados (antes do filtro):', data?.length || 0);
+    if (data && data.length > 0) {
+      console.log('🔍 [getTodayItemsByCategory] Detalhes de todos os itens:');
+      data.forEach(item => {
+        console.log('   - Item:', item.item_name, 'Categoria:', item.inventory?.category || 'SEM CATEGORIA', 'Request ID:', item.request_id, 'Inventory ID:', item.inventory_id);
+      });
+    } else {
+      console.log('🔍 [getTodayItemsByCategory] Nenhum item encontrado na query principal');
+    }
 
     res.json({ 
       success: true, 
@@ -417,7 +451,8 @@ const getExecutedItems = async (req, res) => {
           start_datetime,
           end_datetime,
           status,
-          department
+          department,
+          date
         )
       `)
       .in('request_id', requestIds);
