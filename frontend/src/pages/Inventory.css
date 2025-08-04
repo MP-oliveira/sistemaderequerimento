@@ -65,6 +65,95 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inventory-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.add-item-button {
+  background: #1A4B8B !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: background-color 0.2s !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+
+.add-item-button:hover {
+  background: #153a6f !important;
+}
+
+/* Filtros e Busca */
+.inventory-filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.search-container {
+  flex: 1;
+  min-width: 250px;
+}
+
+.category-filter {
+  min-width: 200px;
+}
+
+.inventory-filters .input-container {
+  margin-bottom: 0;
+}
+
+.inventory-filters label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.inventory-filters input,
+.inventory-filters select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+}
+
+.inventory-filters input:focus,
+.inventory-filters select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.inventory-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #374151;
+  font-weight: 500;
 }
 
 /* Botões Voltar e Adicionar Item na cor #1A4B8B */
@@ -539,6 +628,21 @@
     gap: 16px;
     align-items: flex-start;
   }
+
+  .inventory-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .add-item-button {
+    align-self: flex-start;
+  }
+
+  .inventory-counter {
+    font-size: 20px;
+    padding: 12px 20px;
+  }
   
   .inventory-actions {
     align-items: flex-start;
@@ -564,5 +668,15 @@
   
   .logs-modal-body {
     padding: 16px 20px;
+  }
+  
+  .inventory-filters {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .search-container,
+  .category-filter {
+    min-width: 100%;
   }
 } 

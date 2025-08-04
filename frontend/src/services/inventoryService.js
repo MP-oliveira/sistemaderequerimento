@@ -47,6 +47,9 @@ export async function criarItemInventario({ name, category, quantity }) {
 
 export async function atualizarItemInventario(id, { name, category, quantity_available, quantity_total }) {
   try {
+    console.log('🔄 [inventoryService] Atualizando item:', id);
+    console.log('🔄 [inventoryService] Dados:', { name, category, quantity_available, quantity_total });
+    
     const response = await fetch(`${API_URL}/api/inventory/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -57,12 +60,20 @@ export async function atualizarItemInventario(id, { name, category, quantity_ava
         quantity_total
       }),
     });
+    
+    console.log('🔄 [inventoryService] Status da resposta:', response.status);
+    
     if (!response.ok) {
       const error = await response.json();
+      console.error('❌ [inventoryService] Erro da API:', error);
       throw new Error(error.message || 'Erro ao atualizar item');
     }
-    return await response.json();
+    
+    const result = await response.json();
+    console.log('✅ [inventoryService] Sucesso:', result);
+    return result;
   } catch (err) {
+    console.error('❌ [inventoryService] Erro geral:', err);
     throw err;
   }
 }

@@ -41,6 +41,11 @@ export default function Inventory() {
   const [successMsg, setSuccessMsg] = useState('');
   const [loadingForm, setLoadingForm] = useState(false);
   
+  // Estados para busca e filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filteredItens, setFilteredItens] = useState([]);
+  
   // Estados para logs
   const [selectedItem, setSelectedItem] = useState(null);
   const [itemLogs, setItemLogs] = useState([]);
@@ -49,6 +54,12 @@ export default function Inventory() {
 
   // Estados para edição e deleção
   const [editItem, setEditItem] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    category: '',
+    quantity_available: '',
+    quantity_total: ''
+  });
   const [showEditModal, setShowEditModal] = useState(false);
   const [deleteItem, setDeleteItem] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -60,6 +71,35 @@ export default function Inventory() {
   useEffect(() => {
     buscarItens();
   }, []);
+
+  // Função para aplicar filtros e ordenação
+  const aplicarFiltrosEOrdenacao = (itensParaFiltrar = itens) => {
+    let itensFiltrados = [...itensParaFiltrar];
+
+    // Aplicar filtro de busca por nome
+    if (searchTerm.trim()) {
+      itensFiltrados = itensFiltrados.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Aplicar filtro de categoria
+    if (filterCategory) {
+      itensFiltrados = itensFiltrados.filter(item =>
+        item.category === filterCategory
+      );
+    }
+
+    // Ordenar alfabeticamente por nome
+    itensFiltrados.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+
+    setFilteredItens(itensFiltrados);
+  };
+
+  // Aplicar filtros quando searchTerm ou filterCategory mudar
+  useEffect(() => {
+    aplicarFiltrosEOrdenacao();
+  }, [searchTerm, filterCategory, itens]);
 
   // Auto-hide das notificações
   useEffect(() => {
@@ -98,6 +138,7 @@ export default function Inventory() {
       const data = await listarItensInventario();
       console.log('✅ Itens recebidos:', data);
       setItens(data);
+      aplicarFiltrosEOrdenacao(data);
     } catch (err) {
       setListError(err.message || 'Erro ao buscar inventário');
     }
@@ -263,7 +304,16 @@ export default function Inventory() {
 
   // Função para abrir modal de edição
   const handleEdit = (item) => {
+    console.log('🔧 Item para edição:', item);
+    console.log('🔧 quantity_available:', item.quantity_available);
+    console.log('🔧 quantity_total:', item.quantity_total);
     setEditItem(item);
+    setEditForm({
+      name: item.name || '',
+      category: item.category || '',
+      quantity_available: item.quantity_available?.toString() || '',
+      quantity_total: (item.quantity_total || item.quantity_available)?.toString() || ''
+    });
     setShowEditModal(true);
   };
 
@@ -277,17 +327,34 @@ export default function Inventory() {
   const handleSalvarEdicao = async () => {
     if (!editItem) return;
     try {
-      await atualizarItemInventario(editItem.id, {
-        name: editItem.name,
-        category: editItem.category,
-        quantity_available: Number(editItem.quantity_available),
-        quantity_total: Number(editItem.quantity_total ?? editItem.quantity_available)
-      });
+      console.log('🔧 Tentando atualizar item:', editItem);
+      console.log('🔧 Formulário de edição:', editForm);
+      const dadosParaEnviar = {
+        name: editForm.name,
+        category: editForm.category,
+        quantity_available: Number(editForm.quantity_available),
+        quantity_total: Number(editForm.quantity_total)
+      };
+      
+      // Validação adicional no frontend - mais flexível para permitir ajustes
+      if (dadosParaEnviar.quantity_available > dadosParaEnviar.quantity_total) {
+        // Se a quantidade disponível for maior que a total, ajustar automaticamente
+        const quantidadeAnterior = dadosParaEnviar.quantity_available;
+        dadosParaEnviar.quantity_available = dadosParaEnviar.quantity_total;
+        console.log('🔄 Ajustando quantidade disponível para:', dadosParaEnviar.quantity_available);
+        mostrarNotificacao(`Quantidade disponível ajustada automaticamente de ${quantidadeAnterior} para ${dadosParaEnviar.quantity_available}`, 'info');
+      }
+      console.log('📤 Dados para enviar:', dadosParaEnviar);
+      
+      await atualizarItemInventario(editItem.id, dadosParaEnviar);
       mostrarNotificacao('Item atualizado com sucesso!', 'sucesso');
       setShowEditModal(false);
       setEditItem(null);
+      setEditForm({ name: '', category: '', quantity_available: '', quantity_total: '' });
       buscarItens();
     } catch (err) {
+      console.error('❌ Erro ao atualizar item:', err);
+      console.error('❌ Detalhes do erro:', err.message, err.stack);
       mostrarNotificacao('Erro ao atualizar item: ' + (err.message || 'Erro desconhecido'), 'erro');
     }
   };
@@ -332,18 +399,69 @@ export default function Inventory() {
             </Button>
           </div>
           <div className="inventory-header-bottom">
-            <h1 className="inventory-list-title">Itens do Inventário</h1>
-            <div className="inventory-actions">
+            <div className="inventory-title-row">
+              <h1 className="inventory-list-title">Itens do Inventário</h1>
               {user && (user.role === 'ADM' || user.role === 'SEC' || user.role === 'PASTOR') && (
                 <Button 
                   onClick={() => setShowAddModal(true)}
                   variant="primary" 
                   size="sm"
+                  className="add-item-button"
                 >
                   <span style={{ color: 'white', marginRight: '6px' }}>+</span>
                   Adicionar Item
                 </Button>
               )}
+            </div>
+            
+            {/* Filtros e Busca */}
+            <div className="inventory-filters">
+              <div className="search-container">
+                <Input
+                  label="Buscar por nome"
+                  placeholder="Digite o nome do item..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  style={{ minWidth: '250px' }}
+                />
+              </div>
+              <div className="category-filter">
+                <Input
+                  label="Filtrar por categoria"
+                  type="select"
+                  value={filterCategory}
+                  onChange={e => setFilterCategory(e.target.value)}
+                  options={[
+                    { value: '', label: 'Todas as categorias' },
+                    ...INVENTORY_CATEGORIES
+                  ]}
+                  style={{ minWidth: '200px' }}
+                />
+              </div>
+              {(searchTerm || filterCategory) && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterCategory('');
+                  }}
+                  style={{ marginLeft: '8px' }}
+                >
+                  Limpar Filtros
+                </Button>
+              )}
+            </div>
+            
+            {/* Contador de itens */}
+            <div className="inventory-counter">
+              <span>
+                {filteredItens.length} de {itens.length} itens
+                {(searchTerm || filterCategory) && ' encontrados'}
+              </span>
+            </div>
+            
+            <div className="inventory-actions">
               <div className="export-buttons">
                 <Button 
                   onClick={exportarParaPDF} 
@@ -372,14 +490,31 @@ export default function Inventory() {
           <div className="inventory-error">{listError}</div>
         ) : (
           <div className="inventory-list-container">
-            {itens.length === 0 ? (
+            {filteredItens.length === 0 ? (
               <div className="inventory-empty">
                 <span>📦</span>
-                <p>Nenhum item encontrado.</p>
+                <p>
+                  {itens.length === 0 
+                    ? 'Nenhum item encontrado.' 
+                    : 'Nenhum item encontrado com os filtros aplicados.'
+                  }
+                </p>
+                {(searchTerm || filterCategory) && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setFilterCategory('');
+                    }}
+                  >
+                    Limpar Filtros
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="inventory-list">
-                {itens.map((item, index) => {
+                {filteredItens.map((item, index) => {
                   const quantidade = Number(item.quantity_available);
                   const categoria = item.category?.toLowerCase() || '';
                   
@@ -491,19 +626,19 @@ export default function Inventory() {
 
       {/* Modal de Edição */}
       {showEditModal && editItem && (
-        <Modal open={showEditModal} onClose={() => { setShowEditModal(false); setEditItem(null); }} title="✏️ Editar Item do Inventário">
+        <Modal open={showEditModal} onClose={() => { setShowEditModal(false); setEditItem(null); setEditForm({ name: '', category: '', quantity_available: '', quantity_total: '' }); }} title="✏️ Editar Item do Inventário">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Input
               label="Nome do item"
-              value={editItem.name}
-              onChange={e => setEditItem({ ...editItem, name: e.target.value })}
+              value={editForm.name}
+              onChange={e => setEditForm({ ...editForm, name: e.target.value })}
               required
             />
             <Input
               label="Categoria"
               type="select"
-              value={editItem.category}
-              onChange={e => setEditItem({ ...editItem, category: e.target.value })}
+              value={editForm.category}
+              onChange={e => setEditForm({ ...editForm, category: e.target.value })}
               required
               options={[
                 { value: "", label: "Selecione uma categoria" },
@@ -511,15 +646,23 @@ export default function Inventory() {
               ]}
             />
             <Input
-              label="Quantidade"
+              label="Quantidade Disponível"
               type="number"
               min={1}
-              value={editItem.quantity_available}
-              onChange={e => setEditItem({ ...editItem, quantity_available: e.target.value })}
+              value={editForm.quantity_available}
+              onChange={e => setEditForm({ ...editForm, quantity_available: e.target.value })}
+              required
+            />
+            <Input
+              label="Quantidade Total"
+              type="number"
+              min={1}
+              value={editForm.quantity_total}
+              onChange={e => setEditForm({ ...editForm, quantity_total: e.target.value })}
               required
             />
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16 }}>
-              <Button variant="secondary" onClick={() => { setShowEditModal(false); setEditItem(null); }}>Cancelar</Button>
+              <Button variant="secondary" onClick={() => { setShowEditModal(false); setEditItem(null); setEditForm({ name: '', category: '', quantity_available: '', quantity_total: '' }); }}>Cancelar</Button>
               <Button variant="primary" onClick={handleSalvarEdicao}>Salvar</Button>
             </div>
           </div>

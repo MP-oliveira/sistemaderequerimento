@@ -172,14 +172,23 @@ export const updateInventoryItem = async (req, res) => {
     if (errAtual || !atual) {
       return res.status(404).json({ success: false, message: 'Item não encontrado para atualizar.' });
     }
-    // Validação de quantidade
-    const q_avail = req.body.quantity_available !== undefined ? req.body.quantity_available : atual.quantity_available;
-    const q_total = req.body.quantity_total !== undefined ? req.body.quantity_total : atual.quantity_total;
+    // Validação de quantidade com ajuste automático
+    let q_avail = req.body.quantity_available !== undefined ? req.body.quantity_available : atual.quantity_available;
+    let q_total = req.body.quantity_total !== undefined ? req.body.quantity_total : atual.quantity_total;
+    
+    // Se a quantidade disponível for maior que a total, ajustar automaticamente
+    if (q_avail > q_total) {
+      console.log(`🔄 Ajustando quantidade disponível de ${q_avail} para ${q_total}`);
+      q_avail = q_total;
+    }
+    
     const validationError = validateQuantities({ quantity_available: q_avail, quantity_total: q_total });
     if (validationError) {
       return res.status(400).json({ success: false, message: validationError });
     }
-    const data = buildInventoryData(req.body);
+    // Usar os valores ajustados
+    const adjustedBody = { ...req.body, quantity_available: q_avail, quantity_total: q_total };
+    const data = buildInventoryData(adjustedBody);
     data.updated_at = new Date().toISOString();
     const { data: item, error } = await supabase
       .from('inventory')
