@@ -619,56 +619,62 @@ export default function DashboardAdmin() {
         title="Detalhes da Requisição"
       >
         {reqDetalhe && (
-          <div className="request-details">
-            <div className="detail-item">
+          <div className="request-details-admin">
+            <div className="detail-item-admin">
               <strong>Evento:</strong> {reqDetalhe.event_name || reqDetalhe.description || 'Sem título'}
             </div>
             
-            <div className="detail-item">
+            <div className="detail-item-admin">
               <strong>Status:</strong> 
               <span className={`status-badge ${reqDetalhe.status.toLowerCase()}`}>
                 {reqDetalhe.status}
               </span>
             </div>
             
-            {reqDetalhe.start_datetime && (
-              <div className="detail-item">
-                <strong>Data de Início:</strong> {formatarData(reqDetalhe.start_datetime)}
-              </div>
-            )}
+            <div className="detail-row-admin">
+              {reqDetalhe.start_datetime && (
+                <div className="detail-item-admin">
+                  <strong>Data de Início:</strong> {formatarData(reqDetalhe.start_datetime)}
+                </div>
+              )}
+              
+              {reqDetalhe.end_datetime && (
+                <div className="detail-item-admin">
+                  <strong>Data de Fim:</strong> {formatarData(reqDetalhe.end_datetime)}
+                </div>
+              )}
+            </div>
             
-            {reqDetalhe.end_datetime && (
-              <div className="detail-item">
-                <strong>Data de Fim:</strong> {formatarData(reqDetalhe.end_datetime)}
-              </div>
-            )}
+            <div className="detail-row-admin">
+              {reqDetalhe.location && (
+                <div className="detail-item-admin">
+                  <strong>Local:</strong> {reqDetalhe.location}
+                </div>
+              )}
+              
+              {reqDetalhe.department && (
+                <div className="detail-item-admin">
+                  <strong>Departamento:</strong> {reqDetalhe.department}
+                </div>
+              )}
+            </div>
             
-            {reqDetalhe.location && (
-              <div className="detail-item">
-                <strong>Local:</strong> {reqDetalhe.location}
-              </div>
-            )}
-            
-            {reqDetalhe.department && (
-              <div className="detail-item">
-                <strong>Departamento:</strong> {reqDetalhe.department}
-              </div>
-            )}
-            
-            {reqDetalhe.requester && (
-              <div className="detail-item">
-                <strong>Solicitante:</strong> {reqDetalhe.requester}
-              </div>
-            )}
-            
-            {reqDetalhe.expected_audience && (
-              <div className="detail-item">
-                <strong>Público Esperado:</strong> {reqDetalhe.expected_audience}
-              </div>
-            )}
+            <div className="detail-row-admin">
+              {reqDetalhe.requester && (
+                <div className="detail-item-admin">
+                  <strong>Solicitante:</strong> {reqDetalhe.requester}
+                </div>
+              )}
+              
+              {reqDetalhe.expected_audience && (
+                <div className="detail-item-admin">
+                  <strong>Público Esperado:</strong> {reqDetalhe.expected_audience}
+                </div>
+              )}
+            </div>
             
             {reqDetalhe.description && (
-              <div className="detail-item">
+              <div className="detail-item-admin">
                 <strong>Descrição:</strong> {reqDetalhe.description}
               </div>
             )}

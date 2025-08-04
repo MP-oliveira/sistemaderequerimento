@@ -1171,6 +1171,42 @@ body, html {
   border: 1px solid #e5e7eb;
 }
 
+/* Modal de Detalhes do Admin - Layout Otimizado */
+.request-details-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.detail-row-admin {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.detail-item-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.detail-item-admin strong {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.detail-item-admin span {
+  color: #374151;
+  font-size: 0.9rem;
+}
+
 .detail-item strong {
   color: #1f2937;
   font-weight: 600;
@@ -1384,5 +1420,55 @@ body, html {
   .mobile-approve-native {
     background: #10b981 !important;
     color: white !important;
+  }
+}
+
+/* Responsividade para o modal do admin */
+@media (max-width: 768px) {
+  .request-details-admin {
+    gap: 6px;
+    padding: 6px 0;
+  }
+  
+  .detail-row-admin {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  
+  .detail-item-admin {
+    padding: 6px;
+    font-size: 0.85rem;
+  }
+  
+  .detail-item-admin strong {
+    font-size: 0.75rem;
+  }
+  
+  .detail-item-admin span {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .request-details-admin {
+    gap: 4px;
+    padding: 4px 0;
+  }
+  
+  .detail-row-admin {
+    gap: 4px;
+  }
+  
+  .detail-item-admin {
+    padding: 4px;
+    font-size: 0.8rem;
+  }
+  
+  .detail-item-admin strong {
+    font-size: 0.7rem;
+  }
+  
+  .detail-item-admin span {
+    font-size: 0.8rem;
   }
 } 
