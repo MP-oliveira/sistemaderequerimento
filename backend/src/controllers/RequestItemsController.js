@@ -68,12 +68,12 @@ const markItemAsSeparated = async (req, res) => {
     console.log('   User:', req.user);
     console.log('   User role:', req.user?.role);
     
-    // Verificar se o usuário é AUDIOVISUAL
-    if (req.user.role !== 'AUDIOVISUAL') {
-      console.log('❌ [markItemAsSeparated] Usuário não é AUDIOVISUAL:', req.user.role);
+    // Verificar se o usuário é AUDIOVISUAL ou SERVICO_GERAL
+    if (req.user.role !== 'AUDIOVISUAL' && req.user.role !== 'SERVICO_GERAL') {
+      console.log('❌ [markItemAsSeparated] Usuário não tem permissão:', req.user.role);
       return res.status(403).json({ 
         success: false, 
-        message: 'Apenas audiovisual pode marcar itens como separados.' 
+        message: 'Apenas audiovisual e serviço geral podem marcar itens como separados.' 
       });
     }
     
@@ -489,12 +489,12 @@ const markItemAsReturned = async (req, res) => {
     console.log('   User:', req.user);
     console.log('   User role:', req.user?.role);
     
-    // Verificar se o usuário é AUDIOVISUAL
-    if (req.user.role !== 'AUDIOVISUAL') {
-      console.log('❌ [markItemAsReturned] Usuário não é AUDIOVISUAL:', req.user.role);
+    // Verificar se o usuário é AUDIOVISUAL ou SERVICO_GERAL
+    if (req.user.role !== 'AUDIOVISUAL' && req.user.role !== 'SERVICO_GERAL') {
+      console.log('❌ [markItemAsReturned] Usuário não tem permissão:', req.user.role);
       return res.status(403).json({ 
         success: false, 
-        message: 'Apenas audiovisual pode marcar itens como retornados.' 
+        message: 'Apenas audiovisual e serviço geral podem marcar itens como retornados.' 
       });
     }
     
@@ -572,11 +572,11 @@ const markItemAsUnavailable = async (req, res) => {
     const { id } = req.params;
     const { unavailable_reason, audiovisual_notes } = req.body;
     
-    // Verificar se o usuário é AUDIOVISUAL
-    if (req.user.role !== 'AUDIOVISUAL') {
+    // Verificar se o usuário é AUDIOVISUAL ou SERVICO_GERAL
+    if (req.user.role !== 'AUDIOVISUAL' && req.user.role !== 'SERVICO_GERAL') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Apenas audiovisual pode marcar itens como indisponíveis.' 
+        message: 'Apenas audiovisual e serviço geral podem marcar itens como indisponíveis.' 
       });
     }
     
@@ -620,11 +620,11 @@ const markItemAsAvailableAndSeparated = async (req, res) => {
     const { id } = req.params;
     const { audiovisual_notes } = req.body;
     
-    // Verificar se o usuário é AUDIOVISUAL
-    if (req.user.role !== 'AUDIOVISUAL') {
+    // Verificar se o usuário é AUDIOVISUAL ou SERVICO_GERAL
+    if (req.user.role !== 'AUDIOVISUAL' && req.user.role !== 'SERVICO_GERAL') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Apenas audiovisual pode marcar itens como disponíveis.' 
+        message: 'Apenas audiovisual e serviço geral podem marcar itens como disponíveis.' 
       });
     }
     
@@ -704,11 +704,11 @@ const updateAudiovisualNotes = async (req, res) => {
     const { id } = req.params;
     const { audiovisual_notes } = req.body;
     
-    // Verificar se o usuário é AUDIOVISUAL
-    if (req.user.role !== 'AUDIOVISUAL') {
+    // Verificar se o usuário é AUDIOVISUAL ou SERVICO_GERAL
+    if (req.user.role !== 'AUDIOVISUAL' && req.user.role !== 'SERVICO_GERAL') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Apenas audiovisual pode atualizar observações.' 
+        message: 'Apenas audiovisual e serviço geral podem atualizar observações.' 
       });
     }
     
