@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { listarRequisicoes, listarEventos } from '../services/requestsService';
+import { listarItensInventario } from '../services/inventoryService';
 import ActivityLog from '../components/ActivityLog';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
@@ -24,6 +25,10 @@ export default function Dashboard() {
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
   const [requisicoesConflito, setRequisicoesConflito] = useState([]);
+  const [stats, setStats] = useState({
+    requerimentosAtivos: 0,
+    itensDisponiveis: 0
+  });
 
   // Função para carregar logs recentes (não faz mais nada)
   const carregarLogsRecentes = async () => {
@@ -56,6 +61,17 @@ export default function Dashboard() {
           type: 'evento',
         }));
         setEvents([...eventosFormatados, ...eventosReqs]);
+        
+        // Carregar estatísticas
+        const requisicoesAtivas = (requisicoes || []).filter(req => req.status === 'APTO').length;
+        const inventario = await listarItensInventario();
+        const itensDisponiveis = (inventario || []).filter(item => item.status === 'DISPONIVEL').length;
+        
+        setStats({
+          requerimentosAtivos: requisicoesAtivas,
+          itensDisponiveis: itensDisponiveis
+        });
+        
         await carregarLogsRecentes();
       } catch (err) {
         console.error('Erro ao carregar eventos:', err);
@@ -205,7 +221,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="stat-info">
-            <div className="stat-number">12</div>
+            <div className="stat-number">{stats.requerimentosAtivos}</div>
             <div className="stat-label">Requerimentos Ativos</div>
           </div>
         </div>
@@ -227,7 +243,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="stat-info">
-            <div className="stat-number">45</div>
+            <div className="stat-number">{stats.itensDisponiveis}</div>
             <div className="stat-label">Itens Disponíveis</div>
           </div>
         </div>

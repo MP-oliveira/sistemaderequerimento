@@ -7,12 +7,12 @@ export const createUser = async (req, res) => {
     console.log('🔍 createUser - Iniciando criação de usuário');
     console.log('🔍 createUser - Usuário autenticado:', req.user);
     
-    // Verifica se o usuário é ADM
-    if (!req.user || req.user.role !== 'ADM') {
-      console.log('❌ createUser - Acesso negado. Usuário não é ADM');
+    // Verifica se o usuário é ADM ou PASTOR
+    if (!req.user || (req.user.role !== 'ADM' && req.user.role !== 'PASTOR')) {
+      console.log('❌ createUser - Acesso negado. Usuário não é ADM ou PASTOR');
       return res.status(403).json({
         success: false,
-        message: 'Acesso negado. Apenas administradores podem criar usuários.'
+        message: 'Acesso negado. Apenas administradores ou pastores podem criar usuários.'
       });
     }
 
@@ -213,8 +213,8 @@ export const getUser = async (req, res) => {
 // Editar dados de um usuário (apenas ADM)
 export const updateUser = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== 'ADM') {
-      return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores.' });
+    if (!req.user || (req.user.role !== 'ADM' && req.user.role !== 'PASTOR')) {
+      return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores ou pastores.' });
     }
     const { id } = req.params;
     const { full_name, email, role } = req.body;
@@ -275,11 +275,11 @@ export const toggleUserActive = async (req, res) => {
   }
 };
 
-// Remover usuário (apenas ADM)
+// Remover usuário (apenas ADM ou PASTOR)
 export const deleteUser = async (req, res) => {
-  // Permissão ADM
-    if (!req.user || req.user.role !== 'ADM') {
-      return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores.' });
+  // Permissão ADM ou PASTOR
+    if (!req.user || (req.user.role !== 'ADM' && req.user.role !== 'PASTOR')) {
+      return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores ou pastores.' });
     }
   try {
     const { id } = req.params;

@@ -23,10 +23,10 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 app.use(cors());
 
-// Rate limiting
+// Rate limiting (aumentado para desenvolvimento)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP
+  max: 1000, // máximo 1000 requests por IP (aumentado para desenvolvimento)
   message: 'Muitas requisições, tente novamente em 15 minutos'
 });
 app.use(limiter);
