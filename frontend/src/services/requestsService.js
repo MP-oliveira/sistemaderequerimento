@@ -340,10 +340,10 @@ export async function retornarInstrumentos(id, returnNotes = '') {
   }
 }
 
-// Buscar requisições aprovadas para calendário
+// Buscar requisições para calendário
 export async function buscarRequisicoesCalendario(month = null, year = null) {
   try {
-    let url = `${API_URL}/api/requests/calendar/approved`;
+    let url = `${API_URL}/api/requests/calendar`;
     const params = new URLSearchParams();
     
     if (month) params.append('month', month);

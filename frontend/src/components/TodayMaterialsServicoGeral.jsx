@@ -18,8 +18,11 @@ export default function TodayMaterialsServicoGeral() {
   const carregarMateriais = async () => {
     setLoading(true);
     try {
+      console.log('🔍 [TodayMaterialsServicoGeral] Carregando materiais...');
       const data = await listarItensDoDiaServicoGeral();
+      console.log('🔍 [TodayMaterialsServicoGeral] Dados recebidos:', data);
       setMaterials(data || []);
+      console.log('🔍 [TodayMaterialsServicoGeral] Materiais definidos:', data?.length || 0);
     } catch (err) {
       console.error('❌ [TodayMaterialsServicoGeral] Erro ao carregar materiais:', err);
       setMaterials([]);
@@ -85,7 +88,10 @@ export default function TodayMaterialsServicoGeral() {
     );
   }
 
+  console.log('🔍 [TodayMaterialsServicoGeral] Renderizando com', materials.length, 'materiais');
+  
   if (materials.length === 0) {
+    console.log('🔍 [TodayMaterialsServicoGeral] Renderizando estado vazio');
     return (
       <div className="today-materials-empty">
         <FiPackage size={48} />

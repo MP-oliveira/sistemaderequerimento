@@ -69,9 +69,13 @@ export default function Calendar() {
 
   const getStatusLabel = (status) => {
     const labels = {
+      'PENDENTE': 'Pendente',
       'APTO': 'Aprovada',
+      'REJEITADO': 'Rejeitada',
       'EXECUTADO': 'Executada',
-      'FINALIZADO': 'Finalizada'
+      'FINALIZADO': 'Finalizada',
+      'PENDENTE_CONFLITO': 'Em Conflito',
+      'PREENCHIDO': 'Preenchida'
     };
     return labels[status] || status;
   };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { listarRequisicoes, listarEventos } from '../services/requestsService';
+import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario } from '../services/requestsService';
 import Modal from '../components/Modal';
 import TodayMaterialsServicoGeral from '../components/TodayMaterialsServicoGeral';
 import ReturnMaterialsOnly from '../components/ReturnMaterialsOnly';
@@ -34,14 +34,17 @@ export default function ServicoGeralDashboard() {
         const requisicoesData = await listarRequisicoes();
         setRequisicoes(requisicoesData || []);
         
-        const reqsParaAgenda = (requisicoesData || []).filter(req => ['APTO', 'EXECUTADO', 'FINALIZADO'].includes(req.status));
+        // Buscar requisições para o calendário usando a função correta
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+        const year = currentDate.getFullYear().toString();
+        const requisicoesCalendario = await buscarRequisicoesCalendario(month, year);
         
-        const eventosReqs = reqsParaAgenda.map(req => ({
+        const eventosReqs = (requisicoesCalendario || []).map(req => ({
           id: req.id,
-          title: req.event_name || req.description || 'Requisição',
+          title: req.title || req.event_name || req.description || 'Requisição',
           location: req.location,
-          start_datetime: req.start_datetime,
-          end_datetime: req.end_datetime,
+          start_datetime: req.start,
+          end_datetime: req.end,
           status: req.status,
           type: 'requisicao',
         }));
@@ -62,7 +65,7 @@ export default function ServicoGeralDashboard() {
       setLoading(false);
     };
     carregarDados();
-  }, []);
+  }, [currentDate]);
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();

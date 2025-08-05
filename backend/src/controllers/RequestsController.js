@@ -2011,8 +2011,8 @@ export const getApprovedRequestsForCalendar = async (req, res) => {
       };
     }
 
-    // Buscar requisições aprovadas, executadas e finalizadas
-    const { data: requests, error } = await supabase
+    // Buscar todas as requisições do mês (independente do status)
+    let query = supabase
       .from('requests')
       .select(`
         id,
@@ -2028,8 +2028,16 @@ export const getApprovedRequestsForCalendar = async (req, res) => {
         executed_at,
         users!requests_requester_id_fkey(full_name)
       `)
-      .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO'])
       .order('start_datetime', { ascending: true });
+
+    // Aplicar filtro de data se fornecido
+    if (month && year) {
+      const startDate = `${year}-${month.padStart(2, '0')}-01`;
+      const endDate = `${year}-${month.padStart(2, '0')}-31`;
+      query = query.gte('start_datetime', startDate).lte('start_datetime', endDate);
+    }
+
+    const { data: requests, error } = await query;
 
     if (error) {
       return res.status(400).json({ 
@@ -2073,9 +2081,13 @@ export const getApprovedRequestsForCalendar = async (req, res) => {
 // Função auxiliar para definir cor baseada no status
 const getStatusColor = (status) => {
   const colors = {
-    'APTO': '#10b981',      // Verde
-    'EXECUTADO': '#3b82f6',  // Azul
-    'FINALIZADO': '#8b5cf6'  // Roxo
+    'PENDENTE': '#ff9800',           // Laranja
+    'APTO': '#10b981',               // Verde
+    'REJEITADO': '#ef4444',          // Vermelho
+    'EXECUTADO': '#3b82f6',          // Azul
+    'FINALIZADO': '#8b5cf6',         // Roxo
+    'PENDENTE_CONFLITO': '#ff5722',  // Laranja escuro
+    'PREENCHIDO': '#2196f3'          // Azul claro
   };
   return colors[status] || '#6b7280';
 };
