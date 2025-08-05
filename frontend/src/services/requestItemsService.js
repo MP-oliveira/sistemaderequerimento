@@ -138,6 +138,25 @@ export const getExecutedItems = async () => {
   }
 };
 
+// Buscar itens executados por categoria
+export const getExecutedItemsByCategory = async (category) => {
+  try {
+    const response = await fetch(`${API_URL}/api/request-items/executed/${category}`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao buscar itens executados por categoria');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar itens executados por categoria:', error);
+    throw error;
+  }
+};
+
 export const markItemAsReturned = async (itemId, currentStatus) => {
   try {
     const response = await fetch(`${API_URL}/api/request-items/${itemId}/return`, {

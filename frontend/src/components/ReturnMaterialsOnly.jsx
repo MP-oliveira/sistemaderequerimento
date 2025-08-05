@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiCheck, FiX, FiPackage, FiClock, FiAlertTriangle, FiEdit3, FiChevronDown, FiChevronRight, FiMapPin } from 'react-icons/fi';
-import { getExecutedItems, markItemAsReturned, marcarItemComoSeparado } from '../services/requestItemsService';
+import { getExecutedItemsByCategory, markItemAsReturned, marcarItemComoSeparado } from '../services/requestItemsService';
 import { listarRequisicoes } from '../services/requestsService';
 import Modal from './Modal';
 import Button from './Button';
@@ -27,7 +27,7 @@ const ReturnMaterialsOnly = () => {
       setLoading(true);
       
       const [itemsResponse, requisicoesData] = await Promise.all([
-        getExecutedItems(),
+        getExecutedItemsByCategory('servico-geral'),
         listarRequisicoes()
       ]);
       
@@ -65,26 +65,34 @@ const ReturnMaterialsOnly = () => {
     return Object.values(grupos);
   };
 
-  // Itens para retorno (status EXECUTADO) - apenas eventos recentes e materiais de serviço geral
+  // Itens para retorno (status EXECUTADO) - apenas eventos recentes
   const itensParaRetorno = executedItems.filter(item => {
     // Verificar se o item está separado
     const separado = item.is_separated === true;
     
     if (!separado) return false;
     
-    // Filtrar apenas materiais de serviço geral (temporariamente mostrar todos até implementar categorias)
-    if (item.category && item.category !== 'SERVICO_GERAL') return false;
-    
     // Verificar se o evento é recente (próximos 7 dias ou hoje)
     if (item.requests && item.requests.date) {
       const eventDate = new Date(item.requests.date);
       const today = new Date();
+      today.setHours(0, 0, 0, 0); // Zerar horas para comparação de data
       const nextWeek = new Date();
       nextWeek.setDate(today.getDate() + 7);
+      nextWeek.setHours(23, 59, 59, 999); // Final do dia
       
-      return eventDate >= today && eventDate <= nextWeek;
+      // Converter para string de data para comparação sem timezone
+      const eventDateStr = eventDate.toISOString().split('T')[0];
+      const todayStr = today.toISOString().split('T')[0];
+      const nextWeekStr = nextWeek.toISOString().split('T')[0];
+      
+      const isRecent = eventDateStr >= todayStr && eventDateStr <= nextWeekStr;
+      console.log(`🔍 [ReturnMaterialsOnly] Item: ${item.item_name}, Data evento: ${item.requests.date}, EventDateStr: ${eventDateStr}, TodayStr: ${todayStr}, NextWeekStr: ${nextWeekStr}, É recente: ${isRecent}`);
+      
+      return isRecent;
     }
     
+    console.log(`🔍 [ReturnMaterialsOnly] Item: ${item.item_name}, Sem data de evento`);
     return false;
   });
 

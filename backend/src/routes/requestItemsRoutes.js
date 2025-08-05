@@ -22,6 +22,9 @@ router.get('/today/:category', authenticateToken, RequestItemsController.getToda
 // Rota para buscar itens executados
 router.get('/executed', authenticateToken, RequestItemsController.getExecutedItems);
 
+// Rotas para buscar itens executados por categoria
+router.get('/executed/:category', authenticateToken, RequestItemsController.getExecutedItemsByCategory);
+
 // Rota para marcar item como retornado
 router.patch('/:id/return', authenticateToken, RequestItemsController.markItemAsReturned);
 

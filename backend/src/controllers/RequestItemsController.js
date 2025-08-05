@@ -234,7 +234,7 @@ const getTodayItemsByCategory = async (req, res) => {
 
     console.log('🔍 [getTodayItemsByCategory] Target categories:', targetCategories);
 
-    // Buscar requisições aprovadas para hoje
+    // Buscar apenas requisições aprovadas para hoje (material do dia)
     const { data: todayRequests, error: requestsError } = await supabase
       .from('requests')
       .select('id, event_name, start_datetime, end_datetime, location, expected_audience, status, date, department, description')
@@ -444,7 +444,8 @@ const getExecutedItems = async (req, res) => {
         returned_at,
         inventory (
           name,
-          description
+          description,
+          category
         ),
         requests (
           event_name,
@@ -473,6 +474,118 @@ const getExecutedItems = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Erro ao buscar itens executados:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor' 
+    });
+  }
+};
+
+// Buscar itens executados filtrados por categoria
+const getExecutedItemsByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    console.log('🔍 [getExecutedItemsByCategory] Buscando itens executados para categoria:', category);
+    
+    // Definir categorias baseado no parâmetro
+    let targetCategories = [];
+    if (category === 'audiovisual') {
+      targetCategories = ['AUDIO_VIDEO', 'INSTRUMENTO_MUSICAL', 'Instrumento Musical', 'Som', 'SOM', 'AUDIO'];
+    } else if (category === 'servico-geral') {
+      targetCategories = ['SERVICO_GERAL'];
+    } else {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Categoria inválida. Use "audiovisual" ou "servico-geral".' 
+      });
+    }
+
+    console.log('🔍 [getExecutedItemsByCategory] Target categories:', targetCategories);
+    
+    // Primeiro, buscar requisições aprovadas (excluindo FINALIZADO)
+    const { data: approvedRequests, error: requestsError } = await supabase
+      .from('requests')
+      .select('id')
+      .in('status', ['APTO', 'PREENCHIDO', 'EXECUTADO']);
+    
+    if (requestsError) {
+      console.error('❌ Erro ao buscar requisições:', requestsError);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+    
+    console.log('🔍 [getExecutedItemsByCategory] Requisições aprovadas encontradas:', approvedRequests?.length || 0);
+    
+    if (!approvedRequests || approvedRequests.length === 0) {
+      return res.json({ 
+        success: true, 
+        data: [] 
+      });
+    }
+    
+    // Buscar itens dessas requisições
+    const requestIds = approvedRequests.map(req => req.id);
+    
+    const { data, error } = await supabase
+      .from('request_items')
+      .select(`
+        id,
+        request_id,
+        inventory_id,
+        item_name,
+        quantity_requested,
+        description,
+        is_separated,
+        separated_by,
+        separated_at,
+        is_returned,
+        returned_by,
+        returned_at,
+        inventory (
+          name,
+          description,
+          category
+        ),
+        requests (
+          event_name,
+          start_datetime,
+          end_datetime,
+          status,
+          department,
+          date
+        )
+      `)
+      .in('request_id', requestIds);
+
+    if (error) {
+      console.error('❌ Erro ao buscar itens executados:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+
+    console.log('🔍 [getExecutedItemsByCategory] Total de itens encontrados:', data?.length || 0);
+
+    // Filtrar itens por categoria do inventário
+    const filteredData = data.filter(item => {
+      if (!item.inventory || !item.inventory.category) {
+        return false; // Se não tem categoria, não mostrar
+      }
+      const isIncluded = targetCategories.includes(item.inventory.category);
+      return isIncluded;
+    });
+
+    console.log('🔍 [getExecutedItemsByCategory] Itens filtrados encontrados:', filteredData?.length || 0);
+
+    res.json({ 
+      success: true, 
+      data: filteredData || [] 
+    });
+  } catch (error) {
+    console.error('❌ Erro ao buscar itens executados por categoria:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Erro interno do servidor' 
@@ -746,6 +859,7 @@ export {
   deleteRequestItem,
   updateRequestItem,
   getExecutedItems,
+  getExecutedItemsByCategory,
   markItemAsReturned,
   markItemAsUnavailable,
   markItemAsAvailableAndSeparated,

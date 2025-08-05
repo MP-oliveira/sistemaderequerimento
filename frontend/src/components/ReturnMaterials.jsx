@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiCheck, FiX, FiPackage, FiClock, FiAlertTriangle, FiEdit3, FiChevronDown, FiChevronRight, FiMapPin } from 'react-icons/fi';
-import { getExecutedItems, markItemAsReturned, marcarItemComoSeparado } from '../services/requestItemsService';
+import { getExecutedItemsByCategory, markItemAsReturned, marcarItemComoSeparado } from '../services/requestItemsService';
 import { listarRequisicoes } from '../services/requestsService';
 import Modal from './Modal';
 import Button from './Button';
@@ -27,7 +27,7 @@ const ReturnMaterials = () => {
       setLoading(true);
       
       const [itemsResponse, requisicoesData] = await Promise.all([
-        getExecutedItems(),
+        getExecutedItemsByCategory('audiovisual'),
         listarRequisicoes()
       ]);
       
