@@ -239,6 +239,9 @@ export default function Requests() {
   async function abrirDetalhe(id) {
     try {
       const detalhe = await getRequisicaoDetalhada(id);
+      console.log('🔍 Dados recebidos do backend:', detalhe);
+      console.log('🔍 Requester name:', detalhe.requester_name);
+      console.log('🔍 Requester:', detalhe.requester);
       setReqDetalhe(detalhe);
       setModalDetalhe(true);
     } catch {
@@ -681,9 +684,15 @@ export default function Requests() {
             <div><b>Local:</b> {reqDetalhe.location}</div>
             <div><b>Início:</b> {formatarDataHora(reqDetalhe.start_datetime)}</div>
             <div><b>Fim:</b> {formatarDataHora(reqDetalhe.end_datetime)}</div>
-            <div><b>Público Esperado:</b> {reqDetalhe.expected_audience}</div>
+            <div style={{ display: 'flex', gap: 20 }}>
+              <div style={{ flex: 1 }}>
+                <div><b>Público Esperado:</b> {reqDetalhe.expected_audience}</div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div><b>Solicitante:</b> {reqDetalhe.requester_name || reqDetalhe.requester || 'Usuário não encontrado'}</div>
+              </div>
+            </div>
             <div><b>Descrição:</b> {reqDetalhe.description}</div>
-            <div><b>Solicitante:</b> {reqDetalhe.requester}</div>
             <div><b>Status:</b> {reqDetalhe.status}</div>
             {reqDetalhe.status === 'PENDENTE_CONFLITO' && (
               <div className="requests-alert-conflito" style={{ fontWeight: 700, fontSize: 16, marginTop: 8 }}>

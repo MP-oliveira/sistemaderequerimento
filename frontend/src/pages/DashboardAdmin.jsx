@@ -4,7 +4,7 @@ import Modal from '../components/Modal';
 import Table from '../components/Table';
 import AdminButtons from '../components/AdminButtons';
 import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag, FiList, FiCheckSquare, FiXSquare, FiPlay, FiFileText, FiPause, FiAlertCircle, FiCheck, FiX, FiActivity, FiThumbsUp, FiThumbsDown, FiShield, FiStar, FiAward, FiEye } from 'react-icons/fi';
-import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao } from '../services/requestsService';
+import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada } from '../services/requestsService';
 import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparation } from '../utils/notificationUtils';
 import './DashboardAdmin.css';
 
@@ -586,10 +586,16 @@ export default function DashboardAdmin() {
                   <div className="request-card-actions">
                     <button 
                       className="request-card-view-btn"
-                      onClick={() => {
-                        // Abrir modal com detalhes da requisição
-                        setReqDetalhe(request);
-                        setModalDetalhe(true);
+                      onClick={async () => {
+                        try {
+                          // Buscar detalhes completos da requisição
+                          const detalhe = await getRequisicaoDetalhada(request.id);
+                          setReqDetalhe(detalhe);
+                          setModalDetalhe(true);
+                        } catch (error) {
+                          console.error('Erro ao buscar detalhes:', error);
+                          mostrarNotificacao('Erro ao buscar detalhes', 'erro');
+                        }
                       }}
                       title="Ver detalhes"
                     >
@@ -660,11 +666,9 @@ export default function DashboardAdmin() {
             </div>
             
             <div className="detail-row-admin">
-              {reqDetalhe.requester && (
-                <div className="detail-item-admin">
-                  <strong>Solicitante:</strong> {reqDetalhe.requester}
-                </div>
-              )}
+              <div className="detail-item-admin">
+                <strong>Solicitante:</strong> {reqDetalhe.requester_name || reqDetalhe.requester || 'Usuário não encontrado'}
+              </div>
               
               {reqDetalhe.expected_audience && (
                 <div className="detail-item-admin">

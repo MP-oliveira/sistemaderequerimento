@@ -9,6 +9,7 @@ import { formatTimeUTC } from '../utils/dateUtils';
 import './Dashboard.css';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { getPrioridadeIcon, getPrioridadeClass } from '../utils/prioridadeConfig';
 
 const PAGES = [
   { key: 'dashboard', label: 'Dashboard', icon: <FiPieChart />, url: '/' },
@@ -289,7 +290,12 @@ export default function Dashboard() {
               <li key={req.id} className="conflito-item">
                 <div className="conflito-content">
                   <div className="conflito-title">{req.description || 'Sem descrição'}</div>
-                  <div className="conflito-info">Depto: {req.department} | Prioridade: <b>{req.prioridade || '-'}</b></div>
+                  <div className="conflito-info">
+                    Depto: {req.department} | Prioridade: <b>{req.prioridade || '-'}</b>
+                  </div>
+                  <div className="conflito-solicitante">
+                    👤 Solicitante: <b>{req.requester_name || 'Usuário não encontrado'}</b>
+                  </div>
                   <div className="conflito-date">Data: {req.start_datetime ? new Date(req.start_datetime).toLocaleString('pt-BR') : '-'}</div>
                 </div>
                 <Button variant="success" size="sm" onClick={() => window.location.href = `/requests?id=${req.id}&acao=aprovar`} className="conflito-btn-aprovar">Aprovar</Button>

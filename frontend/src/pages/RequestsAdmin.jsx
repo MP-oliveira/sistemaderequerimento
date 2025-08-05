@@ -603,25 +603,83 @@ export default function RequestsAdmin() {
           </div>
         )}
 
-        {reqDetalhe ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div><b>Departamento:</b> {reqDetalhe.department}</div>
-            <div><b>Líder:</b> {reqDetalhe.department_leader}</div>
-            <div><b>Prioridade:</b> {reqDetalhe.prioridade}</div>
-            <div><b>Data:</b> {reqDetalhe.date}</div>
-            <div><b>Evento:</b> {reqDetalhe.event_name}</div>
-            <div><b>Local:</b> {reqDetalhe.location}</div>
-            <div><b>Início:</b> {formatarDataHora(reqDetalhe.start_datetime)}</div>
-            <div><b>Fim:</b> {formatarDataHora(reqDetalhe.end_datetime)}</div>
-            <div><b>Público Esperado:</b> {reqDetalhe.expected_audience}</div>
-            <div><b>Descrição:</b> {reqDetalhe.description}</div>
-            <div><b>Solicitante:</b> {reqDetalhe.requester}</div>
-            <div><b>Status:</b> {reqDetalhe.status}</div>
+        {reqDetalhe && (
+          <div className="request-details-admin">
+            <div className="detail-item-admin">
+              <strong>Evento:</strong> {reqDetalhe.event_name || reqDetalhe.description || 'Sem título'}
+            </div>
+            
+            <div className="detail-item-admin">
+              <strong>Status:</strong> 
+              <span className={`status-badge ${reqDetalhe.status.toLowerCase()}`}>
+                {reqDetalhe.status}
+              </span>
+            </div>
+            
+            <div className="detail-row-admin">
+              {reqDetalhe.start_datetime && (
+                <div className="detail-item-admin">
+                  <strong>Data de Início:</strong> {formatarDataHora(reqDetalhe.start_datetime)}
+                </div>
+              )}
+              
+              {reqDetalhe.end_datetime && (
+                <div className="detail-item-admin">
+                  <strong>Data de Fim:</strong> {formatarDataHora(reqDetalhe.end_datetime)}
+                </div>
+              )}
+            </div>
+            
+            <div className="detail-row-admin">
+              {reqDetalhe.location && (
+                <div className="detail-item-admin">
+                  <strong>Local:</strong> {reqDetalhe.location}
+                </div>
+              )}
+              
+              {reqDetalhe.department && (
+                <div className="detail-item-admin">
+                  <strong>Departamento:</strong> {reqDetalhe.department}
+                </div>
+              )}
+            </div>
+            
+            <div className="detail-row-admin">
+              <div className="detail-item-admin">
+                <strong>Solicitante:</strong> {reqDetalhe.requester_name || reqDetalhe.requester || 'Usuário não encontrado'}
+              </div>
+              
+              {reqDetalhe.expected_audience && (
+                <div className="detail-item-admin">
+                  <strong>Público Esperado:</strong> {reqDetalhe.expected_audience}
+                </div>
+              )}
+            </div>
+            
+            {reqDetalhe.description && (
+              <div className="detail-item-admin">
+                <strong>Descrição:</strong> {reqDetalhe.description}
+              </div>
+            )}
+            
+            {reqDetalhe.prioridade && (
+              <div className="detail-item-admin">
+                <strong>Prioridade:</strong> {reqDetalhe.prioridade}
+              </div>
+            )}
+            
+            {reqDetalhe.department_leader && (
+              <div className="detail-item-admin">
+                <strong>Líder:</strong> {reqDetalhe.department_leader}
+              </div>
+            )}
+            
             {reqDetalhe.status === 'PENDENTE_CONFLITO' && (
               <div className="requests-alert-conflito" style={{ fontWeight: 700, fontSize: 16, marginTop: 8 }}>
                 ⚠️ Conflito de agenda detectado! Esta requisição precisa de avaliação manual.
               </div>
             )}
+            
             {/* Histórico de status */}
             {Array.isArray(reqDetalhe.status_history) && reqDetalhe.status_history.length > 0 && (
               <div className="status-history-section">
@@ -653,7 +711,7 @@ export default function RequestsAdmin() {
               </div>
             )}
           </div>
-        ) : null}
+        )}
       </Modal>
 
       {/* Modal de rejeição */}

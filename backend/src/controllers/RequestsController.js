@@ -937,7 +937,8 @@ export const listRequests = async (req, res) => {
           name,
           start_datetime,
           end_datetime
-        )
+        ),
+        users!requests_requester_id_fkey(full_name, email)
       `);
     
     // Usuários AUDIOVISUAL podem ver todas as requisições (especialmente as aprovadas)
@@ -958,6 +959,8 @@ export const listRequests = async (req, res) => {
       department: request.department || '',
       status: request.status || 'PENDENTE',
       requester_id: request.requester_id,
+      requester_name: request.users?.full_name || 'Usuário não encontrado',
+      requester_email: request.users?.email || '',
       approved_by: request.approved_by,
       executed_by: request.executed_by,
       created_at: request.created_at,
@@ -988,7 +991,10 @@ export const getRequest = async (req, res) => {
     const { id } = req.params;
     const { data: request, error } = await supabase
       .from('requests')
-      .select('*')
+      .select(`
+        *,
+        users!requests_requester_id_fkey(full_name, email)
+      `)
       .eq('id', id)
       .single();
     if (error || !request) {
@@ -1005,8 +1011,14 @@ export const getRequest = async (req, res) => {
       .from('request_items')
       .select('*')
       .eq('request_id', id);
-    // Retornar os dados da requisição + itens
-    res.json({ success: true, data: { ...request, itens: itens || [] } });
+    // Retornar os dados da requisição + itens + dados do solicitante
+    const requestWithSolicitante = {
+      ...request,
+      itens: itens || [],
+      requester_name: request.users?.full_name || 'Usuário não encontrado',
+      requester_email: request.users?.email || ''
+    };
+    res.json({ success: true, data: requestWithSolicitante });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
