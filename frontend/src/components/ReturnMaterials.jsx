@@ -46,16 +46,18 @@ const ReturnMaterials = () => {
     
     items.forEach(item => {
       const requestId = item.request_id;
-      const request = requisicoes.find(req => req.id === requestId);
+      
+      // Usar os dados da requisição que já estão no item
+      const request = item.requests || {};
       
       // Pular requisições finalizadas
-      if (request && request.status === 'FINALIZADO') {
+      if (request.status === 'FINALIZADO') {
         return;
       }
       
       if (!grupos[requestId]) {
         grupos[requestId] = {
-          request: request || {},
+          request: request,
           items: []
         };
       }
