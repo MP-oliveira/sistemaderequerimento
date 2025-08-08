@@ -1307,8 +1307,9 @@ export default function Requests() {
               placeholder="Buscar itens do inventário..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-field"
               style={{
-                width: '100%',
+                width: '98%',
                 padding: '12px 16px 12px 44px',
                 border: '2px solid #e5e7eb',
                 borderRadius: '8px',
