@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiEdit, FiTrash2, FiArrowLeft, FiEye, FiX } from 'react-icons/fi';
 import Input from '../components/Input';
@@ -514,7 +514,7 @@ export default function Inventory() {
               </div>
             ) : (
               <div className="inventory-list">
-                {filteredItens.map((item, index) => {
+                {filteredItens.map((item) => {
                   const quantidade = Number(item.quantity_available);
                   const categoria = item.category?.toLowerCase() || '';
                   
@@ -524,6 +524,7 @@ export default function Inventory() {
                     isLowStock = quantidade === 0;
                   } else {
                     isLowStock = quantidade < 2;
+                    console.log('isLowStock', isLowStock);
                   }
                   
                   return (

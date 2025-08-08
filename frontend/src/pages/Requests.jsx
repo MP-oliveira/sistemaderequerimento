@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX } from 'react-icons/fi';
+import { useState, useEffect, useCallback } from 'react';
+import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX, FiSearch } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
@@ -60,10 +60,12 @@ export default function Requests() {
     prioridade: PRIORIDADE_DEFAULT
   });
   
+  
   // Estados para itens do inventário
   const [inventory, setInventory] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // Campo de busca
   
   // Estados para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
@@ -124,6 +126,13 @@ export default function Requests() {
     }
   }, [showAddModal]);
 
+  // Limpar busca quando abrir/fechar o modal de inventário
+  useEffect(() => {
+    if (showInventoryModal) {
+      setSearchTerm('');
+    }
+  }, [showInventoryModal]);
+
   // Auto-hide das notificações
   useEffect(() => {
     if (notificacao.mostrar) {
@@ -143,6 +152,15 @@ export default function Requests() {
     setNotificacao({ mensagem, tipo, mostrar: true });
   }
 
+  // Função para filtrar itens do inventário baseado na busca
+  const filteredInventory = inventory.filter(item => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      item.name.toLowerCase().includes(searchLower) ||
+      (item.description && item.description.toLowerCase().includes(searchLower))
+    );
+  });
+
   // Função para formatar data e hora
   const formatarDataHora = (dataString) => {
     if (!dataString) return '';
@@ -152,6 +170,7 @@ export default function Requests() {
       const hora = formatTimeUTC(dataString);
       return `${data} ${hora}`;
     } catch (error) {
+      console.error('Erro ao formatar data e hora:', error);
       return '';
     }
   };
@@ -177,7 +196,8 @@ export default function Requests() {
         quantity: 1,
         inventory_id: item.id,
         item_name: item.name,
-        quantity_requested: 1
+        quantity_requested: 1,
+        quantity_available: item.quantity_available
       };
       const novosItens = [...selectedItems, novoItem];
       setSelectedItems(novosItens);
@@ -492,7 +512,7 @@ export default function Requests() {
     } else if (user && user.role === 'AUDIOVISUAL') {
       navigate('/audiovisual/dashboard');
     } else {
-    navigate('/dashboard');
+      navigate('/dashboard');
     }
   };
 
@@ -538,24 +558,24 @@ export default function Requests() {
                 value={filtroStatus} 
                 onChange={e => setFiltroStatus(e.target.value)} 
                 className="filter-select"
-          required
+                required
               >
                 <option value="">Selecione um status</option>
-          <option value="PENDENTE">Pendente</option>
-          <option value="PENDENTE_CONFLITO">Em Conflito</option>
-          <option value="APTO">Apto</option>
-          <option value="EXECUTADO">Executado</option>
-          <option value="FINALIZADO">Finalizado</option>
-          <option value="REJEITADO">Rejeitado</option>
-        </select>
+                <option value="PENDENTE">Pendente</option>
+                <option value="PENDENTE_CONFLITO">Em Conflito</option>
+                <option value="APTO">Apto</option>
+                <option value="EXECUTADO">Executado</option>
+                <option value="FINALIZADO">Finalizado</option>
+                <option value="REJEITADO">Rejeitado</option>
+              </select>
             </div>
             
             <div className="filter-group">
               <label className="filter-label">Departamento</label>
-        <input
-          type="text"
-          value={filtroDepartamento}
-          onChange={e => setFiltroDepartamento(e.target.value)}
+              <input
+                type="text"
+                value={filtroDepartamento}
+                onChange={e => setFiltroDepartamento(e.target.value)}
                 placeholder="Digite o departamento..."
                 className="filter-input"
               />
@@ -568,14 +588,14 @@ export default function Requests() {
                 value={filtroData}
                 onChange={e => setFiltroData(e.target.value)}
                 placeholder="Selecione uma data"
-          className="filter-input"
-        />
-      </div>
+                className="filter-input"
+              />
+            </div>
 
             <div className="filter-actions">
-          <Button 
-            variant="secondary" 
-            size="sm"
+              <Button 
+                variant="secondary" 
+                size="sm"
                 onClick={() => {
                   setFiltroStatus('');
                   setFiltroDepartamento('');
@@ -584,9 +604,9 @@ export default function Requests() {
                 className="clear-filters-btn"
               >
                 Limpar Filtros
-          </Button>
-        </div>
-      </div>
+              </Button>
+            </div>
+          </div>
         </div>
         {loading ? (
           <div className="requests-loading">Carregando...</div>
@@ -766,10 +786,10 @@ export default function Requests() {
                 </div>
               </div>
               <div style={{ flex: 1 }}>
-            <Input
-              label="Nome do Evento"
-              value={editReq.event_name || ''}
-              onChange={e => handleEditField('event_name', e.target.value)}
+                <Input
+                  label="Nome do Evento"
+                  value={editReq.event_name || ''}
+                  onChange={e => handleEditField('event_name', e.target.value)}
                   required
                 />
               </div>
@@ -803,37 +823,37 @@ export default function Requests() {
             </div>
             <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
-            <Input
-              label="Hora de Início"
-              type="time"
-              value={editReq.start_datetime || ''}
-              onChange={e => {
-                handleEditField('start_datetime', e.target.value);
-                debouncedVerificarConflito(editReq.date, editReq.location, e.target.value, editReq.end_datetime);
-              }}
+                <Input
+                  label="Hora de Início"
+                  type="time"
+                  value={editReq.start_datetime || ''}
+                  onChange={e => {
+                    handleEditField('start_datetime', e.target.value);
+                    debouncedVerificarConflito(editReq.date, editReq.location, e.target.value, editReq.end_datetime);
+                  }}
                   required
-            />
+                />
               </div>
               <div style={{ flex: 1 }}>
-            <Input
-              label="Hora de Fim"
-              type="time"
-              value={editReq.end_datetime || ''}
-              onChange={e => {
-                handleEditField('end_datetime', e.target.value);
-                debouncedVerificarConflito(editReq.date, editReq.location, editReq.start_datetime, e.target.value);
-              }}
+                <Input
+                  label="Hora de Fim"
+                  type="time"
+                  value={editReq.end_datetime || ''}
+                  onChange={e => {
+                    handleEditField('end_datetime', e.target.value);
+                    debouncedVerificarConflito(editReq.date, editReq.location, editReq.start_datetime, e.target.value);
+                  }}
                   required
-            />
+                />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 20 }}>
               <div style={{ flex: 1 }}>
-            <Input
-              label="Público Esperado"
-              type="number"
-              value={editReq.expected_audience || ''}
-              onChange={e => handleEditField('expected_audience', e.target.value)}
+                <Input
+                  label="Público Esperado"
+                  type="number"
+                  value={editReq.expected_audience || ''}
+                  onChange={e => handleEditField('expected_audience', e.target.value)}
                 />
               </div>
               <div style={{ flex: 1 }}>
@@ -1268,49 +1288,207 @@ export default function Requests() {
           </Button>
         }
       >
-        <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
-          {inventory.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {inventory.map((item) => (
-                <div key={item.id} style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  padding: '0.75rem',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  backgroundColor: '#fff'
-                }}>
-                  <div>
-                    <div style={{ fontWeight: '500' }}>{item.name}</div>
-                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                      {item.description}
-                    </div>
-                    <div style={{ fontSize: '0.875rem', color: '#059669' }}>
-                      Disponível: {item.quantity_available}
-                    </div>
-                  </div>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => {
-                      adicionarItem(item);
-                      setShowInventoryModal(false);
-                    }}
-                    disabled={item.quantity_available <= 0}
-                  >
-                    <FiPlus size={14} />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-              Nenhum item disponível no inventário
+        {/* Campo de Busca */}
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{ position: 'relative' }}>
+            <FiSearch 
+              size={18} 
+              style={{ 
+                position: 'absolute', 
+                left: '12px', 
+                top: '50%', 
+                transform: 'translateY(-50%)',
+                color: '#6b7280',
+                zIndex: 1
+              }} 
+            />
+            <input
+              type="text"
+              placeholder="Buscar itens do inventário..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px 12px 44px',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+                backgroundColor: '#fff'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#3b82f6';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#e5e7eb';
+              }}
+            />
+          </div>
+          {searchTerm && (
+            <div style={{ 
+              fontSize: '12px', 
+              color: '#6b7280', 
+              marginTop: '4px',
+              paddingLeft: '4px'
+            }}>
+              {filteredInventory.length} item(ns) encontrado(s)
             </div>
           )}
         </div>
+
+        {/* Lista de Itens */}
+        <div style={{ maxHeight: '320px', overflowY: 'auto', paddingRight: '8px' }}>
+          {filteredInventory.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {filteredInventory.map((item) => {
+                const isSelected = selectedItems.some(selected => selected.id === item.id);
+                return (
+                  <div key={item.id} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    padding: '0.75rem',
+                    border: `2px solid ${isSelected ? '#3b82f6' : '#e5e7eb'}`,
+                    borderRadius: '8px',
+                    backgroundColor: isSelected ? '#eff6ff' : '#fff',
+                    transition: 'all 0.2s ease'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ 
+                        fontWeight: '500', 
+                        color: isSelected ? '#1e40af' : '#111827',
+                        marginBottom: '2px'
+                      }}>
+                        {item.name}
+                        {isSelected && (
+                          <span style={{ 
+                            marginLeft: '8px', 
+                            fontSize: '12px', 
+                            color: '#059669',
+                            fontWeight: '600'
+                          }}>
+                            ✓ Selecionado
+                          </span>
+                        )}
+                      </div>
+                      {item.description && (
+                        <div style={{ 
+                          fontSize: '0.875rem', 
+                          color: '#6b7280',
+                          marginBottom: '4px'
+                        }}>
+                          {item.description}
+                        </div>
+                      )}
+                      <div style={{ 
+                        fontSize: '0.875rem', 
+                        color: item.quantity_available > 0 ? '#059669' : '#dc2626',
+                        fontWeight: '500'
+                      }}>
+                        Disponível: {item.quantity_available}
+                      </div>
+                    </div>
+                    <Button
+                      variant={isSelected ? "secondary" : "primary"}
+                      size="sm"
+                      onClick={() => {
+                        if (isSelected) {
+                          removerItem(item.id);
+                        } else {
+                          adicionarItem(item);
+                        }
+                      }}
+                      disabled={!isSelected && item.quantity_available <= 0}
+                      style={{ marginLeft: '12px' }}
+                    >
+                      {isSelected ? (
+                        <>
+                          <FiX size={14} style={{ marginRight: '4px' }} />
+                          Remover
+                        </>
+                      ) : (
+                        <>
+                          <FiPlus size={14} style={{ marginRight: '4px' }} />
+                          Adicionar
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '3rem 2rem', 
+              color: '#6b7280',
+              borderRadius: '8px',
+              backgroundColor: '#f9fafb',
+              border: '1px solid #e5e7eb'
+            }}>
+              {searchTerm ? (
+                <>
+                  <FiSearch size={32} style={{ marginBottom: '8px', opacity: 0.5 }} />
+                  <div style={{ fontSize: '16px', marginBottom: '4px' }}>
+                    Nenhum item encontrado
+                  </div>
+                  <div style={{ fontSize: '14px' }}>
+                    Tente buscar com outros termos
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: '16px', marginBottom: '4px' }}>
+                    Nenhum item disponível
+                  </div>
+                  <div style={{ fontSize: '14px' }}>
+                    Não há itens no inventário
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Resumo dos itens selecionados */}
+        {selectedItems.length > 0 && (
+          <div style={{ 
+            marginTop: '1rem', 
+            padding: '12px', 
+            backgroundColor: '#f0f9ff', 
+            borderRadius: '8px',
+            border: '1px solid #bfdbfe'
+          }}>
+            <div style={{ 
+              fontSize: '14px', 
+              fontWeight: '600', 
+              color: '#1e40af', 
+              marginBottom: '4px' 
+            }}>
+              Itens Selecionados: {selectedItems.length}
+            </div>
+            <div style={{ 
+              fontSize: '12px', 
+              color: '#1e40af',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              {selectedItems.map(item => (
+                <span key={item.id} style={{ 
+                  backgroundColor: '#dbeafe', 
+                  padding: '2px 6px', 
+                  borderRadius: '4px',
+                  fontWeight: '500'
+                }}>
+                  {item.name} ({item.quantity})
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
-} 
+}
