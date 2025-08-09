@@ -18,7 +18,8 @@ import {
   getApprovedRequestsForCalendar,
   checkConflicts,
   checkRealTimeConflicts,
-  checkInventoryAvailability
+  checkInventoryAvailability,
+  uploadMiddleware
 } from '../controllers/RequestsController.js';
 
 const router = express.Router();
@@ -38,10 +39,14 @@ router.put('/:id/reject', authenticateToken, rejectRequest);
 router.put('/:id/finish', authenticateToken, finishRequest);
 
 // Rotas para comprovantes
-router.post('/:id/comprovantes', authenticateToken, uploadComprovante);
+router.post('/:id/comprovantes', authenticateToken, uploadMiddleware, uploadComprovante);
 router.get('/:id/comprovantes', authenticateToken, listComprovantes);
 router.get('/:id/comprovantes/:filename', authenticateToken, downloadComprovante);
 router.delete('/:id/comprovantes/:filename', authenticateToken, removeComprovante);
+
+// Endpoints compatíveis com o frontend
+router.get('/comprovantes/:id/download', authenticateToken, downloadComprovante);
+router.delete('/comprovantes/:id', authenticateToken, removeComprovante);
 
 // Rotas para retorno de instrumentos
 router.put('/:id/return-instruments', authenticateToken, returnInstruments);

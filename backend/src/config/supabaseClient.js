@@ -4,12 +4,14 @@ import dotenv from 'dotenv';
 // Carregar variáveis de ambiente
 dotenv.config();
 
-// Debug: vamos ver o que está carregando
-console.log('🔍 Debug das variáveis de ambiente:');
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'DEFINIDA' : 'NÃO DEFINIDA');
-console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'DEFINIDA' : 'NÃO DEFINIDA');
-console.log('Diretório atual:', process.cwd());
+// Debug somente em desenvolvimento para não vazar variáveis em produção
+if (process.env.NODE_ENV !== 'production') {
+  console.log('🔍 Debug das variáveis de ambiente:');
+  console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+  console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'DEFINIDA' : 'NÃO DEFINIDA');
+  console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'DEFINIDA' : 'NÃO DEFINIDA');
+  console.log('Diretório atual:', process.cwd());
+}
 
 // Verificar se as variáveis de ambiente estão definidas
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {

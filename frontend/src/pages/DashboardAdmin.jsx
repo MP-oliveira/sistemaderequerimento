@@ -303,7 +303,7 @@ export default function DashboardAdmin() {
               <Button 
                 variant="primary" 
                 size="sm" 
-                onClick={() => window.location.href = '/admin/requisicoes'}
+                onClick={() => { window.history.pushState({}, '', '/admin/requisicoes'); window.dispatchEvent(new PopStateEvent('popstate')); }}
               >
                 Ver Todas
               </Button>
@@ -432,19 +432,19 @@ export default function DashboardAdmin() {
               Ações Rápidas
             </h3>
             <div className="actions-grid">
-              <a href="/admin/requisicoes" className="action-btn">
+              <a href="/admin/requisicoes" className="action-btn" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/admin/requisicoes'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
                 <FiPlus />
                 Gerenciar Requerimentos
               </a>
-              <a href="/usuarios" className="action-btn">
+              <a href="/usuarios" className="action-btn" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/usuarios'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
                 <FiUserPlus />
                 Gerenciar Usuários
               </a>
-              <a href="/inventario" className="action-btn">
+              <a href="/inventario" className="action-btn" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/inventario'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
                 <FiCalendar />
                 Gerenciar Inventário
               </a>
-              <a href="/relatorio" className="action-btn">
+              <a href="/relatorio" className="action-btn" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/relatorio'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
                 <FiDownload />
                 Relatórios Admin
               </a>
@@ -609,7 +609,7 @@ export default function DashboardAdmin() {
             <div className="modal-footer">
               <Button 
                 variant="primary" 
-                onClick={() => window.location.href = '/admin/requisicoes'}
+                onClick={() => { window.history.pushState({}, '', '/admin/requisicoes'); window.dispatchEvent(new PopStateEvent('popstate')); }}
               >
                 Ver Todas as Requisições
               </Button>

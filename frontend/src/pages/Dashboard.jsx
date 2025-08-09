@@ -203,6 +203,7 @@ export default function Dashboard() {
             key={p.key}
             className={`toggle-btn${window.location.pathname === p.url ? ' active' : ''}`}
             href={p.url}
+            onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', p.url); window.dispatchEvent(new PopStateEvent('popstate')); }}
           >
             {p.icon}
             {p.label}
@@ -256,23 +257,23 @@ export default function Dashboard() {
           Ações Rápidas
         </h3>
         <div className="actions-grid">
-          <a href="/requisicoes" className="action-btn">
+          <a href="/requisicoes" className="action-btn" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/requisicoes'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
             <FiPlus />
             Novo Requerimento
           </a>
           {user && (user.role === 'ADM' || user.role === 'PASTOR') ? (
-            <a href="/admin/requisicoes" className="action-btn">
+            <a href="/admin/requisicoes" className="action-btn" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/admin/requisicoes'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
               <FiUserPlus />
               Gerenciar Requisições
             </a>
           ) : user && (user.role === 'LIDER' || user.role === 'USER') ? (
-            <a href="/usuarios" className="action-btn">
+            <a href="/usuarios" className="action-btn" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/usuarios'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
               <FiUserPlus />
               Adicionar Usuário
             </a>
           ) : null}
 
-          <a href="/relatorio" className="action-btn">
+          <a href="/relatorio" className="action-btn" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/relatorio'); window.dispatchEvent(new PopStateEvent('popstate')); }}>
             <FiDownload />
             Relatório
           </a>

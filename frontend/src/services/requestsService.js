@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token');
@@ -277,7 +277,7 @@ export async function atualizarRequisicao(id, data) {
 
 export async function listarEventos() {
   try {
-    const response = await fetch('http://localhost:3000/api/events', {
+    const response = await fetch(`${API_URL}/api/events`, {
       headers: getAuthHeaders()
     });
     if (!response.ok) {

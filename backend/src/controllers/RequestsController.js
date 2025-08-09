@@ -1,30 +1,18 @@
-import { supabase } from '../config/supabaseClient.js';
+import { supabase, supabaseAdmin } from '../config/supabaseClient.js';
 // Importar função de log do histórico do inventário
 import { logInventoryHistory } from './ InventoryController.js';
 import { enviarEmail, enviarEmailPorPapel } from '../utils/emailService.js';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
 
-// Configuração do multer para upload de arquivos
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = 'uploads/comprovantes';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+
+// Configuração do multer para upload de arquivos (memória) - necessário em serverless
+const storage = multer.memoryStorage();
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB
+    fileSize: 4 * 1024 * 1024 // 4MB (limite típico seguro para funções serverless)
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx/;
@@ -1613,7 +1601,7 @@ export const finishRequest = async (req, res) => {
 // Upload de comprovante para uma requisição
 export const uploadComprovante = async (req, res) => {
   try {
-    const { request_id } = req.params;
+    const { id: request_id } = req.params;
     const { description } = req.body;
     
     if (!req.file) {
@@ -1639,14 +1627,43 @@ export const uploadComprovante = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Acesso negado.' });
     }
 
+    // Garantir bucket de storage
+    const bucketName = 'comprovantes';
+    try {
+      if (supabaseAdmin) {
+        // Tenta criar bucket se não existir
+        await supabaseAdmin.storage.createBucket(bucketName, {
+          public: false
+        });
+      }
+    } catch (_) {
+      // ignorar erro se já existe
+    }
+
+    // Montar caminho/arquivo e enviar para o storage
+    const extension = path.extname(req.file.originalname).toLowerCase();
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const storagePath = `${request_id}/${req.file.fieldname}-${uniqueSuffix}${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucketName)
+      .upload(storagePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false
+      });
+
+    if (uploadError) {
+      return res.status(400).json({ success: false, message: 'Erro ao enviar arquivo para o storage.', error: uploadError.message });
+    }
+
     // Salvar informações do comprovante no banco
     const { data: comprovante, error } = await supabase
       .from('request_comprovantes')
       .insert([{
         request_id,
-        filename: req.file.filename,
+        filename: path.basename(storagePath),
         original_name: req.file.originalname,
-        file_path: req.file.path,
+        file_path: storagePath,
         file_size: req.file.size,
         mime_type: req.file.mimetype,
         description: description || 'Comprovante anexado',
@@ -1656,8 +1673,8 @@ export const uploadComprovante = async (req, res) => {
       .single();
 
     if (error) {
-      // Se falhar ao salvar no banco, remover o arquivo
-      fs.unlinkSync(req.file.path);
+      // Se falhar ao salvar no banco, tentar remover do storage
+      await supabase.storage.from(bucketName).remove([storagePath]);
       return res.status(400).json({ success: false, message: 'Erro ao salvar comprovante.', error: error.message });
     }
 
@@ -1667,10 +1684,6 @@ export const uploadComprovante = async (req, res) => {
       data: comprovante 
     });
   } catch (error) {
-    // Se houver erro, remover arquivo se existir
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
 };
@@ -1678,7 +1691,7 @@ export const uploadComprovante = async (req, res) => {
 // Listar comprovantes de uma requisição
 export const listComprovantes = async (req, res) => {
   try {
-    const { request_id } = req.params;
+    const { id: request_id } = req.params;
 
     // Verificar se a requisição existe
     const { data: request, error: requestError } = await supabase
@@ -1759,13 +1772,18 @@ export const downloadComprovante = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Acesso negado.' });
     }
 
-    // Verificar se arquivo existe
-    if (!fs.existsSync(comprovante.file_path)) {
-      return res.status(404).json({ success: false, message: 'Arquivo não encontrado no servidor.' });
+    // Gerar URL assinada para download no Supabase Storage
+    const bucketName = 'comprovantes';
+    const { data: signed, error: signedError } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(comprovante.file_path, 60); // 60 segundos
+
+    if (signedError || !signed?.signedUrl) {
+      return res.status(500).json({ success: false, message: 'Erro ao gerar URL de download.', error: signedError?.message });
     }
 
-    // Enviar arquivo
-    res.download(comprovante.file_path, comprovante.original_name);
+    // Redirecionar para a URL assinada
+    res.redirect(signed.signedUrl);
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
@@ -1803,10 +1821,9 @@ export const removeComprovante = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Acesso negado.' });
     }
 
-    // Remover arquivo do servidor
-    if (fs.existsSync(comprovante.file_path)) {
-      fs.unlinkSync(comprovante.file_path);
-    }
+    // Remover arquivo do storage
+    const bucketName = 'comprovantes';
+    await supabase.storage.from(bucketName).remove([comprovante.file_path]);
 
     // Remover registro do banco
     const { error: deleteError } = await supabase

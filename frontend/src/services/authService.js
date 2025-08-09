@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000'; // Ajuste para a URL real do backend
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export async function login({ email, password }) {
   try {
