@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://sistemaderequerimento-backend.vercel.app';
+// Use mesma origem por padrão (evita CORS); em dev, defina VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export async function login({ email, password }) {
   try {

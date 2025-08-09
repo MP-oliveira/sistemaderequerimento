@@ -27,18 +27,23 @@ const allowedOrigins = allowedOriginsEnv
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // permite chamadas server-to-server e curl
-    if (allowedOrigins.length === 0) return callback(null, true); // se não configurado, libera tudo
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.length === 0) return callback(null, true);
     const isAllowed = allowedOrigins.some(allowed => origin === allowed || origin.endsWith(allowed));
     callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  credentials: true
 };
 
 // Middlewares de segurança
 app.use(helmet());
 app.use(cors(corsOptions));
+// Responder preflight de todos os caminhos
+app.options('*', cors(corsOptions));
 
 // Rate limiting (aumentado para desenvolvimento)
 const limiter = rateLimit({
