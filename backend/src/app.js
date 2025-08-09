@@ -18,9 +18,27 @@ dotenv.config();
 
 const app = express();
 
+// CORS configurável por ALLOWED_ORIGINS (lista separada por vírgulas)
+const allowedOriginsEnv = process.env.ALLOWED_ORIGINS || '';
+const allowedOrigins = allowedOriginsEnv
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // permite chamadas server-to-server e curl
+    if (allowedOrigins.length === 0) return callback(null, true); // se não configurado, libera tudo
+    const isAllowed = allowedOrigins.some(allowed => origin === allowed || origin.endsWith(allowed));
+    callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 // Middlewares de segurança
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Rate limiting (aumentado para desenvolvimento)
 const limiter = rateLimit({
@@ -34,7 +52,7 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Rota de teste
+// Rota de status
 app.get('/', (req, res) => {
   res.json({
     message: 'Sistema de Requisições da Igreja API',
@@ -43,8 +61,18 @@ app.get('/', (req, res) => {
   });
 });
 
+// Alias quando hospedado em Vercel (função em /api)
+app.get(['/api', '/api/'], (req, res) => {
+  res.json({
+    message: 'Sistema de Requisições da Igreja API',
+    status: 'online',
+    basePath: '/api',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Rota para testar conexão com Supabase
-app.get('/test-connection', async (req, res) => {
+app.get(['/test-connection', '/api/test-connection'], async (req, res) => {
   const isConnected = await testConnection();
 
   if (isConnected) {
