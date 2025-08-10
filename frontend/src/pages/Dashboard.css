@@ -679,7 +679,8 @@
   }
 
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
   }
 
   .actions-grid {
@@ -1028,8 +1029,8 @@
   }
 
   .stats-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1rem !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
     margin-left: 0 !important;
   }
 
@@ -1067,6 +1068,12 @@
 
   .stat-card {
     padding: 1rem;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
 
   .stat-number {
@@ -1075,6 +1082,7 @@
 
   .stat-label {
     font-size: 0.75rem;
+    text-align: center;
   }
 
   .action-btn {
@@ -1150,7 +1158,7 @@
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 60px !important;
+    gap: 12px !important;
     max-width: 260px !important;
     margin: 0 auto !important;
     margin-left: 20px !important;
@@ -1298,7 +1306,7 @@
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    margin-left: 62px !important;
+    gap: 16px !important;
     max-width: 280px !important;
     margin: 0 auto !important;
     margin-left: 10px !important;
