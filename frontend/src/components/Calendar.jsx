@@ -1,96 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { buscarRequisicoesCalendario } from '../services/requestsService';
 import { formatTimeUTC } from '../utils/dateUtils';
 import './Calendar.css';
-import { FiChevronLeft, FiChevronRight, FiMapPin, FiClock, FiUsers } from 'react-icons/fi';
 
-export default function Calendar() {
-  const [events, setEvents] = useState([]);
+export default function Calendar({ 
+  events = [], 
+  onDayClick, 
+  showEventModal = false, 
+  onCloseEventModal,
+  selectedDayEvents = [],
+  selectedDay = null 
+}) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [loading, setLoading] = useState(true);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const months = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ];
-
-  const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
-  useEffect(() => {
-    carregarEventos();
-  }, [currentDate]);
-
-  const carregarEventos = async () => {
-    try {
-      setLoading(true);
-      const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-      const year = currentDate.getFullYear().toString();
-      const response = await buscarRequisicoesCalendario(month, year);
-      setEvents(response || []);
-    } catch (error) {
-      console.error('Erro ao carregar eventos:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loading, setLoading] = useState(false);
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
+    
+    // Primeiro dia do mês
     const firstDay = new Date(year, month, 1);
+    // Último dia do mês
     const lastDay = new Date(year, month + 1, 0);
+    
     const daysInMonth = lastDay.getDate();
-    const startingDay = firstDay.getDay();
-
+    const startingDay = firstDay.getDay(); // 0 = Domingo, 1 = Segunda, etc.
+    
     const days = [];
     
-    // Adicionar dias vazios no início
+    // Adicionar dias vazios do mês anterior para alinhar com os dias da semana
     for (let i = 0; i < startingDay; i++) {
-      days.push(null);
+      days.push({
+        date: null,
+        isCurrentMonth: false,
+        events: []
+      });
     }
-
-    // Adicionar dias do mês
+    
+    // Adicionar todos os dias do mês atual
     for (let i = 1; i <= daysInMonth; i++) {
-      days.push(new Date(year, month, i));
+      const currentDate = new Date(year, month, i);
+      const dateString = currentDate.toISOString().split('T')[0];
+      
+      // Filtrar eventos para este dia
+      const dayEvents = events.filter(event => {
+        if (event.start_datetime) {
+          const eventDate = new Date(event.start_datetime);
+          const eventDateString = eventDate.toISOString().split('T')[0];
+          return eventDateString === dateString;
+        }
+        return false;
+      });
+      
+      days.push({
+        date: currentDate,
+        isCurrentMonth: true,
+        events: dayEvents
+      });
     }
-
+    
+    // Adicionar dias vazios do próximo mês para completar a última semana
+    const totalDays = days.length;
+    const remainingDays = (7 - (totalDays % 7)) % 7;
+    
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({
+        date: null,
+        isCurrentMonth: false,
+        events: []
+      });
+    }
+    
     return days;
   };
 
-  const getEventsForDay = (date) => {
-    if (!date) return [];
-    const dateStr = date.toISOString().split('T')[0];
-    return events.filter(event => {
-      const eventDate = new Date(event.start).toISOString().split('T')[0];
-      return eventDate === dateStr;
+  const formatDate = (date) => {
+    return date.toLocaleDateString('pt-BR', { 
+      month: 'long', 
+      year: 'numeric' 
     });
-  };
-
-  const getStatusLabel = (status) => {
-    const labels = {
-      'PENDENTE': 'Pendente',
-      'APTO': 'Aprovada',
-      'REJEITADO': 'Rejeitada',
-      'EXECUTADO': 'Executada',
-      'FINALIZADO': 'Finalizada',
-      'PENDENTE_CONFLITO': 'Em Conflito',
-      'PREENCHIDO': 'Preenchida'
-    };
-    return labels[status] || status;
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      'PENDENTE': '#ff9800',
-      'APTO': '#4caf50',
-      'REJEITADO': '#f44336',
-      'EXECUTADO': '#9c27b0',
-      'PENDENTE_CONFLITO': '#ff5722',
-      'PREENCHIDO': '#2196f3',
-      'FINALIZADO': '#8b5cf6'
-    };
-    return colors[status] || '#6b7280';
   };
 
   const previousMonth = () => {
@@ -101,141 +88,88 @@ export default function Calendar() {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
+  const isToday = (date) => {
+    if (!date) return false;
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const handleDayClick = (day) => {
+    if (onDayClick && day.events.length > 0) {
+      onDayClick(day);
+    }
+  };
+
+  const formatEventTime = (dateString) => {
+    return formatTimeUTC(dateString);
+  };
+
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className="calendar-container">
+    <div className="card calendar-card">
       <div className="calendar-header">
-        <button onClick={previousMonth} className="calendar-nav-btn">
+        <button className="calendar-nav-btn" onClick={previousMonth}>
           ‹
         </button>
-        <h2 className="calendar-title">
-          {months[currentDate.getMonth()]} {currentDate.getFullYear()}
-        </h2>
-        <button onClick={nextMonth} className="calendar-nav-btn">
+        <h2 className="calendar-title">{formatDate(currentDate)}</h2>
+        <button className="calendar-nav-btn" onClick={nextMonth}>
           ›
         </button>
       </div>
-
-      <div className="calendar-grid">
-        {/* Cabeçalho dos dias da semana */}
-        {weekDays.map(day => (
-          <div key={day} className="calendar-day-header">
-            {day}
-          </div>
-        ))}
-
-        {/* Dias do mês */}
-        {days.map((day, index) => {
-          const dayEvents = getEventsForDay(day);
-          const isToday = day && day.toDateString() === new Date().toDateString();
-          
-          return (
-            <div 
-              key={index} 
-              className={`calendar-day ${!day ? 'empty' : ''} ${isToday ? 'today' : ''}`}
-            >
-              {day && (
-                <>
-                  <div className="day-number">{day.getDate()}</div>
-                  <div className="day-events">
-                    {dayEvents.slice(0, 2).map((event, eventIndex) => (
-                      <div
-                        key={eventIndex}
-                        className="calendar-event"
-                        style={{ backgroundColor: event.color }}
-                        onClick={() => setSelectedEvent(event)}
-                        title={`${event.title} - ${getStatusLabel(event.status)}`}
-                      >
-                        <div className="event-title">{event.title}</div>
-                        <div className="event-status">{getStatusLabel(event.status)}</div>
-                      </div>
-                    ))}
-                    {dayEvents.length > 2 && (
-                      <div className="more-events">
-                        +{dayEvents.length - 2} mais
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Modal de detalhes do evento */}
-      {selectedEvent && (
-        <div className="event-modal-overlay" onClick={() => setSelectedEvent(null)}>
-          <div className="event-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="event-modal-header">
-              <h3>{selectedEvent.title}</h3>
-              <button 
-                className="event-modal-close"
-                onClick={() => setSelectedEvent(null)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="event-modal-content">
-              <div className="event-detail">
-                <strong>Status:</strong>
-                <span 
-                  className="event-status-badge"
-                  style={{ 
-                    backgroundColor: 'transparent',
-                    color: getStatusColor(selectedEvent.status),
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '0.8rem',
-                    fontWeight: '700'
-                  }}
-                >
-                  {getStatusLabel(selectedEvent.status)}
-                </span>
-              </div>
-              <div className="event-detail">
-                <strong>Departamento:</strong> {selectedEvent.department}
-              </div>
-              <div className="event-detail">
-                <strong>Solicitante:</strong> {selectedEvent.requester}
-              </div>
-              {selectedEvent.location && (
-                <div className="event-detail">
-                  <strong>Local:</strong> {selectedEvent.location}
-                </div>
-              )}
-              <div className="event-detail">
-                <strong>Data:</strong> {new Date(selectedEvent.start).toLocaleDateString('pt-BR')}
-              </div>
-              <div className="event-detail">
-                <strong>Horário:</strong> {formatTimeUTC(selectedEvent.start)} - {formatTimeUTC(selectedEvent.end)}
-              </div>
-              {selectedEvent.approvedAt && (
-                <div className="event-detail">
-                  <strong>Aprovado em:</strong> {new Date(selectedEvent.approvedAt).toLocaleString('pt-BR')}
-                </div>
-              )}
-              {selectedEvent.executedAt && (
-                <div className="event-detail">
-                  <strong>Executado em:</strong> {new Date(selectedEvent.executedAt).toLocaleString('pt-BR')}
-                </div>
-              )}
-              {selectedEvent.returnedAt && (
-                <div className="event-detail">
-                  <strong>Finalizado em:</strong> {new Date(selectedEvent.returnedAt).toLocaleString('pt-BR')}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {loading && (
+      {loading ? (
         <div className="calendar-loading">
+          <div className="loading-spinner"></div>
           <p>Carregando eventos...</p>
         </div>
+      ) : (
+        <div className="calendar-grid">
+          <div className="calendar-weekdays">
+            <div className="weekday">Dom</div>
+            <div className="weekday">Seg</div>
+            <div className="weekday">Ter</div>
+            <div className="weekday">Qua</div>
+            <div className="weekday">Qui</div>
+            <div className="weekday">Sex</div>
+            <div className="weekday">Sáb</div>
+          </div>
+          <div className="calendar-days">
+            {days.map((day, index) => (
+              <div 
+                key={index} 
+                className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
+                onClick={() => handleDayClick(day)}
+                style={{ cursor: day.events.length > 0 ? 'pointer' : 'default' }}
+              >
+                <span className="day-number">{day.date ? day.date.getDate() : ''}</span>
+                {day.events.length > 0 && (
+                  <>
+                    <div className="day-events">
+                      {day.events.slice(0, 2).map(event => (
+                        <div key={event.id} className="event-dot" title={event.title}>
+                          •
+                        </div>
+                      ))}
+                      {day.events.length > 2 && (
+                        <div className="event-more">+{day.events.length - 2}</div>
+                      )}
+                    </div>
+                    <div className="event-name-preview" title={day.events[0].title}>
+                      {day.events[0].title}
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
+      <div className="calendar-legend">
+        <div className="legend-item">
+          <div className="legend-dot"></div>
+          <span>Eventos da Igreja</span>
+        </div>
+      </div>
     </div>
   );
-} 
+}

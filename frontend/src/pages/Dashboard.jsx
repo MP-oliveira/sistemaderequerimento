@@ -5,11 +5,12 @@ import { listarItensInventario } from '../services/inventoryService';
 import ActivityLog from '../components/ActivityLog';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
+import Calendar from '../components/Calendar';
 import { formatTimeUTC } from '../utils/dateUtils';
 import './Dashboard.css';
 import { FiPieChart, FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import { getPrioridadeIcon, getPrioridadeClass } from '../utils/prioridadeConfig';
+
 
 const PAGES = [
   { key: 'dashboard', label: 'Dashboard', icon: <FiPieChart />, url: '/' },
@@ -19,9 +20,7 @@ const PAGES = [
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -38,7 +37,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     const carregarDados = async () => {
-      setLoading(true);
       try {
         const eventos = await listarEventos();
         const requisicoes = await listarRequisicoes();
@@ -78,7 +76,6 @@ export default function Dashboard() {
         console.error('Erro ao carregar eventos:', err);
         setEvents([]);
       }
-      setLoading(false);
     };
     carregarDados();
   }, []);
@@ -92,87 +89,6 @@ export default function Dashboard() {
     }
     buscarConflitos();
   }, [user]);
-
-  const getDaysInMonth = (date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    
-    // Primeiro dia do mês
-    const firstDay = new Date(year, month, 1);
-    // Último dia do mês
-    const lastDay = new Date(year, month + 1, 0);
-    
-    const daysInMonth = lastDay.getDate();
-    const startingDay = firstDay.getDay(); // 0 = Domingo, 1 = Segunda, etc.
-    
-    const days = [];
-    
-    // Adicionar dias vazios do mês anterior para alinhar com os dias da semana
-    for (let i = 0; i < startingDay; i++) {
-      days.push({
-        date: null,
-        isCurrentMonth: false,
-        events: []
-      });
-    }
-    
-    // Adicionar todos os dias do mês atual
-    for (let i = 1; i <= daysInMonth; i++) {
-      const currentDate = new Date(year, month, i);
-      const dateString = currentDate.toISOString().split('T')[0];
-      
-      // Filtrar eventos para este dia
-      const dayEvents = events.filter(event => {
-        if (event.start_datetime) {
-          const eventDate = new Date(event.start_datetime);
-          const eventDateString = eventDate.toISOString().split('T')[0];
-          return eventDateString === dateString;
-        }
-        return false;
-      });
-      
-      days.push({
-        date: currentDate,
-        isCurrentMonth: true,
-        events: dayEvents
-      });
-    }
-    
-    // Adicionar dias vazios do próximo mês para completar a última semana
-    const totalDays = days.length;
-    const remainingDays = (7 - (totalDays % 7)) % 7;
-    
-    for (let i = 1; i <= remainingDays; i++) {
-      days.push({
-        date: null,
-        isCurrentMonth: false,
-        events: []
-      });
-    }
-    
-    return days;
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString('pt-BR', { 
-      month: 'long', 
-      year: 'numeric' 
-    });
-  };
-
-  const previousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-  };
-
-  const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-  };
-
-  const isToday = (date) => {
-    if (!date) return false;
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
 
   const handleDayClick = (day) => {
     if (day.events.length > 0) {
@@ -191,8 +107,6 @@ export default function Dashboard() {
   const formatEventTime = (dateString) => {
     return formatTimeUTC(dateString);
   };
-
-  const days = getDaysInMonth(currentDate);
 
   return (
     <div className="dashboard-container">
@@ -307,70 +221,14 @@ export default function Dashboard() {
         </div>
       )}
       {/* Calendário */}
-      <div className="card calendar-card">
-        <div className="calendar-header">
-          <button className="calendar-nav-btn" onClick={previousMonth}>
-            ‹
-          </button>
-          <h2 className="calendar-title">{formatDate(currentDate)}</h2>
-          <button className="calendar-nav-btn" onClick={nextMonth}>
-            ›
-          </button>
-        </div>
-        {loading ? (
-          <div className="calendar-loading">
-            <div className="loading-spinner"></div>
-            <p>Carregando eventos...</p>
-          </div>
-        ) : (
-          <div className="calendar-grid">
-            <div className="calendar-weekdays">
-              <div className="weekday">Dom</div>
-              <div className="weekday">Seg</div>
-              <div className="weekday">Ter</div>
-              <div className="weekday">Qua</div>
-              <div className="weekday">Qui</div>
-              <div className="weekday">Sex</div>
-              <div className="weekday">Sáb</div>
-            </div>
-            <div className="calendar-days">
-              {days.map((day, index) => (
-                <div 
-                  key={index} 
-                  className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
-                  onClick={() => handleDayClick(day)}
-                  style={{ cursor: day.events.length > 0 ? 'pointer' : 'default' }}
-                >
-                  <span className="day-number">{day.date ? day.date.getDate() : ''}</span>
-                  {day.events.length > 0 && (
-                    <>
-                      <div className="day-events">
-                        {day.events.slice(0, 2).map(event => (
-                          <div key={event.id} className="event-dot" title={event.title}>
-                            •
-                          </div>
-                        ))}
-                        {day.events.length > 2 && (
-                          <div className="event-more">+{day.events.length - 2}</div>
-                        )}
-                      </div>
-                      <div className="event-name-preview" title={day.events[0].title}>
-                        {day.events[0].title}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <div className="calendar-legend">
-          <div className="legend-item">
-            <div className="legend-dot"></div>
-            <span>Eventos da Igreja</span>
-          </div>
-        </div>
-      </div>
+      <Calendar 
+        events={events}
+        onDayClick={handleDayClick}
+        showEventModal={showEventModal}
+        onCloseEventModal={closeEventModal}
+        selectedDayEvents={selectedDayEvents}
+        selectedDay={selectedDay}
+      />
       {/* Lista de eventos do dia */}
       <div className="card activity-card activity-card-today">
         <h3 className="activity-title">Atividades do dia</h3>
