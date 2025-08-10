@@ -571,6 +571,15 @@
   box-sizing: border-box;
 }
 
+/* Classes específicas para mobile - calendário */
+.calendar-day-mobile {
+  min-height: 60px !important;
+  max-height: 60px !important;
+  padding: 8px 4px !important;
+  font-size: 12px !important;
+  overflow: hidden !important;
+}
+
 .calendar-day:nth-child(7n) {
   border-right: none;
 }
@@ -612,6 +621,13 @@
   font-size: 16px;
 }
 
+/* Classes específicas para mobile - elementos do calendário */
+.day-number-mobile {
+  font-size: 14px !important;
+  margin-bottom: 4px !important;
+  font-weight: 600 !important;
+}
+
 .calendar-day .day-events {
   display: flex;
   flex-direction: row;
@@ -620,6 +636,14 @@
   margin-top: 4px;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+/* Classes específicas para mobile - eventos do calendário */
+.day-events-mobile {
+  gap: 1px !important;
+  margin-top: 2px !important;
+  max-height: 12px !important;
+  overflow: hidden !important;
 }
 
 .calendar-day .event-dot {
@@ -631,11 +655,24 @@
   flex-shrink: 0;
 }
 
+/* Classes específicas para mobile - dots de eventos */
+.event-dot-mobile {
+  width: 4px !important;
+  height: 4px !important;
+  flex-shrink: 0 !important;
+}
+
 .calendar-day .event-more {
   font-size: 10px;
   color: #9ca3af;
   font-weight: 500;
   margin-left: 2px;
+}
+
+/* Classes específicas para mobile - indicador de mais eventos */
+.event-more-mobile {
+  font-size: 8px !important;
+  margin-left: 1px !important;
 }
 
 .calendar-day .event-name-preview {
@@ -650,6 +687,15 @@
   white-space: nowrap;
   max-width: 100%;
   padding: 0 4px;
+}
+
+/* Classes específicas para mobile - preview de nome de evento */
+.event-name-preview-mobile {
+  font-size: 10px !important;
+  margin-top: 4px !important;
+  max-height: 12px !important;
+  overflow: hidden !important;
+  display: none !important; /* Esconder em mobile para economizar espaço */
 }
 
 .calendar-legend {
@@ -1385,7 +1431,7 @@
   .stats-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
+    gap: 16px !important;
     margin-left: 0 !important;
     max-width: 100% !important;
   }
@@ -1447,6 +1493,72 @@
     line-height: 1 !important;
     text-align: center !important;
     color: #374151 !important;
+  }
+
+  /* Aplicar classes mobile específicas para calendário */
+  .calendar-day {
+    composes: calendar-day-mobile;
+  }
+  
+  .calendar-day .day-number {
+    composes: day-number-mobile;
+  }
+  
+  .calendar-day .day-events {
+    composes: day-events-mobile;
+  }
+  
+  .calendar-day .event-dot {
+    composes: event-dot-mobile;
+  }
+  
+  .calendar-day .event-more {
+    composes: event-more-mobile;
+  }
+  
+  .calendar-day .event-name-preview {
+    composes: event-name-preview-mobile;
+  }
+  
+  /* Fallback para navegadores que não suportam composes */
+  .calendar-day {
+    min-height: 60px !important;
+    max-height: 60px !important;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+    overflow: hidden !important;
+  }
+  
+  .calendar-day .day-number {
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+    font-weight: 600 !important;
+  }
+  
+  .calendar-day .day-events {
+    gap: 1px !important;
+    margin-top: 2px !important;
+    max-height: 12px !important;
+    overflow: hidden !important;
+  }
+  
+  .calendar-day .event-dot {
+    width: 4px !important;
+    height: 4px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .calendar-day .event-more {
+    font-size: 8px !important;
+    margin-left: 1px !important;
+  }
+  
+  .calendar-day .event-name-preview {
+    font-size: 10px !important;
+    margin-top: 4px !important;
+    max-height: 12px !important;
+    overflow: hidden !important;
+    display: none !important; /* Esconder em mobile para economizar espaço */
   }
 
   /* Melhorias nos botões de ação para mobile */
