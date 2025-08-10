@@ -4,6 +4,7 @@ import { listarRequisicoes, listarEventos } from '../services/requestsService';
 import Modal from '../components/Modal';
 import TodayMaterials from '../components/TodayMaterials';
 import ReturnMaterials from '../components/ReturnMaterials';
+import Calendar from '../components/Calendar';
 import { formatTimeUTC } from '../utils/dateUtils';
 import { FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiCalendar, FiMapPin, FiUsers } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -12,9 +13,7 @@ import './AudiovisualDashboard.css';
 
 export default function AudiovisualDashboard() {
   const { user } = useAuth();
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -28,7 +27,6 @@ export default function AudiovisualDashboard() {
 
   useEffect(() => {
     const carregarDados = async () => {
-      setLoading(true);
       try {
         const eventos = await listarEventos();
         const requisicoesData = await listarRequisicoes();
@@ -59,69 +57,9 @@ export default function AudiovisualDashboard() {
         console.error('❌ [AudiovisualDashboard] Erro ao carregar eventos:', err);
         setEvents([]);
       }
-      setLoading(false);
     };
     carregarDados();
   }, []);
-
-  const getDaysInMonth = (date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDay = firstDay.getDay();
-    const days = [];
-    // Dias do mês anterior (apenas para alinhar o primeiro dia da semana)
-    for (let i = 0; i < startingDay; i++) {
-      days.push({
-        date: null,
-        isCurrentMonth: false,
-        events: []
-      });
-    }
-    // Dias do mês atual
-    for (let i = 1; i <= daysInMonth; i++) {
-      const currentDate = new Date(year, month, i);
-      const dateString = currentDate.toISOString().split('T')[0];
-      const dayEvents = events.filter(event => {
-        if (event.start_datetime) {
-          const eventDate = new Date(event.start_datetime).toISOString().split('T')[0];
-          return eventDate === dateString;
-        }
-        return false;
-      });
-      days.push({
-        date: currentDate,
-        isCurrentMonth: true,
-        events: dayEvents
-      });
-    }
-    return days;
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString('pt-BR', { 
-      month: 'long', 
-      year: 'numeric' 
-    });
-  };
-
-  const previousMonth = () => {
-    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-  };
-
-  const nextMonth = () => {
-    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-  };
-
-  const isToday = (date) => {
-    if (!date) return false;
-    const today = new Date();
-    return date.getDate() === today.getDate() && 
-           date.getMonth() === today.getMonth() && 
-           date.getFullYear() === today.getFullYear();
-  };
 
   const handleDayClick = (day) => {
     if (day.events.length > 0) {
@@ -140,8 +78,6 @@ export default function AudiovisualDashboard() {
   const formatEventTime = (dateString) => {
     return formatTimeUTC(dateString);
   };
-
-  const days = getDaysInMonth(currentDate);
 
   return (
     <div className="dashboard-container audiovisual-dashboard">
@@ -221,70 +157,14 @@ export default function AudiovisualDashboard() {
 
 
       {/* Calendário */}
-      <div className="card calendar-card">
-        <div className="calendar-header">
-          <button className="calendar-nav-btn" onClick={previousMonth}>
-            ‹
-          </button>
-          <h2 className="calendar-title">{formatDate(currentDate)}</h2>
-          <button className="calendar-nav-btn" onClick={nextMonth}>
-            ›
-          </button>
-        </div>
-        {loading ? (
-          <div className="calendar-loading">
-            <div className="loading-spinner"></div>
-            <p>Carregando eventos...</p>
-          </div>
-        ) : (
-          <div className="calendar-grid">
-            <div className="calendar-weekdays">
-              <div className="weekday">Dom</div>
-              <div className="weekday">Seg</div>
-              <div className="weekday">Ter</div>
-              <div className="weekday">Qua</div>
-              <div className="weekday">Qui</div>
-              <div className="weekday">Sex</div>
-              <div className="weekday">Sáb</div>
-            </div>
-            <div className="calendar-days">
-              {days.map((day, index) => (
-                <div 
-                  key={index} 
-                  className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday(day.date) ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
-                  onClick={() => handleDayClick(day)}
-                  style={{ cursor: day.events.length > 0 ? 'pointer' : 'default' }}
-                >
-                  <span className="day-number">{day.date ? day.date.getDate() : ''}</span>
-                  {day.events.length > 0 && (
-                    <>
-                      <div className="day-events">
-                        {day.events.slice(0, 2).map(event => (
-                          <div key={event.id} className="event-dot" title={event.title}>
-                            •
-                          </div>
-                        ))}
-                        {day.events.length > 2 && (
-                          <div className="event-more">+{day.events.length - 2}</div>
-                        )}
-                      </div>
-                      <div className="event-name-preview" title={day.events[0].title}>
-                        {day.events[0].title}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <div className="calendar-legend">
-          <div className="legend-item">
-            <div className="legend-dot"></div>
-            <span>Requisições Aprovadas</span>
-          </div>
-        </div>
-      </div>
+      <Calendar 
+        events={events}
+        onDayClick={handleDayClick}
+        showEventModal={showEventModal}
+        onCloseEventModal={closeEventModal}
+        selectedDayEvents={selectedDayEvents}
+        selectedDay={selectedDay}
+      />
 
       {/* Modal de Eventos do Dia */}
       <Modal 

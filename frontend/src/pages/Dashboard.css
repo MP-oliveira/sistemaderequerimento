@@ -1431,9 +1431,10 @@
   .stats-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 16px !important;
+    gap: 20px !important;
     margin-left: 0 !important;
     max-width: 100% !important;
+    padding: 0 10px !important;
   }
   
   .stat-card {
@@ -1910,25 +1911,42 @@
   .activity-card-recent .events-list {
     max-height: 200px !important;
     overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
   }
 
   .activity-card-recent .event-item {
     display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
-    gap: 4px !important;
-    padding: 10px 12px !important;
+    gap: 6px !important;
+    padding: 12px !important;
+    background: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    margin-bottom: 0 !important;
   }
 
   .activity-card-recent .event-title {
     font-size: 0.9rem !important;
     font-weight: 600 !important;
     line-height: 1.3 !important;
+    color: #1f2937 !important;
+    margin-bottom: 2px !important;
   }
 
   .activity-card-recent .event-location {
     font-size: 0.8rem !important;
     color: #6b7280 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+
+  .activity-card-recent .event-location::before {
+    content: "📍" !important;
+    font-size: 0.7rem !important;
   }
 
   .activity-card-recent .event-time {
@@ -1936,9 +1954,17 @@
     color: #2563eb !important;
     font-weight: 500 !important;
     background: #dbeafe !important;
-    padding: 2px 6px !important;
-    border-radius: 4px !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
     align-self: flex-start !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+
+  .activity-card-recent .event-time::before {
+    content: "🕒" !important;
+    font-size: 0.7rem !important;
   }
 
   /* Melhorias no modal de eventos para mobile */
