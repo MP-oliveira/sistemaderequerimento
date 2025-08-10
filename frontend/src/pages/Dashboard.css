@@ -98,6 +98,15 @@
   margin-left: -50px !important;
 }
 
+/* Classes específicas para mobile - não afetam telas grandes */
+.stats-grid-mobile {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 12px !important;
+  margin-left: 0 !important;
+  max-width: 100% !important;
+}
+
 .stat-card {
   width: 100% !important;
   min-width: 0 !important;
@@ -115,6 +124,22 @@
   transition: box-shadow 0.2s !important;
 }
 
+/* Classes específicas para mobile - não afetam telas grandes */
+.stat-card-mobile {
+  padding: 12px 8px !important;
+  min-height: 80px !important;
+  max-height: 80px !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 4px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  background: white !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
 .stat-card:hover {
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
 }
@@ -127,6 +152,15 @@
   width: 100%;
 }
 
+/* Classes específicas para mobile - não afetam telas grandes */
+.stat-header-mobile {
+  align-items: center !important;
+  gap: 0 !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin-bottom: 0 !important;
+}
+
 .stat-icon {
   width: 2rem;
   height: 2rem;
@@ -137,6 +171,15 @@
   color: #fff;
   font-size: 1.1rem;
   flex-shrink: 0;
+}
+
+/* Classes específicas para mobile - não afetam telas grandes */
+.stat-icon-mobile {
+  width: 26px !important;
+  height: 26px !important;
+  font-size: 1rem !important;
+  margin-bottom: 0 !important;
+  flex-shrink: 0 !important;
 }
 
 .stat-icon.blue {
@@ -159,6 +202,14 @@
   width: 100%;
 }
 
+/* Classes específicas para mobile - não afetam telas grandes */
+.stat-info-mobile {
+  align-items: center !important;
+  gap: 0 !important;
+  flex: 1 !important;
+  justify-content: center !important;
+}
+
 .stat-number {
   font-size: 2rem;
   font-weight: 700;
@@ -168,12 +219,30 @@
   text-align: left;
 }
 
+/* Classes específicas para mobile - não afetam telas grandes */
+.stat-number-mobile {
+  display: none !important;
+  font-size: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .stat-label {
   color: #666;
   font-size: 0.95rem;
   font-weight: 500;
   line-height: 1.2;
   text-align: left;
+}
+
+/* Classes específicas para mobile - não afetam telas grandes */
+.stat-label-mobile {
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  color: #374151 !important;
 }
 
 .quick-actions {
@@ -678,10 +747,7 @@
     padding: 0;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-  }
+  /* Stats grid já está definido na regra @media (max-width: 430px) acima */
 
   .actions-grid {
     grid-template-columns: 1fr;
@@ -1028,11 +1094,7 @@
     /* padding: 0.75rem; */
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-    margin-left: 0 !important;
-  }
+  /* Stats grid já está definido na regra @media (max-width: 430px) acima */
 
   .actions-grid {
     grid-template-columns: 1fr;
@@ -1066,24 +1128,7 @@
     justify-content: center;
   }
 
-  .stat-card {
-    padding: 1rem;
-    min-height: 80px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .stat-number {
-    font-size: 1.5rem;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-    text-align: center;
-  }
+  /* Stat cards já estão definidos na regra @media (max-width: 430px) acima */
 
   .action-btn {
     padding: 1rem;
@@ -1156,68 +1201,11 @@
     margin-left: 0;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-    max-width: 260px !important;
-    margin: 0 auto !important;
-    margin-left: 20px !important;
-  }
+  /* Stats grid já está definido na regra @media (max-width: 430px) acima */
 
-  .stat-card {
-    padding: 8px 6px;
-    min-height: 80px;
-    max-height: 80px;
-    width: 100%;
-    aspect-ratio: 1;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 4px;
-    border-radius: 8px;
-    border: none !important;
-    background: white !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-  }
+  /* Stat cards já estão definidos na regra @media (max-width: 430px) acima */
 
-  .stat-header {
-    align-items: center;
-    gap: 0;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .stat-icon {
-    width: 26px;
-    height: 26px;
-    font-size: 1rem;
-    margin-bottom: 0;
-    flex-shrink: 0;
-  }
-
-  .stat-info {
-    align-items: center;
-    gap: 0;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .stat-number {
-    display: none !important;
-    font-size: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .stat-label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1;
-    text-align: center;
-    color: #374151;
-  }
+  /* Stat elements já estão definidos na regra @media (max-width: 430px) acima */
 
   .quick-actions {
     margin: 0;
@@ -1304,68 +1292,11 @@
     margin-left: 0;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 16px !important;
-    max-width: 280px !important;
-    margin: 0 auto !important;
-    margin-left: 10px !important;
-  }
+  /* Stats grid já está definido na regra @media (max-width: 430px) acima */
 
-  .stat-card {
-    padding: 12px 8px;
-    min-height: 90px;
-    max-height: 90px;
-    width: 100%;
-    aspect-ratio: 1;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 60px;
-    border-radius: 10px;
-    border: none !important;
-    background: white !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-  }
+  /* Stat cards já estão definidos na regra @media (max-width: 430px) acima */
 
-  .stat-header {
-    align-items: center;
-    gap: 0;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .stat-icon {
-    width: 30px;
-    height: 30px;
-    font-size: 1.1rem;
-    margin-bottom: 0;
-    flex-shrink: 0;
-  }
-
-  .stat-info {
-    align-items: center;
-    gap: 0;
-    flex: 1;
-    justify-content: center;
-  }
-
-  .stat-number {
-    display: none !important;
-    font-size: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1;
-    text-align: center;
-    color: #374151;
-  }
+  /* Stat elements já estão definidos na regra @media (max-width: 430px) acima */
 
   .quick-actions {
     margin: 0;
@@ -1421,6 +1352,82 @@
 
 /* Regras globais para esconder números no mobile */
 @media (max-width: 430px) {
+  /* Aplicar classes mobile específicas */
+  .stats-grid {
+    composes: stats-grid-mobile;
+  }
+  
+  .stat-card {
+    composes: stat-card-mobile;
+  }
+  
+  .stat-header {
+    composes: stat-header-mobile;
+  }
+  
+  .stat-icon {
+    composes: stat-icon-mobile;
+  }
+  
+  .stat-info {
+    composes: stat-info-mobile;
+  }
+  
+  .stat-number {
+    composes: stat-number-mobile;
+  }
+  
+  .stat-label {
+    composes: stat-label-mobile;
+  }
+  
+  /* Fallback para navegadores que não suportam composes */
+  .stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    margin-left: 0 !important;
+    max-width: 100% !important;
+  }
+  
+  .stat-card {
+    padding: 12px 8px !important;
+    min-height: 80px !important;
+    max-height: 80px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 4px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    background: white !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .stat-header {
+    align-items: center !important;
+    gap: 0 !important;
+    flex: 1 !important;
+    justify-content: center !important;
+    margin-bottom: 0 !important;
+  }
+  
+  .stat-icon {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 1rem !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .stat-info {
+    align-items: center !important;
+    gap: 0 !important;
+    flex: 1 !important;
+    justify-content: center !important;
+  }
+  
   .stat-number {
     display: none !important;
     visibility: hidden !important;
@@ -1431,6 +1438,15 @@
     height: 0 !important;
     width: 0 !important;
     overflow: hidden !important;
+  }
+  
+  .stat-label {
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    color: #374151 !important;
   }
 
   /* Melhorias nos botões de ação para mobile */
