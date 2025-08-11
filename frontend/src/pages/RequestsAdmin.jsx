@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX, FiSearch } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
@@ -41,6 +41,7 @@ export default function RequestsAdmin() {
   const [inventory, setInventory] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // Campo de busca
   
   // Estados para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
@@ -253,6 +254,11 @@ export default function RequestsAdmin() {
   const adicionarItem = (item) => {
     const itemExistente = selectedItems.find(i => i.id === item.id);
     if (itemExistente) {
+      // Verificar se já está no limite máximo
+      if (itemExistente.quantity >= item.quantity_available) {
+        mostrarNotificacao(`Quantidade máxima disponível para ${item.name} é ${item.quantity_available}`, 'erro');
+        return;
+      }
       alterarQuantidade(item.id, itemExistente.quantity + 1);
     } else {
       const novoItem = {
@@ -261,7 +267,8 @@ export default function RequestsAdmin() {
         quantity: 1,
         inventory_id: item.id,
         item_name: item.name,
-        quantity_requested: 1
+        quantity_requested: 1,
+        quantity_available: item.quantity_available
       };
       const novosItens = [...selectedItems, novoItem];
       setSelectedItems(novosItens);
@@ -282,6 +289,14 @@ export default function RequestsAdmin() {
   const alterarQuantidade = (itemId, novaQuantidade) => {
     if (novaQuantidade <= 0) {
       removerItem(itemId);
+      return;
+    }
+    
+    // Buscar o item no inventário para verificar a quantidade disponível
+    const itemInventario = inventory.find(inv => inv.id === itemId);
+    if (itemInventario && novaQuantidade > itemInventario.quantity_available) {
+      // Não permitir quantidade maior que a disponível
+      mostrarNotificacao(`Quantidade máxima disponível para ${itemInventario.name} é ${itemInventario.quantity_available}`, 'erro');
       return;
     }
     
@@ -435,6 +450,15 @@ export default function RequestsAdmin() {
       navigate('/dashboard');
     }
   };
+
+  // Função para filtrar itens do inventário baseado na busca
+  const filteredInventory = inventory.filter(item => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      item.name.toLowerCase().includes(searchLower) ||
+      (item.description && item.description.toLowerCase().includes(searchLower))
+    );
+  });
 
   return (
     <div className="requests-page">
@@ -1127,10 +1151,61 @@ export default function RequestsAdmin() {
           </Button>
         }
       >
+        {/* Campo de Busca */}
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{ position: 'relative' }}>
+            <FiSearch 
+              size={18} 
+              style={{ 
+                position: 'absolute', 
+                left: '12px', 
+                top: '50%', 
+                transform: 'translateY(-50%)',
+                color: '#6b7280',
+                zIndex: 1
+              }} 
+            />
+            <input
+              type="text"
+              placeholder="Buscar itens do inventário..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-field"
+              style={{
+                width: '98%',
+                padding: '12px 16px 12px 44px',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+                backgroundColor: '#fff'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#3b82f6';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#e5e7eb';
+              }}
+            />
+          </div>
+          {searchTerm && (
+            <div style={{ 
+              fontSize: '12px', 
+              color: '#6b7280', 
+              marginTop: '4px',
+              paddingLeft: '4px'
+            }}>
+              {filteredInventory.length} item(ns) encontrado(s)
+            </div>
+          )}
+        </div>
+
+        {/* Lista de Itens */}
         <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
-          {inventory.length > 0 ? (
+          {filteredInventory.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {inventory.map((item) => (
+              {filteredInventory.map((item) => (
                 <div key={item.id} style={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
@@ -1165,7 +1240,7 @@ export default function RequestsAdmin() {
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-              Nenhum item disponível no inventário
+              {searchTerm ? 'Nenhum item encontrado com essa busca' : 'Nenhum item disponível no inventário'}
             </div>
           )}
         </div>

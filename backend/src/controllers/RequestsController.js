@@ -849,6 +849,52 @@ export const createRequest = async (req, res) => {
     // Aqui você pode salvar os itens da requisição em outra tabela se necessário
     if (itens && itens.length > 0) {
       try {
+        // Validar disponibilidade de todos os itens antes de inserir
+        const materiaisIndisponiveis = [];
+        
+        for (const item of itens) {
+          if (!item.inventory_id || !item.quantity_requested) continue;
+
+          // Buscar item do inventário
+          const { data: inv, error: errInv } = await supabase
+            .from('inventory')
+            .select('*')
+            .eq('id', item.inventory_id)
+            .single();
+
+          if (errInv || !inv) {
+            console.log(`⚠️ [createRequest] Erro ao buscar item ${item.inventory_id}:`, errInv);
+            continue;
+          }
+
+          // Verificar se há quantidade suficiente
+          if (inv.quantity_available < item.quantity_requested) {
+            materiaisIndisponiveis.push({
+              nome: inv.name,
+              quantidade_disponivel: inv.quantity_available,
+              quantidade_solicitada: item.quantity_requested,
+              quantidade_faltante: item.quantity_requested - inv.quantity_available
+            });
+          }
+        }
+
+        // Se há materiais indisponíveis, impedir a criação da requisição
+        if (materiaisIndisponiveis.length > 0) {
+          const mensagem = `Não é possível criar a requisição. Os seguintes materiais não estão disponíveis na quantidade solicitada:\n${materiaisIndisponiveis.map(m => `- ${m.nome}: Disponível ${m.quantidade_disponivel}, Solicitado ${m.quantidade_solicitada}, Faltam ${m.quantidade_faltante}`).join('\n')}`;
+          
+          // Deletar a requisição criada
+          await supabase
+            .from('requests')
+            .delete()
+            .eq('id', request.id);
+          
+          return res.status(400).json({ 
+            success: false, 
+            message: mensagem,
+            materiaisIndisponiveis
+          });
+        }
+
         const itemsToInsert = itens.map(item => ({
           request_id: request.id,
           inventory_id: item.inventory_id,
