@@ -67,6 +67,12 @@ export default function RequestsAdmin() {
   const [validandoConflito, setValidandoConflito] = useState(false);
   const [sugestaoAplicada, setSugestaoAplicada] = useState(false);
 
+  // Estados para edição e deleção
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editReq, setEditReq] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteReq, setDeleteReq] = useState(null);
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -396,6 +402,71 @@ export default function RequestsAdmin() {
     }
   }
 
+  // Função para editar requisição
+  const handleEdit = async (id) => {
+    try {
+      const detalhe = await getRequisicaoDetalhada(id);
+      setEditReq(detalhe);
+      setEditModalOpen(true);
+    } catch {
+      mostrarNotificacao('Erro ao carregar dados para edição', 'erro');
+    }
+  };
+
+  // Função para salvar edição
+  const handleEditSave = async () => {
+    if (!editReq) return;
+    
+    try {
+      // Combinar data com horas para criar datetime completo
+      const dataToSend = { ...editReq };
+      
+      if (editReq.date && editReq.start_datetime) {
+        dataToSend.start_datetime = `${editReq.date}T${editReq.start_datetime}`;
+      }
+      
+      if (editReq.date && editReq.end_datetime) {
+        dataToSend.end_datetime = `${editReq.date}T${editReq.end_datetime}`;
+      }
+      
+      await atualizarRequisicao(editReq.id, dataToSend);
+      mostrarNotificacao('Requisição atualizada com sucesso!', 'sucesso');
+      setEditModalOpen(false);
+      setEditReq(null);
+      buscarRequisicoes();
+    } catch {
+      mostrarNotificacao('Erro ao atualizar requisição', 'erro');
+    }
+  };
+
+  // Função para deletar requisição
+  const handleDelete = (id) => {
+    setDeleteReq(id);
+    setDeleteModalOpen(true);
+  };
+
+  // Função para confirmar deleção
+  const handleDeleteConfirm = async () => {
+    if (!deleteReq) return;
+    
+    try {
+      await deletarRequisicao(deleteReq);
+      mostrarNotificacao('Requisição deletada com sucesso!', 'sucesso');
+      setDeleteModalOpen(false);
+      setDeleteReq(null);
+      buscarRequisicoes();
+    } catch {
+      mostrarNotificacao('Erro ao deletar requisição', 'erro');
+    }
+  };
+
+  // Função para editar campo
+  const handleEditField = (field, value) => {
+    if (editReq) {
+      setEditReq({ ...editReq, [field]: value });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -633,6 +704,24 @@ export default function RequestsAdmin() {
                     title="Ver Detalhes"
                   >
                     <FiEye size={18} className="details-icon" />
+                  </Button>
+                  <Button 
+                    onClick={() => handleEdit(req.id)}
+                    variant="icon-blue" 
+                    size="sm"
+                    className="edit-button"
+                    title="Editar"
+                  >
+                    <FiEdit size={18} className="edit-icon" />
+                  </Button>
+                  <Button 
+                    onClick={() => handleDelete(req.id)}
+                    variant="icon-blue" 
+                    size="sm"
+                    className="delete-button"
+                    title="Deletar"
+                  >
+                    <FiTrash2 size={18} className="delete-icon" />
                   </Button>
                 </div>
               </div>
@@ -1383,6 +1472,94 @@ export default function RequestsAdmin() {
               {searchTerm ? 'Nenhum item encontrado com essa busca' : 'Nenhum item disponível no inventário'}
             </div>
           )}
+        </div>
+      </Modal>
+
+      {/* Modal de Edição */}
+      <Modal
+        open={editModalOpen}
+        title="Editar Requisição"
+        onClose={() => setEditModalOpen(false)}
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setEditModalOpen(false)}>Cancelar</Button>
+            <Button variant="primary" size="sm" onClick={handleEditSave}>Salvar</Button>
+          </>
+        }
+      >
+        {editReq && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Input
+              label="Departamento"
+              value={editReq.department || ''}
+              onChange={(e) => handleEditField('department', e.target.value)}
+              required
+            />
+            <Input
+              label="Nome do Evento"
+              value={editReq.event_name || ''}
+              onChange={(e) => handleEditField('event_name', e.target.value)}
+              required
+            />
+            <Input
+              label="Data"
+              type="date"
+              value={editReq.date || ''}
+              onChange={(e) => handleEditField('date', e.target.value)}
+              required
+            />
+            <Input
+              label="Local"
+              value={editReq.location || ''}
+              onChange={(e) => handleEditField('location', e.target.value)}
+              required
+            />
+            <Input
+              label="Hora de Início"
+              type="time"
+              value={editReq.start_datetime ? editReq.start_datetime.slice(11, 16) : ''}
+              onChange={(e) => handleEditField('start_datetime', e.target.value)}
+              required
+            />
+            <Input
+              label="Hora de Fim"
+              type="time"
+              value={editReq.end_datetime ? editReq.end_datetime.slice(11, 16) : ''}
+              onChange={(e) => handleEditField('end_datetime', e.target.value)}
+              required
+            />
+            <Input
+              label="Público Específico"
+              value={editReq.expected_audience || ''}
+              onChange={(e) => handleEditField('expected_audience', e.target.value)}
+            />
+            <Input
+              label="Descrição"
+              value={editReq.description || ''}
+              onChange={(e) => handleEditField('description', e.target.value)}
+              multiline
+            />
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal de Confirmação de Deleção */}
+      <Modal
+        open={deleteModalOpen}
+        title="Confirmar Deleção"
+        onClose={() => setDeleteModalOpen(false)}
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setDeleteModalOpen(false)}>Cancelar</Button>
+            <Button variant="danger" size="sm" onClick={handleDeleteConfirm}>Deletar</Button>
+          </>
+        }
+      >
+        <div style={{ padding: 16 }}>
+          <p>Tem certeza que deseja deletar esta requisição?</p>
+          <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: 8 }}>
+            Esta ação não pode ser desfeita.
+          </p>
         </div>
       </Modal>
     </div>
