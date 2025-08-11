@@ -1198,6 +1198,12 @@ export default function RequestsAdmin() {
             </Button>
           </div>
         }
+        style={{
+          width: '600px',
+          maxWidth: '90vw',
+          height: 'auto',
+          maxHeight: '80vh'
+        }}
       >
         {/* Campo de Busca */}
         <div style={{ marginBottom: '1rem' }}>
@@ -1283,10 +1289,17 @@ export default function RequestsAdmin() {
           </div>
         )}
 
-        {/* Lista de Itens */}
-        <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
+        {/* Lista de Itens - Container com altura fixa */}
+        <div style={{ 
+          height: '400px',
+          overflowY: 'auto', 
+          paddingRight: '8px',
+          border: '1px solid #e5e7eb',
+          borderRadius: '6px',
+          backgroundColor: '#f9fafb'
+        }}>
           {filteredInventory.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem' }}>
               {filteredInventory.map((item) => {
                 const quantidadeDisponivel = getQuantidadeDisponivelAtualizada(item);
                 const itemSelecionado = selectedItems.find(selected => selected.id === item.id);
@@ -1301,7 +1314,8 @@ export default function RequestsAdmin() {
                     border: `2px solid ${isSelecionado ? '#3b82f6' : '#e5e7eb'}`,
                     borderRadius: '6px',
                     backgroundColor: isSelecionado ? '#eff6ff' : '#fff',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    minHeight: '80px'
                   }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ 
@@ -1357,7 +1371,15 @@ export default function RequestsAdmin() {
               })}
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '2rem', 
+              color: '#6b7280',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
               {searchTerm ? 'Nenhum item encontrado com essa busca' : 'Nenhum item disponível no inventário'}
             </div>
           )}
