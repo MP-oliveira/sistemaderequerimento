@@ -460,6 +460,43 @@ export default function RequestsAdmin() {
     );
   });
 
+  // Função para calcular quantidade disponível atualizada para um item
+  const getQuantidadeDisponivelAtualizada = (item) => {
+    const itemSelecionado = selectedItems.find(selected => selected.id === item.id);
+    if (itemSelecionado) {
+      return item.quantity_available - itemSelecionado.quantity;
+    }
+    return item.quantity_available;
+  };
+
+  // Função para verificar se o botão deve estar desabilitado
+  const isBotaoDesabilitado = (item) => {
+    const quantidadeDisponivel = getQuantidadeDisponivelAtualizada(item);
+    return quantidadeDisponivel <= 0;
+  };
+
+  // Função para obter texto da quantidade disponível
+  const getTextoQuantidadeDisponivel = (item) => {
+    const quantidadeDisponivel = getQuantidadeDisponivelAtualizada(item);
+    const itemSelecionado = selectedItems.find(selected => selected.id === item.id);
+    
+    if (itemSelecionado) {
+      return `Disponível: ${quantidadeDisponivel} (${itemSelecionado.quantity} selecionado${itemSelecionado.quantity > 1 ? 's' : ''})`;
+    }
+    return `Disponível: ${quantidadeDisponivel}`;
+  };
+
+  // Função para obter cor da quantidade disponível
+  const getCorQuantidadeDisponivel = (item) => {
+    const quantidadeDisponivel = getQuantidadeDisponivelAtualizada(item);
+    if (quantidadeDisponivel <= 0) {
+      return '#dc2626'; // Vermelho
+    } else if (quantidadeDisponivel <= 2) {
+      return '#f59e0b'; // Amarelo/Laranja
+    }
+    return '#059669'; // Verde
+  };
+
   return (
     <div className="requests-page">
       {/* Botão Voltar */}
@@ -934,14 +971,14 @@ export default function RequestsAdmin() {
                       <div style={{ marginBottom: '0.5rem' }}>
                         <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>{item.name}</div>
                         <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
-                          Disponível: {item.quantity_available}
+                          {getTextoQuantidadeDisponivel(item)}
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <input
                           type="number"
                           min="1"
-                          max={item.quantity_available}
+                          max={getQuantidadeDisponivelAtualizada(item)}
                           value={item.quantity}
                           onChange={(e) => alterarQuantidade(item.id, parseInt(e.target.value) || 0)}
                           style={{
@@ -950,7 +987,8 @@ export default function RequestsAdmin() {
                             border: '1px solid #d1d5db',
                             borderRadius: '4px',
                             textAlign: 'center',
-                            fontSize: '0.75rem'
+                            fontSize: '0.75rem',
+                            color: getCorQuantidadeDisponivel(item)
                           }}
                         />
                         <Button
@@ -1146,9 +1184,19 @@ export default function RequestsAdmin() {
         title="Selecionar Itens do Inventário"
         onClose={() => setShowInventoryModal(false)}
         actions={
-          <Button variant="secondary" size="sm" onClick={() => setShowInventoryModal(false)}>
-            Fechar
-          </Button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <Button variant="secondary" size="sm" onClick={() => setShowInventoryModal(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              variant="primary" 
+              size="sm" 
+              onClick={() => setShowInventoryModal(false)}
+              disabled={selectedItems.length === 0}
+            >
+              Continuar ({selectedItems.length} item{selectedItems.length !== 1 ? 's' : ''})
+            </Button>
+          </div>
         }
       >
         {/* Campo de Busca */}
@@ -1201,42 +1249,112 @@ export default function RequestsAdmin() {
           )}
         </div>
 
+        {/* Resumo dos Itens Selecionados */}
+        {selectedItems.length > 0 && (
+          <div style={{ 
+            marginBottom: '1rem',
+            padding: '0.75rem',
+            backgroundColor: '#f0f9ff',
+            border: '1px solid #0ea5e9',
+            borderRadius: '6px'
+          }}>
+            <div style={{ 
+              fontWeight: '600', 
+              color: '#0c4a6e',
+              marginBottom: '0.5rem',
+              fontSize: '0.875rem'
+            }}>
+              📦 Itens Selecionados ({selectedItems.length})
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              {selectedItems.map((item) => (
+                <div key={item.id} style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontSize: '0.75rem',
+                  color: '#0c4a6e'
+                }}>
+                  <span>{item.name}</span>
+                  <span style={{ fontWeight: '600' }}>Qtd: {item.quantity}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Lista de Itens */}
         <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
           {filteredInventory.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {filteredInventory.map((item) => (
-                <div key={item.id} style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  padding: '0.75rem',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  backgroundColor: '#fff'
-                }}>
-                  <div>
-                    <div style={{ fontWeight: '500' }}>{item.name}</div>
-                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                      {item.description}
+              {filteredInventory.map((item) => {
+                const quantidadeDisponivel = getQuantidadeDisponivelAtualizada(item);
+                const itemSelecionado = selectedItems.find(selected => selected.id === item.id);
+                const isSelecionado = !!itemSelecionado;
+                
+                return (
+                  <div key={item.id} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    padding: '0.75rem',
+                    border: `2px solid ${isSelecionado ? '#3b82f6' : '#e5e7eb'}`,
+                    borderRadius: '6px',
+                    backgroundColor: isSelecionado ? '#eff6ff' : '#fff',
+                    transition: 'all 0.2s ease'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ 
+                        fontWeight: '500',
+                        color: isSelecionado ? '#1e40af' : '#111827'
+                      }}>
+                        {item.name}
+                        {isSelecionado && (
+                          <span style={{ 
+                            marginLeft: '8px', 
+                            fontSize: '12px', 
+                            color: '#059669',
+                            fontWeight: '600'
+                          }}>
+                            ✓ Selecionado
+                          </span>
+                        )}
+                      </div>
+                      {item.description && (
+                        <div style={{ 
+                          fontSize: '0.875rem', 
+                          color: '#6b7280',
+                          marginBottom: '4px'
+                        }}>
+                          {item.description}
+                        </div>
+                      )}
+                      <div style={{ 
+                        fontSize: '0.875rem', 
+                        color: getCorQuantidadeDisponivel(item),
+                        fontWeight: '500'
+                      }}>
+                        {getTextoQuantidadeDisponivel(item)}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '0.875rem', color: '#059669' }}>
-                      Disponível: {item.quantity_available}
-                    </div>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        adicionarItem(item);
+                        // Não fechar o modal automaticamente
+                      }}
+                      disabled={isBotaoDesabilitado(item)}
+                      style={{
+                        opacity: isBotaoDesabilitado(item) ? 0.5 : 1,
+                        cursor: isBotaoDesabilitado(item) ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      <FiPlus size={14} />
+                    </Button>
                   </div>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => {
-                      adicionarItem(item);
-                      setShowInventoryModal(false);
-                    }}
-                    disabled={item.quantity_available <= 0}
-                  >
-                    <FiPlus size={14} />
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
