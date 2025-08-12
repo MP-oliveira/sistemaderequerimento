@@ -208,8 +208,14 @@ export default function Users() {
             </Button>
           </>
         }
+        style={{
+          width: '500px',
+          maxWidth: '90vw',
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}
       >
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <Input
             label="Nome"
             value={formData.name}
@@ -242,6 +248,7 @@ export default function Users() {
               value={formData.role}
               onChange={e => setFormData({ ...formData, role: e.target.value })}
               required
+              style={{ width: '100%' }}
             >
               <option value="" disabled>Selecione uma função</option>
               <option value="USER">Usuário</option>
