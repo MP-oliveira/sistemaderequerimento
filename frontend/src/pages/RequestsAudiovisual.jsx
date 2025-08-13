@@ -104,6 +104,8 @@ export default function RequestsAudiovisual() {
   const requisicoesExecutadas = requisicoes.filter(req => req.status === 'EXECUTADO');
   const requisicoesFinalizadas = requisicoes.filter(req => req.status === 'FINALIZADO');
 
+
+
   return (
     <div className="requests-page">
       {/* Botão Voltar */}

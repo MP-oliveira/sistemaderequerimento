@@ -83,6 +83,8 @@ export default function ServicoGeralDashboard() {
     return formatTimeUTC(dateString);
   };
 
+
+
   return (
     <div className="dashboard-container servico-geral-dashboard">
       {/* Notificação */}

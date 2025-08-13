@@ -43,6 +43,10 @@ export default function RequestsAdmin() {
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState(''); // Campo de busca
   
+  // Estados para serviços solicitados
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [showServicesModal, setShowServicesModal] = useState(false);
+  
   // Estados para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
   const [notificacaoModal, setNotificacaoModal] = useState({ mensagem: '', tipo: '', mostrar: false });
@@ -321,6 +325,48 @@ export default function RequestsAdmin() {
     verificarDisponibilidadeTempoReal(novosItens);
   };
 
+  // Funções para gerenciar serviços
+  const adicionarServico = (tipo, quantidade) => {
+    const servicoExistente = selectedServices.find(s => s.tipo === tipo);
+    if (servicoExistente) {
+      alterarQuantidadeServico(tipo, servicoExistente.quantidade + quantidade);
+    } else {
+      const novoServico = {
+        tipo,
+        quantidade,
+        nome: getNomeServico(tipo)
+      };
+      setSelectedServices([...selectedServices, novoServico]);
+    }
+  };
+
+  const removerServico = (tipo) => {
+    setSelectedServices(selectedServices.filter(s => s.tipo !== tipo));
+  };
+
+  const alterarQuantidadeServico = (tipo, novaQuantidade) => {
+    if (novaQuantidade <= 0) {
+      removerServico(tipo);
+      return;
+    }
+    
+    setSelectedServices(selectedServices.map(servico => 
+      servico.tipo === tipo 
+        ? { ...servico, quantidade: novaQuantidade }
+        : servico
+    ));
+  };
+
+  const getNomeServico = (tipo) => {
+    const nomes = {
+      'DIACONIA': 'Diaconia',
+      'SERVICO_GERAL': 'Serviços Gerais',
+      'AUDIOVISUAL': 'Audiovisual',
+      'SEGURANCA': 'Segurança'
+    };
+    return nomes[tipo] || tipo;
+  };
+
   function filtrar(requisicoes) {
     return requisicoes.filter(r => {
       if (filtroStatus && r.status !== filtroStatus) return false;
@@ -488,6 +534,13 @@ export default function RequestsAdmin() {
         item_name: item.name,
         quantity_requested: item.quantity
       }));
+
+      // Adicionar serviços solicitados
+      dataToSend.servicos = selectedServices.map(servico => ({
+        tipo: servico.tipo,
+        quantidade: servico.quantidade,
+        nome: servico.nome
+      }));
       
       await criarRequisicao(dataToSend);
       mostrarNotificacao('Requisição criada com sucesso!', 'sucesso');
@@ -504,6 +557,7 @@ export default function RequestsAdmin() {
         prioridade: PRIORIDADE_DEFAULT
       });
       setSelectedItems([]); // Limpar itens selecionados
+      setSelectedServices([]); // Limpar serviços selecionados
       buscarRequisicoes();
     } catch {
       mostrarNotificacao('Erro ao criar requisição', 'erro');
@@ -1108,6 +1162,87 @@ export default function RequestsAdmin() {
             )}
           </div>
 
+          {/* Seção de Serviços Solicitados */}
+          <div style={{ marginTop: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label style={{ fontWeight: '600', color: '#374151' }}>Serviços Solicitados</label>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={() => setShowServicesModal(true)}
+              >
+                <FiPlus size={14} />
+                Adicionar Serviços
+              </Button>
+            </div>
+            
+            {selectedServices.length > 0 ? (
+              <div style={{ 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '8px', 
+                padding: '0.75rem',
+                backgroundColor: '#f9fafb',
+                maxHeight: '120px',
+                overflowY: 'auto'
+              }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  {selectedServices.map((servico) => (
+                    <div key={servico.tipo} style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column',
+                      padding: '0.5rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      backgroundColor: '#fff'
+                    }}>
+                      <div style={{ marginBottom: '0.5rem' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>{servico.nome}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <input
+                          type="number"
+                          min="1"
+                          value={servico.quantidade}
+                          onChange={(e) => alterarQuantidadeServico(servico.tipo, parseInt(e.target.value) || 0)}
+                          style={{
+                            width: '50px',
+                            padding: '0.25rem',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            textAlign: 'center',
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                        <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>pessoas</span>
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          onClick={() => removerServico(servico.tipo)}
+                          style={{ padding: '0.25rem', minWidth: 'auto' }}
+                        >
+                          <FiX size={10} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={{ 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '8px', 
+                padding: '1rem',
+                textAlign: 'center',
+                color: '#6b7280',
+                backgroundColor: '#f9fafb'
+              }}>
+                Nenhum serviço selecionado
+              </div>
+            )}
+          </div>
+
           {/* Validação de Disponibilidade de Materiais */}
           {(disponibilidadeInfo.temConflito || disponibilidadeInfo.temBaixoEstoque) && (
             <div className={`conflict-validation-container ${disponibilidadeInfo.temConflito ? 'conflict-error' : 'conflict-warning'}`}>
@@ -1560,6 +1695,230 @@ export default function RequestsAdmin() {
           <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: 8 }}>
             Esta ação não pode ser desfeita.
           </p>
+        </div>
+      </Modal>
+
+      {/* Modal de Seleção de Serviços */}
+      <Modal
+        open={showServicesModal}
+        title="Selecionar Serviços"
+        onClose={() => setShowServicesModal(false)}
+        actions={
+          <Button variant="secondary" size="sm" onClick={() => setShowServicesModal(false)}>
+            Fechar
+          </Button>
+        }
+        style={{
+          width: '500px',
+          maxWidth: '90vw'
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Diaconia */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '1rem',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            backgroundColor: '#fff'
+          }}>
+            <div>
+              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
+                🕊️ Diaconia
+              </div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                Apoio e assistência durante o evento
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="number"
+                min="0"
+                placeholder="0"
+                style={{
+                  width: '60px',
+                  padding: '0.5rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  textAlign: 'center'
+                }}
+                onChange={(e) => {
+                  const quantidade = parseInt(e.target.value) || 0;
+                  if (quantidade > 0) {
+                    adicionarServico('DIACONIA', quantidade);
+                  } else {
+                    removerServico('DIACONIA');
+                  }
+                }}
+              />
+              <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>pessoas</span>
+            </div>
+          </div>
+
+          {/* Serviços Gerais */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '1rem',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            backgroundColor: '#fff'
+          }}>
+            <div>
+              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
+                🛠️ Serviços Gerais
+              </div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                Limpeza, organização e logística
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="number"
+                min="0"
+                placeholder="0"
+                style={{
+                  width: '60px',
+                  padding: '0.5rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  textAlign: 'center'
+                }}
+                onChange={(e) => {
+                  const quantidade = parseInt(e.target.value) || 0;
+                  if (quantidade > 0) {
+                    adicionarServico('SERVICO_GERAL', quantidade);
+                  } else {
+                    removerServico('SERVICO_GERAL');
+                  }
+                }}
+              />
+              <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>pessoas</span>
+            </div>
+          </div>
+
+          {/* Audiovisual */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '1rem',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            backgroundColor: '#fff'
+          }}>
+            <div>
+              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
+                🎥 Audiovisual
+              </div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                Som, vídeo e equipamentos técnicos
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="number"
+                min="0"
+                placeholder="0"
+                style={{
+                  width: '60px',
+                  padding: '0.5rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  textAlign: 'center'
+                }}
+                onChange={(e) => {
+                  const quantidade = parseInt(e.target.value) || 0;
+                  if (quantidade > 0) {
+                    adicionarServico('AUDIOVISUAL', quantidade);
+                  } else {
+                    removerServico('AUDIOVISUAL');
+                  }
+                }}
+              />
+              <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>pessoas</span>
+            </div>
+          </div>
+
+          {/* Segurança */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '1rem',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            backgroundColor: '#fff'
+          }}>
+            <div>
+              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
+                🛡️ Segurança
+              </div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                Controle de acesso e segurança do evento
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="number"
+                min="0"
+                placeholder="0"
+                style={{
+                  width: '60px',
+                  padding: '0.5rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  textAlign: 'center'
+                }}
+                onChange={(e) => {
+                  const quantidade = parseInt(e.target.value) || 0;
+                  if (quantidade > 0) {
+                    adicionarServico('SEGURANCA', quantidade);
+                  } else {
+                    removerServico('SEGURANCA');
+                  }
+                }}
+              />
+              <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>pessoas</span>
+            </div>
+          </div>
+
+          {/* Resumo dos Serviços Selecionados */}
+          {selectedServices.length > 0 && (
+            <div style={{ 
+              marginTop: '1rem',
+              padding: '1rem',
+              backgroundColor: '#f0f9ff',
+              border: '1px solid #0ea5e9',
+              borderRadius: '8px'
+            }}>
+              <div style={{ 
+                fontWeight: '600', 
+                color: '#0c4a6e',
+                marginBottom: '0.5rem',
+                fontSize: '0.875rem'
+              }}>
+                📋 Serviços Selecionados ({selectedServices.length})
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                {selectedServices.map((servico) => (
+                  <div key={servico.tipo} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '0.75rem',
+                    color: '#0c4a6e'
+                  }}>
+                    <span>{servico.nome}</span>
+                    <span style={{ fontWeight: '600' }}>{servico.quantidade} pessoa(s)</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </Modal>
     </div>
