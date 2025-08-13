@@ -918,6 +918,33 @@ export const createRequest = async (req, res) => {
       }
     }
 
+    // Inserir serviços solicitados
+    const { servicos = [] } = req.body;
+    if (servicos && servicos.length > 0) {
+      try {
+        const servicesToInsert = servicos.map(servico => ({
+          request_id: request.id,
+          tipo: servico.tipo,
+          quantidade: servico.quantidade,
+          nome: servico.nome
+        }));
+
+        const { error: servicesError } = await supabase
+          .from('request_services')
+          .insert(servicesToInsert);
+
+        if (servicesError) {
+          console.error('❌ Erro ao inserir serviços da requisição:', servicesError);
+          // Não falha a criação da requisição se os serviços falharem
+        } else {
+          console.log('✅ Serviços da requisição inseridos com sucesso');
+        }
+      } catch (servicesError) {
+        console.error('❌ Erro ao processar serviços da requisição:', servicesError);
+        // Não falha a criação da requisição se os serviços falharem
+      }
+    }
+
     // Buscar dados do solicitante para o e-mail
     const { data: solicitante } = await supabase
       .from('users')
@@ -1045,10 +1072,18 @@ export const getRequest = async (req, res) => {
       .from('request_items')
       .select('*')
       .eq('request_id', id);
-    // Retornar os dados da requisição + itens + dados do solicitante
+
+    // Buscar serviços relacionados à requisição
+    const { data: servicos, error: servicosError } = await supabase
+      .from('request_services')
+      .select('*')
+      .eq('request_id', id);
+
+    // Retornar os dados da requisição + itens + serviços + dados do solicitante
     const requestWithSolicitante = {
       ...request,
       itens: itens || [],
+      servicos: servicos || [],
       requester_name: request.users?.full_name || 'Usuário não encontrado',
       requester_email: request.users?.email || ''
     };
@@ -2165,4 +2200,71 @@ const getStatusColor = (status) => {
     'PREENCHIDO': '#2196f3'          // Azul claro
   };
   return colors[status] || '#6b7280';
+};
+
+// Buscar requisições com serviços para dashboards específicos
+export const getRequestsWithServices = async (req, res) => {
+  try {
+    const { tipo } = req.query; // DIACONIA, SERVICO_GERAL, AUDIOVISUAL, SEGURANCA
+    
+    if (!tipo) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Tipo de serviço é obrigatório (DIACONIA, SERVICO_GERAL, AUDIOVISUAL, SEGURANCA)' 
+      });
+    }
+
+    // Buscar requisições que têm o tipo de serviço especificado
+    const { data: requests, error } = await supabase
+      .from('requests')
+      .select(`
+        *,
+        request_services!inner(*),
+        users!requests_requester_id_fkey(full_name, email)
+      `)
+      .eq('request_services.tipo', tipo)
+      .in('status', ['APTO', 'EXECUTADO', 'FINALIZADO']);
+
+    if (error) {
+      console.log('❌ Erro ao buscar requisições com serviços:', error);
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao buscar requisições.', 
+        error: error.message 
+      });
+    }
+
+    // Processar os dados para retornar apenas os serviços do tipo especificado
+    const processedRequests = (requests || []).map(request => {
+      const servicosDoTipo = request.request_services.filter(servico => servico.tipo === tipo);
+      return {
+        id: request.id,
+        department: request.department || '',
+        status: request.status || 'PENDENTE',
+        requester_id: request.requester_id,
+        requester_name: request.users?.full_name || 'Usuário não encontrado',
+        requester_email: request.users?.email || '',
+        date: request.date,
+        event_name: request.event_name,
+        location: request.location,
+        start_datetime: request.start_datetime,
+        end_datetime: request.end_datetime,
+        description: request.description,
+        servicos: servicosDoTipo,
+        total_pessoas: servicosDoTipo.reduce((total, servico) => total + servico.quantidade, 0)
+      };
+    });
+
+    res.json({ 
+      success: true, 
+      data: processedRequests,
+      tipo_servico: tipo
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor', 
+      error: error.message 
+    });
+  }
 };
