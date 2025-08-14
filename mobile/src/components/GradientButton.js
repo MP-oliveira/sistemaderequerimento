@@ -14,7 +14,7 @@ export default function GradientButton({
     if (disabled) {
       return ['#64748b', '#94a3b8'];
     }
-    return ['#2563eb', '#3b82f6'];
+    return ['#2563eb', '#3b82f6']; // Exatamente como no CSS
   };
 
   return (

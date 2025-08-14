@@ -52,7 +52,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Background gradient */}
+      {/* Background gradient - exatamente como no CSS */}
       <LinearGradient
         colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
         style={styles.gradient}
@@ -60,22 +60,16 @@ export default function LoginScreen({ navigation }) {
         end={{ x: 1, y: 1 }}
       />
       
-      {/* Logo marca d'água */}
+      {/* Partículas flutuantes - como no CSS */}
+      <View style={styles.particles} />
+      
+      {/* Logo marca d'água - colorida como no original */}
       <View style={styles.watermarkContainer}>
         <Image
           source={require('../../assets/ibva-logo.png')}
           style={styles.watermark}
           resizeMode="contain"
         />
-      </View>
-
-      {/* Partículas flutuantes */}
-      <View style={styles.particles}>
-        <View style={[styles.particle, styles.particle1]} />
-        <View style={[styles.particle, styles.particle2]} />
-        <View style={[styles.particle, styles.particle3]} />
-        <View style={[styles.particle, styles.particle4]} />
-        <View style={[styles.particle, styles.particle5]} />
       </View>
 
       <KeyboardAvoidingView 
@@ -87,9 +81,9 @@ export default function LoginScreen({ navigation }) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Card de login glassy */}
+          {/* Card de login glassy - exatamente como no CSS */}
           <View style={styles.loginCard}>
-            <BlurView intensity={20} style={styles.blurContainer}>
+            <BlurView intensity={15} style={styles.blurContainer}>
               <View style={styles.loginForm}>
                 <Title style={styles.title}>Login</Title>
                 
@@ -155,11 +149,14 @@ export default function LoginScreen({ navigation }) {
             </BlurView>
           </View>
 
-          {/* Informações adicionais */}
+          {/* Footer - exatamente como no web */}
           <View style={styles.footer}>
-            <Paragraph style={styles.footerText}>
+            <Text style={styles.footerText1}>
+              IGREJA BATISTA VILAS DO ATLÂNTICO
+            </Text>
+            <Text style={styles.footerText2}>
               Sistema de Requisições da Igreja Batista Vida Abundante
-            </Paragraph>
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -179,64 +176,30 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
   },
-  watermarkContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  watermark: {
-    width: width * 0.8,
-    height: width * 0.8,
-    opacity: 0.4,
-    tintColor: 'rgba(255, 255, 255, 0.3)',
-  },
   particles: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
+    backgroundColor: 'transparent',
+    zIndex: 0,
   },
-  particle: {
+  watermarkContainer: {
     position: 'absolute',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 50,
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -width * 0.4 }, { translateY: -width * 0.4 }],
+    width: width * 0.8,
+    height: width * 0.8,
+    zIndex: 1,
+    pointerEvents: 'none',
   },
-  particle1: {
-    width: 4,
-    height: 4,
-    top: '20%',
-    left: '20%',
-  },
-  particle2: {
-    width: 6,
-    height: 6,
-    top: '80%',
-    left: '80%',
-  },
-  particle3: {
-    width: 3,
-    height: 3,
-    top: '40%',
-    left: '60%',
-  },
-  particle4: {
-    width: 5,
-    height: 5,
-    top: '60%',
-    left: '40%',
-  },
-  particle5: {
-    width: 4,
-    height: 4,
-    top: '30%',
-    left: '70%',
+  watermark: {
+    width: '100%',
+    height: '100%',
+    opacity: 0.4,
+    // Removendo tintColor para manter a logo colorida
   },
   keyboardContainer: {
     flex: 1,
@@ -245,14 +208,15 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
     minHeight: height,
   },
   loginCard: {
     maxWidth: 420,
     width: '100%',
-    alignSelf: 'center',
     marginBottom: 30,
+    zIndex: 2,
   },
   blurContainer: {
     borderRadius: 24,
@@ -261,6 +225,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderTopColor: 'rgba(255, 255, 255, 0.4)',
     borderLeftColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 32,
+    elevation: 8,
   },
   loginForm: {
     padding: 45,
@@ -294,14 +263,24 @@ const styles = StyleSheet.create({
   },
   inputContent: {
     backgroundColor: 'transparent',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
   },
   loginButton: {
     marginTop: 12,
   },
   footer: {
     alignItems: 'center',
+    zIndex: 2,
   },
-  footerText: {
+  footerText1: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  footerText2: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
