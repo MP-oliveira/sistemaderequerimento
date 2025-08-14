@@ -154,7 +154,11 @@ export default function LoginScreen() {
 
         {/* Login card */}
         <View style={styles.loginCard}>
-          <BlurView intensity={blurConfig.intensity} style={styles.blurContainer}>
+          <BlurView 
+            intensity={blurConfig.intensity} 
+            tintColor={blurConfig.tintColor}
+            style={styles.blurContainer}
+          >
             <View style={styles.loginForm}>
               {/* Sombras internas simuladas */}
               <View style={styles.insetShadowTop} />

@@ -11,7 +11,7 @@ export const colors = {
   
   // Cores do form (exatas do CSS)
   form: {
-    background: 'rgba(255, 255, 255, 0)', // #ffffff00
+    background: 'rgba(255, 255, 255, 0.05)', // Ajustado para simular brightness(1.1)
     border: {
       default: 'rgba(255, 255, 255, 0.2)',
       top: 'rgba(255, 255, 255, 0.4)',
@@ -238,4 +238,6 @@ export const gradientConfig = {
 export const blurConfig = {
   intensity: 15, // backdrop-filter: blur(15px)
   brightness: 1.1, // brightness(1.1)
+  // Ajuste para simular o brightness no React Native
+  tintColor: 'rgba(255, 255, 255, 0.1)', // Simula brightness(1.1)
 };

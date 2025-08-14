@@ -76,28 +76,35 @@ function NavigationContent() {
 }
 
 export default function App() {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  // Por enquanto, vamos pular o carregamento de fontes para testar
+  // const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  useEffect(() => {
-    async function loadFonts() {
-      await Font.loadAsync({
-        'Montserrat': require('./assets/fonts/Montserrat-Regular.ttf'),
-        'Montserrat-Medium': require('./assets/fonts/Montserrat-Medium.ttf'),
-        'Montserrat-Bold': require('./assets/fonts/Montserrat-Bold.ttf'),
-      });
-      setFontsLoaded(true);
-    }
+  // useEffect(() => {
+  //   async function loadFonts() {
+  //     try {
+  //       await Font.loadAsync({
+  //         'Montserrat': require('./assets/fonts/Montserrat-Regular.ttf'),
+  //         'Montserrat-Medium': require('./assets/fonts/Montserrat-Medium.ttf'),
+  //         'Montserrat-Bold': require('./assets/fonts/Montserrat-Bold.ttf'),
+  //       });
+  //       setFontsLoaded(true);
+  //     } catch (error) {
+  //       console.log('Erro ao carregar fontes:', error);
+  //       // Se der erro, carrega mesmo assim
+  //       setFontsLoaded(true);
+  //     }
+  //   }
 
-    loadFonts();
-  }, []);
+  //   loadFonts();
+  // }, []);
 
-  if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1e3a8a' }}>
-        <Text style={{ color: '#ffffff', fontSize: 18, fontFamily: 'System' }}>Carregando...</Text>
-      </View>
-    );
-  }
+  // if (!fontsLoaded) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1e3a8a' }}>
+  //       <Text style={{ color: '#ffffff', fontSize: 18 }}>Carregando fontes...</Text>
+  //     </View>
+  //   );
+  // }
 
   return (
     <PaperProvider theme={theme}>
