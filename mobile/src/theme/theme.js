@@ -175,15 +175,15 @@ export const theme = {
   fonts: {
     ...DefaultTheme.fonts,
     regular: {
-      fontFamily: 'System',
+      fontFamily: 'Montserrat',
       fontWeight: '400',
     },
     medium: {
-      fontFamily: 'System',
+      fontFamily: 'Montserrat-Medium',
       fontWeight: '600',
     },
     bold: {
-      fontFamily: 'System',
+      fontFamily: 'Montserrat-Bold',
       fontWeight: '700',
     },
   },
