@@ -11,7 +11,7 @@ export const colors = {
   
   // Cores do form (exatas do CSS)
   form: {
-    background: 'rgba(255, 255, 255, 0.05)', // Ajustado para simular brightness(1.1)
+    background: 'rgba(59, 130, 246, 0.08)', // Azul sutil para combinar com o overlay
     border: {
       default: 'rgba(255, 255, 255, 0.2)',
       top: 'rgba(255, 255, 255, 0.4)',
