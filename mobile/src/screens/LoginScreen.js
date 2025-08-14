@@ -3,15 +3,21 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Alert,
+  Dimensions,
 } from 'react-native';
-import { TextInput, Button, Card, Title, Paragraph } from 'react-native-paper';
+import { TextInput, Title, Paragraph } from 'react-native-paper';
 import { useAuth } from '../context/AuthContext';
-import { colors, globalStyles } from '../theme/theme';
+import { colors } from '../theme/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import GradientButton from '../components/GradientButton';
+
+const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -33,7 +39,6 @@ export default function LoginScreen({ navigation }) {
       const result = await login(email, password);
       
       if (result.success) {
-        // Login bem-sucedido - navegação será feita automaticamente pelo contexto
         console.log('Login realizado com sucesso');
       } else {
         Alert.alert('Erro no Login', result.message || 'Credenciais inválidas');
@@ -46,148 +51,259 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
+    <View style={styles.container}>
+      {/* Background gradient */}
+      <LinearGradient
+        colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+        style={styles.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      
+      {/* Logo marca d'água */}
+      <View style={styles.watermarkContainer}>
+        <View style={styles.watermark}>
+          <Text style={styles.watermarkText}>IBVA</Text>
+        </View>
+      </View>
+
+      {/* Partículas flutuantes */}
+      <View style={styles.particles}>
+        <View style={[styles.particle, styles.particle1]} />
+        <View style={[styles.particle, styles.particle2]} />
+        <View style={[styles.particle, styles.particle3]} />
+        <View style={[styles.particle, styles.particle4]} />
+        <View style={[styles.particle, styles.particle5]} />
+      </View>
+
+      <KeyboardAvoidingView 
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Logo e título */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>IBVA</Text>
-          </View>
-          <Title style={styles.title}>Sistema de Requisições</Title>
-          <Paragraph style={styles.subtitle}>
-            Faça login para acessar o sistema
-          </Paragraph>
-        </View>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Card de login glassy */}
+          <View style={styles.loginCard}>
+            <BlurView intensity={20} style={styles.blurContainer}>
+              <View style={styles.loginForm}>
+                <Title style={styles.title}>Login</Title>
+                
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="E-mail"
+                    value={email}
+                    onChangeText={setEmail}
+                    mode="outlined"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    style={styles.input}
+                    theme={{
+                      colors: {
+                        primary: 'rgba(255, 255, 255, 0.8)',
+                        background: 'transparent',
+                        text: '#ffffff',
+                        placeholder: 'rgba(255, 255, 255, 0.65)',
+                        outline: 'rgba(255, 255, 255, 0.3)',
+                      },
+                    }}
+                    outlineStyle={styles.inputOutline}
+                  />
 
-        {/* Card de login */}
-        <Card style={styles.loginCard}>
-          <Card.Content>
-            <TextInput
-              label="Email"
-              value={email}
-              onChangeText={setEmail}
-              mode="outlined"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              style={styles.input}
-              theme={{ colors: { primary: colors.primary } }}
-            />
+                  <TextInput
+                    label="Senha"
+                    value={password}
+                    onChangeText={setPassword}
+                    mode="outlined"
+                    secureTextEntry={!showPassword}
+                    right={
+                      <TextInput.Icon
+                        icon={showPassword ? 'eye-off' : 'eye'}
+                        onPress={() => setShowPassword(!showPassword)}
+                        color="rgba(255, 255, 255, 0.8)"
+                      />
+                    }
+                    style={styles.input}
+                    theme={{
+                      colors: {
+                        primary: 'rgba(255, 255, 255, 0.8)',
+                        background: 'transparent',
+                        text: '#ffffff',
+                        placeholder: 'rgba(255, 255, 255, 0.65)',
+                        outline: 'rgba(255, 255, 255, 0.3)',
+                      },
+                    }}
+                    outlineStyle={styles.inputOutline}
+                  />
+                </View>
 
-            <TextInput
-              label="Senha"
-              value={password}
-              onChangeText={setPassword}
-              mode="outlined"
-              secureTextEntry={!showPassword}
-              right={
-                <TextInput.Icon
-                  icon={showPassword ? 'eye-off' : 'eye'}
-                  onPress={() => setShowPassword(!showPassword)}
+                <GradientButton
+                  title="Entrar"
+                  onPress={handleLogin}
+                  loading={loading}
+                  disabled={loading}
+                  style={styles.loginButton}
                 />
-              }
-              style={styles.input}
-              theme={{ colors: { primary: colors.primary } }}
-            />
+              </View>
+            </BlurView>
+          </View>
 
-            <Button
-              mode="contained"
-              onPress={handleLogin}
-              loading={loading}
-              disabled={loading}
-              style={styles.loginButton}
-              contentStyle={styles.loginButtonContent}
-              labelStyle={styles.loginButtonLabel}
-            >
-              {loading ? 'Entrando...' : 'Entrar'}
-            </Button>
-          </Card.Content>
-        </Card>
-
-        {/* Informações adicionais */}
-        <View style={styles.footer}>
-          <Paragraph style={styles.footerText}>
-            Sistema de Requisições da Igreja Batista Vida Abundante
-          </Paragraph>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          {/* Informações adicionais */}
+          <View style={styles.footer}>
+            <Paragraph style={styles.footerText}>
+              Sistema de Requisições da Igreja Batista Vida Abundante
+            </Paragraph>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#1e3a8a',
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  watermarkContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  watermark: {
+    width: width * 0.8,
+    height: width * 0.8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.4,
+  },
+  watermarkText: {
+    fontSize: width * 0.3,
+    fontWeight: 'bold',
+    color: 'rgba(255, 255, 255, 0.3)',
+    textAlign: 'center',
+  },
+  particles: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+  particle: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 50,
+  },
+  particle1: {
+    width: 4,
+    height: 4,
+    top: '20%',
+    left: '20%',
+  },
+  particle2: {
+    width: 6,
+    height: 6,
+    top: '80%',
+    left: '80%',
+  },
+  particle3: {
+    width: 3,
+    height: 3,
+    top: '40%',
+    left: '60%',
+  },
+  particle4: {
+    width: 5,
+    height: 5,
+    top: '60%',
+    left: '40%',
+  },
+  particle5: {
+    width: 4,
+    height: 4,
+    top: '30%',
+    left: '70%',
+  },
+  keyboardContainer: {
+    flex: 1,
+    zIndex: 2,
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  logoText: {
-    color: colors.white,
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.primary,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.gray,
-    textAlign: 'center',
+    minHeight: height,
   },
   loginCard: {
+    maxWidth: 420,
+    width: '100%',
+    alignSelf: 'center',
     marginBottom: 30,
-    elevation: 4,
-    borderRadius: 12,
+  },
+  blurContainer: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopColor: 'rgba(255, 255, 255, 0.4)',
+    borderLeftColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  loginForm: {
+    padding: 45,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 32,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+    letterSpacing: -0.5,
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: 20,
   },
   input: {
-    marginBottom: 16,
-    backgroundColor: colors.white,
+    marginBottom: 18,
+    backgroundColor: 'transparent',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  inputOutline: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   loginButton: {
-    marginTop: 8,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-  },
-  loginButtonContent: {
-    paddingVertical: 8,
-  },
-  loginButtonLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    marginTop: 12,
   },
   footer: {
     alignItems: 'center',
   },
   footerText: {
     fontSize: 14,
-    color: colors.gray,
+    color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
   },
 });
