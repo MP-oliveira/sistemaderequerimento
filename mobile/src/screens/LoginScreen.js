@@ -90,6 +90,10 @@ export default function LoginScreen({ navigation }) {
           {/* login-form */}
           <BlurView intensity={15} style={styles.blurContainer}>
             <View style={styles.loginForm}>
+              {/* Sombras internas simuladas */}
+              <View style={styles.insetShadowTop} />
+              <View style={styles.insetShadowLeft} />
+              
               {/* login-form-content */}
               <View style={styles.loginFormContent}>
                 <Title style={styles.title}>Login</Title>
@@ -214,7 +218,7 @@ const styles = StyleSheet.create({
   },
   // login-form
   loginForm: {
-    backgroundColor: 'rgba(255, 255, 255, 0)',
+    backgroundColor: 'rgba(255, 255, 255, 0)', // #ffffff00
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderTopColor: 'rgba(255, 255, 255, 0.4)',
@@ -227,6 +231,28 @@ const styles = StyleSheet.create({
     shadowRadius: 32,
     elevation: 8,
     position: 'relative',
+    // Sombras internas (inset) - React Native não suporta inset, mas podemos simular
+  },
+  // Sombras internas simuladas
+  insetShadowTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // inset 0 1px 0 rgba(255, 255, 255, 0.2)
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  insetShadowLeft: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', // inset 1px 0 0 rgba(255, 255, 255, 0.1)
+    borderTopLeftRadius: 24,
+    borderBottomLeftRadius: 24,
   },
   // login-form-content
   loginFormContent: {
