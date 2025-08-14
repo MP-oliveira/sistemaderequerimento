@@ -157,7 +157,8 @@ export default function LoginScreen() {
           <View style={styles.blurContainer}>
             {/* Overlay para simular o efeito glassy */}
             <View style={styles.glassyOverlay} />
-            <View style={styles.loginForm}>
+            <View style={styles.formContainer}>
+              <View style={styles.loginForm}>
               {/* Sombras internas simuladas */}
               <View style={styles.insetShadowTop} />
               <View style={styles.insetShadowLeft} />
@@ -232,7 +233,8 @@ export default function LoginScreen() {
                 </LinearGradient>
               </TouchableOpacity>
             </View>
-          </View>
+              </View>
+            </View>
         </View>
       </View>
     </View>
@@ -309,7 +311,7 @@ const styles = StyleSheet.create({
   
   blurContainer: {
     borderRadius: 24,
-    overflow: 'hidden',
+    overflow: 'visible', // Mudou para visible para a sombra aparecer
     position: 'relative',
     margin: 16, // Margem para a sombra aparecer
   },
@@ -321,9 +323,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)', // Menos branco
+    backgroundColor: 'rgba(59, 130, 245, 0.2)', // Menos branco
     borderRadius: 24,
     zIndex: 1,
+  },
+  
+  // Container interno para manter overflow hidden
+  formContainer: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    position: 'relative',
   },
   
   // login-form
