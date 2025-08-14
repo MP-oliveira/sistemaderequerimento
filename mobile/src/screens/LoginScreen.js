@@ -9,8 +9,9 @@ import {
   ScrollView,
   Alert,
   Dimensions,
+  TextInput as RNTextInput,
 } from 'react-native';
-import { TextInput, Title } from 'react-native-paper';
+import { Title } from 'react-native-paper';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -92,66 +93,35 @@ export default function LoginScreen({ navigation }) {
               <View style={styles.loginFormContent}>
                 <Title style={styles.title}>Login</Title>
 
-                <TextInput
-                  label="E-mail"
+                <RNTextInput
+                  placeholder="E-mail"
                   value={email}
                   onChangeText={setEmail}
-                  mode="outlined"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  style={styles.input}
-                  theme={{
-                    colors: {
-                      primary: 'rgba(255, 255, 255, 0.8)',
-                      background: 'transparent',
-                      text: '#ffffff',
-                      placeholder: 'rgba(255, 255, 255, 0.65)', // Exatamente como no CSS web
-                      outline: 'rgba(255, 255, 255, 0.3)',
-                      onSurface: '#ffffff',
-                      surface: 'transparent',
-                      label: '#ffffff',
-                      onSurfaceVariant: 'rgba(255, 255, 255, 0.65)', // Para o label quando focado
-                    },
-                  }}
-                  outlineStyle={styles.inputOutline}
-                  contentStyle={styles.inputContent}
-                  textColor="#ffffff"
-                  placeholderTextColor="rgba(255, 255, 255, 0.65)" // Exatamente como no CSS web
+                  style={styles.customInput}
+                  placeholderTextColor="rgba(255, 255, 255, 0.65)"
                 />
 
-                <TextInput
-                  label="Senha"
-                  value={password}
-                  onChangeText={setPassword}
-                  mode="outlined"
-                  secureTextEntry={!showPassword}
-                  right={
-                    <TextInput.Icon
-                      icon={showPassword ? 'eye-off' : 'eye'}
+                <View style={styles.passwordContainer}>
+                  <RNTextInput
+                    placeholder="Senha"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    style={styles.customInput}
+                    placeholderTextColor="rgba(255, 255, 255, 0.65)"
+                  />
+                  <View style={styles.eyeIcon}>
+                    <Text 
+                      style={styles.eyeIconText}
                       onPress={() => setShowPassword(!showPassword)}
-                      color="rgba(255, 255, 255, 0.8)"
-                    />
-                  }
-                  style={styles.input}
-                  theme={{
-                    colors: {
-                      primary: 'rgba(255, 255, 255, 0.8)',
-                      background: 'transparent',
-                      text: '#ffffff',
-                      placeholder: 'rgba(255, 255, 255, 0.65)', // Exatamente como no CSS web
-                      outline: 'rgba(255, 255, 255, 0.3)',
-                      onSurface: '#ffffff',
-                      surface: 'transparent',
-                      label: '#ffffff',
-                      onSurfaceVariant: 'rgba(255, 255, 255, 0.65)', // Para o label quando focado
-                    },
-                  }}
-                  outlineStyle={styles.inputOutline}
-                  contentStyle={styles.inputContent}
-                  textColor="#ffffff"
-                  placeholderTextColor="rgba(255, 255, 255, 0.65)" // Exatamente como no CSS web
-                />
+                    >
+                      {showPassword ? '👁️' : '👁️‍🗨️'}
+                    </Text>
+                  </View>
+                </View>
 
                 {error && (
                   <View style={styles.error}>
@@ -310,5 +280,34 @@ const styles = StyleSheet.create({
   // login-submit-btn
   loginSubmitBtn: {
     marginTop: isMobile ? 8 : 12, // Responsivo
+  },
+  customInput: {
+    width: '100%',
+    marginBottom: isMobile ? 14 : 18, // Responsivo
+    backgroundColor: 'transparent',
+    fontSize: isMobile ? 16 : 16, // Evita zoom no iOS como no web
+    fontWeight: '500',
+    color: '#ffffff',
+    paddingVertical: isMobile ? 12 : 16, // Responsivo
+    paddingHorizontal: isMobile ? 16 : 20, // Responsivo
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  passwordContainer: {
+    width: '100%',
+    position: 'relative',
+    marginBottom: isMobile ? 14 : 18, // Responsivo
+  },
+  eyeIcon: {
+    position: 'absolute',
+    top: '50%',
+    right: 15,
+    transform: [{ translateY: -5 }],
+    zIndex: 1,
+  },
+  eyeIconText: {
+    fontSize: 24,
+    color: 'rgba(255, 255, 255, 0.8)',
   },
 });
