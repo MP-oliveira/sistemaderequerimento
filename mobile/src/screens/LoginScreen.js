@@ -68,8 +68,9 @@ export default function LoginScreen({ navigation }) {
         <LinearGradient
           colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
           style={styles.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 1, y: 0 }}
+          locations={[0, 0.5, 1]} // Para corresponder aos % do CSS
         />
 
         {/* Partículas flutuantes */}
