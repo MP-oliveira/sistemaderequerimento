@@ -19,6 +19,12 @@ import GradientButton from '../components/GradientButton';
 
 const { width, height } = Dimensions.get('window');
 
+// Breakpoints responsivos (mesmos do CSS web)
+const isMobile = width <= 480;
+const isTablet = width > 480 && width <= 768;
+const isTabletPro = width > 768 && width <= 1024;
+const isDesktop = width > 1200;
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -100,15 +106,17 @@ export default function LoginScreen({ navigation }) {
                       primary: 'rgba(255, 255, 255, 0.8)',
                       background: 'transparent',
                       text: '#ffffff',
-                      placeholder: 'rgba(255, 255, 255, 0.65)',
+                      placeholder: '#ffffff',
                       outline: 'rgba(255, 255, 255, 0.3)',
                       onSurface: '#ffffff',
                       surface: 'transparent',
+                      label: '#ffffff',
                     },
                   }}
                   outlineStyle={styles.inputOutline}
                   contentStyle={styles.inputContent}
                   textColor="#ffffff"
+                  placeholderTextColor="#ffffff"
                 />
 
                 <TextInput
@@ -130,15 +138,17 @@ export default function LoginScreen({ navigation }) {
                       primary: 'rgba(255, 255, 255, 0.8)',
                       background: 'transparent',
                       text: '#ffffff',
-                      placeholder: 'rgba(255, 255, 255, 0.65)',
+                      placeholder: '#ffffff',
                       outline: 'rgba(255, 255, 255, 0.3)',
                       onSurface: '#ffffff',
                       surface: 'transparent',
+                      label: '#ffffff',
                     },
                   }}
                   outlineStyle={styles.inputOutline}
                   contentStyle={styles.inputContent}
                   textColor="#ffffff"
+                  placeholderTextColor="#ffffff"
                 />
 
                 {error && (
@@ -181,7 +191,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     margin: 0,
-    padding: 0,
+    padding: isMobile ? 8 : isTablet ? 16 : isTabletPro ? 24 : 32, // Responsivo como no web
   },
   gradient: {
     position: 'absolute',
@@ -214,10 +224,11 @@ const styles = StyleSheet.create({
   watermarkImage: {
     width: '100%',
     height: '100%',
+    opacity: 1, // Logo colorida como no original
   },
   // login-card
   loginCard: {
-    maxWidth: 420,
+    maxWidth: isMobile ? 350 : isTablet ? 380 : 420, // Responsivo
     width: '100%',
     margin: 0,
     position: 'relative',
@@ -236,7 +247,7 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(255, 255, 255, 0.4)',
     borderLeftColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 24,
-    padding: 45,
+    padding: isMobile ? 32 : isTablet ? 38 : 45, // Responsivo
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
@@ -253,9 +264,9 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: isMobile ? 24 : 32, // Responsivo
     color: '#ffffff',
-    fontSize: 30,
+    fontSize: isMobile ? 24 : isTablet ? 26 : 30, // Responsivo como no web
     fontWeight: '700',
     textShadowColor: 'rgba(0, 0, 0, 0.4)',
     textShadowOffset: { width: 0, height: 2 },
@@ -264,9 +275,9 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    marginBottom: 18,
+    marginBottom: isMobile ? 14 : 18, // Responsivo
     backgroundColor: 'transparent',
-    fontSize: 16,
+    fontSize: isMobile ? 16 : 16, // Evita zoom no iOS como no web
     fontWeight: '500',
   },
   inputOutline: {
@@ -276,26 +287,26 @@ const styles = StyleSheet.create({
   },
   inputContent: {
     backgroundColor: 'transparent',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: isMobile ? 12 : 16, // Responsivo
+    paddingHorizontal: isMobile ? 16 : 20, // Responsivo
   },
   error: {
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingVertical: isMobile ? 10 : 12, // Responsivo
+    paddingHorizontal: isMobile ? 12 : 16, // Responsivo
+    marginBottom: isMobile ? 12 : 16, // Responsivo
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   errorText: {
     color: '#fecaca',
-    fontSize: 14,
+    fontSize: isMobile ? 13 : 14, // Responsivo
     fontWeight: '500',
     textAlign: 'center',
   },
   // login-submit-btn
   loginSubmitBtn: {
-    marginTop: 12,
+    marginTop: isMobile ? 8 : 12, // Responsivo
   },
 });
