@@ -104,10 +104,13 @@ export default function LoginScreen({ navigation }) {
                         text: '#ffffff',
                         placeholder: 'rgba(255, 255, 255, 0.65)',
                         outline: 'rgba(255, 255, 255, 0.3)',
+                        onSurface: '#ffffff',
+                        surface: 'transparent',
                       },
                     }}
                     outlineStyle={styles.inputOutline}
                     contentStyle={styles.inputContent}
+                    textColor="#ffffff"
                   />
 
                   <TextInput
@@ -131,10 +134,13 @@ export default function LoginScreen({ navigation }) {
                         text: '#ffffff',
                         placeholder: 'rgba(255, 255, 255, 0.65)',
                         outline: 'rgba(255, 255, 255, 0.3)',
+                        onSurface: '#ffffff',
+                        surface: 'transparent',
                       },
                     }}
                     outlineStyle={styles.inputOutline}
                     contentStyle={styles.inputContent}
+                    textColor="#ffffff"
                   />
                 </View>
 
