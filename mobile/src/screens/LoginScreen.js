@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 30,
     zIndex: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0)',
   },
   blurContainer: {
     borderRadius: 24,
@@ -223,6 +224,7 @@ const styles = StyleSheet.create({
   loginForm: {
     padding: 45,
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
   },
   title: {
     fontSize: 30,
@@ -251,7 +253,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   inputContent: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'transparent',
     paddingVertical: 16,
     paddingHorizontal: 20,
   },
