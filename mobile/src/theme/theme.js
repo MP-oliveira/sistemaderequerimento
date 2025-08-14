@@ -11,7 +11,7 @@ export const colors = {
   
   // Cores do form (exatas do CSS)
   form: {
-    background: 'rgba(59, 130, 246, 0.15)', // Mais branco
+    background: 'rgba(59, 130, 246, 0.12)', // Menos branco
     border: {
       default: 'rgba(255, 255, 255, 0.2)',
       top: 'rgba(255, 255, 255, 0.4)',
