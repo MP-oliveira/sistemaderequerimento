@@ -24,7 +24,8 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+  const [error, setError] = useState('');
+
   const { login } = useAuth();
 
   const handleLogin = async () => {
@@ -34,136 +35,153 @@ export default function LoginScreen({ navigation }) {
     }
 
     setLoading(true);
-    
+    setError('');
+
     try {
       const result = await login(email, password);
-      
+
       if (result.success) {
         console.log('Login realizado com sucesso');
       } else {
-        Alert.alert('Erro no Login', result.message || 'Credenciais inválidas');
+        setError(result.message || 'Credenciais inválidas');
       }
     } catch (error) {
-      Alert.alert('Erro', 'Erro de conexão. Verifique sua internet.');
+      setError('Erro de conexão. Verifique sua internet.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      {/* Background gradient - exatamente como no CSS */}
-      <LinearGradient
-        colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
-      
-      {/* Partículas flutuantes - como no CSS */}
-      <View style={styles.particles} />
-      
-      {/* Logo marca d'água - colorida como no original */}
-      <View style={styles.watermarkContainer}>
-        <Image
-          source={require('../../assets/ibva-logo.png')}
-          style={styles.watermark}
-          resizeMode="contain"
+    // login-page
+    <View style={styles.loginPage}>
+      {/* login-bg */}
+      <View style={styles.loginBg}>
+        {/* Background gradient */}
+        <LinearGradient
+          colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+          style={styles.gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
         />
-      </View>
 
-      <KeyboardAvoidingView 
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Card de login glassy - exatamente como no CSS */}
-          <View style={styles.loginCard}>
-            <BlurView intensity={15} style={styles.blurContainer}>
-              <View style={styles.loginForm}>
+        {/* Partículas flutuantes */}
+        <View style={styles.particles} />
+
+        {/* login-watermark */}
+        <View style={styles.loginWatermark}>
+          <Image
+            source={require('../../assets/ibva-logo.png')}
+            style={styles.watermarkImage}
+            resizeMode="contain"
+          />
+        </View>
+
+        {/* login-card */}
+        <View style={styles.loginCard}>
+          {/* login-form */}
+          <BlurView intensity={15} style={styles.blurContainer}>
+            <View style={styles.loginForm}>
+              {/* login-form-content */}
+              <View style={styles.loginFormContent}>
                 <Title style={styles.title}>Login</Title>
-                
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    label="E-mail"
-                    value={email}
-                    onChangeText={setEmail}
-                    mode="outlined"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    style={styles.input}
-                    theme={{
-                      colors: {
-                        primary: 'rgba(255, 255, 255, 0.8)',
-                        background: 'transparent',
-                        text: '#ffffff',
-                        placeholder: 'rgba(255, 255, 255, 0.65)',
-                        outline: 'rgba(255, 255, 255, 0.3)',
-                        onSurface: '#ffffff',
-                        surface: 'transparent',
-                      },
-                    }}
-                    outlineStyle={styles.inputOutline}
-                    contentStyle={styles.inputContent}
-                    textColor="#ffffff"
-                  />
 
-                  <TextInput
-                    label="Senha"
-                    value={password}
-                    onChangeText={setPassword}
-                    mode="outlined"
-                    secureTextEntry={!showPassword}
-                    right={
-                      <TextInput.Icon
-                        icon={showPassword ? 'eye-off' : 'eye'}
-                        onPress={() => setShowPassword(!showPassword)}
-                        color="rgba(255, 255, 255, 0.8)"
-                      />
-                    }
-                    style={styles.input}
-                    theme={{
-                      colors: {
-                        primary: 'rgba(255, 255, 255, 0.8)',
-                        background: 'transparent',
-                        text: '#ffffff',
-                        placeholder: 'rgba(255, 255, 255, 0.65)',
-                        outline: 'rgba(255, 255, 255, 0.3)',
-                        onSurface: '#ffffff',
-                        surface: 'transparent',
-                      },
-                    }}
-                    outlineStyle={styles.inputOutline}
-                    contentStyle={styles.inputContent}
-                    textColor="#ffffff"
-                  />
-                </View>
-
-                <GradientButton
-                  title="Entrar"
-                  onPress={handleLogin}
-                  loading={loading}
-                  disabled={loading}
-                  style={styles.loginButton}
+                <TextInput
+                  label="E-mail"
+                  value={email}
+                  onChangeText={setEmail}
+                  mode="outlined"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={styles.input}
+                  theme={{
+                    colors: {
+                      primary: 'rgba(255, 255, 255, 0.8)',
+                      background: 'transparent',
+                      text: '#ffffff',
+                      placeholder: 'rgba(255, 255, 255, 0.65)',
+                      outline: 'rgba(255, 255, 255, 0.3)',
+                      onSurface: '#ffffff',
+                      surface: 'transparent',
+                    },
+                  }}
+                  outlineStyle={styles.inputOutline}
+                  contentStyle={styles.inputContent}
+                  textColor="#ffffff"
                 />
+
+                <TextInput
+                  label="Senha"
+                  value={password}
+                  onChangeText={setPassword}
+                  mode="outlined"
+                  secureTextEntry={!showPassword}
+                  right={
+                    <TextInput.Icon
+                      icon={showPassword ? 'eye-off' : 'eye'}
+                      onPress={() => setShowPassword(!showPassword)}
+                      color="rgba(255, 255, 255, 0.8)"
+                    />
+                  }
+                  style={styles.input}
+                  theme={{
+                    colors: {
+                      primary: 'rgba(255, 255, 255, 0.8)',
+                      background: 'transparent',
+                      text: '#ffffff',
+                      placeholder: 'rgba(255, 255, 255, 0.65)',
+                      outline: 'rgba(255, 255, 255, 0.3)',
+                      onSurface: '#ffffff',
+                      surface: 'transparent',
+                    },
+                  }}
+                  outlineStyle={styles.inputOutline}
+                  contentStyle={styles.inputContent}
+                  textColor="#ffffff"
+                />
+
+                {error && (
+                  <View style={styles.error}>
+                    <Text style={styles.errorText}>{error}</Text>
+                  </View>
+                )}
               </View>
-            </BlurView>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+              {/* login-submit-btn */}
+              <GradientButton
+                title={loading ? 'Entrando...' : 'Entrar'}
+                onPress={handleLogin}
+                loading={loading}
+                disabled={loading}
+                style={styles.loginSubmitBtn}
+              />
+            </View>
+          </BlurView>
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  // login-page
+  loginPage: {
     flex: 1,
     backgroundColor: '#1e3a8a',
+  },
+  // login-bg
+  loginBg: {
+    minHeight: height,
+    height: height,
+    width: width,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    margin: 0,
+    padding: 0,
   },
   gradient: {
     position: 'absolute',
@@ -181,73 +199,71 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     zIndex: 0,
   },
-  watermarkContainer: {
+  // login-watermark
+  loginWatermark: {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -width * 0.4 }, { translateY: -width * 0.4 }],
-    width: width * 0.8,
-    height: width * 0.8,
+    transform: [{ translateX: -500 }, { translateY: -500 }],
+    width: 1000,
+    height: 1000,
+    opacity: 0.4,
     zIndex: 1,
     pointerEvents: 'none',
   },
-  watermark: {
+  watermarkImage: {
     width: '100%',
     height: '100%',
-    opacity: 0.4,
   },
-  keyboardContainer: {
-    flex: 1,
-    zIndex: 2,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    minHeight: height,
-  },
+  // login-card
   loginCard: {
     maxWidth: 420,
     width: '100%',
-    marginBottom: 30,
+    margin: 0,
+    position: 'relative',
     zIndex: 2,
     backgroundColor: 'rgba(255, 255, 255, 0)',
   },
   blurContainer: {
     borderRadius: 24,
     overflow: 'hidden',
+  },
+  // login-form
+  loginForm: {
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderTopColor: 'rgba(255, 255, 255, 0.4)',
     borderLeftColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 24,
+    padding: 45,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 32,
     elevation: 8,
+    position: 'relative',
   },
-  loginForm: {
-    padding: 45,
+  // login-form-content
+  loginFormContent: {
+    display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0)',
+    justifyContent: 'center',
   },
   title: {
+    textAlign: 'center',
+    marginBottom: 32,
+    color: '#ffffff',
     fontSize: 30,
     fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 32,
-    textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.4)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
     letterSpacing: -0.5,
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 20,
-  },
   input: {
+    width: '100%',
     marginBottom: 18,
     backgroundColor: 'transparent',
     fontSize: 16,
@@ -263,7 +279,23 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
   },
-  loginButton: {
+  error: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  errorText: {
+    color: '#fecaca',
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  // login-submit-btn
+  loginSubmitBtn: {
     marginTop: 12,
   },
 });
