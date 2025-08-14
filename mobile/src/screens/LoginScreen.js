@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)', // Um pouquinho mais branco
+    backgroundColor: 'rgba(59, 130, 246, 0.25)', // Mais branco
     borderRadius: 24,
     zIndex: 1,
   },
