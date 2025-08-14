@@ -138,7 +138,7 @@ export const colors = {
   gray: '#666666',
   lightGray: '#e0e0e0',
   success: '#4caf50',
-  error: '#f44336',
+  errorBase: '#f44336', // Renomeado para evitar conflito
   warning: '#ff9800',
   info: '#2196f3',
 };
@@ -167,7 +167,7 @@ export const theme = {
     background: colors.background,
     surface: colors.white,
     text: colors.black,
-    error: colors.error,
+    error: colors.errorBase,
     success: colors.success,
     warning: colors.warning,
     info: colors.info,
