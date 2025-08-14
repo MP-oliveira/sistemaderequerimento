@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  ImageBackground,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -62,9 +62,11 @@ export default function LoginScreen({ navigation }) {
       
       {/* Logo marca d'água */}
       <View style={styles.watermarkContainer}>
-        <View style={styles.watermark}>
-          <Text style={styles.watermarkText}>IBVA</Text>
-        </View>
+        <Image
+          source={require('../../assets/ibva-logo.png')}
+          style={styles.watermark}
+          resizeMode="contain"
+        />
       </View>
 
       {/* Partículas flutuantes */}
@@ -111,6 +113,7 @@ export default function LoginScreen({ navigation }) {
                       },
                     }}
                     outlineStyle={styles.inputOutline}
+                    contentStyle={styles.inputContent}
                   />
 
                   <TextInput
@@ -137,6 +140,7 @@ export default function LoginScreen({ navigation }) {
                       },
                     }}
                     outlineStyle={styles.inputOutline}
+                    contentStyle={styles.inputContent}
                   />
                 </View>
 
@@ -188,15 +192,8 @@ const styles = StyleSheet.create({
   watermark: {
     width: width * 0.8,
     height: width * 0.8,
-    justifyContent: 'center',
-    alignItems: 'center',
     opacity: 0.4,
-  },
-  watermarkText: {
-    fontSize: width * 0.3,
-    fontWeight: 'bold',
-    color: 'rgba(255, 255, 255, 0.3)',
-    textAlign: 'center',
+    tintColor: 'rgba(255, 255, 255, 0.3)',
   },
   particles: {
     position: 'absolute',
@@ -294,6 +291,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  inputContent: {
+    backgroundColor: 'transparent',
   },
   loginButton: {
     marginTop: 12,

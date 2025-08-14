@@ -31,7 +31,7 @@ export default function GradientButton({
         end={{ x: 1, y: 1 }}
       >
         <Text style={[styles.buttonText, textStyle]}>
-          {loading ? 'Carregando...' : title}
+          {loading ? 'Entrando...' : title}
         </Text>
       </LinearGradient>
     </TouchableOpacity>
@@ -54,6 +54,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   buttonText: {
     color: '#ffffff',
