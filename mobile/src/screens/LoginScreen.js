@@ -10,7 +10,7 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-import { TextInput, Title, Paragraph } from 'react-native-paper';
+import { TextInput, Title } from 'react-native-paper';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -148,16 +148,6 @@ export default function LoginScreen({ navigation }) {
               </View>
             </BlurView>
           </View>
-
-          {/* Footer - exatamente como no web */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText1}>
-              IGREJA BATISTA VILAS DO ATLÂNTICO
-            </Text>
-            <Text style={styles.footerText2}>
-              Sistema de Requisições da Igreja Batista Vida Abundante
-            </Text>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -199,7 +189,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     opacity: 0.4,
-    // Removendo tintColor para manter a logo colorida
   },
   keyboardContainer: {
     flex: 1,
@@ -262,27 +251,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   inputContent: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     paddingVertical: 16,
     paddingHorizontal: 20,
   },
   loginButton: {
     marginTop: 12,
-  },
-  footer: {
-    alignItems: 'center',
-    zIndex: 2,
-  },
-  footerText1: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textAlign: 'center',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  footerText2: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
   },
 });
