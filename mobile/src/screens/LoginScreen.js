@@ -106,17 +106,18 @@ export default function LoginScreen({ navigation }) {
                       primary: 'rgba(255, 255, 255, 0.8)',
                       background: 'transparent',
                       text: '#ffffff',
-                      placeholder: '#ffffff',
+                      placeholder: 'rgba(255, 255, 255, 0.65)', // Exatamente como no CSS web
                       outline: 'rgba(255, 255, 255, 0.3)',
                       onSurface: '#ffffff',
                       surface: 'transparent',
                       label: '#ffffff',
+                      onSurfaceVariant: 'rgba(255, 255, 255, 0.65)', // Para o label quando focado
                     },
                   }}
                   outlineStyle={styles.inputOutline}
                   contentStyle={styles.inputContent}
                   textColor="#ffffff"
-                  placeholderTextColor="#ffffff"
+                  placeholderTextColor="rgba(255, 255, 255, 0.65)" // Exatamente como no CSS web
                 />
 
                 <TextInput
@@ -138,17 +139,18 @@ export default function LoginScreen({ navigation }) {
                       primary: 'rgba(255, 255, 255, 0.8)',
                       background: 'transparent',
                       text: '#ffffff',
-                      placeholder: '#ffffff',
+                      placeholder: 'rgba(255, 255, 255, 0.65)', // Exatamente como no CSS web
                       outline: 'rgba(255, 255, 255, 0.3)',
                       onSurface: '#ffffff',
                       surface: 'transparent',
                       label: '#ffffff',
+                      onSurfaceVariant: 'rgba(255, 255, 255, 0.65)', // Para o label quando focado
                     },
                   }}
                   outlineStyle={styles.inputOutline}
                   contentStyle={styles.inputContent}
                   textColor="#ffffff"
-                  placeholderTextColor="#ffffff"
+                  placeholderTextColor="rgba(255, 255, 255, 0.65)" // Exatamente como no CSS web
                 />
 
                 {error && (
