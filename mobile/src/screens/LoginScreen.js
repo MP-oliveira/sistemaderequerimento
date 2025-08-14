@@ -1,22 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
+  TextInput,
+  TouchableOpacity,
+  Dimensions,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
-  Dimensions,
-  TextInput as RNTextInput,
+  Animated,
 } from 'react-native';
-import { Title } from 'react-native-paper';
-import { useAuth } from '../context/AuthContext';
-import { colors } from '../theme/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import GradientButton from '../components/GradientButton';
+import { useAuth } from '../context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,18 +25,47 @@ const isTablet = width > 480 && width <= 768;
 const isTabletPro = width > 768 && width <= 1024;
 const isDesktop = width > 1200;
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
+  const { login, loading: loadingAuth, user } = useAuth();
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [focusedInput, setFocusedInput] = useState(null);
 
-  const { login } = useAuth();
+  // Animação para partículas flutuantes
+  const floatAnimation = new Animated.Value(0);
 
-  const handleLogin = async () => {
+  useEffect(() => {
+    // Animação infinita das partículas
+    const startFloatAnimation = () => {
+      Animated.sequence([
+        Animated.timing(floatAnimation, {
+          toValue: 1,
+          duration: 10000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnimation, {
+          toValue: 0,
+          duration: 10000,
+          useNativeDriver: true,
+        }),
+      ]).start(() => startFloatAnimation());
+    };
+    startFloatAnimation();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      navigation.navigate('Dashboard');
+    }
+  }, [user, navigation]);
+
+  const handleSubmit = async () => {
     if (!email || !password) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos');
+      setError('Por favor, preencha todos os campos');
       return;
     }
 
@@ -45,24 +73,33 @@ export default function LoginScreen({ navigation }) {
     setError('');
 
     try {
-      const result = await login(email, password);
-
-      if (result.success) {
-        console.log('Login realizado com sucesso');
-      } else {
-        setError(result.message || 'Credenciais inválidas');
-      }
-    } catch (error) {
-      setError('Erro de conexão. Verifique sua internet.');
-    } finally {
-      setLoading(false);
+      await login({ email, password });
+    } catch (err) {
+      setError(err.message || 'E-mail ou senha inválidos');
     }
+
+    setLoading(false);
   };
 
+  if (loadingAuth) {
+    return (
+      <View style={styles.loginBg}>
+        <LinearGradient
+          colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+          style={styles.gradient}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 1, y: 0 }}
+          locations={[0, 0.5, 1]}
+        />
+        <View style={styles.loginLoading}>
+          <Text style={styles.loginLoadingText}>Carregando...</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
-    // login-page
     <View style={styles.loginPage}>
-      {/* login-bg */}
       <View style={styles.loginBg}>
         {/* Background gradient */}
         <LinearGradient
@@ -70,13 +107,39 @@ export default function LoginScreen({ navigation }) {
           style={styles.gradient}
           start={{ x: 0, y: 1 }}
           end={{ x: 1, y: 0 }}
-          locations={[0, 0.5, 1]} // Para corresponder aos % do CSS
+          locations={[0, 0.5, 1]}
         />
 
-        {/* Partículas flutuantes */}
-        <View style={styles.particles} />
+        {/* Partículas flutuantes animadas */}
+        <Animated.View 
+          style={[
+            styles.particles,
+            {
+              transform: [
+                {
+                  translateX: floatAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 10],
+                  }),
+                },
+                {
+                  translateY: floatAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, -10],
+                  }),
+                },
+                {
+                  rotate: floatAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['0deg', '120deg'],
+                  }),
+                },
+              ],
+            },
+          ]}
+        />
 
-        {/* login-watermark */}
+        {/* Logo watermark */}
         <View style={styles.loginWatermark}>
           <Image
             source={require('../../assets/ibva-logo.png')}
@@ -85,47 +148,57 @@ export default function LoginScreen({ navigation }) {
           />
         </View>
 
-        {/* login-card */}
+        {/* Login card */}
         <View style={styles.loginCard}>
-          {/* login-form */}
           <BlurView intensity={15} style={styles.blurContainer}>
             <View style={styles.loginForm}>
               {/* Sombras internas simuladas */}
               <View style={styles.insetShadowTop} />
               <View style={styles.insetShadowLeft} />
-              
-              {/* login-form-content */}
-              <View style={styles.loginFormContent}>
-                <Title style={styles.title}>Login</Title>
 
-                <RNTextInput
+              <View style={styles.loginFormContent}>
+                <Text style={styles.title}>Login</Text>
+
+                <TextInput
+                  style={[
+                    styles.input,
+                    focusedInput === 'email' && styles.inputFocused,
+                  ]}
                   placeholder="E-mail"
+                  placeholderTextColor="rgba(255, 255, 255, 0.65)"
                   value={email}
                   onChangeText={setEmail}
+                  onFocus={() => setFocusedInput('email')}
+                  onBlur={() => setFocusedInput(null)}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  style={styles.customInput}
-                  placeholderTextColor="rgba(255, 255, 255, 0.65)"
+                  required
                 />
 
                 <View style={styles.passwordContainer}>
-                  <RNTextInput
+                  <TextInput
+                    style={[
+                      styles.input,
+                      focusedInput === 'password' && styles.inputFocused,
+                    ]}
                     placeholder="Senha"
+                    placeholderTextColor="rgba(255, 255, 255, 0.65)"
                     value={password}
                     onChangeText={setPassword}
+                    onFocus={() => setFocusedInput('password')}
+                    onBlur={() => setFocusedInput(null)}
                     secureTextEntry={!showPassword}
-                    style={styles.customInput}
-                    placeholderTextColor="rgba(255, 255, 255, 0.65)"
+                    required
                   />
-                  <View style={styles.eyeIcon}>
-                    <Text 
-                      style={styles.eyeIconText}
-                      onPress={() => setShowPassword(!showPassword)}
-                    >
+                  <TouchableOpacity
+                    style={styles.eyeIcon}
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    <Text style={styles.eyeIconText}>
                       {showPassword ? '👁️' : '👁️‍🗨️'}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
 
                 {error && (
@@ -135,14 +208,23 @@ export default function LoginScreen({ navigation }) {
                 )}
               </View>
 
-              {/* login-submit-btn */}
-              <GradientButton
-                title={loading ? 'Entrando...' : 'Entrar'}
-                onPress={handleLogin}
-                loading={loading}
+              <TouchableOpacity
+                style={[styles.button, loading && styles.buttonDisabled]}
+                onPress={handleSubmit}
                 disabled={loading}
-                style={styles.loginSubmitBtn}
-              />
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={loading ? ['#64748b', '#94a3b8'] : ['#2563eb', '#3b82f6']}
+                  style={styles.buttonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? 'Entrando...' : 'Entrar'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
             </View>
           </BlurView>
         </View>
@@ -157,6 +239,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1e3a8a',
   },
+  
   // login-bg
   loginBg: {
     minHeight: height,
@@ -168,8 +251,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     margin: 0,
-    padding: isMobile ? 8 : isTablet ? 16 : isTabletPro ? 24 : 32, // Responsivo como no web
+    padding: 0,
   },
+  
   gradient: {
     position: 'absolute',
     left: 0,
@@ -177,6 +261,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
   },
+  
   particles: {
     position: 'absolute',
     top: 0,
@@ -186,6 +271,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     zIndex: 0,
   },
+  
   // login-watermark
   loginWatermark: {
     position: 'absolute',
@@ -198,41 +284,45 @@ const styles = StyleSheet.create({
     zIndex: 1,
     pointerEvents: 'none',
   },
+  
   watermarkImage: {
     width: '100%',
     height: '100%',
-    opacity: 1, // Logo colorida como no original
+    opacity: 1,
   },
+  
   // login-card
   loginCard: {
-    maxWidth: isMobile ? 350 : isTablet ? 380 : 420, // Responsivo
+    maxWidth: isMobile ? 350 : isTablet ? 380 : 420,
     width: '100%',
     margin: 0,
     position: 'relative',
     zIndex: 2,
     backgroundColor: 'rgba(255, 255, 255, 0)',
   },
+  
   blurContainer: {
     borderRadius: 24,
     overflow: 'hidden',
   },
+  
   // login-form
   loginForm: {
-    backgroundColor: 'rgba(255, 255, 255, 0)', // #ffffff00
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderTopColor: 'rgba(255, 255, 255, 0.4)',
     borderLeftColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 24,
-    padding: isMobile ? 32 : isTablet ? 38 : 45, // Responsivo
+    padding: isMobile ? 32 : isTablet ? 38 : 45,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 32,
     elevation: 8,
     position: 'relative',
-    // Sombras internas (inset) - React Native não suporta inset, mas podemos simular
   },
+  
   // Sombras internas simuladas
   insetShadowTop: {
     position: 'absolute',
@@ -240,20 +330,22 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // inset 0 1px 0 rgba(255, 255, 255, 0.2)
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
   },
+  
   insetShadowLeft: {
     position: 'absolute',
     top: 0,
     left: 0,
     bottom: 0,
     width: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)', // inset 1px 0 0 rgba(255, 255, 255, 0.1)
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderTopLeftRadius: 24,
     borderBottomLeftRadius: 24,
   },
+  
   // login-form-content
   loginFormContent: {
     display: 'flex',
@@ -261,71 +353,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  
   title: {
     textAlign: 'center',
-    marginBottom: isMobile ? 24 : 32, // Responsivo
+    marginBottom: isMobile ? 24 : 32,
     color: '#ffffff',
-    fontSize: isMobile ? 24 : isTablet ? 26 : 30, // Responsivo como no web
+    fontSize: isMobile ? 24 : isTablet ? 26 : 30,
     fontWeight: '700',
     textShadowColor: 'rgba(0, 0, 0, 0.4)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
     letterSpacing: -0.5,
   },
+  
   input: {
     width: '100%',
-    marginBottom: isMobile ? 14 : 18, // Responsivo
-    backgroundColor: 'transparent',
-    fontSize: isMobile ? 16 : 16, // Evita zoom no iOS como no web
-    fontWeight: '500',
-  },
-  inputOutline: {
+    paddingVertical: isMobile ? 12 : 16,
+    paddingHorizontal: isMobile ? 16 : 20,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  inputContent: {
+    marginBottom: isMobile ? 14 : 18,
+    fontSize: isMobile ? 16 : 16,
     backgroundColor: 'transparent',
-    paddingVertical: isMobile ? 12 : 16, // Responsivo
-    paddingHorizontal: isMobile ? 16 : 20, // Responsivo
-  },
-  error: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderRadius: 12,
-    paddingVertical: isMobile ? 10 : 12, // Responsivo
-    paddingHorizontal: isMobile ? 12 : 16, // Responsivo
-    marginBottom: isMobile ? 12 : 16, // Responsivo
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  errorText: {
-    color: '#fecaca',
-    fontSize: isMobile ? 13 : 14, // Responsivo
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  // login-submit-btn
-  loginSubmitBtn: {
-    marginTop: isMobile ? 8 : 12, // Responsivo
-  },
-  customInput: {
-    width: '100%',
-    marginBottom: isMobile ? 14 : 18, // Responsivo
-    backgroundColor: 'transparent',
-    fontSize: isMobile ? 16 : 16, // Evita zoom no iOS como no web
-    fontWeight: '500',
     color: '#ffffff',
-    paddingVertical: isMobile ? 12 : 16, // Responsivo
-    paddingHorizontal: isMobile ? 16 : 20, // Responsivo
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    fontWeight: '500',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
   },
+  
+  inputFocused: {
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  
   passwordContainer: {
     width: '100%',
     position: 'relative',
-    marginBottom: isMobile ? 14 : 18, // Responsivo
+    marginBottom: isMobile ? 14 : 18,
   },
+  
   eyeIcon: {
     position: 'absolute',
     top: '50%',
@@ -333,8 +408,88 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -5 }],
     zIndex: 1,
   },
+  
   eyeIconText: {
     fontSize: 24,
     color: 'rgba(255, 255, 255, 0.8)',
+  },
+  
+  error: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: 12,
+    paddingVertical: isMobile ? 10 : 12,
+    paddingHorizontal: isMobile ? 12 : 16,
+    marginBottom: isMobile ? 12 : 16,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  
+  errorText: {
+    color: '#fecaca',
+    fontSize: isMobile ? 13 : 14,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  
+  button: {
+    width: '100%',
+    marginTop: isMobile ? 8 : 12,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#2563eb',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 4,
+  },
+  
+  buttonGradient: {
+    paddingVertical: isMobile ? 12 : 16,
+    paddingHorizontal: isMobile ? 16 : 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  buttonText: {
+    color: '#ffffff',
+    fontSize: isMobile ? 16 : 16,
+    fontWeight: '600',
+  },
+  
+  buttonDisabled: {
+    shadowColor: '#64748b',
+    shadowOpacity: 0.3,
+    elevation: 2,
+  },
+  
+  loginLoading: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopColor: 'rgba(255, 255, 255, 0.4)',
+    borderRadius: 16,
+    paddingVertical: isMobile ? 20 : 24,
+    paddingHorizontal: isMobile ? 24 : 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 32,
+    elevation: 8,
+  },
+  
+  loginLoadingText: {
+    color: '#ffffff',
+    fontWeight: '500',
+    textAlign: 'center',
+    fontSize: isMobile ? 18 : 20,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
 });
