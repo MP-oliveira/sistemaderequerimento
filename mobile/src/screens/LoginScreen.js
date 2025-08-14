@@ -16,14 +16,18 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useAuth } from '../context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
+import { 
+  colors, 
+  breakpoints, 
+  isMobile, 
+  isTablet, 
+  isTabletPro, 
+  isDesktop,
+  gradientConfig,
+  blurConfig 
+} from '../theme/theme';
 
 const { width, height } = Dimensions.get('window');
-
-// Breakpoints responsivos (mesmos do CSS web)
-const isMobile = width <= 480;
-const isTablet = width > 480 && width <= 768;
-const isTabletPro = width > 768 && width <= 1024;
-const isDesktop = width > 1200;
 
 export default function LoginScreen() {
   const { login, loading: loadingAuth, user } = useAuth();
@@ -85,11 +89,11 @@ export default function LoginScreen() {
     return (
       <View style={styles.loginBg}>
         <LinearGradient
-          colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+          colors={gradientConfig.colors}
           style={styles.gradient}
-          start={{ x: 0, y: 1 }}
-          end={{ x: 1, y: 0 }}
-          locations={[0, 0.5, 1]}
+          start={gradientConfig.start}
+          end={gradientConfig.end}
+          locations={gradientConfig.locations}
         />
         <View style={styles.loginLoading}>
           <Text style={styles.loginLoadingText}>Carregando...</Text>
@@ -103,11 +107,11 @@ export default function LoginScreen() {
       <View style={styles.loginBg}>
         {/* Background gradient */}
         <LinearGradient
-          colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+          colors={gradientConfig.colors}
           style={styles.gradient}
-          start={{ x: 0, y: 1 }}
-          end={{ x: 1, y: 0 }}
-          locations={[0, 0.5, 1]}
+          start={gradientConfig.start}
+          end={gradientConfig.end}
+          locations={gradientConfig.locations}
         />
 
         {/* Partículas flutuantes animadas */}
@@ -150,7 +154,7 @@ export default function LoginScreen() {
 
         {/* Login card */}
         <View style={styles.loginCard}>
-          <BlurView intensity={15} style={styles.blurContainer}>
+          <BlurView intensity={blurConfig.intensity} style={styles.blurContainer}>
             <View style={styles.loginForm}>
               {/* Sombras internas simuladas */}
               <View style={styles.insetShadowTop} />
@@ -165,7 +169,7 @@ export default function LoginScreen() {
                     focusedInput === 'email' && styles.inputFocused,
                   ]}
                   placeholder="E-mail"
-                  placeholderTextColor="rgba(255, 255, 255, 0.65)"
+                  placeholderTextColor={colors.input.placeholder}
                   value={email}
                   onChangeText={setEmail}
                   onFocus={() => setFocusedInput('email')}
@@ -183,7 +187,7 @@ export default function LoginScreen() {
                       focusedInput === 'password' && styles.inputFocused,
                     ]}
                     placeholder="Senha"
-                    placeholderTextColor="rgba(255, 255, 255, 0.65)"
+                    placeholderTextColor={colors.input.placeholder}
                     value={password}
                     onChangeText={setPassword}
                     onFocus={() => setFocusedInput('password')}
@@ -215,7 +219,7 @@ export default function LoginScreen() {
                 activeOpacity={0.8}
               >
                 <LinearGradient
-                  colors={loading ? ['#64748b', '#94a3b8'] : ['#2563eb', '#3b82f6']}
+                  colors={loading ? colors.button.gradient.disabled : colors.button.gradient.primary}
                   style={styles.buttonGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -237,7 +241,7 @@ const styles = StyleSheet.create({
   // login-page
   loginPage: {
     flex: 1,
-    backgroundColor: '#1e3a8a',
+    backgroundColor: colors.gradient.primary,
   },
   
   // login-bg
@@ -280,7 +284,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -500 }, { translateY: -500 }],
     width: 1000,
     height: 1000,
-    opacity: 0.4,
+    opacity: colors.watermark.opacity,
     zIndex: 1,
     pointerEvents: 'none',
   },
@@ -293,12 +297,12 @@ const styles = StyleSheet.create({
   
   // login-card
   loginCard: {
-    maxWidth: isMobile ? 350 : isTablet ? 380 : 420,
+    maxWidth: isMobile(width) ? 350 : isTablet(width) ? 380 : 420,
     width: '100%',
     margin: 0,
     position: 'relative',
     zIndex: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0)',
+    backgroundColor: colors.form.background,
   },
   
   blurContainer: {
@@ -308,17 +312,17 @@ const styles = StyleSheet.create({
   
   // login-form
   loginForm: {
-    backgroundColor: 'rgba(255, 255, 255, 0)',
+    backgroundColor: colors.form.background,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderTopColor: 'rgba(255, 255, 255, 0.4)',
-    borderLeftColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: colors.form.border.default,
+    borderTopColor: colors.form.border.top,
+    borderLeftColor: colors.form.border.left,
     borderRadius: 24,
-    padding: isMobile ? 32 : isTablet ? 38 : 45,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 32,
+    padding: isMobile(width) ? 32 : isTablet(width) ? 38 : 45,
+    shadowColor: colors.form.shadow.color,
+    shadowOffset: colors.form.shadow.offset,
+    shadowOpacity: colors.form.shadow.opacity,
+    shadowRadius: colors.form.shadow.radius,
     elevation: 8,
     position: 'relative',
   },
@@ -330,7 +334,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: colors.form.insetShadow.top,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
   },
@@ -341,7 +345,7 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     width: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.form.insetShadow.left,
     borderTopLeftRadius: 24,
     borderBottomLeftRadius: 24,
   },
@@ -356,49 +360,49 @@ const styles = StyleSheet.create({
   
   title: {
     textAlign: 'center',
-    marginBottom: isMobile ? 24 : 32,
-    color: '#ffffff',
-    fontSize: isMobile ? 24 : isTablet ? 26 : 30,
+    marginBottom: isMobile(width) ? 24 : 32,
+    color: colors.title.text,
+    fontSize: isMobile(width) ? 24 : isTablet(width) ? 26 : 30,
     fontWeight: '700',
-    textShadowColor: 'rgba(0, 0, 0, 0.4)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    textShadowColor: colors.title.shadow.color,
+    textShadowOffset: colors.title.shadow.offset,
+    textShadowRadius: colors.title.shadow.radius,
     letterSpacing: -0.5,
   },
   
   input: {
     width: '100%',
-    paddingVertical: isMobile ? 12 : 16,
-    paddingHorizontal: isMobile ? 16 : 20,
+    paddingVertical: isMobile(width) ? 12 : 16,
+    paddingHorizontal: isMobile(width) ? 16 : 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    marginBottom: isMobile ? 14 : 18,
-    fontSize: isMobile ? 16 : 16,
-    backgroundColor: 'transparent',
-    color: '#ffffff',
+    borderColor: colors.input.border,
+    marginBottom: isMobile(width) ? 14 : 18,
+    fontSize: isMobile(width) ? 16 : 16,
+    backgroundColor: colors.input.background,
+    color: colors.input.text,
     fontWeight: '500',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowColor: colors.input.shadow.color,
+    shadowOffset: colors.input.shadow.offset,
+    shadowOpacity: colors.input.shadow.opacity,
+    shadowRadius: colors.input.shadow.radius,
     elevation: 1,
   },
   
   inputFocused: {
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    borderColor: colors.input.borderFocused,
+    backgroundColor: colors.input.backgroundFocused,
+    shadowColor: colors.input.shadowFocused.color,
+    shadowOffset: colors.input.shadowFocused.offset,
+    shadowOpacity: colors.input.shadowFocused.opacity,
+    shadowRadius: colors.input.shadowFocused.radius,
     elevation: 2,
   },
   
   passwordContainer: {
     width: '100%',
     position: 'relative',
-    marginBottom: isMobile ? 14 : 18,
+    marginBottom: isMobile(width) ? 14 : 18,
   },
   
   eyeIcon: {
@@ -415,79 +419,79 @@ const styles = StyleSheet.create({
   },
   
   error: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: colors.error.background,
     borderRadius: 12,
-    paddingVertical: isMobile ? 10 : 12,
-    paddingHorizontal: isMobile ? 12 : 16,
-    marginBottom: isMobile ? 12 : 16,
+    paddingVertical: isMobile(width) ? 10 : 12,
+    paddingHorizontal: isMobile(width) ? 12 : 16,
+    marginBottom: isMobile(width) ? 12 : 16,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    shadowColor: '#ef4444',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    borderColor: colors.error.border,
+    shadowColor: colors.error.shadow.color,
+    shadowOffset: colors.error.shadow.offset,
+    shadowOpacity: colors.error.shadow.opacity,
+    shadowRadius: colors.error.shadow.radius,
     elevation: 1,
   },
   
   errorText: {
-    color: '#fecaca',
-    fontSize: isMobile ? 13 : 14,
+    color: colors.error.text,
+    fontSize: isMobile(width) ? 13 : 14,
     fontWeight: '500',
     textAlign: 'center',
   },
   
   button: {
     width: '100%',
-    marginTop: isMobile ? 8 : 12,
+    marginTop: isMobile(width) ? 8 : 12,
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#2563eb',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
+    shadowColor: colors.button.shadow.primary.color,
+    shadowOffset: colors.button.shadow.primary.offset,
+    shadowOpacity: colors.button.shadow.primary.opacity,
+    shadowRadius: colors.button.shadow.primary.radius,
     elevation: 4,
   },
   
   buttonGradient: {
-    paddingVertical: isMobile ? 12 : 16,
-    paddingHorizontal: isMobile ? 16 : 20,
+    paddingVertical: isMobile(width) ? 12 : 16,
+    paddingHorizontal: isMobile(width) ? 16 : 20,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   
   buttonText: {
-    color: '#ffffff',
-    fontSize: isMobile ? 16 : 16,
+    color: colors.button.text,
+    fontSize: isMobile(width) ? 16 : 16,
     fontWeight: '600',
   },
   
   buttonDisabled: {
-    shadowColor: '#64748b',
-    shadowOpacity: 0.3,
+    shadowColor: colors.button.shadow.disabled.color,
+    shadowOpacity: colors.button.shadow.disabled.opacity,
     elevation: 2,
   },
   
   loginLoading: {
-    backgroundColor: 'transparent',
+    backgroundColor: colors.loading.background,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderTopColor: 'rgba(255, 255, 255, 0.4)',
+    borderColor: colors.loading.border,
+    borderTopColor: colors.loading.borderTop,
     borderRadius: 16,
-    paddingVertical: isMobile ? 20 : 24,
-    paddingHorizontal: isMobile ? 24 : 32,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 32,
+    paddingVertical: isMobile(width) ? 20 : 24,
+    paddingHorizontal: isMobile(width) ? 24 : 32,
+    shadowColor: colors.loading.shadow.color,
+    shadowOffset: colors.loading.shadow.offset,
+    shadowOpacity: colors.loading.shadow.opacity,
+    shadowRadius: colors.loading.shadow.radius,
     elevation: 8,
   },
   
   loginLoadingText: {
-    color: '#ffffff',
+    color: colors.loading.text,
     fontWeight: '500',
     textAlign: 'center',
-    fontSize: isMobile ? 18 : 20,
+    fontSize: isMobile(width) ? 18 : 20,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
