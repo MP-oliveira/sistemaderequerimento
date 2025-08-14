@@ -957,8 +957,9 @@ export default function Requests() {
             <Button variant="primary" size="sm" onClick={handleSubmit} disabled={loading}>Criar</Button>
           </>
         }
+        style={{ width: '800px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' }}
       >
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {/* Primeira linha - Departamento e Nome do Evento */}
           <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
@@ -1191,15 +1192,24 @@ export default function Requests() {
           <div style={{ marginTop: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <label style={{ fontWeight: '600', color: '#374151' }}>Itens do Inventário</label>
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => setShowInventoryModal(true)}
-              >
-                <FiPlus size={14} />
-                Adicionar Item
-              </Button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setShowInventoryModal(true)}
+                >
+                  Adicionar Item
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setShowServicesModal(true)}
+                >
+                  Adicionar Serviços
+                </Button>
+              </div>
             </div>
             
             {selectedItems.length > 0 ? (
@@ -1273,18 +1283,6 @@ export default function Requests() {
 
           {/* Seção de Serviços Solicitados */}
           <div style={{ marginTop: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <label style={{ fontWeight: '600', color: '#374151' }}>Serviços Solicitados</label>
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => setShowServicesModal(true)}
-              >
-                <FiPlus size={14} />
-                Adicionar Serviços
-              </Button>
-            </div>
             
             {selectedServices.length > 0 ? (
               <div style={{ 
@@ -1654,8 +1652,8 @@ export default function Requests() {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                🕊️ Diaconia
+              <div className="service-title">
+                Diaconia
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 Apoio e assistência durante o evento
@@ -1697,8 +1695,8 @@ export default function Requests() {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                🛠️ Serviços Gerais
+              <div className="service-title">
+                Serviços Gerais
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 Limpeza, organização e logística
@@ -1740,8 +1738,8 @@ export default function Requests() {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                🎥 Audiovisual
+              <div className="service-title">
+                Audiovisual
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 Som, vídeo e equipamentos técnicos
@@ -1783,8 +1781,8 @@ export default function Requests() {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                🛡️ Segurança
+              <div className="service-title">
+                Segurança
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 Controle de acesso e segurança do evento
@@ -1817,32 +1815,15 @@ export default function Requests() {
 
           {/* Resumo dos Serviços Selecionados */}
           {selectedServices.length > 0 && (
-            <div style={{ 
-              marginTop: '1rem',
-              padding: '1rem',
-              backgroundColor: '#f0f9ff',
-              border: '1px solid #0ea5e9',
-              borderRadius: '8px'
-            }}>
-              <div style={{ 
-                fontWeight: '600', 
-                color: '#0c4a6e',
-                marginBottom: '0.5rem',
-                fontSize: '0.875rem'
-              }}>
+            <div className="services-summary">
+              <div className="services-summary-title">
                 📋 Serviços Selecionados ({selectedServices.length})
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div className="services-summary-list">
                 {selectedServices.map((servico) => (
-                  <div key={servico.tipo} style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    fontSize: '0.75rem',
-                    color: '#0c4a6e'
-                  }}>
+                  <div key={servico.tipo} className="services-summary-item">
                     <span>{servico.nome}</span>
-                    <span style={{ fontWeight: '600' }}>{servico.quantidade} pessoa(s)</span>
+                    <span className="services-summary-quantity">{servico.quantidade} pessoa(s)</span>
                   </div>
                 ))}
               </div>

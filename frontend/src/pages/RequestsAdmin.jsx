@@ -76,6 +76,10 @@ export default function RequestsAdmin() {
   const [editReq, setEditReq] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteReq, setDeleteReq] = useState(null);
+  
+  // Estados para copiar requisição
+  const [copyModalOpen, setCopyModalOpen] = useState(false);
+  const [copyReq, setCopyReq] = useState(null);
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -506,6 +510,48 @@ export default function RequestsAdmin() {
     }
   };
 
+  // Função para copiar requisição
+  const handleCopyRequest = async (id) => {
+    try {
+      const detalhe = await getRequisicaoDetalhada(id);
+      setCopyReq(detalhe);
+      setCopyModalOpen(true);
+    } catch (error) {
+      mostrarNotificacao('Erro ao buscar detalhes da requisição', 'erro');
+    }
+  };
+
+  // Função para confirmar cópia
+  const handleCopyConfirm = () => {
+    if (!copyReq) return;
+    
+    // Preencher o formulário com os dados copiados
+    setFormData({
+      department: copyReq.department || '',
+      event_name: `${copyReq.event_name} (Cópia)` || '',
+      date: '',
+      location: copyReq.location || '',
+      description: copyReq.description || '',
+      start_datetime: '',
+      end_datetime: '',
+      expected_audience: copyReq.expected_audience || '',
+      prioridade: copyReq.prioridade || PRIORIDADE_DEFAULT
+    });
+    
+    // Copiar itens do inventário
+    setSelectedItems(copyReq.itens || []);
+    
+    // Copiar serviços
+    setSelectedServices(copyReq.servicos || []);
+    
+    // Fechar modal de cópia e abrir modal de adicionar
+    setCopyModalOpen(false);
+    setCopyReq(null);
+    setShowAddModal(true);
+    
+    mostrarNotificacao('Dados copiados com sucesso! Preencha a nova data e horário.', 'sucesso');
+  };
+
   // Função para editar campo
   const handleEditField = (field, value) => {
     if (editReq) {
@@ -768,6 +814,28 @@ export default function RequestsAdmin() {
                   >
                     <FiEdit size={18} className="edit-icon" />
                   </Button>
+                  <button 
+                    onClick={() => handleCopyRequest(req.id)}
+                    className="copy-request-button"
+                    title="Copiar Requisição"
+                    style={{
+                      backgroundColor: '#10b981',
+                      color: 'white',
+                      cursor: 'pointer',
+                      border: 'none',
+                      borderRadius: '4px',
+                      padding: '8px 12px',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      minWidth: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    C
+                  </button>
                   <Button 
                     onClick={() => handleDelete(req.id)}
                     variant="icon-blue" 
@@ -949,9 +1017,10 @@ export default function RequestsAdmin() {
             <Button variant="primary" size="sm" onClick={handleSubmit} disabled={loading}>Criar</Button>
           </>
         }
+        style={{ width: '800px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' }}
       >
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {/* Primeira linha - Departamento e Nome do Evento */}
           <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
@@ -1081,15 +1150,24 @@ export default function RequestsAdmin() {
           <div style={{ marginTop: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <label style={{ fontWeight: '600', color: '#374151' }}>Itens do Inventário</label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
               <Button
                 type="button"
                 variant="primary"
                 size="sm"
                 onClick={() => setShowInventoryModal(true)}
               >
-                <FiPlus size={14} />
                 Adicionar Item
               </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setShowServicesModal(true)}
+                >
+                  Adicionar Serviços
+                </Button>
+              </div>
             </div>
             
             {selectedItems.length > 0 ? (
@@ -1164,19 +1242,6 @@ export default function RequestsAdmin() {
 
           {/* Seção de Serviços Solicitados */}
           <div style={{ marginTop: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <label style={{ fontWeight: '600', color: '#374151' }}>Serviços Solicitados</label>
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => setShowServicesModal(true)}
-              >
-                <FiPlus size={14} />
-                Adicionar Serviços
-              </Button>
-            </div>
-            
             {selectedServices.length > 0 ? (
               <div style={{ 
                 border: '1px solid #e5e7eb', 
@@ -1409,9 +1474,9 @@ export default function RequestsAdmin() {
         onClose={() => setShowInventoryModal(false)}
         actions={
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Button variant="secondary" size="sm" onClick={() => setShowInventoryModal(false)}>
+          <Button variant="secondary" size="sm" onClick={() => setShowInventoryModal(false)}>
               Cancelar
-            </Button>
+          </Button>
             <Button 
               variant="primary" 
               size="sm" 
@@ -1500,7 +1565,7 @@ export default function RequestsAdmin() {
               {selectedItems.map((item) => (
                 <div key={item.id} style={{ 
                   display: 'flex', 
-                  justifyContent: 'space-between',
+                  justifyContent: 'space-between', 
                   alignItems: 'center',
                   fontSize: '0.75rem',
                   color: '#0c4a6e'
@@ -1518,8 +1583,8 @@ export default function RequestsAdmin() {
           height: '400px',
           overflowY: 'auto', 
           paddingRight: '8px',
-          border: '1px solid #e5e7eb',
-          borderRadius: '6px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
           backgroundColor: '#f9fafb'
         }}>
           {filteredInventory.length > 0 ? (
@@ -1564,8 +1629,8 @@ export default function RequestsAdmin() {
                           color: '#6b7280',
                           marginBottom: '4px'
                         }}>
-                          {item.description}
-                        </div>
+                      {item.description}
+                    </div>
                       )}
                       <div style={{ 
                         fontSize: '0.875rem', 
@@ -1573,13 +1638,13 @@ export default function RequestsAdmin() {
                         fontWeight: '500'
                       }}>
                         {getTextoQuantidadeDisponivel(item)}
-                      </div>
                     </div>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => {
-                        adicionarItem(item);
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      adicionarItem(item);
                         // Não fechar o modal automaticamente
                       }}
                       disabled={isBotaoDesabilitado(item)}
@@ -1587,10 +1652,10 @@ export default function RequestsAdmin() {
                         opacity: isBotaoDesabilitado(item) ? 0.5 : 1,
                         cursor: isBotaoDesabilitado(item) ? 'not-allowed' : 'pointer'
                       }}
-                    >
-                      <FiPlus size={14} />
-                    </Button>
-                  </div>
+                  >
+                    <FiPlus size={14} />
+                  </Button>
+                </div>
                 );
               })}
             </div>
@@ -1725,8 +1790,8 @@ export default function RequestsAdmin() {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                🕊️ Diaconia
+              <div className="service-title">
+                Diaconia
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 Apoio e assistência durante o evento
@@ -1768,8 +1833,8 @@ export default function RequestsAdmin() {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                🛠️ Serviços Gerais
+              <div className="service-title">
+                Serviços Gerais
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 Limpeza, organização e logística
@@ -1811,8 +1876,8 @@ export default function RequestsAdmin() {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                🎥 Audiovisual
+              <div className="service-title">
+                Audiovisual
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 Som, vídeo e equipamentos técnicos
@@ -1854,8 +1919,8 @@ export default function RequestsAdmin() {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
-                🛡️ Segurança
+              <div className="service-title">
+                Segurança
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                 Controle de acesso e segurança do evento
@@ -1888,38 +1953,60 @@ export default function RequestsAdmin() {
 
           {/* Resumo dos Serviços Selecionados */}
           {selectedServices.length > 0 && (
-            <div style={{ 
-              marginTop: '1rem',
-              padding: '1rem',
-              backgroundColor: '#f0f9ff',
-              border: '1px solid #0ea5e9',
-              borderRadius: '8px'
-            }}>
-              <div style={{ 
-                fontWeight: '600', 
-                color: '#0c4a6e',
-                marginBottom: '0.5rem',
-                fontSize: '0.875rem'
-              }}>
+            <div className="services-summary">
+              <div className="services-summary-title">
                 📋 Serviços Selecionados ({selectedServices.length})
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div className="services-summary-list">
                 {selectedServices.map((servico) => (
-                  <div key={servico.tipo} style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    fontSize: '0.75rem',
-                    color: '#0c4a6e'
-                  }}>
+                  <div key={servico.tipo} className="services-summary-item">
                     <span>{servico.nome}</span>
-                    <span style={{ fontWeight: '600' }}>{servico.quantidade} pessoa(s)</span>
+                    <span className="services-summary-quantity">{servico.quantidade} pessoa(s)</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
         </div>
+      </Modal>
+
+      {/* Modal de Confirmação de Cópia */}
+      <Modal
+        open={copyModalOpen}
+        title="Copiar Requisição"
+        onClose={() => setCopyModalOpen(false)}
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setCopyModalOpen(false)}>Cancelar</Button>
+            <Button variant="primary" size="sm" onClick={handleCopyConfirm}>Copiar</Button>
+          </>
+        }
+      >
+        {copyReq && (
+          <div className="copy-modal-content">
+            <p className="copy-modal-description">
+              Você está prestes a copiar a requisição:
+            </p>
+            <div className="copy-modal-details">
+              <div className="copy-modal-detail-item">
+                <strong>Evento:</strong> {copyReq.event_name || copyReq.description || 'Sem título'}
+              </div>
+              <div className="copy-modal-detail-item">
+                <strong>Local:</strong> {copyReq.location || 'Não informado'}
+              </div>
+              <div className="copy-modal-detail-item">
+                <strong>Itens:</strong> {copyReq.itens?.length || 0} item(s)
+              </div>
+              <div className="copy-modal-detail-item">
+                <strong>Serviços:</strong> {copyReq.servicos?.length || 0} serviço(s)
+              </div>
+            </div>
+            <p className="copy-modal-warning">
+              <strong>⚠️ Atenção:</strong> A nova requisição será criada com "(Cópia)" no nome e precisará ser aprovada novamente. 
+              Data e horário devem ser preenchidos manualmente.
+            </p>
+          </div>
+        )}
       </Modal>
     </div>
   );

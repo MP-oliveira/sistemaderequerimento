@@ -460,4 +460,96 @@
   .card {
     padding: 18px 8px 16px 8px;
   }
+}
+
+/* Estilos para o botão de copiar */
+.copy-request-button {
+  background-color: #10b981 !important;
+  color: white !important;
+  cursor: pointer !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.copy-request-button:hover {
+  background-color: #059669 !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+/* Estilos para os títulos dos serviços */
+.service-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  color: #1e40af;
+}
+
+/* Estilos para o modal de cópia */
+.copy-modal-content {
+  padding: 1rem;
+}
+
+.copy-modal-description {
+  margin-bottom: 1rem;
+  color: #374151;
+}
+
+.copy-modal-details {
+  background-color: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.copy-modal-detail-item {
+  margin-bottom: 0.5rem;
+}
+
+.copy-modal-warning {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Estilos para o resumo de serviços */
+.services-summary {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+}
+
+.services-summary-title {
+  font-weight: 600;
+  color: #0c4a6e;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.services-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.services-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #0c4a6e;
+}
+
+.services-summary-quantity {
+  font-weight: 600;
 } 
