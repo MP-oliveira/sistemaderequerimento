@@ -7,7 +7,10 @@ import { salasOptions } from '../utils/salasConfig';
 import { FiSearch, FiPlus, FiX } from 'react-icons/fi';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
-  console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
+      console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
+    console.log('🔍 request.request_items:', request?.request_items);
+    console.log('🔍 request.itens:', request?.itens);
+    console.log('🔍 request completo expandido:', JSON.stringify(request, null, 2));
   console.log('🔍 EditRequestModal - open é boolean?', typeof open);
   console.log('🔍 EditRequestModal - request é null?', request === null);
   console.log('🔍 EditRequestModal - request é undefined?', request === undefined);
