@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import { departamentosOptions } from '../utils/departamentosConfig';
+import { PRIORIDADE_OPTIONS } from '../utils/prioridadeConfig';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
   console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
@@ -184,11 +185,11 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
                 value={editedRequest.prioridade || ''}
                 onChange={e => handleInputChange('prioridade', e.target.value)}
               >
-                <option value="">Selecione a prioridade</option>
-                <option value="BAIXA">Baixa</option>
-                <option value="MEDIA">Média</option>
-                <option value="ALTA">Alta</option>
-                <option value="URGENTE">Urgente</option>
+                {PRIORIDADE_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
