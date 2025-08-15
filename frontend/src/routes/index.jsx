@@ -132,11 +132,15 @@ export default function AppRoutes() {
         <Route
           path="/admin/dashboard"
           element={
-            <AdminRoute>
-              <Layout>
-                <DashboardAdmin />
-              </Layout>
-            </AdminRoute>
+            <div>
+              {console.log('🔍 Rota /admin/dashboard - Executada')}
+              {alert('🔍 Rota /admin/dashboard - Executada')}
+              <AdminRoute>
+                <Layout>
+                  <DashboardAdmin />
+                </Layout>
+              </AdminRoute>
+            </div>
           }
         />
         <Route
