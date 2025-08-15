@@ -2084,7 +2084,8 @@ export const updateRequest = async (req, res) => {
         const itemsToInsert = itemsToUpdate.map(item => ({
           request_id: id,
           inventory_id: item.inventory_id || item.id,
-          quantity_requested: item.quantity_requested || item.quantity
+          quantity_requested: item.quantity_requested || item.quantity,
+          item_name: item.item_name || item.name || 'Item não especificado'
           // Removido quantity_returned pois não existe na tabela
         }));
         
@@ -2115,46 +2116,12 @@ export const updateRequest = async (req, res) => {
       truthy: !!servicesToUpdate
     });
     
-    if (servicesToUpdate && Array.isArray(servicesToUpdate)) {
-      console.log('🔄 Atualizando serviços da requisição:', servicesToUpdate);
-      
-      // Remover serviços existentes
-      const { error: deleteServicesError } = await supabase
-        .from('request_services')
-        .delete()
-        .eq('request_id', id);
-        
-      if (deleteServicesError) {
-        console.error('❌ Erro ao deletar serviços existentes:', deleteServicesError);
-      } else {
-        console.log('✅ Serviços existentes deletados com sucesso');
-      }
-      
-      // Inserir novos serviços
-      if (servicesToUpdate.length > 0) {
-        const servicesToInsert = servicesToUpdate.map(service => ({
-          request_id: id,
-          service_type: service.tipo,
-          quantity: service.quantidade || service.quantity
-        }));
-        
-        console.log('📝 Serviços para inserir:', servicesToInsert);
-        
-        const { data: insertedServices, error: servicesError } = await supabase
-          .from('request_services')
-          .insert(servicesToInsert)
-          .select();
-          
-        if (servicesError) {
-          console.error('❌ Erro ao inserir serviços:', servicesError);
-        } else {
-          console.log('✅ Serviços inseridos com sucesso:', insertedServices);
-        }
-      } else {
-        console.log('ℹ️ Nenhum serviço para inserir');
-      }
+    // TODO: Implementar salvamento de serviços quando a tabela request_services for criada
+    if (servicesToUpdate && Array.isArray(servicesToUpdate) && servicesToUpdate.length > 0) {
+      console.log('⚠️ Serviços fornecidos mas tabela request_services não existe ainda:', servicesToUpdate);
+      console.log('ℹ️ Os serviços não serão salvos até que a tabela seja criada');
     } else {
-      console.log('ℹ️ Nenhum request_services fornecido ou não é array');
+      console.log('ℹ️ Nenhum serviço para atualizar');
     }
     
     // Buscar requisição atualizada com itens e serviços
