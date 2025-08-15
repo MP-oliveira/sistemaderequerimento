@@ -3,6 +3,9 @@ import { supabase } from '../config/supabaseClient.js';
 
 // 🔐 Middleware para verificar JWT
 export const authenticateToken = async (req, res, next) => {
+  console.log('🔐 [authenticateToken] Middleware chamado para:', req.method, req.url);
+  console.log('🔐 [authenticateToken] Headers:', req.headers);
+  
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN

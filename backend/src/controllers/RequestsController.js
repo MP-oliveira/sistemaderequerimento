@@ -1924,6 +1924,11 @@ export const removeComprovante = async (req, res) => {
 
 // Atualizar uma requisição
 export const updateRequest = async (req, res) => {
+  console.log('🚀 [updateRequest] Função chamada!');
+  console.log('🚀 [updateRequest] Método:', req.method);
+  console.log('🚀 [updateRequest] URL:', req.url);
+  console.log('🚀 [updateRequest] Headers:', req.headers);
+  
   try {
     const { id } = req.params;
     const updateData = req.body;
