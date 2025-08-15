@@ -2030,7 +2030,10 @@ export const updateRequest = async (req, res) => {
     // Por enquanto, apenas logamos os serviços
     console.log('📝 Serviços que seriam salvos:', servicesToUpdate);
     
-    console.log('📝 Dados finais para atualização:', dataToUpdate);
+    // Remover campos que não existem na tabela requests
+    const { servicos, ...dataToUpdateClean } = dataToUpdate;
+    
+    console.log('📝 Dados finais para atualização:', dataToUpdateClean);
     console.log('📝 Campos removidos:', { requester_id, id: requestId, created_at, updated_at });
     
     // Verificar se há campos obrigatórios vazios
@@ -2049,7 +2052,7 @@ export const updateRequest = async (req, res) => {
     // Atualizar dados básicos da requisição
     const { data: updated, error } = await supabase
       .from('requests')
-      .update(dataToUpdate)
+      .update(dataToUpdateClean)
       .eq('id', id)
       .select()
       .single();
