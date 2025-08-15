@@ -222,6 +222,7 @@ export default function DashboardAdmin() {
       console.log('📤 request_services:', dadosParaEnviar.request_services);
       console.log('📤 ID da requisição:', editedRequest.id);
       console.log('📤 Status da requisição:', editedRequest.status);
+      console.log('📤 Usuário atual:', localStorage.getItem('user'));
 
       // Verificar se o token existe
       const token = localStorage.getItem('token');
@@ -230,6 +231,7 @@ export default function DashboardAdmin() {
       }
       
       console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
+      console.log('🔑 Token:', token ? 'Presente' : 'Ausente');
       
       // Fazer a chamada para a API (usando proxy do Vite)
       const response = await fetch(`/api/requests/${editedRequest.id}`, {
