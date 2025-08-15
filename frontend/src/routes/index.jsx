@@ -24,17 +24,22 @@ function PrivateRoute({ children }) {
 }
 
 function AdminRoute({ children }) {
-  const { user } = useAuth();
-  console.log('🔍 AdminRoute - Executado');
-  console.log('🔍 AdminRoute - User:', user);
-  console.log('🔍 AdminRoute - User role:', user?.role);
-  alert('🔍 AdminRoute - Executado - User role: ' + user?.role);
+  console.log('🔍 AdminRoute - Executado - ANTES DO useAuth');
+  alert('🔍 AdminRoute - Executado - ANTES DO useAuth');
+  
   try {
+    const { user } = useAuth();
+    console.log('🔍 AdminRoute - Executado');
+    console.log('🔍 AdminRoute - User:', user);
+    console.log('🔍 AdminRoute - User role:', user?.role);
+    alert('🔍 AdminRoute - Executado - User role: ' + user?.role);
+    
     const isAdmin = user && (user.role === 'ADM' || user.role === 'PASTOR');
     console.log('🔍 AdminRoute - Is admin:', isAdmin);
     return isAdmin ? children : <Navigate to="/" />;
   } catch (error) {
     console.error('Erro no AdminRoute:', error);
+    alert('🔍 AdminRoute - ERRO: ' + error.message);
     return <Navigate to="/" />;
   }
 }
