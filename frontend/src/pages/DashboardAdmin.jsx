@@ -344,17 +344,7 @@ export default function DashboardAdmin() {
               >
                 Ver Todas
               </Button>
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={() => {
-                  alert('TESTE BOTÃO');
-                  setModalEdicao(true);
-                  setReqEdicao({ id: 1, department: 'TESTE', event_name: 'Teste Modal' });
-                }}
-              >
-                Teste Modal
-              </Button>
+
             </div>
             
             {requisicoesPendentes.length === 0 ? (
@@ -365,29 +355,14 @@ export default function DashboardAdmin() {
               </div>
             ) : (
               <div className="requests-list-container">
-                {/* TESTE DIRETO */}
-                <div 
-                  style={{ 
-                    background: 'red', 
-                    color: 'white', 
-                    padding: '10px', 
-                    margin: '10px 0',
-                    cursor: 'pointer',
-                    zIndex: 9999,
-                    position: 'relative'
-                  }}
-                  onMouseDown={() => alert('TESTE DIRETO FUNCIONANDO!')}
-                >
-                  CLIQUE AQUI PARA TESTE DIRETO
-                </div>
+
                 
                 {requisicoesPendentes.map((req) => (
                   <div 
                     key={req.id} 
                     className="request-item"
-                    onMouseDown={() => {
-                      alert('TESTE - Mouse Down funcionando!');
-                      console.log('Mouse Down detectado na requisição:', req);
+                    onClick={() => {
+                      console.log('Clique detectado na requisição:', req);
                       abrirModalEdicao(req);
                     }}
                     style={{ cursor: 'pointer', position: 'relative', zIndex: 9999 }}
@@ -704,192 +679,12 @@ export default function DashboardAdmin() {
       </Modal>
 
       {/* Modal de Edição da Requisição */}
-      {console.log('Renderizando modal - modalEdicao:', modalEdicao, 'reqEdicao:', reqEdicao)}
-      <Modal 
-        open={modalEdicao} 
-        onClose={() => setModalEdicao(false)}
-        title="Editar Requisição"
-        actions={
-          <>
-            <Button variant="secondary" size="sm" onClick={() => setModalEdicao(false)}>Cancelar</Button>
-            <Button variant="success" size="sm" onClick={aprovarAposEdicao} disabled={editando}>
-              {editando ? 'Salvando...' : 'Salvar e Aprovar'}
-            </Button>
-            <Button variant="primary" size="sm" onClick={salvarAlteracoes} disabled={editando}>
-              {editando ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </>
-        }
-        style={{ width: '800px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' }}
-      >
-        {reqEdicao && (
-          <form style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Primeira linha - Departamento e Nome do Evento */}
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <div style={{ flex: 1 }}>
-                <div className="input-group">
-                  <label className="input-label">Departamento</label>
-                  <select
-                    className="input-field"
-                    value={reqEdicao.department || ''}
-                    onChange={e => setReqEdicao({ ...reqEdicao, department: e.target.value })}
-                    required
-                  >
-                    <option value="">Selecione um departamento</option>
-                    <option value="SEC">Secretaria</option>
-                    <option value="AUDIOVISUAL">Audiovisual</option>
-                    <option value="SERVICO_GERAL">Serviço Geral</option>
-                    <option value="TI">TI</option>
-                    <option value="MARKETING">Marketing</option>
-                    <option value="RH">RH</option>
-                    <option value="FINANCEIRO">Financeiro</option>
-                    <option value="JURIDICO">Jurídico</option>
-                    <option value="ADMINISTRATIVO">Administrativo</option>
-                  </select>
-                </div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div className="input-group">
-                  <label className="input-label">Nome do Evento</label>
-                  <input
-                    className="input-field"
-                    type="text"
-                    value={reqEdicao.event_name || ''}
-                    onChange={e => setReqEdicao({ ...reqEdicao, event_name: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Segunda linha - Data e Local */}
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <div style={{ flex: 1 }}>
-                <div className="input-group">
-                  <label className="input-label">Data</label>
-                  <input
-                    className="input-field"
-                    type="date"
-                    value={reqEdicao.start_datetime ? reqEdicao.start_datetime.split('T')[0] : ''}
-                    onChange={e => {
-                      const currentTime = reqEdicao.start_datetime ? reqEdicao.start_datetime.split('T')[1] : '00:00';
-                      setReqEdicao({ 
-                        ...reqEdicao, 
-                        start_datetime: `${e.target.value}T${currentTime}`,
-                        end_datetime: reqEdicao.end_datetime ? `${e.target.value}T${reqEdicao.end_datetime.split('T')[1]}` : `${e.target.value}T${currentTime}`
-                      });
-                    }}
-                    required
-                  />
-                </div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div className="input-group">
-                  <label className="input-label">Local</label>
-                  <select
-                    className="input-field"
-                    value={reqEdicao.location || ''}
-                    onChange={e => setReqEdicao({ ...reqEdicao, location: e.target.value })}
-                  >
-                    <option value="">Selecione um local</option>
-                    <option value="AUDITORIO">Auditório</option>
-                    <option value="SALA_DE_REUNIAO">Sala de Reunião</option>
-                    <option value="LABORATORIO">Laboratório</option>
-                    <option value="SALA_DE_AULA">Sala de Aula</option>
-                    <option value="GINASIO">Ginásio</option>
-                    <option value="BIBLIOTECA">Biblioteca</option>
-                    <option value="CAFETERIA">Cafeteria</option>
-                    <option value="SALA_DE_TREINAMENTO">Sala de Treinamento</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Terceira linha - Hora de Início e Fim */}
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <div style={{ flex: 1 }}>
-                <div className="input-group">
-                  <label className="input-label">Hora de Início</label>
-                  <input
-                    className="input-field"
-                    type="time"
-                    value={reqEdicao.start_datetime ? reqEdicao.start_datetime.split('T')[1] : ''}
-                    onChange={e => {
-                      const currentDate = reqEdicao.start_datetime ? reqEdicao.start_datetime.split('T')[0] : new Date().toISOString().split('T')[0];
-                      setReqEdicao({ 
-                        ...reqEdicao, 
-                        start_datetime: `${currentDate}T${e.target.value}`
-                      });
-                    }}
-                    required
-                  />
-                </div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div className="input-group">
-                  <label className="input-label">Hora de Fim</label>
-                  <input
-                    className="input-field"
-                    type="time"
-                    value={reqEdicao.end_datetime ? reqEdicao.end_datetime.split('T')[1] : ''}
-                    onChange={e => {
-                      const currentDate = reqEdicao.end_datetime ? reqEdicao.end_datetime.split('T')[0] : new Date().toISOString().split('T')[0];
-                      setReqEdicao({ 
-                        ...reqEdicao, 
-                        end_datetime: `${currentDate}T${e.target.value}`
-                      });
-                    }}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Quarta linha - Público Esperado e Prioridade */}
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <div style={{ flex: 1 }}>
-                <div className="input-group">
-                  <label className="input-label">Público Esperado</label>
-                  <input
-                    className="input-field"
-                    type="number"
-                    value={reqEdicao.expected_audience || ''}
-                    onChange={e => setReqEdicao({ ...reqEdicao, expected_audience: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div className="input-group">
-                  <label className="input-label">Prioridade</label>
-                  <select
-                    className="input-field"
-                    value={reqEdicao.prioridade || ''}
-                    onChange={e => setReqEdicao({ ...reqEdicao, prioridade: e.target.value })}
-                  >
-                    <option value="">Selecione a prioridade</option>
-                    <option value="BAIXA">Baixa</option>
-                    <option value="MEDIA">Média</option>
-                    <option value="ALTA">Alta</option>
-                    <option value="URGENTE">Urgente</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Descrição */}
-            <div className="input-group">
-              <label className="input-label">Descrição</label>
-              <textarea
-                className="input-field"
-                value={reqEdicao.description || ''}
-                onChange={e => setReqEdicao({ ...reqEdicao, description: e.target.value })}
-                rows={4}
-                style={{ resize: 'vertical' }}
-              />
-            </div>
-          </form>
-        )}
-      </Modal>
+      <EditRequestModal
+        open={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        request={selectedRequest}
+        onSave={handleSaveRequest}
+      />
 
       {/* Modal de Detalhes da Requisição */}
       <Modal 
