@@ -185,9 +185,11 @@ export default function DashboardAdmin() {
 
   // Função para abrir modal de edição
   const abrirModalEdicao = async (requisicao) => {
+    console.log('Abrindo modal de edição para:', requisicao);
     try {
       // Buscar dados completos da requisição
       const detalhe = await getRequisicaoDetalhada(requisicao.id);
+      console.log('Dados da requisição:', detalhe);
       setReqEdicao(detalhe);
       setModalEdicao(true);
     } catch (error) {
@@ -414,14 +416,20 @@ export default function DashboardAdmin() {
                                             <Button
                         variant="success"
                         size="sm"
-                        onClick={() => aprovarRequisicaoHandler(req.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          aprovarRequisicaoHandler(req.id);
+                        }}
                         className="approve-button"
                         title="Aprovar"
                       >
                         ✅ Aprovar
                       </Button>
                       <button 
-                        onClick={() => aprovarRequisicaoHandler(req.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          aprovarRequisicaoHandler(req.id);
+                        }}
                         className="mobile-approve-native"
                         title="Aprovar"
                         style={{
@@ -446,14 +454,20 @@ export default function DashboardAdmin() {
                       <Button 
                         variant="danger" 
                         size="sm"
-                        onClick={() => rejeitarRequisicaoHandler(req.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          rejeitarRequisicaoHandler(req.id);
+                        }}
                         className="reject-button"
                         title="Rejeitar"
                       >
                         ✕ Rejeitar
                       </Button>
                       <button 
-                        onClick={() => rejeitarRequisicaoHandler(req.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          rejeitarRequisicaoHandler(req.id);
+                        }}
                         className="mobile-reject-native"
                         title="Rejeitar"
                         style={{
