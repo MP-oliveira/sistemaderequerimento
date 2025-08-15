@@ -2119,13 +2119,50 @@ export const updateRequest = async (req, res) => {
       truthy: !!servicesToUpdate
     });
     
-    // TODO: Implementar salvamento de serviços quando a tabela request_services for criada
-    if (servicesToUpdate && Array.isArray(servicesToUpdate) && servicesToUpdate.length > 0) {
-      console.log('⚠️ Serviços fornecidos mas tabela request_services não existe ainda:', servicesToUpdate);
-      console.log('ℹ️ Os serviços não serão salvos até que a tabela seja criada');
-    } else {
-      console.log('ℹ️ Nenhum serviço para atualizar');
-    }
+          // Atualizar serviços da requisição se fornecidos
+      console.log('🔍 Verificando serviços para atualizar:', {
+        servicesToUpdate,
+        isArray: Array.isArray(servicesToUpdate),
+        length: servicesToUpdate?.length,
+        truthy: !!servicesToUpdate
+      });
+      
+      if (servicesToUpdate && Array.isArray(servicesToUpdate)) {
+        console.log('🔄 Atualizando serviços da requisição:', servicesToUpdate);
+        
+        // Remover serviços existentes
+        const { error: deleteError } = await supabase
+          .from('request_services')
+          .delete()
+          .eq('request_id', id);
+          
+        if (deleteError) {
+          console.error('❌ Erro ao deletar serviços existentes:', deleteError);
+        } else {
+          console.log('✅ Serviços existentes deletados com sucesso');
+        }
+        
+        // Inserir novos serviços
+        if (servicesToUpdate.length > 0) {
+          const servicesToInsert = servicesToUpdate.map(service => ({
+            request_id: id,
+            tipo: service.tipo,
+            quantidade: service.quantidade,
+            nome: service.nome || service.tipo
+          }));
+          console.log('📝 Serviços para inserir:', servicesToInsert);
+          const { data: insertedServices, error: servicesError } = await supabase.from('request_services').insert(servicesToInsert).select();
+          if (servicesError) {
+            console.error('❌ Erro ao inserir serviços:', servicesError);
+          } else {
+            console.log('✅ Serviços inseridos com sucesso:', insertedServices);
+          }
+        } else {
+          console.log('ℹ️ Nenhum serviço para inserir');
+        }
+      } else {
+        console.log('ℹ️ Nenhum request_services fornecido ou não é array');
+      }
     
     // Buscar requisição atualizada com itens e serviços
     const { data: finalRequest, error: finalError } = await supabase

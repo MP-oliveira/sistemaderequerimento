@@ -75,12 +75,12 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       
       setSelectedItems(processedItems);
       // Processar serviços do backend para garantir IDs únicos
-      const processedServices = (request.request_services || []).map((service, index) => ({
+      const processedServices = (request.servicos || []).map((service, index) => ({
         ...service,
         id: service.id || `service_${Date.now()}_${index}_${Math.random()}`, // ID único garantido
-        tipo: service.service_type || service.tipo,
-        nome: service.nome || service.name,
-        quantidade: service.quantity || service.quantidade || 1
+        tipo: service.tipo,
+        nome: service.nome,
+        quantidade: service.quantidade || 1
       }));
       setSelectedServices(processedServices);
       
