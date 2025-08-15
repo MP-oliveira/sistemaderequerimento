@@ -15,17 +15,17 @@
 }
 
 .input-field {
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   border: 1.5px solid #ccc;
   font-size: 0.95rem;
   transition: border 0.2s, box-shadow 0.2s;
   font-family: 'Montserrat', Arial, sans-serif;
   background: #f9f9f9;
-  height: 36px;
+  height: 42px;
   box-sizing: border-box;
   width: 100%;
-  line-height: 1.2;
+  line-height: 1.4;
   overflow: visible;
 }
 
@@ -53,8 +53,8 @@ select.input-field {
   background-size: 16px;
   padding-right: 40px;
   cursor: pointer;
-  height: 36px;
-  line-height: 1.2;
+  height: 42px;
+  line-height: 1.4;
   overflow: visible;
 }
 
@@ -80,8 +80,8 @@ select.input-field:focus {
 input[type="date"].input-field,
 input[type="datetime-local"].input-field,
 input[type="time"].input-field {
-  height: 36px;
-  padding: 8px 12px;
+  height: 42px;
+  padding: 10px 12px;
 } 
 
 /* Responsivo - iPad Pro */
