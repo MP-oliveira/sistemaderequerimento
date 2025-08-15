@@ -3,22 +3,67 @@ import Modal from './Modal';
 import Button from './Button';
 import { departamentosOptions } from '../utils/departamentosConfig';
 import { PRIORIDADE_OPTIONS } from '../utils/prioridadeConfig';
+import { FiX, FiSearch } from 'react-icons/fi';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
   console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
   
   const [editedRequest, setEditedRequest] = useState(request || {});
   const [saving, setSaving] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [showServicesModal, setShowServicesModal] = useState(false);
 
   // Atualizar dados quando o request mudar
   React.useEffect(() => {
     setEditedRequest(request || {});
+    // Carregar itens e serviços existentes
+    if (request) {
+      setSelectedItems(request.request_items || []);
+      setSelectedServices(request.request_services || []);
+    }
   }, [request]);
+
+  // Funções para gerenciar itens
+  const alterarQuantidadeItem = (itemId, novaQuantidade) => {
+    setSelectedItems(prev => 
+      prev.map(item => 
+        item.id === itemId 
+          ? { ...item, quantity: novaQuantidade }
+          : item
+      )
+    );
+  };
+
+  const removerItem = (itemId) => {
+    setSelectedItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  // Funções para gerenciar serviços
+  const alterarQuantidadeServico = (tipo, novaQuantidade) => {
+    setSelectedServices(prev => 
+      prev.map(servico => 
+        servico.tipo === tipo 
+          ? { ...servico, quantidade: novaQuantidade }
+          : servico
+      )
+    );
+  };
+
+  const removerServico = (tipo) => {
+    setSelectedServices(prev => prev.filter(servico => servico.tipo !== tipo));
+  };
 
   const handleSave = async () => {
     try {
       setSaving(true);
-      await onSave(editedRequest);
+      const requestCompleto = {
+        ...editedRequest,
+        request_items: selectedItems,
+        request_services: selectedServices
+      };
+      await onSave(requestCompleto);
       onClose();
     } catch (error) {
       console.error('Erro ao salvar:', error);
@@ -205,6 +250,173 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
             rows={4}
             style={{ resize: 'vertical' }}
           />
+        </div>
+
+        {/* Seção de Itens do Inventário */}
+        <div style={{ marginTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <label style={{ fontWeight: '600', color: '#374151' }}>Itens do Inventário</label>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={() => setShowInventoryModal(true)}
+              >
+                Adicionar Item
+              </Button>
+            </div>
+          </div>
+          
+          {selectedItems.length > 0 ? (
+            <div style={{ 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '0.75rem',
+              backgroundColor: '#f9fafb',
+              maxHeight: '120px',
+              overflowY: 'auto'
+            }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                {selectedItems.map((item) => (
+                  <div key={item.id} style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    padding: '0.5rem',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff'
+                  }}>
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>{item.name}</div>
+                      <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+                        Disponível: {item.quantity_available}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        type="number"
+                        min="1"
+                        max={item.quantity_available}
+                        value={item.quantity}
+                        onChange={(e) => alterarQuantidadeItem(item.id, parseInt(e.target.value) || 0)}
+                        style={{
+                          width: '50px',
+                          padding: '0.25rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          textAlign: 'center',
+                          fontSize: '0.75rem'
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => removerItem(item.id)}
+                        style={{ padding: '0.25rem', minWidth: 'auto' }}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div style={{ 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem',
+              textAlign: 'center',
+              color: '#6b7280',
+              backgroundColor: '#f9fafb'
+            }}>
+              Nenhum item selecionado
+            </div>
+          )}
+        </div>
+
+        {/* Seção de Serviços Solicitados */}
+        <div style={{ marginTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <label style={{ fontWeight: '600', color: '#374151' }}>Serviços Solicitados</label>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={() => setShowServicesModal(true)}
+              >
+                Adicionar Serviços
+              </Button>
+            </div>
+          </div>
+          
+          {selectedServices.length > 0 ? (
+            <div style={{ 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '0.75rem',
+              backgroundColor: '#f9fafb',
+              maxHeight: '120px',
+              overflowY: 'auto'
+            }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                {selectedServices.map((servico) => (
+                  <div key={servico.tipo} style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    padding: '0.5rem',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff'
+                  }}>
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>{servico.nome}</div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        type="number"
+                        min="1"
+                        value={servico.quantidade}
+                        onChange={(e) => alterarQuantidadeServico(servico.tipo, parseInt(e.target.value) || 0)}
+                        style={{
+                          width: '50px',
+                          padding: '0.25rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          textAlign: 'center',
+                          fontSize: '0.75rem'
+                        }}
+                      />
+                      <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>pessoas</span>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => removerServico(servico.tipo)}
+                        style={{ padding: '0.25rem', minWidth: 'auto' }}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div style={{ 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem',
+              textAlign: 'center',
+              color: '#6b7280',
+              backgroundColor: '#f9fafb'
+            }}>
+              Nenhum serviço selecionado
+            </div>
+          )}
         </div>
       </form>
     </Modal>
