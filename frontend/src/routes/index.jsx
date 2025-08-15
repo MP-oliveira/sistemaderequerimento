@@ -10,7 +10,7 @@ import RequestsAudiovisual from '../pages/RequestsAudiovisual';
 import DashboardAdmin from '../pages/DashboardAdmin';
 import AudiovisualDashboard from '../pages/AudiovisualDashboard';
 import ServicoGeralDashboard from '../pages/ServicoGeralDashboard';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import Layout from '../components/Layout';
 
 function PrivateRoute({ children }) {
