@@ -18,13 +18,47 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredInventory, setFilteredInventory] = useState([]);
 
+  // Função para formatar horário para o input time
+  const formatTimeForInput = (datetime) => {
+    if (!datetime) return '';
+    
+    // Se já está no formato HH:MM, retorna como está
+    if (typeof datetime === 'string' && datetime.includes(':')) {
+      return datetime.substring(0, 5); // Pega apenas HH:MM
+    }
+    
+    // Se é um datetime completo, extrai a hora
+    if (typeof datetime === 'string' && datetime.includes('T')) {
+      return datetime.split('T')[1].substring(0, 5);
+    }
+    
+    return '';
+  };
+
   // Atualizar dados quando o request mudar
   React.useEffect(() => {
-    setEditedRequest(request || {});
-    // Carregar itens e serviços existentes
+    console.log('🕐 Dados do request recebidos:', request);
+    
     if (request) {
+      // Formatar os horários corretamente
+      const formattedRequest = {
+        ...request,
+        start_datetime: request.start_datetime || '',
+        end_datetime: request.end_datetime || ''
+      };
+      
+      setEditedRequest(formattedRequest);
       setSelectedItems(request.request_items || []);
       setSelectedServices(request.request_services || []);
+      
+      console.log('🕐 Horários do request:', {
+        start_datetime: request.start_datetime,
+        end_datetime: request.end_datetime,
+        formatted_start: formatTimeForInput(request.start_datetime),
+        formatted_end: formatTimeForInput(request.end_datetime)
+      });
+    } else {
+      setEditedRequest({});
     }
   }, [request]);
 
@@ -254,11 +288,12 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
               <input
                 className="input-field"
                 type="time"
-                value={editedRequest.start_datetime ? editedRequest.start_datetime.split('T')[1] : ''}
-                onChange={e => {
-                  const currentDate = editedRequest.start_datetime ? editedRequest.start_datetime.split('T')[0] : new Date().toISOString().split('T')[0];
-                  handleInputChange('start_datetime', `${currentDate}T${e.target.value}`);
-                }}
+                value={formatTimeForInput(editedRequest.start_datetime)}
+                            onChange={e => {
+                console.log('🕐 Alterando hora de início para:', e.target.value);
+                const currentDate = editedRequest.start_datetime ? editedRequest.start_datetime.split('T')[0] : new Date().toISOString().split('T')[0];
+                handleInputChange('start_datetime', `${currentDate}T${e.target.value}`);
+              }}
                 required
               />
             </div>
@@ -269,11 +304,12 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
               <input
                 className="input-field"
                 type="time"
-                value={editedRequest.end_datetime ? editedRequest.end_datetime.split('T')[1] : ''}
-                onChange={e => {
-                  const currentDate = editedRequest.end_datetime ? editedRequest.end_datetime.split('T')[0] : new Date().toISOString().split('T')[0];
-                  handleInputChange('end_datetime', `${currentDate}T${e.target.value}`);
-                }}
+                value={formatTimeForInput(editedRequest.end_datetime)}
+                              onChange={e => {
+                console.log('🕐 Alterando hora de fim para:', e.target.value);
+                const currentDate = editedRequest.end_datetime ? editedRequest.end_datetime.split('T')[0] : new Date().toISOString().split('T')[0];
+                handleInputChange('end_datetime', `${currentDate}T${e.target.value}`);
+              }}
                 required
               />
             </div>
