@@ -112,7 +112,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
     } else {
       setEditedRequest({});
     }
-  }, [request]);
+  }, [request, open]);
 
   // Funções para gerenciar itens
   const alterarQuantidadeItem = (itemId, novaQuantidade) => {
