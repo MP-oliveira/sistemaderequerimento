@@ -60,7 +60,15 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       
       setEditedRequest(formattedRequest);
       setSelectedItems(request.request_items || []);
-      setSelectedServices(request.request_services || []);
+      // Processar serviços do backend para garantir IDs únicos
+      const processedServices = (request.request_services || []).map((service, index) => ({
+        ...service,
+        id: service.id || `service_${index}`, // Usar ID do backend ou gerar um único
+        tipo: service.service_type || service.tipo,
+        nome: service.nome || service.name,
+        quantidade: service.quantity || service.quantidade || 1
+      }));
+      setSelectedServices(processedServices);
       
       console.log('🕐 Horários do request:', {
         start_datetime: request.start_datetime,
@@ -89,18 +97,18 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   };
 
   // Funções para gerenciar serviços
-  const alterarQuantidadeServico = (tipo, novaQuantidade) => {
+  const alterarQuantidadeServico = (id, novaQuantidade) => {
     setSelectedServices(prev => 
       prev.map(servico => 
-        servico.tipo === tipo 
+        servico.id === id 
           ? { ...servico, quantidade: novaQuantidade }
           : servico
       )
     );
   };
 
-  const removerServico = (tipo) => {
-    setSelectedServices(prev => prev.filter(servico => servico.tipo !== tipo));
+  const removerServico = (id) => {
+    setSelectedServices(prev => prev.filter(servico => servico.id !== id));
   };
 
   // Funções para gerenciar inventário
@@ -162,6 +170,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
     const servico = servicos[tipo];
     if (servico) {
       const servicoComQuantidade = {
+        id: `new_service_${Date.now()}_${Math.random()}`, // ID único para novos serviços
         tipo,
         nome: servico.nome,
         descricao: servico.descricao,
@@ -492,7 +501,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
             }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                 {selectedServices.map((servico) => (
-                  <div key={servico.tipo} style={{ 
+                  <div key={servico.id} style={{ 
                     display: 'flex', 
                     flexDirection: 'column',
                     padding: '0.5rem',
@@ -508,7 +517,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
                         type="number"
                         min="1"
                         value={servico.quantidade}
-                        onChange={(e) => alterarQuantidadeServico(servico.tipo, parseInt(e.target.value) || 0)}
+                        onChange={(e) => alterarQuantidadeServico(servico.id, parseInt(e.target.value) || 0)}
                         style={{
                           width: '50px',
                           padding: '0.25rem',
@@ -523,7 +532,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
                         type="button"
                         variant="danger"
                         size="sm"
-                        onClick={() => removerServico(servico.tipo)}
+                        onClick={() => removerServico(servico.id)}
                         style={{ padding: '0.25rem', minWidth: 'auto' }}
                       >
                         ✕
