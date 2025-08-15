@@ -6,7 +6,8 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 1rem;
+  padding: 2rem;
+  overflow-y: auto;
 }
 
 /* Sobrescrever completamente para mobile */
@@ -30,7 +31,7 @@
   border-radius: 18px;
   min-width: 320px;
   max-width: 90vw;
-  max-height: 90vh;
+  max-height: calc(100vh - 4rem);
   overflow: hidden;
   box-shadow: 0 8px 32px #2d8cff22;
   padding: 0;
@@ -39,6 +40,7 @@
   font-family: 'Montserrat', Arial, sans-serif;
   display: flex;
   flex-direction: column;
+  margin: auto;
 }
 
 /* Sobrescrever completamente para mobile */
@@ -88,6 +90,7 @@
   z-index: 10;
   padding: 20px 20px 10px 20px;
   border-bottom: 1px solid #e5e7eb;
+  border-radius: 18px 18px 0 0;
 }
 
 /* Sobrescrever completamente para mobile */
@@ -163,6 +166,7 @@
   background: white;
   border-top: 1px solid #e5e7eb;
   flex-shrink: 0;
+  border-radius: 0 0 18px 18px;
 }
 
 /* Sobrescrever completamente para mobile */
