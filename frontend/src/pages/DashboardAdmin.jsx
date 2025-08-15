@@ -9,9 +9,9 @@ import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparat
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
-  console.log('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO NOVA');
+  console.log('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO FINAL');
   console.log('🔍 DashboardAdmin - URL atual:', window.location.pathname);
-  alert('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO NOVA - URL: ' + window.location.pathname);
+  alert('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO FINAL - URL: ' + window.location.pathname);
   
   const [requisicoes, setRequisicoes] = useState([]);
   const [loading, setLoading] = useState(true);
