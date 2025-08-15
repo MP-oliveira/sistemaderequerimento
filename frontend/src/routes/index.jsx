@@ -24,63 +24,40 @@ function PrivateRoute({ children }) {
 }
 
 function AdminRoute({ children }) {
-  console.log('🔍 AdminRoute - Executado - ANTES DO useAuth');
-  alert('🔍 AdminRoute - Executado - ANTES DO useAuth');
-  
   try {
     const { user } = useAuth();
-    console.log('🔍 AdminRoute - Executado');
-    console.log('🔍 AdminRoute - User:', user);
-    console.log('🔍 AdminRoute - User role:', user?.role);
-    alert('🔍 AdminRoute - Executado - User role: ' + user?.role);
-    
     const isAdmin = user && (user.role === 'ADM' || user.role === 'PASTOR');
-    console.log('🔍 AdminRoute - Is admin:', isAdmin);
     return isAdmin ? children : <Navigate to="/" />;
   } catch (error) {
     console.error('Erro no AdminRoute:', error);
-    alert('🔍 AdminRoute - ERRO: ' + error.message);
     return <Navigate to="/" />;
   }
 }
 
 // Componente que redireciona automaticamente baseado no papel do usuário
 function SmartDashboardRoute() {
-  console.log('🔍 SmartDashboardRoute - Executado');
   const { user } = useAuth();
   
-  console.log('🔍 SmartDashboardRoute - User:', user);
-  console.log('🔍 SmartDashboardRoute - User role:', user?.role);
-  console.log('🔍 SmartDashboardRoute - User role type:', typeof user?.role);
-  console.log('🔍 SmartDashboardRoute - Current pathname:', window.location.pathname);
-  
   if (!user) {
-    console.log('🔍 SmartDashboardRoute - Redirecionando para login');
     return <Navigate to="/login" />;
   }
   
   // Se for admin ou pastor, vai para o dashboard admin
   if (user.role === 'ADM' || user.role === 'PASTOR') {
-    console.log('🔍 SmartDashboardRoute - Redirecionando admin/pastor para dashboard admin');
-    alert('🔍 SmartDashboardRoute - Redirecionando admin/pastor para dashboard admin');
-    console.log('🔍 SmartDashboardRoute - URL de destino: /admin/dashboard');
     return <Navigate to="/admin/dashboard" replace />;
   }
   
   // Se for audiovisual, vai para o dashboard audiovisual
   if (user.role === 'AUDIOVISUAL') {
-    console.log('🔍 SmartDashboardRoute - Redirecionando audiovisual para dashboard audiovisual');
     return <Navigate to="/audiovisual/dashboard" />;
   }
   
   // Se for serviço geral, vai para o dashboard serviço geral
   if (user.role === 'SERVICO_GERAL') {
-    console.log('🔍 SmartDashboardRoute - Redirecionando serviço geral para dashboard serviço geral');
     return <Navigate to="/servico-geral/dashboard" />;
   }
   
   // Se for secretário, líder ou usuário normal, vai para o dashboard normal
-  console.log('🔍 SmartDashboardRoute - Redirecionando usuário normal para dashboard normal');
   return <Navigate to="/dashboard" />;
 }
 
