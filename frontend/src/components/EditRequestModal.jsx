@@ -169,14 +169,30 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
 
     const servico = servicos[tipo];
     if (servico) {
-      const servicoComQuantidade = {
-        id: `new_service_${Date.now()}_${Math.random()}`, // ID único para novos serviços
-        tipo,
-        nome: servico.nome,
-        descricao: servico.descricao,
-        quantidade
-      };
-      setSelectedServices(prev => [...prev, servicoComQuantidade]);
+      setSelectedServices(prev => {
+        // Verificar se já existe um serviço deste tipo
+        const existingIndex = prev.findIndex(s => s.tipo === tipo);
+        
+        if (existingIndex >= 0) {
+          // Atualizar serviço existente
+          const updated = [...prev];
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            quantidade
+          };
+          return updated;
+        } else {
+          // Adicionar novo serviço
+          const servicoComQuantidade = {
+            id: `new_service_${Date.now()}_${Math.random()}`,
+            tipo,
+            nome: servico.nome,
+            descricao: servico.descricao,
+            quantidade
+          };
+          return [...prev, servicoComQuantidade];
+        }
+      });
     }
   };
 
@@ -803,7 +819,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', color: '#111827' }}>
+              <div className="service-title">
                 Diaconia
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
@@ -846,11 +862,11 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
             backgroundColor: '#fff'
           }}>
             <div>
-              <div style={{ fontWeight: '600', color: '#111827' }}>
+              <div className="service-title">
                 Serviços Gerais
               </div>
               <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                Limpeza e organização
+                Limpeza, organização e logística
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

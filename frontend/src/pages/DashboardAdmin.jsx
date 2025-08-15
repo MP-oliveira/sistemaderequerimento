@@ -192,9 +192,14 @@ export default function DashboardAdmin() {
       // Buscar dados completos da requisição
       const detalhe = await getRequisicaoDetalhada(requisicao.id);
       console.log('🔍 Dados da requisição:', detalhe);
+      console.log('🔍 Tipo do detalhe:', typeof detalhe);
+      console.log('🔍 Detalhe é null?', detalhe === null);
+      console.log('🔍 Detalhe é undefined?', detalhe === undefined);
+      
       setSelectedRequest(detalhe);
       setShowEditModal(true);
       console.log('🔍 Modal aberto - showEditModal:', true);
+      console.log('🔍 selectedRequest definido:', detalhe);
     } catch (error) {
       console.error('❌ Erro ao buscar detalhes para edição:', error);
       mostrarNotificacao('Erro ao carregar dados para edição', 'erro');
