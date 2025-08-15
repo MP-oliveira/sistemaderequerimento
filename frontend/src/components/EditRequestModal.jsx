@@ -7,6 +7,9 @@ import { FiSearch, FiPlus, FiX } from 'react-icons/fi';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
   console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
+  console.log('🔍 EditRequestModal - open é boolean?', typeof open);
+  console.log('🔍 EditRequestModal - request é null?', request === null);
+  console.log('🔍 EditRequestModal - request é undefined?', request === undefined);
   
   const [editedRequest, setEditedRequest] = useState(request || {});
   const [saving, setSaving] = useState(false);
