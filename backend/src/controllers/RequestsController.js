@@ -1927,18 +1927,109 @@ export const updateRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+    
+    console.log('🔄 Atualizando requisição:', id, updateData);
+    
+    // Extrair itens e serviços do updateData
+    const { request_items, request_services, ...requestData } = updateData;
+    
+    // Atualizar dados básicos da requisição
     const { data: updated, error } = await supabase
       .from('requests')
-      .update(updateData)
+      .update(requestData)
       .eq('id', id)
       .select()
       .single();
+      
     if (error || !updated) {
-      return res.status(400).json({ success: false, message: 'Erro ao atualizar requisição', error: error?.message });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Erro ao atualizar requisição', 
+        error: error?.message 
+      });
     }
-    res.json({ success: true, data: updated });
+    
+    // Atualizar itens da requisição se fornecidos
+    if (request_items && Array.isArray(request_items)) {
+      // Remover itens existentes
+      await supabase
+        .from('request_items')
+        .delete()
+        .eq('request_id', id);
+      
+      // Inserir novos itens
+      if (request_items.length > 0) {
+        const itemsToInsert = request_items.map(item => ({
+          request_id: id,
+          inventory_id: item.id,
+          quantity_requested: item.quantity,
+          quantity_returned: 0
+        }));
+        
+        const { error: itemsError } = await supabase
+          .from('request_items')
+          .insert(itemsToInsert);
+          
+        if (itemsError) {
+          console.error('❌ Erro ao atualizar itens:', itemsError);
+        }
+      }
+    }
+    
+    // Atualizar serviços da requisição se fornecidos
+    if (request_services && Array.isArray(request_services)) {
+      // Remover serviços existentes
+      await supabase
+        .from('request_services')
+        .delete()
+        .eq('request_id', id);
+      
+      // Inserir novos serviços
+      if (request_services.length > 0) {
+        const servicesToInsert = request_services.map(service => ({
+          request_id: id,
+          service_type: service.tipo,
+          quantity: service.quantidade
+        }));
+        
+        const { error: servicesError } = await supabase
+          .from('request_services')
+          .insert(servicesToInsert);
+          
+        if (servicesError) {
+          console.error('❌ Erro ao atualizar serviços:', servicesError);
+        }
+      }
+    }
+    
+    // Buscar requisição atualizada com itens e serviços
+    const { data: finalRequest, error: finalError } = await supabase
+      .from('requests')
+      .select(`
+        *,
+        request_items (
+          *,
+          inventory:inventory_id (*)
+        ),
+        request_services (*)
+      `)
+      .eq('id', id)
+      .single();
+    
+    if (finalError) {
+      console.error('❌ Erro ao buscar requisição final:', finalError);
+    }
+    
+    console.log('✅ Requisição atualizada com sucesso:', finalRequest);
+    res.json({ success: true, data: finalRequest });
+    
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+    console.error('❌ Erro interno ao atualizar requisição:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor', 
+      error: error.message 
+    });
   }
 };
 

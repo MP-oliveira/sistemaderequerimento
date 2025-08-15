@@ -204,15 +204,49 @@ export default function DashboardAdmin() {
   // Função para salvar alterações
   const handleSaveRequest = async (editedRequest) => {
     try {
-      // Aqui você implementaria a chamada para atualizar a requisição
-      console.log('Salvando requisição:', editedRequest);
+      console.log('🔄 Salvando requisição:', editedRequest);
+      
+      // Preparar dados para envio
+      const dadosParaEnviar = {
+        ...editedRequest,
+        // Garantir que os campos de data estejam no formato correto
+        start_datetime: editedRequest.start_datetime,
+        end_datetime: editedRequest.end_datetime,
+        // Incluir itens e serviços
+        request_items: editedRequest.request_items || [],
+        request_services: editedRequest.request_services || []
+      };
+
+      // Fazer a chamada para a API
+      const response = await fetch(`/api/requests/${editedRequest.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(dadosParaEnviar)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao salvar requisição');
+      }
+
+      const resultado = await response.json();
+      console.log('✅ Requisição salva com sucesso:', resultado);
+      
       mostrarNotificacao('Alterações salvas com sucesso!', 'sucesso');
       
-      // Recarregar dados
-      carregarDados();
+      // Fechar modal
+      setShowEditModal(false);
+      setSelectedRequest(null);
+      
+      // Recarregar dados para mostrar as alterações
+      await carregarDados();
+      
     } catch (error) {
-      console.error('Erro ao salvar alterações:', error);
-      mostrarNotificacao('Erro ao salvar alterações', 'erro');
+      console.error('❌ Erro ao salvar alterações:', error);
+      mostrarNotificacao(`Erro ao salvar alterações: ${error.message}`, 'erro');
       throw error;
     }
   };
