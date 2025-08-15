@@ -11,6 +11,8 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   console.log('🔍 EditRequestModal - open é boolean?', typeof open);
   console.log('🔍 EditRequestModal - request é null?', request === null);
   console.log('🔍 EditRequestModal - request é undefined?', request === undefined);
+  console.log('🔍 request.itens:', request?.itens);
+  console.log('🔍 request.servicos:', request?.servicos);
   
   const [editedRequest, setEditedRequest] = useState(request || {});
   const [saving, setSaving] = useState(false);
