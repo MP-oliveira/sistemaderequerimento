@@ -1984,9 +1984,12 @@ export const updateRequest = async (req, res) => {
       ...requestData 
     } = updateData;
     
-    // Usar request_items/request_services se disponíveis, senão usar itens/servicos
-    // Se request_items/request_services são arrays vazios, usar itens/servicos
-    const itemsToUpdate = (request_items && request_items.length > 0) ? request_items : (itens && itens.length > 0 ? itens : []);
+    // Combinar itens existentes com novos itens
+    const existingItems = itens || [];
+    const newItems = request_items || [];
+    const itemsToUpdate = [...existingItems, ...newItems];
+    
+    // Services are currently ignored as the table does not exist
     const servicesToUpdate = (request_services && request_services.length > 0) ? request_services : (servicos && servicos.length > 0 ? servicos : []);
     
     console.log('🔍 DEBUG - Extração de dados:');
