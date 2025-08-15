@@ -235,6 +235,8 @@ export default function DashboardAdmin() {
 
   useEffect(() => {
     carregarDados();
+    console.log('DashboardAdmin carregado - JavaScript funcionando');
+    alert('DashboardAdmin carregado - JavaScript funcionando');
   }, []);
 
 
