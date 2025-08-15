@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload } from 'react-icons/fi';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import './QuickActions.css';
 
 export default function QuickActions() {

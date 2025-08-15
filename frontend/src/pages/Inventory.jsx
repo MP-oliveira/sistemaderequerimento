@@ -6,7 +6,7 @@ import Button from '../components/Button';
 import ActivityLog from '../components/ActivityLog';
 import { listarItensInventario, criarItemInventario, atualizarItemInventario, deletarItemInventario } from '../services/inventoryService';
 import { buscarHistoricoInventario } from '../services/activityLogService';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { INVENTORY_CATEGORIES } from '../utils/inventoryCategories';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';

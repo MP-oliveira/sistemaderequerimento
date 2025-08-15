@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX, FiSearch } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
 import Table from '../components/Table';
 import Modal from '../components/Modal';

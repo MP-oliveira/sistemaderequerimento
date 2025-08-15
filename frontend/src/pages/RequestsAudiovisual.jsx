@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { listarRequisicoes, executarRequisicao, retornarInstrumentos } from '../services/requestsService';
 import Modal from '../components/Modal';
 import Button from '../components/Button';

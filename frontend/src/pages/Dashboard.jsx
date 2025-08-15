@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { listarRequisicoes, listarEventos } from '../services/requestsService';
 import { listarItensInventario } from '../services/inventoryService';
 import ActivityLog from '../components/ActivityLog';

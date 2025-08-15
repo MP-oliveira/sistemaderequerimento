@@ -10,7 +10,7 @@ import RequestsAudiovisual from '../pages/RequestsAudiovisual';
 import DashboardAdmin from '../pages/DashboardAdmin';
 import AudiovisualDashboard from '../pages/AudiovisualDashboard';
 import ServicoGeralDashboard from '../pages/ServicoGeralDashboard';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import Layout from '../components/Layout';
 
 function PrivateRoute({ children }) {
@@ -145,7 +145,13 @@ export default function AppRoutes() {
               <p>URL: {window.location.pathname}</p>
               <AdminRoute>
                 <Layout>
-                  <DashboardAdmin />
+                  <div style={{ padding: '20px', background: 'red', color: 'white' }}>
+                    <h1>TESTE DIRETO - DashboardAdmin Substituído</h1>
+                    <p>Se você vê isso, o problema é no componente DashboardAdmin</p>
+                    <button onClick={() => alert('BOTÃO FUNCIONANDO!')}>
+                      Clique aqui para testar
+                    </button>
+                  </div>
                 </Layout>
               </AdminRoute>
             </>

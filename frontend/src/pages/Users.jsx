@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiEdit, FiTrash2, FiArrowLeft } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
