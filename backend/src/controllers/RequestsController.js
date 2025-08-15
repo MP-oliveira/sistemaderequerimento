@@ -1995,6 +1995,10 @@ export const updateRequest = async (req, res) => {
     console.log('📝 servicos:', servicos);
     console.log('📝 itemsToUpdate:', itemsToUpdate);
     console.log('📝 servicesToUpdate:', servicesToUpdate);
+    console.log('📝 itemsToUpdate.length:', itemsToUpdate.length);
+    console.log('📝 servicesToUpdate.length:', servicesToUpdate.length);
+    console.log('📝 itemsToUpdate é array?', Array.isArray(itemsToUpdate));
+    console.log('📝 servicesToUpdate é array?', Array.isArray(servicesToUpdate));
     
     // Remover campos que não devem ser atualizados ou não existem na tabela
     const { 
@@ -2044,6 +2048,13 @@ export const updateRequest = async (req, res) => {
     console.log('✅ Requisição básica atualizada:', updated);
     
     // Atualizar itens da requisição se fornecidos
+    console.log('🔍 Verificando itens para atualizar:', {
+      itemsToUpdate,
+      isArray: Array.isArray(itemsToUpdate),
+      length: itemsToUpdate?.length,
+      truthy: !!itemsToUpdate
+    });
+    
     if (itemsToUpdate && Array.isArray(itemsToUpdate)) {
       console.log('🔄 Atualizando itens da requisição:', itemsToUpdate);
       
@@ -2088,6 +2099,13 @@ export const updateRequest = async (req, res) => {
     }
     
     // Atualizar serviços da requisição se fornecidos
+    console.log('🔍 Verificando serviços para atualizar:', {
+      servicesToUpdate,
+      isArray: Array.isArray(servicesToUpdate),
+      length: servicesToUpdate?.length,
+      truthy: !!servicesToUpdate
+    });
+    
     if (servicesToUpdate && Array.isArray(servicesToUpdate)) {
       console.log('🔄 Atualizando serviços da requisição:', servicesToUpdate);
       
