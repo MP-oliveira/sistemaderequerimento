@@ -1982,8 +1982,19 @@ export const updateRequest = async (req, res) => {
     console.log('📝 request_items:', request_items);
     console.log('📝 request_services:', request_services);
     
-    // Remover campos que não devem ser atualizados
-    const { requester_id, id: requestId, created_at, updated_at, ...dataToUpdate } = requestData;
+    // Remover campos que não devem ser atualizados ou não existem na tabela
+    const { 
+      requester_id, 
+      id: requestId, 
+      created_at, 
+      updated_at,
+      itens,
+      servicos,
+      users,
+      requester_name,
+      requester_email,
+      ...dataToUpdate 
+    } = requestData;
     
     console.log('📝 Dados finais para atualização:', dataToUpdate);
     console.log('📝 Campos removidos:', { requester_id, id: requestId, created_at, updated_at });
