@@ -375,7 +375,10 @@ export default function DashboardAdmin() {
                   <div 
                     key={req.id} 
                     className="request-item"
-                    onClick={() => abrirModalEdicao(req)}
+                    onClick={() => {
+                      console.log('Clique detectado na requisição:', req);
+                      abrirModalEdicao(req);
+                    }}
                     style={{ cursor: 'pointer' }}
                   >
                     <div className="request-item-content">
