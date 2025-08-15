@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import Button from './Button';
+import { listDepartments } from '../services/departmentsService';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
   console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
   
   const [editedRequest, setEditedRequest] = useState(request || {});
   const [saving, setSaving] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [loadingDepartments, setLoadingDepartments] = useState(false);
 
   // Atualizar dados quando o request mudar
   React.useEffect(() => {
     setEditedRequest(request || {});
   }, [request]);
+
+  // Carregar departamentos quando o modal abrir
+  useEffect(() => {
+    if (open) {
+      loadDepartments();
+    }
+  }, [open]);
+
+  const loadDepartments = async () => {
+    try {
+      setLoadingDepartments(true);
+      const deps = await listDepartments();
+      setDepartments(deps);
+    } catch (error) {
+      console.error('Erro ao carregar departamentos:', error);
+    } finally {
+      setLoadingDepartments(false);
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -63,17 +85,16 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
                 value={editedRequest.department || ''}
                 onChange={e => handleInputChange('department', e.target.value)}
                 required
+                disabled={loadingDepartments}
               >
-                <option value="">Selecione um departamento</option>
-                <option value="SEC">Secretaria</option>
-                <option value="AUDIOVISUAL">Audiovisual</option>
-                <option value="SERVICO_GERAL">Serviço Geral</option>
-                <option value="TI">TI</option>
-                <option value="MARKETING">Marketing</option>
-                <option value="RH">RH</option>
-                <option value="FINANCEIRO">Financeiro</option>
-                <option value="JURIDICO">Jurídico</option>
-                <option value="ADMINISTRATIVO">Administrativo</option>
+                <option value="">
+                  {loadingDepartments ? 'Carregando...' : 'Selecione um departamento'}
+                </option>
+                {departments.map(dept => (
+                  <option key={dept.id} value={dept.nome}>
+                    {dept.nome}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

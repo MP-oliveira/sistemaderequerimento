@@ -25,6 +25,8 @@
   height: 36px;
   box-sizing: border-box;
   width: 100%;
+  line-height: 1.2;
+  overflow: visible;
 }
 
 /* Estilo específico para textarea */
@@ -52,6 +54,8 @@ select.input-field {
   padding-right: 40px;
   cursor: pointer;
   height: 36px;
+  line-height: 1.2;
+  overflow: visible;
 }
 
 select.input-field:focus {
