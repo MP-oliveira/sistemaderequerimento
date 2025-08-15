@@ -2044,8 +2044,8 @@ export const updateRequest = async (req, res) => {
         const itemsToInsert = request_items.map(item => ({
           request_id: id,
           inventory_id: item.id,
-          quantity_requested: item.quantity,
-          quantity_returned: 0
+          quantity_requested: item.quantity
+          // Removido quantity_returned pois não existe na tabela
         }));
         
         const { error: itemsError } = await supabase
@@ -2092,8 +2092,7 @@ export const updateRequest = async (req, res) => {
         request_items (
           *,
           inventory:inventory_id (*)
-        ),
-        request_services (*)
+        )
       `)
       .eq('id', id)
       .single();
