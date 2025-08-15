@@ -203,6 +203,13 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   const handleSave = async () => {
     try {
       setSaving(true);
+      
+      console.log('💾 Modal - Iniciando salvamento...');
+      console.log('💾 Modal - selectedItems antes do map:', selectedItems);
+      console.log('💾 Modal - selectedServices antes do map:', selectedServices);
+      console.log('💾 Modal - selectedItems.length:', selectedItems.length);
+      console.log('💾 Modal - selectedServices.length:', selectedServices.length);
+      
       const requestCompleto = {
         ...editedRequest,
         // Usar o mesmo formato do modal de adicionar requisição
@@ -223,6 +230,8 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       console.log('💾 Modal - selectedServices:', selectedServices);
       console.log('💾 Modal - itens formatados:', requestCompleto.itens);
       console.log('💾 Modal - servicos formatados:', requestCompleto.servicos);
+      console.log('💾 Modal - itens.length:', requestCompleto.itens.length);
+      console.log('💾 Modal - servicos.length:', requestCompleto.servicos.length);
       
       await onSave(requestCompleto);
       onClose();
