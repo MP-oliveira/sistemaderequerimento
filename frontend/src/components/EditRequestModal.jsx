@@ -1,39 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Modal from './Modal';
 import Button from './Button';
-import { listDepartments } from '../services/departmentsService';
+import { departamentosOptions } from '../utils/departamentosConfig';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
   console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
   
   const [editedRequest, setEditedRequest] = useState(request || {});
   const [saving, setSaving] = useState(false);
-  const [departments, setDepartments] = useState([]);
-  const [loadingDepartments, setLoadingDepartments] = useState(false);
 
   // Atualizar dados quando o request mudar
   React.useEffect(() => {
     setEditedRequest(request || {});
   }, [request]);
-
-  // Carregar departamentos quando o modal abrir
-  useEffect(() => {
-    if (open) {
-      loadDepartments();
-    }
-  }, [open]);
-
-  const loadDepartments = async () => {
-    try {
-      setLoadingDepartments(true);
-      const deps = await listDepartments();
-      setDepartments(deps);
-    } catch (error) {
-      console.error('Erro ao carregar departamentos:', error);
-    } finally {
-      setLoadingDepartments(false);
-    }
-  };
 
   const handleSave = async () => {
     try {
@@ -85,14 +64,10 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
                 value={editedRequest.department || ''}
                 onChange={e => handleInputChange('department', e.target.value)}
                 required
-                disabled={loadingDepartments}
               >
-                <option value="">
-                  {loadingDepartments ? 'Carregando...' : 'Selecione um departamento'}
-                </option>
-                {departments.map(dept => (
-                  <option key={dept.id} value={dept.nome}>
-                    {dept.nome}
+                {departamentosOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
