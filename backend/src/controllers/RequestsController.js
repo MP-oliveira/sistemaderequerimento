@@ -1956,9 +1956,13 @@ export const updateRequest = async (req, res) => {
       requester_id: request.requester_id,
       current_user: req.user.userId,
       user_role: req.user.role,
+      user_role_type: typeof req.user.role,
       isOwner,
-      isAdmin
+      isAdmin,
+      role_comparison: req.user.role === 'ADMIN'
     });
+    
+    console.log('🔐 req.user completo:', req.user);
     
     if (!isOwner && !isAdmin) {
       console.error('❌ Usuário sem permissão para editar esta requisição');
