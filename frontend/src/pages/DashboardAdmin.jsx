@@ -212,9 +212,9 @@ export default function DashboardAdmin() {
         // Garantir que os campos de data estejam no formato correto
         start_datetime: editedRequest.start_datetime,
         end_datetime: editedRequest.end_datetime,
-        // Incluir itens e serviços
-        request_items: selectedItems,
-        request_services: selectedServices
+        // Incluir itens e serviços (já vêm do modal)
+        request_items: editedRequest.request_items || [],
+        request_services: editedRequest.request_services || []
       };
       
       console.log('📤 Dados sendo enviados para API:', dadosParaEnviar);
