@@ -1471,4 +1471,68 @@ body, html {
   .detail-item-admin span {
     font-size: 0.8rem;
   }
+}
+
+/* Estilos para o modal de edição */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.input-field {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: #ffffff;
+  color: #374151;
+  transition: border-color 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.input-field:invalid {
+  border-color: #ef4444;
+}
+
+/* Responsividade para o modal de edição */
+@media (max-width: 768px) {
+  .input-group {
+    gap: 6px;
+  }
+  
+  .input-label {
+    font-size: 0.85rem;
+  }
+  
+  .input-field {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .input-group {
+    gap: 4px;
+  }
+  
+  .input-label {
+    font-size: 0.8rem;
+  }
+  
+  .input-field {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
 } 
