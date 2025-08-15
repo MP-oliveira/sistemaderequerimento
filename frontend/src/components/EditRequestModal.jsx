@@ -65,12 +65,19 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       setEditedRequest(formattedRequest);
       
       // Processar itens do backend para o formato esperado pelo modal
+      console.log('🔍 request.request_items recebido:', request.request_items);
+      console.log('🔍 request.request_items.length:', request.request_items?.length);
+      
       const processedItems = (request.request_items || []).map(item => ({
         id: item.inventory_id, // Usar inventory_id como id
         name: item.item_name, // Usar item_name como name
         quantity: item.quantity_requested, // Usar quantity_requested como quantity
         ...item // Manter todos os outros campos
       }));
+      
+      console.log('🔍 processedItems:', processedItems);
+      console.log('🔍 processedItems.length:', processedItems.length);
+      
       setSelectedItems(processedItems);
       // Processar serviços do backend para garantir IDs únicos
       const processedServices = (request.request_services || []).map((service, index) => ({
