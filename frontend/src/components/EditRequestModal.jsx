@@ -20,33 +20,39 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   const [selectedServices, setSelectedServices] = useState([]);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   
-  // Processar dados diretamente no render se o useEffect não estiver funcionando
-  React.useEffect(() => {
-    console.log('🔄 useEffect alternativo executado!');
-    console.log('🔄 request.itens:', request?.itens);
-    console.log('🔄 request.servicos:', request?.servicos);
-    
+  // Processar dados diretamente no render
+  const processedItems = React.useMemo(() => {
+    console.log('🔄 Processando itens diretamente no render');
     if (request && request.itens) {
-      const processedItems = (request.itens || []).map(item => ({
+      return (request.itens || []).map(item => ({
         id: item.inventory_id,
         name: item.item_name,
         quantity: item.quantity_requested,
         ...item
       }));
-      setSelectedItems(processedItems);
     }
-    
+    return [];
+  }, [request?.itens]);
+  
+  const processedServices = React.useMemo(() => {
+    console.log('🔄 Processando serviços diretamente no render');
     if (request && request.servicos) {
-      const processedServices = (request.servicos || []).map((service, index) => ({
+      return (request.servicos || []).map((service, index) => ({
         ...service,
         id: service.id || `service_${Date.now()}_${index}_${Math.random()}`,
         tipo: service.tipo,
         nome: service.nome,
         quantidade: service.quantidade || 1
       }));
-      setSelectedServices(processedServices);
     }
-  }, [request]);
+    return [];
+  }, [request?.servicos]);
+  
+  // Atualizar estados quando os dados processados mudarem
+  React.useEffect(() => {
+    setSelectedItems(processedItems);
+    setSelectedServices(processedServices);
+  }, [processedItems, processedServices]);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [inventory, setInventory] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
