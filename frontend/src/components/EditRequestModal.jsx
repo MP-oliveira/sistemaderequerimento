@@ -53,6 +53,9 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   // Atualizar dados quando o request mudar
   React.useEffect(() => {
     console.log('🕐 Dados do request recebidos:', request);
+    console.log('🕐 request.request_items:', request?.request_items);
+    console.log('🕐 request.itens:', request?.itens);
+    console.log('🕐 request completo:', JSON.stringify(request, null, 2));
     
     if (request) {
       // Formatar os horários corretamente
