@@ -185,15 +185,18 @@ export default function DashboardAdmin() {
 
   // Função para abrir modal de edição
   const abrirModalEdicao = async (requisicao) => {
-    console.log('Abrindo modal de edição para:', requisicao);
+    console.log('🔍 Abrindo modal de edição para:', requisicao);
+    alert('🔍 Tentando abrir modal para: ' + requisicao.event_name);
     try {
       // Buscar dados completos da requisição
       const detalhe = await getRequisicaoDetalhada(requisicao.id);
-      console.log('Dados da requisição:', detalhe);
+      console.log('🔍 Dados da requisição:', detalhe);
       setSelectedRequest(detalhe);
       setShowEditModal(true);
+      console.log('🔍 Modal aberto - showEditModal:', true);
+      alert('🔍 Modal deve estar aberto agora!');
     } catch (error) {
-      console.error('Erro ao buscar detalhes para edição:', error);
+      console.error('❌ Erro ao buscar detalhes para edição:', error);
       mostrarNotificacao('Erro ao carregar dados para edição', 'erro');
     }
   };
@@ -679,9 +682,13 @@ export default function DashboardAdmin() {
       </Modal>
 
       {/* Modal de Edição da Requisição */}
+      {console.log('🔍 Renderizando EditRequestModal - showEditModal:', showEditModal, 'selectedRequest:', selectedRequest)}
       <EditRequestModal
         open={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        onClose={() => {
+          console.log('🔍 Fechando modal');
+          setShowEditModal(false);
+        }}
         request={selectedRequest}
         onSave={handleSaveRequest}
       />

@@ -3,6 +3,8 @@ import Modal from './Modal';
 import Button from './Button';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
+  console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
+  
   const [editedRequest, setEditedRequest] = useState(request || {});
   const [saving, setSaving] = useState(false);
 
@@ -30,7 +32,10 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
     }));
   };
 
-  if (!request) return null;
+  if (!request) {
+    console.log('🔍 EditRequestModal - request é null, não renderizando');
+    return null;
+  }
 
   return (
     <Modal
