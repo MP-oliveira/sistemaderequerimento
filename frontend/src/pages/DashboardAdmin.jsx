@@ -262,11 +262,10 @@ export default function DashboardAdmin() {
       
       mostrarNotificacao('Alterações salvas com sucesso!', 'sucesso');
       
-      // Fechar modal
-      setShowEditModal(false);
-      setSelectedRequest(null);
+      // Atualizar o selectedRequest com os dados retornados
+      setSelectedRequest(resultado.data);
       
-      // Recarregar dados para mostrar as alterações
+      // Recarregar dados para atualizar a lista
       await carregarDados();
       
     } catch (error) {
