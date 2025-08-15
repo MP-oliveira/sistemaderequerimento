@@ -138,23 +138,11 @@ export default function AppRoutes() {
         <Route
           path="/admin/dashboard"
           element={
-            <>
-              {console.log('🔍 ROTA /admin/dashboard - Executada')}
-              {alert('🔍 ROTA /admin/dashboard - Executada - VERSÃO TESTE')}
-              <h1>TESTE ROTA ADMIN DASHBOARD</h1>
-              <p>URL: {window.location.pathname}</p>
-              <AdminRoute>
-                <Layout>
-                  <div style={{ padding: '20px', background: 'red', color: 'white' }}>
-                    <h1>TESTE DIRETO - DashboardAdmin Substituído</h1>
-                    <p>Se você vê isso, o problema é no componente DashboardAdmin</p>
-                    <button onClick={() => alert('BOTÃO FUNCIONANDO!')}>
-                      Clique aqui para testar
-                    </button>
-                  </div>
-                </Layout>
-              </AdminRoute>
-            </>
+            <AdminRoute>
+              <Layout>
+                <DashboardAdmin />
+              </Layout>
+            </AdminRoute>
           }
         />
         <Route

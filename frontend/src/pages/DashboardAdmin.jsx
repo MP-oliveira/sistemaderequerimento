@@ -10,9 +10,7 @@ import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparat
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
-  alert('TESTE SIMPLES - DashboardAdmin carregado');
   console.log('🔍 DashboardAdmin - Componente sendo renderizado');
-  alert('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO COM LOGS');
   
   const [requisicoes, setRequisicoes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -190,7 +188,6 @@ export default function DashboardAdmin() {
   // Função para abrir modal de edição
   const abrirModalEdicao = async (requisicao) => {
     console.log('🔍 Abrindo modal de edição para:', requisicao);
-    alert('🔍 Tentando abrir modal para: ' + requisicao.event_name);
     try {
       // Buscar dados completos da requisição
       const detalhe = await getRequisicaoDetalhada(requisicao.id);
@@ -198,7 +195,6 @@ export default function DashboardAdmin() {
       setSelectedRequest(detalhe);
       setShowEditModal(true);
       console.log('🔍 Modal aberto - showEditModal:', true);
-      alert('🔍 Modal deve estar aberto agora!');
     } catch (error) {
       console.error('❌ Erro ao buscar detalhes para edição:', error);
       mostrarNotificacao('Erro ao carregar dados para edição', 'erro');
@@ -244,7 +240,6 @@ export default function DashboardAdmin() {
         <p>Visão geral das requisições e estatísticas do sistema</p>
       </div>
 
-      {alert('🔍 ANTES DO LOADING - loading:', loading)}
       {console.log('🔍 ANTES DO LOADING - loading:', loading)}
 
       {loading ? (
@@ -372,17 +367,13 @@ export default function DashboardAdmin() {
                     key={req.id} 
                     className="request-item"
                     onClick={() => {
-                      alert('🔍 CLIQUE DETECTADO! Requisição: ' + req.event_name);
                       console.log('🔍 Clique detectado na requisição:', req);
                       abrirModalEdicao(req);
                     }}
                     style={{ 
                       cursor: 'pointer', 
                       position: 'relative', 
-                      zIndex: 9999,
-                      border: '2px solid red',
-                      padding: '10px',
-                      margin: '5px 0'
+                      zIndex: 9999
                     }}
                   >
                     <div className="request-item-content">
