@@ -22,6 +22,10 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   
   // Processar dados diretamente no render se o useEffect não estiver funcionando
   React.useEffect(() => {
+    console.log('🔄 useEffect alternativo executado!');
+    console.log('🔄 request.itens:', request?.itens);
+    console.log('🔄 request.servicos:', request?.servicos);
+    
     if (request && request.itens) {
       const processedItems = (request.itens || []).map(item => ({
         id: item.inventory_id,
