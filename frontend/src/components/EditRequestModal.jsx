@@ -7,10 +7,7 @@ import { salasOptions } from '../utils/salasConfig';
 import { FiSearch, FiPlus, FiX } from 'react-icons/fi';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
-      console.log('🔍 EditRequestModal renderizado - open:', open, 'request:', request);
-    console.log('🔍 request.request_items:', request?.request_items);
-    console.log('🔍 request.itens:', request?.itens);
-    console.log('🔍 request completo expandido:', JSON.stringify(request, null, 2));
+      // Log removido para limpeza
   console.log('🔍 EditRequestModal - open é boolean?', typeof open);
   console.log('🔍 EditRequestModal - request é null?', request === null);
   console.log('🔍 EditRequestModal - request é undefined?', request === undefined);
@@ -56,15 +53,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
 
   // Atualizar dados quando o request mudar
   React.useEffect(() => {
-    console.log('🔄 useEffect executado - request mudou');
-    console.log('🔄 useEffect - request:', request);
-    console.log('🔄 useEffect - open:', open);
-    console.log('🔄 open:', open);
-    console.log('🔄 request:', request);
-    console.log('🕐 Dados do request recebidos:', request);
-    console.log('🕐 request.request_items:', request?.request_items);
-    console.log('🕐 request.itens:', request?.itens);
-    console.log('🕐 request completo:', JSON.stringify(request, null, 2));
+      // Logs removidos para limpeza
     
     if (request) {
       // Formatar os horários corretamente
@@ -77,9 +66,6 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       setEditedRequest(formattedRequest);
       
       // Processar itens do backend para o formato esperado pelo modal
-      console.log('🔍 request.itens recebido:', request.itens);
-      console.log('🔍 request.itens.length:', request.itens?.length);
-      
       const processedItems = (request.itens || []).map(item => ({
         id: item.inventory_id, // Usar inventory_id como id
         name: item.item_name, // Usar item_name como name
@@ -87,12 +73,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
         ...item // Manter todos os outros campos
       }));
       
-      console.log('🔍 processedItems:', processedItems);
-      console.log('🔍 processedItems.length:', processedItems.length);
-      
       setSelectedItems(processedItems);
-      console.log('🔍 selectedItems definido:', processedItems);
-      console.log('🔍 selectedItems.length:', processedItems.length);
       // Processar serviços do backend para garantir IDs únicos
       const processedServices = (request.request_services || []).map((service, index) => ({
         ...service,
@@ -483,7 +464,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
               overflowY: 'auto'
             }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                {console.log('🔍 Renderizando selectedItems:', selectedItems)}
+
                 {selectedItems.map((item) => (
                   <div key={item.id} style={{ 
                     display: 'flex', 
