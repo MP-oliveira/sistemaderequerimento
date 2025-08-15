@@ -3,6 +3,7 @@ import Modal from './Modal';
 import Button from './Button';
 import { departamentosOptions } from '../utils/departamentosConfig';
 import { PRIORIDADE_OPTIONS } from '../utils/prioridadeConfig';
+import { salasOptions } from '../utils/salasConfig';
 import { FiSearch, FiPlus, FiX } from 'react-icons/fi';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
@@ -329,15 +330,11 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
                 value={editedRequest.location || ''}
                 onChange={e => handleInputChange('location', e.target.value)}
               >
-                <option value="">Selecione um local</option>
-                <option value="AUDITORIO">Auditório</option>
-                <option value="SALA_DE_REUNIAO">Sala de Reunião</option>
-                <option value="LABORATORIO">Laboratório</option>
-                <option value="SALA_DE_AULA">Sala de Aula</option>
-                <option value="GINASIO">Ginásio</option>
-                <option value="BIBLIOTECA">Biblioteca</option>
-                <option value="CAFETERIA">Cafeteria</option>
-                <option value="SALA_DE_TREINAMENTO">Sala de Treinamento</option>
+                {salasOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
