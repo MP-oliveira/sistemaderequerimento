@@ -25,6 +25,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   // Função para formatar horário para o input time
   const formatTimeForInput = (datetime) => {
     console.log('🕐 Formatando datetime:', datetime);
+  console.log('🔄 EditRequestModal - useEffect será executado?');
     
     if (!datetime) {
       console.log('🕐 Datetime vazio, retornando vazio');
@@ -53,6 +54,8 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   // Atualizar dados quando o request mudar
   React.useEffect(() => {
     console.log('🔄 useEffect executado - request mudou');
+    console.log('🔄 useEffect - request:', request);
+    console.log('🔄 useEffect - open:', open);
     console.log('🔄 open:', open);
     console.log('🔄 request:', request);
     console.log('🕐 Dados do request recebidos:', request);
