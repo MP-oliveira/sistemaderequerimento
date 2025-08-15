@@ -201,13 +201,24 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       setSaving(true);
       const requestCompleto = {
         ...editedRequest,
-        request_items: selectedItems,
-        request_services: selectedServices
+        // Usar o mesmo formato do modal de adicionar requisição
+        itens: selectedItems.map(item => ({
+          inventory_id: item.id,
+          item_name: item.name,
+          quantity_requested: item.quantity
+        })),
+        servicos: selectedServices.map(servico => ({
+          tipo: servico.tipo,
+          quantidade: servico.quantidade,
+          nome: servico.nome
+        }))
       };
       
       console.log('💾 Modal - Dados completos para salvar:', requestCompleto);
       console.log('💾 Modal - selectedItems:', selectedItems);
       console.log('💾 Modal - selectedServices:', selectedServices);
+      console.log('💾 Modal - itens formatados:', requestCompleto.itens);
+      console.log('💾 Modal - servicos formatados:', requestCompleto.servicos);
       
       await onSave(requestCompleto);
       onClose();

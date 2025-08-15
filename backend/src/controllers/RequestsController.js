@@ -1975,12 +1975,26 @@ export const updateRequest = async (req, res) => {
     console.log('🔄 Atualizando requisição:', id);
     console.log('🔄 updateData completo:', JSON.stringify(updateData, null, 2));
     
-    // Extrair itens e serviços do updateData
-    const { request_items, request_services, ...requestData } = updateData;
+    // Extrair itens e serviços do updateData (suportar ambos os formatos)
+    const { 
+      request_items, 
+      request_services, 
+      itens, 
+      servicos,
+      ...requestData 
+    } = updateData;
+    
+    // Usar request_items/request_services se disponíveis, senão usar itens/servicos
+    const itemsToUpdate = request_items || itens || [];
+    const servicesToUpdate = request_services || servicos || [];
     
     console.log('📝 Dados para atualização:', requestData);
     console.log('📝 request_items:', request_items);
     console.log('📝 request_services:', request_services);
+    console.log('📝 itens:', itens);
+    console.log('📝 servicos:', servicos);
+    console.log('📝 itemsToUpdate:', itemsToUpdate);
+    console.log('📝 servicesToUpdate:', servicesToUpdate);
     
     // Remover campos que não devem ser atualizados ou não existem na tabela
     const { 
