@@ -109,16 +109,8 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
         ...item // Manter todos os outros campos
       }));
       
-      setSelectedItems(processedItems);
-      // Processar serviços do backend para garantir IDs únicos
-      const processedServices = (request.servicos || []).map((service, index) => ({
-        ...service,
-        id: service.id || `service_${Date.now()}_${index}_${Math.random()}`, // ID único garantido
-        tipo: service.tipo,
-        nome: service.nome,
-        quantidade: service.quantidade || 1
-      }));
-      setSelectedServices(processedServices);
+      // Os itens e serviços são processados pelo useMemo acima
+      // e atualizados pelo useEffect que depende de processedItems e processedServices
       
       console.log('🕐 Horários do request:', {
         start_datetime: request.start_datetime,

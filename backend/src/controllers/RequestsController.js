@@ -2026,12 +2026,48 @@ export const updateRequest = async (req, res) => {
       ...dataToUpdate 
     } = requestData;
     
-    // Serviços serão salvos em uma tabela separada quando ela for criada
-    // Por enquanto, apenas logamos os serviços
-    console.log('📝 Serviços que seriam salvos:', servicesToUpdate);
+    // Salvar serviços na tabela request_services
+    if (servicesToUpdate && Array.isArray(servicesToUpdate) && servicesToUpdate.length > 0) {
+      console.log('🔄 Salvando serviços na tabela request_services:', servicesToUpdate);
+      
+      // Remover serviços existentes
+      const { error: deleteError } = await supabase
+        .from('request_services')
+        .delete()
+        .eq('request_id', id);
+        
+      if (deleteError) {
+        console.error('❌ Erro ao deletar serviços existentes:', deleteError);
+      } else {
+        console.log('✅ Serviços existentes deletados com sucesso');
+      }
+      
+      // Inserir novos serviços
+      const servicesToInsert = servicesToUpdate.map(service => ({
+        request_id: id,
+        tipo: service.tipo,
+        quantidade: service.quantidade,
+        nome: service.nome
+      }));
+      
+      console.log('📝 Serviços para inserir:', servicesToInsert);
+      
+      const { data: insertedServices, error: servicesError } = await supabase
+        .from('request_services')
+        .insert(servicesToInsert)
+        .select();
+        
+      if (servicesError) {
+        console.error('❌ Erro ao inserir serviços:', servicesError);
+      } else {
+        console.log('✅ Serviços inseridos com sucesso:', insertedServices);
+      }
+    } else {
+      console.log('ℹ️ Nenhum serviço para salvar');
+    }
     
     // Remover campos que não existem na tabela requests
-    const { servicos: servicosField, ...dataToUpdateClean } = dataToUpdate;
+    const { ...dataToUpdateClean } = dataToUpdate;
     
     console.log('📝 Dados finais para atualização:', dataToUpdateClean);
     console.log('📝 Campos removidos:', { requester_id, id: requestId, created_at, updated_at });
