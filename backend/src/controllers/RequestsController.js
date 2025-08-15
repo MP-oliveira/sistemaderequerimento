@@ -1950,7 +1950,7 @@ export const updateRequest = async (req, res) => {
     
     // Verificar permissões: apenas o solicitante original ou ADMIN pode editar
     const isOwner = request.requester_id === req.user.userId;
-    const isAdmin = req.user.role === 'ADMIN';
+    const isAdmin = req.user.role === 'ADMIN' || req.user.role === 'ADM';
     
     console.log('🔐 Verificação de permissão:', {
       requester_id: request.requester_id,
