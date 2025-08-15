@@ -1938,10 +1938,15 @@ export const updateRequest = async (req, res) => {
     console.log('📝 request_items:', request_items);
     console.log('📝 request_services:', request_services);
     
+    // Remover campos que não devem ser atualizados
+    const { requester_id, id: requestId, ...dataToUpdate } = requestData;
+    
+    console.log('📝 Dados finais para atualização:', dataToUpdate);
+    
     // Atualizar dados básicos da requisição
     const { data: updated, error } = await supabase
       .from('requests')
-      .update(requestData)
+      .update(dataToUpdate)
       .eq('id', id)
       .select()
       .single();
