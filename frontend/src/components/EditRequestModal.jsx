@@ -52,6 +52,9 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
 
   // Atualizar dados quando o request mudar
   React.useEffect(() => {
+    console.log('🔄 useEffect executado - request mudou');
+    console.log('🔄 open:', open);
+    console.log('🔄 request:', request);
     console.log('🕐 Dados do request recebidos:', request);
     console.log('🕐 request.request_items:', request?.request_items);
     console.log('🕐 request.itens:', request?.itens);
