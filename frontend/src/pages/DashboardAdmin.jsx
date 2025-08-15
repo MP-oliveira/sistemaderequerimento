@@ -231,7 +231,7 @@ export default function DashboardAdmin() {
       
       console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
       
-      // Fazer a chamada para a API
+      // Fazer a chamada para a API (usando proxy do Vite)
       const response = await fetch(`/api/requests/${editedRequest.id}`, {
         method: 'PUT',
         headers: {
