@@ -36,7 +36,6 @@ function AdminRoute({ children }) {
 // Componente que redireciona automaticamente baseado no papel do usuário
 function SmartDashboardRoute() {
   console.log('🔍 SmartDashboardRoute - Executado');
-  alert('🔍 SmartDashboardRoute - Executado');
   const { user } = useAuth();
   
   console.log('🔍 SmartDashboardRoute - User:', user);

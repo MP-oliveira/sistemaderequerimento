@@ -10,7 +10,6 @@ import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
   console.log('🔍 DashboardAdmin - Componente sendo renderizado');
-  alert('🔍 DashboardAdmin - Componente sendo renderizado');
   
   const [requisicoes, setRequisicoes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -239,7 +238,6 @@ export default function DashboardAdmin() {
   useEffect(() => {
     carregarDados();
     console.log('DashboardAdmin carregado - JavaScript funcionando');
-    alert('DashboardAdmin carregado - JavaScript funcionando');
   }, []);
 
 
