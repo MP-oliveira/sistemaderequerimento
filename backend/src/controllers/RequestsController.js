@@ -2033,11 +2033,19 @@ export const updateRequest = async (req, res) => {
     
     // Atualizar itens da requisição se fornecidos
     if (request_items && Array.isArray(request_items)) {
+      console.log('🔄 Atualizando itens da requisição:', request_items);
+      
       // Remover itens existentes
-      await supabase
+      const { error: deleteError } = await supabase
         .from('request_items')
         .delete()
         .eq('request_id', id);
+        
+      if (deleteError) {
+        console.error('❌ Erro ao deletar itens existentes:', deleteError);
+      } else {
+        console.log('✅ Itens existentes deletados com sucesso');
+      }
       
       // Inserir novos itens
       if (request_items.length > 0) {
@@ -2048,23 +2056,40 @@ export const updateRequest = async (req, res) => {
           // Removido quantity_returned pois não existe na tabela
         }));
         
-        const { error: itemsError } = await supabase
+        console.log('📝 Itens para inserir:', itemsToInsert);
+        
+        const { data: insertedItems, error: itemsError } = await supabase
           .from('request_items')
-          .insert(itemsToInsert);
+          .insert(itemsToInsert)
+          .select();
           
         if (itemsError) {
-          console.error('❌ Erro ao atualizar itens:', itemsError);
+          console.error('❌ Erro ao inserir itens:', itemsError);
+        } else {
+          console.log('✅ Itens inseridos com sucesso:', insertedItems);
         }
+      } else {
+        console.log('ℹ️ Nenhum item para inserir');
       }
+    } else {
+      console.log('ℹ️ Nenhum request_items fornecido ou não é array');
     }
     
     // Atualizar serviços da requisição se fornecidos
     if (request_services && Array.isArray(request_services)) {
+      console.log('🔄 Atualizando serviços da requisição:', request_services);
+      
       // Remover serviços existentes
-      await supabase
+      const { error: deleteServicesError } = await supabase
         .from('request_services')
         .delete()
         .eq('request_id', id);
+        
+      if (deleteServicesError) {
+        console.error('❌ Erro ao deletar serviços existentes:', deleteServicesError);
+      } else {
+        console.log('✅ Serviços existentes deletados com sucesso');
+      }
       
       // Inserir novos serviços
       if (request_services.length > 0) {
@@ -2074,14 +2099,23 @@ export const updateRequest = async (req, res) => {
           quantity: service.quantidade
         }));
         
-        const { error: servicesError } = await supabase
+        console.log('📝 Serviços para inserir:', servicesToInsert);
+        
+        const { data: insertedServices, error: servicesError } = await supabase
           .from('request_services')
-          .insert(servicesToInsert);
+          .insert(servicesToInsert)
+          .select();
           
         if (servicesError) {
-          console.error('❌ Erro ao atualizar serviços:', servicesError);
+          console.error('❌ Erro ao inserir serviços:', servicesError);
+        } else {
+          console.log('✅ Serviços inseridos com sucesso:', insertedServices);
         }
+      } else {
+        console.log('ℹ️ Nenhum serviço para inserir');
       }
+    } else {
+      console.log('ℹ️ Nenhum request_services fornecido ou não é array');
     }
     
     // Buscar requisição atualizada com itens e serviços
