@@ -207,20 +207,24 @@ export default function DashboardAdmin() {
   };
 
   // Função para salvar alterações
-  const handleSaveRequest = async (editedRequest) => {
-    try {
-      console.log('🔄 Salvando requisição:', editedRequest);
-      
-      // Preparar dados para envio
-      const dadosParaEnviar = {
-        ...editedRequest,
-        // Garantir que os campos de data estejam no formato correto
-        start_datetime: editedRequest.start_datetime,
-        end_datetime: editedRequest.end_datetime,
-        // Incluir itens e serviços (já vêm do modal)
-        request_items: editedRequest.request_items || [],
-        request_services: editedRequest.request_services || []
-      };
+      const handleSaveRequest = async (editedRequest) => {
+      try {
+        console.log('🔄 Salvando requisição:', editedRequest);
+        console.log('🔄 editedRequest.itens:', editedRequest.itens);
+        console.log('🔄 editedRequest.servicos:', editedRequest.servicos);
+        console.log('🔄 editedRequest.request_items:', editedRequest.request_items);
+        console.log('🔄 editedRequest.request_services:', editedRequest.request_services);
+        
+        // Preparar dados para envio
+        const dadosParaEnviar = {
+          ...editedRequest,
+          // Garantir que os campos de data estejam no formato correto
+          start_datetime: editedRequest.start_datetime,
+          end_datetime: editedRequest.end_datetime,
+          // Incluir itens e serviços (já vêm do modal)
+          request_items: editedRequest.request_items || [],
+          request_services: editedRequest.request_services || []
+        };
       
       console.log('📤 Dados sendo enviados para API:', dadosParaEnviar);
       console.log('📤 request_items:', dadosParaEnviar.request_items);
