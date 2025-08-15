@@ -1939,9 +1939,23 @@ export const updateRequest = async (req, res) => {
     console.log('📝 request_services:', request_services);
     
     // Remover campos que não devem ser atualizados
-    const { requester_id, id: requestId, ...dataToUpdate } = requestData;
+    const { requester_id, id: requestId, created_at, updated_at, ...dataToUpdate } = requestData;
     
     console.log('📝 Dados finais para atualização:', dataToUpdate);
+    console.log('📝 Campos removidos:', { requester_id, id: requestId, created_at, updated_at });
+    
+    // Verificar se há campos obrigatórios vazios
+    const camposObrigatorios = ['department', 'event_name', 'start_datetime', 'end_datetime'];
+    const camposVazios = camposObrigatorios.filter(campo => !dataToUpdate[campo]);
+    
+    if (camposVazios.length > 0) {
+      console.error('❌ Campos obrigatórios vazios:', camposVazios);
+      return res.status(400).json({ 
+        success: false, 
+        message: `Campos obrigatórios vazios: ${camposVazios.join(', ')}`, 
+        camposVazios 
+      });
+    }
     
     // Atualizar dados básicos da requisição
     const { data: updated, error } = await supabase

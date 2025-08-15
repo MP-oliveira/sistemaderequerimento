@@ -220,13 +220,23 @@ export default function DashboardAdmin() {
       console.log('📤 Dados sendo enviados para API:', dadosParaEnviar);
       console.log('📤 request_items:', dadosParaEnviar.request_items);
       console.log('📤 request_services:', dadosParaEnviar.request_services);
+      console.log('📤 ID da requisição:', editedRequest.id);
+      console.log('📤 Status da requisição:', editedRequest.status);
 
+      // Verificar se o token existe
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado');
+      }
+      
+      console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
+      
       // Fazer a chamada para a API
       const response = await fetch(`/api/requests/${editedRequest.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(dadosParaEnviar)
       });
