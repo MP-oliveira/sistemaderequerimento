@@ -138,11 +138,17 @@ export default function AppRoutes() {
         <Route
           path="/admin/dashboard"
           element={
-            <AdminRoute>
-              <Layout>
-                <DashboardAdmin />
-              </Layout>
-            </AdminRoute>
+            <>
+              {console.log('🔍 ROTA /admin/dashboard - Executada')}
+              {alert('🔍 ROTA /admin/dashboard - Executada - VERSÃO TESTE')}
+              <h1>TESTE ROTA ADMIN DASHBOARD</h1>
+              <p>URL: {window.location.pathname}</p>
+              <AdminRoute>
+                <Layout>
+                  <DashboardAdmin />
+                </Layout>
+              </AdminRoute>
+            </>
           }
         />
         <Route
