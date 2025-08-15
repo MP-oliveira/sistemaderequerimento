@@ -1985,8 +1985,9 @@ export const updateRequest = async (req, res) => {
     } = updateData;
     
     // Usar request_items/request_services se disponíveis, senão usar itens/servicos
-    const itemsToUpdate = request_items !== undefined ? request_items : (itens !== undefined ? itens : []);
-    const servicesToUpdate = request_services !== undefined ? request_services : (servicos !== undefined ? servicos : []);
+    // Se request_items/request_services são arrays vazios, usar itens/servicos
+    const itemsToUpdate = (request_items && request_items.length > 0) ? request_items : (itens && itens.length > 0 ? itens : []);
+    const servicesToUpdate = (request_services && request_services.length > 0) ? request_services : (servicos && servicos.length > 0 ? servicos : []);
     
     console.log('🔍 DEBUG - Extração de dados:');
     console.log('🔍 request_items:', request_items);
