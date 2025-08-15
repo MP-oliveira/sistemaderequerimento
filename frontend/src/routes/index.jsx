@@ -140,6 +140,7 @@ export default function AppRoutes() {
             <div>
               {console.log('🔍 Rota /admin/dashboard - Executada')}
               {alert('🔍 Rota /admin/dashboard - Executada')}
+              <h1>TESTE ROTA ADMIN DASHBOARD</h1>
               <AdminRoute>
                 <Layout>
                   <DashboardAdmin />
