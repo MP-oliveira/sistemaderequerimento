@@ -10,6 +10,9 @@ import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparat
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
+  console.log('🔍 DashboardAdmin - Componente sendo renderizado');
+  alert('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO COM LOGS');
+  
   const [requisicoes, setRequisicoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -365,10 +368,18 @@ export default function DashboardAdmin() {
                     key={req.id} 
                     className="request-item"
                     onClick={() => {
-                      console.log('Clique detectado na requisição:', req);
+                      alert('🔍 CLIQUE DETECTADO! Requisição: ' + req.event_name);
+                      console.log('🔍 Clique detectado na requisição:', req);
                       abrirModalEdicao(req);
                     }}
-                    style={{ cursor: 'pointer', position: 'relative', zIndex: 9999 }}
+                    style={{ 
+                      cursor: 'pointer', 
+                      position: 'relative', 
+                      zIndex: 9999,
+                      border: '2px solid red',
+                      padding: '10px',
+                      margin: '5px 0'
+                    }}
                   >
                     <div className="request-item-content">
                       <div className="request-item-header">
