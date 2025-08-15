@@ -394,7 +394,7 @@ export default function DashboardAdmin() {
                     zIndex: 9999,
                     position: 'relative'
                   }}
-                  onClick={() => alert('TESTE DIRETO FUNCIONANDO!')}
+                  onMouseDown={() => alert('TESTE DIRETO FUNCIONANDO!')}
                 >
                   CLIQUE AQUI PARA TESTE DIRETO
                 </div>
@@ -403,9 +403,9 @@ export default function DashboardAdmin() {
                   <div 
                     key={req.id} 
                     className="request-item"
-                    onClick={() => {
-                      alert('TESTE - Clique funcionando!');
-                      console.log('Clique detectado na requisição:', req);
+                    onMouseDown={() => {
+                      alert('TESTE - Mouse Down funcionando!');
+                      console.log('Mouse Down detectado na requisição:', req);
                       abrirModalEdicao(req);
                     }}
                     style={{ cursor: 'pointer', position: 'relative', zIndex: 9999 }}
