@@ -212,16 +212,14 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       
       const requestCompleto = {
         ...editedRequest,
-        // Usar o mesmo formato do modal de adicionar requisição
-        itens: selectedItems.map(item => ({
+        // Enviar dados no formato que o backend espera
+        request_items: selectedItems.map(item => ({
           inventory_id: item.id,
-          item_name: item.name,
           quantity_requested: item.quantity
         })),
-        servicos: selectedServices.map(servico => ({
+        request_services: selectedServices.map(servico => ({
           tipo: servico.tipo,
-          quantidade: servico.quantidade,
-          nome: servico.nome
+          quantidade: servico.quantidade
         }))
       };
       
