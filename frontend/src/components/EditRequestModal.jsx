@@ -22,7 +22,6 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   
   // Processar dados diretamente no render
   const processedItems = React.useMemo(() => {
-    console.log('🔄 Processando itens diretamente no render');
     if (request && request.itens) {
       return (request.itens || []).map(item => ({
         id: item.inventory_id,
@@ -35,7 +34,6 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   }, [request?.itens]);
   
   const processedServices = React.useMemo(() => {
-    console.log('🔄 Processando serviços diretamente no render');
     if (request && request.servicos) {
       return (request.servicos || []).map((service, index) => ({
         ...service,
@@ -265,10 +263,11 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
           inventory_id: item.id,
           quantity_requested: item.quantity
         })),
-        request_services: selectedServices.map(servico => ({
-          tipo: servico.tipo,
-          quantidade: servico.quantidade
-        }))
+                          servicos: selectedServices.map(servico => ({
+                    tipo: servico.tipo,
+                    quantidade: servico.quantidade,
+                    nome: servico.nome
+                  }))
       };
       
       console.log('💾 Modal - Dados completos para salvar:', requestCompleto);

@@ -1989,8 +1989,10 @@ export const updateRequest = async (req, res) => {
     const newItems = request_items || [];
     const itemsToUpdate = [...existingItems, ...newItems];
     
-    // Services are currently ignored as the table does not exist
-    const servicesToUpdate = (request_services && request_services.length > 0) ? request_services : (servicos && servicos.length > 0 ? servicos : []);
+    // Combinar serviços existentes com novos serviços
+    const existingServices = servicos || [];
+    const newServices = request_services || [];
+    const servicesToUpdate = [...existingServices, ...newServices];
     
     console.log('🔍 DEBUG - Extração de dados:');
     console.log('🔍 request_items:', request_items);
@@ -2023,6 +2025,9 @@ export const updateRequest = async (req, res) => {
       requester_email,
       ...dataToUpdate 
     } = requestData;
+    
+    // Adicionar serviços ao dataToUpdate
+    dataToUpdate.servicos = servicesToUpdate;
     
     console.log('📝 Dados finais para atualização:', dataToUpdate);
     console.log('📝 Campos removidos:', { requester_id, id: requestId, created_at, updated_at });
@@ -2129,39 +2134,9 @@ export const updateRequest = async (req, res) => {
       
       if (servicesToUpdate && Array.isArray(servicesToUpdate)) {
         console.log('🔄 Atualizando serviços da requisição:', servicesToUpdate);
-        
-        // Remover serviços existentes
-        const { error: deleteError } = await supabase
-          .from('request_services')
-          .delete()
-          .eq('request_id', id);
-          
-        if (deleteError) {
-          console.error('❌ Erro ao deletar serviços existentes:', deleteError);
-        } else {
-          console.log('✅ Serviços existentes deletados com sucesso');
-        }
-        
-        // Inserir novos serviços
-        if (servicesToUpdate.length > 0) {
-          const servicesToInsert = servicesToUpdate.map(service => ({
-            request_id: id,
-            tipo: service.tipo,
-            quantidade: service.quantidade,
-            nome: service.nome || service.tipo
-          }));
-          console.log('📝 Serviços para inserir:', servicesToInsert);
-          const { data: insertedServices, error: servicesError } = await supabase.from('request_services').insert(servicesToInsert).select();
-          if (servicesError) {
-            console.error('❌ Erro ao inserir serviços:', servicesError);
-          } else {
-            console.log('✅ Serviços inseridos com sucesso:', insertedServices);
-          }
-        } else {
-          console.log('ℹ️ Nenhum serviço para inserir');
-        }
+        console.log('ℹ️ Serviços serão salvos no campo servicos da tabela requests');
       } else {
-        console.log('ℹ️ Nenhum request_services fornecido ou não é array');
+        console.log('ℹ️ Nenhum serviço para atualizar');
       }
     
     // Buscar requisição atualizada com itens e serviços
