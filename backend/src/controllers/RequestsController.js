@@ -2026,8 +2026,9 @@ export const updateRequest = async (req, res) => {
       ...dataToUpdate 
     } = requestData;
     
-    // Adicionar serviços ao dataToUpdate
-    dataToUpdate.servicos = servicesToUpdate;
+    // Serviços serão salvos em uma tabela separada quando ela for criada
+    // Por enquanto, apenas logamos os serviços
+    console.log('📝 Serviços que seriam salvos:', servicesToUpdate);
     
     console.log('📝 Dados finais para atualização:', dataToUpdate);
     console.log('📝 Campos removidos:', { requester_id, id: requestId, created_at, updated_at });
