@@ -63,7 +63,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       // Processar serviços do backend para garantir IDs únicos
       const processedServices = (request.request_services || []).map((service, index) => ({
         ...service,
-        id: service.id || `service_${index}`, // Usar ID do backend ou gerar um único
+        id: service.id || `service_${Date.now()}_${index}_${Math.random()}`, // ID único garantido
         tipo: service.service_type || service.tipo,
         nome: service.nome || service.name,
         quantidade: service.quantity || service.quantidade || 1

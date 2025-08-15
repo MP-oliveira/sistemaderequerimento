@@ -1933,6 +1933,8 @@ export const updateRequest = async (req, res) => {
     // Extrair itens e serviços do updateData
     const { request_items, request_services, ...requestData } = updateData;
     
+    console.log('📝 Dados para atualização:', requestData);
+    
     // Atualizar dados básicos da requisição
     const { data: updated, error } = await supabase
       .from('requests')
@@ -1942,12 +1944,15 @@ export const updateRequest = async (req, res) => {
       .single();
       
     if (error || !updated) {
+      console.error('❌ Erro ao atualizar requisição básica:', error);
       return res.status(400).json({ 
         success: false, 
         message: 'Erro ao atualizar requisição', 
         error: error?.message 
       });
     }
+    
+    console.log('✅ Requisição básica atualizada:', updated);
     
     // Atualizar itens da requisição se fornecidos
     if (request_items && Array.isArray(request_items)) {

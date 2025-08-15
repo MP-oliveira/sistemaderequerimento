@@ -213,9 +213,11 @@ export default function DashboardAdmin() {
         start_datetime: editedRequest.start_datetime,
         end_datetime: editedRequest.end_datetime,
         // Incluir itens e serviços
-        request_items: editedRequest.request_items || [],
-        request_services: editedRequest.request_services || []
+        request_items: selectedItems,
+        request_services: selectedServices
       };
+      
+      console.log('📤 Dados sendo enviados para API:', dadosParaEnviar);
 
       // Fazer a chamada para a API
       const response = await fetch(`/api/requests/${editedRequest.id}`, {
