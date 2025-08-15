@@ -376,6 +376,7 @@ export default function DashboardAdmin() {
                     key={req.id} 
                     className="request-item"
                     onClick={() => {
+                      alert('Clique detectado!');
                       console.log('Clique detectado na requisição:', req);
                       abrirModalEdicao(req);
                     }}
