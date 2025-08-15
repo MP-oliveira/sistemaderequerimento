@@ -9,6 +9,9 @@ import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparat
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
+  console.log('🔍 DashboardAdmin - Componente sendo renderizado');
+  alert('🔍 DashboardAdmin - Componente sendo renderizado');
+  
   const [requisicoes, setRequisicoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
