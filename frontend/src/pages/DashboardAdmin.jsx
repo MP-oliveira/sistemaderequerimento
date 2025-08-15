@@ -10,6 +10,7 @@ import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
   console.log('🔍 DashboardAdmin - Componente sendo renderizado');
+  console.log('🔍 DashboardAdmin - URL atual:', window.location.pathname);
   
   const [requisicoes, setRequisicoes] = useState([]);
   const [loading, setLoading] = useState(true);
