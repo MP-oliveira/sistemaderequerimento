@@ -1988,6 +1988,14 @@ export const updateRequest = async (req, res) => {
     const itemsToUpdate = request_items || itens || [];
     const servicesToUpdate = request_services || servicos || [];
     
+    console.log('🔍 DEBUG - Extração de dados:');
+    console.log('🔍 request_items:', request_items);
+    console.log('🔍 request_services:', request_services);
+    console.log('🔍 itens:', itens);
+    console.log('🔍 servicos:', servicos);
+    console.log('🔍 itemsToUpdate FINAL:', itemsToUpdate);
+    console.log('🔍 servicesToUpdate FINAL:', servicesToUpdate);
+    
     console.log('📝 Dados para atualização:', requestData);
     console.log('📝 request_items:', request_items);
     console.log('📝 request_services:', request_services);
