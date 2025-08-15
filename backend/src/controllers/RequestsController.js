@@ -2074,8 +2074,8 @@ export const updateRequest = async (req, res) => {
       if (itemsToUpdate.length > 0) {
         const itemsToInsert = itemsToUpdate.map(item => ({
           request_id: id,
-          inventory_id: item.id,
-          quantity_requested: item.quantity
+          inventory_id: item.inventory_id || item.id,
+          quantity_requested: item.quantity_requested || item.quantity
           // Removido quantity_returned pois não existe na tabela
         }));
         
@@ -2126,7 +2126,7 @@ export const updateRequest = async (req, res) => {
         const servicesToInsert = servicesToUpdate.map(service => ({
           request_id: id,
           service_type: service.tipo,
-          quantity: service.quantidade
+          quantity: service.quantidade || service.quantity
         }));
         
         console.log('📝 Serviços para inserir:', servicesToInsert);
