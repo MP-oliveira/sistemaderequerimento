@@ -408,7 +408,7 @@ export default function DashboardAdmin() {
                       console.log('Clique detectado na requisição:', req);
                       abrirModalEdicao(req);
                     }}
-                    style={{ cursor: 'pointer', position: 'relative', zIndex: 10 }}
+                    style={{ cursor: 'pointer', position: 'relative', zIndex: 9999 }}
                   >
                     <div className="request-item-content">
                       <div className="request-item-header">
