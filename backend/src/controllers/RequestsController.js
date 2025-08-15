@@ -2031,7 +2031,7 @@ export const updateRequest = async (req, res) => {
     console.log('📝 Serviços que seriam salvos:', servicesToUpdate);
     
     // Remover campos que não existem na tabela requests
-    const { servicos, ...dataToUpdateClean } = dataToUpdate;
+    const { servicos: servicosField, ...dataToUpdateClean } = dataToUpdate;
     
     console.log('📝 Dados finais para atualização:', dataToUpdateClean);
     console.log('📝 Campos removidos:', { requester_id, id: requestId, created_at, updated_at });
