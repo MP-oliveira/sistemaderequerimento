@@ -63,6 +63,7 @@ function SmartDashboardRoute() {
   if (user.role === 'ADM' || user.role === 'PASTOR') {
     console.log('🔍 SmartDashboardRoute - Redirecionando admin/pastor para dashboard admin');
     alert('🔍 SmartDashboardRoute - Redirecionando admin/pastor para dashboard admin');
+    console.log('🔍 SmartDashboardRoute - URL de destino: /admin/dashboard');
     return <Navigate to="/admin/dashboard" replace />;
   }
   
