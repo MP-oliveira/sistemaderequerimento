@@ -20,18 +20,29 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
 
   // Função para formatar horário para o input time
   const formatTimeForInput = (datetime) => {
-    if (!datetime) return '';
+    console.log('🕐 Formatando datetime:', datetime);
+    
+    if (!datetime) {
+      console.log('🕐 Datetime vazio, retornando vazio');
+      return '';
+    }
     
     // Se já está no formato HH:MM, retorna como está
-    if (typeof datetime === 'string' && datetime.includes(':')) {
-      return datetime.substring(0, 5); // Pega apenas HH:MM
+    if (typeof datetime === 'string' && datetime.match(/^\d{2}:\d{2}$/)) {
+      console.log('🕐 Já está no formato HH:MM:', datetime);
+      return datetime;
     }
     
-    // Se é um datetime completo, extrai a hora
+    // Se é um datetime completo com timezone (+00:00), extrai a hora
     if (typeof datetime === 'string' && datetime.includes('T')) {
-      return datetime.split('T')[1].substring(0, 5);
+      const timePart = datetime.split('T')[1];
+      const timeWithoutTimezone = timePart.split('+')[0]; // Remove timezone
+      const formattedTime = timeWithoutTimezone.substring(0, 5); // Pega apenas HH:MM
+      console.log('🕐 Extraindo hora de datetime:', datetime, '→', formattedTime);
+      return formattedTime;
     }
     
+    console.log('🕐 Formato não reconhecido, retornando vazio');
     return '';
   };
 
@@ -189,6 +200,14 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
     return null;
   }
 
+  // Log para debug dos campos de hora
+  console.log('🕐 Renderizando modal com editedRequest:', {
+    start_datetime: editedRequest.start_datetime,
+    end_datetime: editedRequest.end_datetime,
+    formatted_start: formatTimeForInput(editedRequest.start_datetime),
+    formatted_end: formatTimeForInput(editedRequest.end_datetime)
+  });
+
   return (
     <Modal
       open={open}
@@ -289,6 +308,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
                 className="input-field"
                 type="time"
                 value={formatTimeForInput(editedRequest.start_datetime)}
+              placeholder="00:00"
                             onChange={e => {
                 console.log('🕐 Alterando hora de início para:', e.target.value);
                 const currentDate = editedRequest.start_datetime ? editedRequest.start_datetime.split('T')[0] : new Date().toISOString().split('T')[0];
@@ -305,6 +325,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
                 className="input-field"
                 type="time"
                 value={formatTimeForInput(editedRequest.end_datetime)}
+              placeholder="00:00"
                               onChange={e => {
                 console.log('🕐 Alterando hora de fim para:', e.target.value);
                 const currentDate = editedRequest.end_datetime ? editedRequest.end_datetime.split('T')[0] : new Date().toISOString().split('T')[0];
