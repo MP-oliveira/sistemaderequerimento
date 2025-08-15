@@ -91,13 +91,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<Login />} />
         
         {/* Rota raiz - redireciona automaticamente baseado no papel */}
-        <Route path="/" element={
-          <div>
-            {console.log('🔍 Rota raiz / - Executada')}
-            {alert('🔍 Rota raiz / - Executada')}
-            <SmartDashboardRoute />
-          </div>
-        } />
+        <Route path="/" element={<SmartDashboardRoute />} />
         
         {/* Dashboard normal para usuários não-admin */}
         <Route
@@ -144,17 +138,11 @@ export default function AppRoutes() {
         <Route
           path="/admin/dashboard"
           element={
-            <div>
-              {console.log('🔍 Rota /admin/dashboard - Executada')}
-              {alert('🔍 Rota /admin/dashboard - Executada')}
-              <h1>TESTE ROTA ADMIN DASHBOARD</h1>
-              <p>URL: {window.location.pathname}</p>
-              <AdminRoute>
-                <Layout>
-                  <DashboardAdmin />
-                </Layout>
-              </AdminRoute>
-            </div>
+            <AdminRoute>
+              <Layout>
+                <DashboardAdmin />
+              </Layout>
+            </AdminRoute>
           }
         />
         <Route

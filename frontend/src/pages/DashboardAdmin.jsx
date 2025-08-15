@@ -3,16 +3,13 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Table from '../components/Table';
 import AdminButtons from '../components/AdminButtons';
+import EditRequestModal from '../components/EditRequestModal';
 import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag, FiList, FiCheckSquare, FiXSquare, FiPlay, FiFileText, FiPause, FiAlertCircle, FiCheck, FiX, FiActivity, FiThumbsUp, FiThumbsDown, FiShield, FiStar, FiAward, FiEye } from 'react-icons/fi';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada } from '../services/requestsService';
 import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparation } from '../utils/notificationUtils';
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
-  console.log('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO FINAL');
-  console.log('🔍 DashboardAdmin - URL atual:', window.location.pathname);
-  alert('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO FINAL - URL: ' + window.location.pathname);
-  
   const [requisicoes, setRequisicoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -36,9 +33,8 @@ export default function DashboardAdmin() {
   const [reqDetalhe, setReqDetalhe] = useState(null);
 
   // Estados para o modal de edição
-  const [modalEdicao, setModalEdicao] = useState(false);
-  const [reqEdicao, setReqEdicao] = useState(null);
-  const [editando, setEditando] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   function mostrarNotificacao(mensagem, tipo) {
     setNotificacao({ mensagem, tipo });
@@ -194,9 +190,8 @@ export default function DashboardAdmin() {
       // Buscar dados completos da requisição
       const detalhe = await getRequisicaoDetalhada(requisicao.id);
       console.log('Dados da requisição:', detalhe);
-      setReqEdicao(detalhe);
-      setModalEdicao(true);
-      console.log('Modal aberto - modalEdicao:', true);
+      setSelectedRequest(detalhe);
+      setShowEditModal(true);
     } catch (error) {
       console.error('Erro ao buscar detalhes para edição:', error);
       mostrarNotificacao('Erro ao carregar dados para edição', 'erro');
@@ -204,36 +199,18 @@ export default function DashboardAdmin() {
   };
 
   // Função para salvar alterações
-  const salvarAlteracoes = async () => {
+  const handleSaveRequest = async (editedRequest) => {
     try {
-      setEditando(true);
-      
       // Aqui você implementaria a chamada para atualizar a requisição
-      // Por enquanto, vamos apenas fechar o modal e mostrar uma notificação
+      console.log('Salvando requisição:', editedRequest);
       mostrarNotificacao('Alterações salvas com sucesso!', 'sucesso');
-      setModalEdicao(false);
-      setReqEdicao(null);
       
       // Recarregar dados
       carregarDados();
     } catch (error) {
       console.error('Erro ao salvar alterações:', error);
       mostrarNotificacao('Erro ao salvar alterações', 'erro');
-    } finally {
-      setEditando(false);
-    }
-  };
-
-  // Função para aprovar requisição após edição
-  const aprovarAposEdicao = async () => {
-    try {
-      await salvarAlteracoes();
-      if (reqEdicao) {
-        await aprovarRequisicaoHandler(reqEdicao.id);
-      }
-    } catch (error) {
-      console.error('Erro ao aprovar após edição:', error);
-      mostrarNotificacao('Erro ao aprovar requisição', 'erro');
+      throw error;
     }
   };
 
