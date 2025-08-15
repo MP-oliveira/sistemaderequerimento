@@ -383,6 +383,22 @@ export default function DashboardAdmin() {
               </div>
             ) : (
               <div className="requests-list-container">
+                {/* TESTE DIRETO */}
+                <div 
+                  style={{ 
+                    background: 'red', 
+                    color: 'white', 
+                    padding: '10px', 
+                    margin: '10px 0',
+                    cursor: 'pointer',
+                    zIndex: 9999,
+                    position: 'relative'
+                  }}
+                  onClick={() => alert('TESTE DIRETO FUNCIONANDO!')}
+                >
+                  CLIQUE AQUI PARA TESTE DIRETO
+                </div>
+                
                 {requisicoesPendentes.map((req) => (
                   <div 
                     key={req.id} 
