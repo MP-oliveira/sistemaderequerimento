@@ -79,6 +79,8 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
       console.log('🔍 processedItems.length:', processedItems.length);
       
       setSelectedItems(processedItems);
+      console.log('🔍 selectedItems definido:', processedItems);
+      console.log('🔍 selectedItems.length:', processedItems.length);
       // Processar serviços do backend para garantir IDs únicos
       const processedServices = (request.request_services || []).map((service, index) => ({
         ...service,
@@ -469,6 +471,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
               overflowY: 'auto'
             }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                {console.log('🔍 Renderizando selectedItems:', selectedItems)}
                 {selectedItems.map((item) => (
                   <div key={item.id} style={{ 
                     display: 'flex', 
