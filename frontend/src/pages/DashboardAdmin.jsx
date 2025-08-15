@@ -10,6 +10,7 @@ import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparat
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
+  alert('TESTE SIMPLES - DashboardAdmin carregado');
   console.log('🔍 DashboardAdmin - Componente sendo renderizado');
   alert('🔍 DashboardAdmin - Componente sendo renderizado - VERSÃO COM LOGS');
   
@@ -242,6 +243,9 @@ export default function DashboardAdmin() {
         <h1>Dashboard Administrativo</h1>
         <p>Visão geral das requisições e estatísticas do sistema</p>
       </div>
+
+      {alert('🔍 ANTES DO LOADING - loading:', loading)}
+      {console.log('🔍 ANTES DO LOADING - loading:', loading)}
 
       {loading ? (
         <div className="dashboard-loading">Carregando dashboard...</div>
