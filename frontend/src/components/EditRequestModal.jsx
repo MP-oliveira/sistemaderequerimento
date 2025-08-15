@@ -188,6 +188,11 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
         request_items: selectedItems,
         request_services: selectedServices
       };
+      
+      console.log('💾 Modal - Dados completos para salvar:', requestCompleto);
+      console.log('💾 Modal - selectedItems:', selectedItems);
+      console.log('💾 Modal - selectedServices:', selectedServices);
+      
       await onSave(requestCompleto);
       onClose();
     } catch (error) {
