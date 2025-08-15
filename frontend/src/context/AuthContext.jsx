@@ -1,13 +1,13 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import * as authService from '../services/authService';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadUserData = async (userId) => {
+  const loadUserData = async () => {
     try {
       const response = await fetch(`http://localhost:3000/api/users/me/profile`, {
         headers: {
@@ -119,10 +119,4 @@ export function AuthProvider({ children }) {
   );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-  }
-  return context;
-} 
+ 

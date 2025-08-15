@@ -192,6 +192,7 @@ export default function DashboardAdmin() {
       console.log('Dados da requisição:', detalhe);
       setReqEdicao(detalhe);
       setModalEdicao(true);
+      console.log('Modal aberto - modalEdicao:', true);
     } catch (error) {
       console.error('Erro ao buscar detalhes para edição:', error);
       mostrarNotificacao('Erro ao carregar dados para edição', 'erro');
@@ -361,6 +362,17 @@ export default function DashboardAdmin() {
               >
                 Ver Todas
               </Button>
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={() => {
+                  alert('TESTE BOTÃO');
+                  setModalEdicao(true);
+                  setReqEdicao({ id: 1, department: 'TESTE', event_name: 'Teste Modal' });
+                }}
+              >
+                Teste Modal
+              </Button>
             </div>
             
             {requisicoesPendentes.length === 0 ? (
@@ -376,11 +388,11 @@ export default function DashboardAdmin() {
                     key={req.id} 
                     className="request-item"
                     onClick={() => {
-                      alert('Clique detectado! VERSÃO NOVA');
+                      alert('TESTE - Clique funcionando!');
                       console.log('Clique detectado na requisição:', req);
                       abrirModalEdicao(req);
                     }}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', position: 'relative', zIndex: 10 }}
                   >
                     <div className="request-item-content">
                       <div className="request-item-header">
@@ -694,6 +706,7 @@ export default function DashboardAdmin() {
       </Modal>
 
       {/* Modal de Edição da Requisição */}
+      {console.log('Renderizando modal - modalEdicao:', modalEdicao, 'reqEdicao:', reqEdicao)}
       <Modal 
         open={modalEdicao} 
         onClose={() => setModalEdicao(false)}
