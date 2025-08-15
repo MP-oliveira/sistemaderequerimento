@@ -1933,6 +1933,41 @@ export const updateRequest = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
     
+    // Verificar se o usuário tem permissão para atualizar esta requisição
+    const { data: request, error: requestError } = await supabase
+      .from('requests')
+      .select('requester_id, status')
+      .eq('id', id)
+      .single();
+    
+    if (requestError || !request) {
+      console.error('❌ Requisição não encontrada:', requestError);
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Requisição não encontrada' 
+      });
+    }
+    
+    // Verificar permissões: apenas o solicitante original ou ADMIN pode editar
+    const isOwner = request.requester_id === req.user.userId;
+    const isAdmin = req.user.role === 'ADMIN';
+    
+    console.log('🔐 Verificação de permissão:', {
+      requester_id: request.requester_id,
+      current_user: req.user.userId,
+      user_role: req.user.role,
+      isOwner,
+      isAdmin
+    });
+    
+    if (!isOwner && !isAdmin) {
+      console.error('❌ Usuário sem permissão para editar esta requisição');
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Você não tem permissão para editar esta requisição. Apenas o solicitante original ou administradores podem fazer alterações.' 
+      });
+    }
+    
     console.log('🔄 Atualizando requisição:', id);
     console.log('🔄 updateData completo:', JSON.stringify(updateData, null, 2));
     
