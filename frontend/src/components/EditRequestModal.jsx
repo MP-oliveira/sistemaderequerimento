@@ -19,6 +19,30 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
+  
+  // Processar dados diretamente no render se o useEffect não estiver funcionando
+  React.useEffect(() => {
+    if (request && request.itens) {
+      const processedItems = (request.itens || []).map(item => ({
+        id: item.inventory_id,
+        name: item.item_name,
+        quantity: item.quantity_requested,
+        ...item
+      }));
+      setSelectedItems(processedItems);
+    }
+    
+    if (request && request.servicos) {
+      const processedServices = (request.servicos || []).map((service, index) => ({
+        ...service,
+        id: service.id || `service_${Date.now()}_${index}_${Math.random()}`,
+        tipo: service.tipo,
+        nome: service.nome,
+        quantidade: service.quantidade || 1
+      }));
+      setSelectedServices(processedServices);
+    }
+  }, [request]);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [inventory, setInventory] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
