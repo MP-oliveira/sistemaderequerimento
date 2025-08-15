@@ -2002,8 +2002,6 @@ export const updateRequest = async (req, res) => {
       id: requestId, 
       created_at, 
       updated_at,
-      itens,
-      servicos,
       users,
       requester_name,
       requester_email,
@@ -2046,8 +2044,8 @@ export const updateRequest = async (req, res) => {
     console.log('✅ Requisição básica atualizada:', updated);
     
     // Atualizar itens da requisição se fornecidos
-    if (request_items && Array.isArray(request_items)) {
-      console.log('🔄 Atualizando itens da requisição:', request_items);
+    if (itemsToUpdate && Array.isArray(itemsToUpdate)) {
+      console.log('🔄 Atualizando itens da requisição:', itemsToUpdate);
       
       // Remover itens existentes
       const { error: deleteError } = await supabase
@@ -2062,8 +2060,8 @@ export const updateRequest = async (req, res) => {
       }
       
       // Inserir novos itens
-      if (request_items.length > 0) {
-        const itemsToInsert = request_items.map(item => ({
+      if (itemsToUpdate.length > 0) {
+        const itemsToInsert = itemsToUpdate.map(item => ({
           request_id: id,
           inventory_id: item.id,
           quantity_requested: item.quantity
@@ -2090,8 +2088,8 @@ export const updateRequest = async (req, res) => {
     }
     
     // Atualizar serviços da requisição se fornecidos
-    if (request_services && Array.isArray(request_services)) {
-      console.log('🔄 Atualizando serviços da requisição:', request_services);
+    if (servicesToUpdate && Array.isArray(servicesToUpdate)) {
+      console.log('🔄 Atualizando serviços da requisição:', servicesToUpdate);
       
       // Remover serviços existentes
       const { error: deleteServicesError } = await supabase
@@ -2106,8 +2104,8 @@ export const updateRequest = async (req, res) => {
       }
       
       // Inserir novos serviços
-      if (request_services.length > 0) {
-        const servicesToInsert = request_services.map(service => ({
+      if (servicesToUpdate.length > 0) {
+        const servicesToInsert = servicesToUpdate.map(service => ({
           request_id: id,
           service_type: service.tipo,
           quantity: service.quantidade
