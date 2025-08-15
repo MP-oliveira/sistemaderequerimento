@@ -1928,12 +1928,15 @@ export const updateRequest = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
     
-    console.log('🔄 Atualizando requisição:', id, updateData);
+    console.log('🔄 Atualizando requisição:', id);
+    console.log('🔄 updateData completo:', JSON.stringify(updateData, null, 2));
     
     // Extrair itens e serviços do updateData
     const { request_items, request_services, ...requestData } = updateData;
     
     console.log('📝 Dados para atualização:', requestData);
+    console.log('📝 request_items:', request_items);
+    console.log('📝 request_services:', request_services);
     
     // Atualizar dados básicos da requisição
     const { data: updated, error } = await supabase

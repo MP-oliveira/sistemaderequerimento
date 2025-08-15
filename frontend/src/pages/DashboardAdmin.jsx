@@ -218,6 +218,8 @@ export default function DashboardAdmin() {
       };
       
       console.log('📤 Dados sendo enviados para API:', dadosParaEnviar);
+      console.log('📤 request_items:', dadosParaEnviar.request_items);
+      console.log('📤 request_services:', dadosParaEnviar.request_services);
 
       // Fazer a chamada para a API
       const response = await fetch(`/api/requests/${editedRequest.id}`, {
