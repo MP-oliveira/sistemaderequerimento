@@ -28,6 +28,7 @@ function AdminRoute({ children }) {
   console.log('🔍 AdminRoute - Executado');
   console.log('🔍 AdminRoute - User:', user);
   console.log('🔍 AdminRoute - User role:', user?.role);
+  alert('🔍 AdminRoute - Executado - User role: ' + user?.role);
   try {
     const isAdmin = user && (user.role === 'ADM' || user.role === 'PASTOR');
     console.log('🔍 AdminRoute - Is admin:', isAdmin);
