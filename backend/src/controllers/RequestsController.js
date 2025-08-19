@@ -2213,15 +2213,73 @@ export const updateRequest = async (req, res) => {
 export const deleteRequest = async (req, res) => {
   const { id } = req.params;
   try {
+    console.log('🔍 [deleteRequest] Tentando deletar requisição:', id);
+    
+    // Primeiro, verificar se a requisição existe
+    const { data: request, error: checkError } = await supabase
+      .from('requests')
+      .select('id, status')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !request) {
+      console.log('❌ [deleteRequest] Requisição não encontrada:', id);
+      return res.status(404).json({ success: false, message: 'Requisição não encontrada' });
+    }
+    
+    console.log('🔍 [deleteRequest] Requisição encontrada, status:', request.status);
+    
+    // Deletar itens relacionados primeiro (se houver)
+    const { error: itemsError } = await supabase
+      .from('request_items')
+      .delete()
+      .eq('request_id', id);
+    
+    if (itemsError) {
+      console.log('⚠️ [deleteRequest] Erro ao deletar itens da requisição:', itemsError);
+    } else {
+      console.log('✅ [deleteRequest] Itens da requisição deletados');
+    }
+    
+    // Deletar serviços relacionados (se houver)
+    const { error: servicesError } = await supabase
+      .from('request_services')
+      .delete()
+      .eq('request_id', id);
+    
+    if (servicesError) {
+      console.log('⚠️ [deleteRequest] Erro ao deletar serviços da requisição:', servicesError);
+    } else {
+      console.log('✅ [deleteRequest] Serviços da requisição deletados');
+    }
+    
+    // Deletar comprovantes relacionados (se houver)
+    const { error: comprovantesError } = await supabase
+      .from('request_comprovantes')
+      .delete()
+      .eq('request_id', id);
+    
+    if (comprovantesError) {
+      console.log('⚠️ [deleteRequest] Erro ao deletar comprovantes da requisição:', comprovantesError);
+    } else {
+      console.log('✅ [deleteRequest] Comprovantes da requisição deletados');
+    }
+    
+    // Agora deletar a requisição principal
     const { error } = await supabase
       .from('requests')
       .delete()
       .eq('id', id);
+    
     if (error) {
+      console.log('❌ [deleteRequest] Erro ao deletar requisição:', error);
       return res.status(400).json({ success: false, message: 'Erro ao deletar requisição', error: error.message });
     }
+    
+    console.log('✅ [deleteRequest] Requisição deletada com sucesso:', id);
     return res.status(200).json({ success: true, message: 'Requisição deletada com sucesso' });
   } catch (err) {
+    console.log('❌ [deleteRequest] Erro interno:', err);
     return res.status(500).json({ success: false, message: 'Erro interno do servidor', error: err.message });
   }
 };
