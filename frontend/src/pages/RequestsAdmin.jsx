@@ -1815,36 +1815,36 @@ export default function RequestsAdmin() {
                   onChange={(e) => handleEditField('expected_audience', e.target.value)}
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ marginBottom: '8px' }}>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: '14px', 
-                    fontWeight: '600', 
-                    color: '#374151',
-                    marginBottom: '6px'
-                  }}>
-                    Prioridade
-                  </label>
-                </div>
-                <select
-                  value={editReq.prioridade || 'Média'}
-                  onChange={(e) => handleEditField('prioridade', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    backgroundColor: 'white',
-                    color: '#374151',
-                    height: '40px',
-                    boxSizing: 'border-box',
-                    outline: 'none',
-                    transition: 'border-color 0.15s ease-in-out',
-                    marginTop: '0px'
-                  }}
-                >
+                                <div style={{ flex: 1 }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#374151',
+                        marginBottom: '6px'
+                      }}>
+                        Prioridade
+                      </label>
+                    </div>
+                    <select
+                      value={editReq.prioridade || 'Média'}
+                      onChange={(e) => handleEditField('prioridade', e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        backgroundColor: 'white',
+                        color: '#374151',
+                        height: '40px',
+                        boxSizing: 'border-box',
+                        outline: 'none',
+                        transition: 'border-color 0.15s ease-in-out',
+                        marginTop: '7px'
+                      }}
+                    >
                   <option value="Baixa">Baixa</option>
                   <option value="Média">Média</option>
                   <option value="Alta">Alta</option>
