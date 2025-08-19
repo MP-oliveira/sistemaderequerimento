@@ -323,7 +323,7 @@
 .users-page .modal-actions button:last-child,
 .users-page .modal .modal-actions button:last-child,
 .users-page .modal-content .modal-actions button:last-child {
-  margin-right: 0 !important;
+  margin-right: 40px !important;
 }
 
 /* Placeholder mais claro para o select */
