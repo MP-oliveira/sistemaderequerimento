@@ -1816,13 +1816,13 @@ export default function RequestsAdmin() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ marginBottom: '4px' }}>
+                <div style={{ marginBottom: '8px' }}>
                   <label style={{ 
                     display: 'block', 
                     fontSize: '14px', 
                     fontWeight: '600', 
                     color: '#374151',
-                    marginBottom: '4px'
+                    marginBottom: '6px'
                   }}>
                     Prioridade
                   </label>
