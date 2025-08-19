@@ -1854,6 +1854,129 @@ export default function RequestsAdmin() {
                 />
               </div>
             </div>
+
+            {/* Seção de Itens e Serviços */}
+            <div style={{ marginTop: '16px' }}>
+              {/* Itens do Inventário */}
+              {editReq.request_items && editReq.request_items.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#374151', 
+                    marginBottom: '8px',
+                    borderBottom: '1px solid #e5e7eb',
+                    paddingBottom: '4px'
+                  }}>
+                    📦 Itens do Inventário
+                  </h4>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '8px',
+                    maxHeight: '120px',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    backgroundColor: '#f9fafb',
+                    borderRadius: '6px'
+                  }}>
+                    {editReq.request_items.map((item, index) => (
+                      <div key={index} style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        padding: '6px 8px',
+                        backgroundColor: 'white',
+                        borderRadius: '4px',
+                        border: '1px solid #e5e7eb'
+                      }}>
+                        <span style={{ fontSize: '13px', color: '#374151' }}>
+                          {item.item_name || item.inventory?.name}
+                        </span>
+                        <span style={{ 
+                          fontSize: '12px', 
+                          color: '#6b7280',
+                          backgroundColor: '#f3f4f6',
+                          padding: '2px 6px',
+                          borderRadius: '4px'
+                        }}>
+                          Qtd: {item.quantity_requested || item.quantity}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Serviços */}
+              {editReq.request_services && editReq.request_services.length > 0 && (
+                <div>
+                  <h4 style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#374151', 
+                    marginBottom: '8px',
+                    borderBottom: '1px solid #e5e7eb',
+                    paddingBottom: '4px'
+                  }}>
+                    🛠️ Serviços
+                  </h4>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '8px',
+                    maxHeight: '120px',
+                    overflowY: 'auto',
+                    padding: '8px',
+                    backgroundColor: '#f9fafb',
+                    borderRadius: '6px'
+                  }}>
+                    {editReq.request_services.map((service, index) => (
+                      <div key={index} style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        padding: '6px 8px',
+                        backgroundColor: 'white',
+                        borderRadius: '4px',
+                        border: '1px solid #e5e7eb'
+                      }}>
+                        <span style={{ fontSize: '13px', color: '#374151' }}>
+                          {service.tipo === 'DIACONIA' ? 'Diaconia' : 
+                           service.tipo === 'SERVICO_GERAL' ? 'Serviço Geral' : 
+                           service.tipo === 'AUDIOVISUAL' ? 'Audiovisual' : service.tipo}
+                        </span>
+                        <span style={{ 
+                          fontSize: '12px', 
+                          color: '#6b7280',
+                          backgroundColor: '#f3f4f6',
+                          padding: '2px 6px',
+                          borderRadius: '4px'
+                        }}>
+                          Qtd: {service.quantidade}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Mensagem quando não há itens ou serviços */}
+              {(!editReq.request_items || editReq.request_items.length === 0) && 
+               (!editReq.request_services || editReq.request_services.length === 0) && (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '16px',
+                  color: '#6b7280',
+                  fontSize: '13px',
+                  backgroundColor: '#f9fafb',
+                  borderRadius: '6px',
+                  border: '1px dashed #d1d5db'
+                }}>
+                  📝 Nenhum item ou serviço selecionado para esta requisição
+                </div>
+              )}
+            </div>
           </div>
         )}
       </Modal>
