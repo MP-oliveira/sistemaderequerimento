@@ -4,7 +4,10 @@ function getAuthHeaders() {
   const token = localStorage.getItem('token');
   return {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Bearer ${token}`,
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
   };
 }
 
@@ -78,7 +81,8 @@ export async function criarRequisicao(data) {
 
 export async function listarRequisicoes() {
   try {
-    const response = await fetch(`${API_URL}/api/requests`, {
+    const timestamp = new Date().getTime();
+    const response = await fetch(`${API_URL}/api/requests?t=${timestamp}`, {
       headers: getAuthHeaders()
     });
     if (!response.ok) {
