@@ -2230,7 +2230,7 @@ export const deleteRequest = async (req, res) => {
     console.log('🔍 [deleteRequest] Requisição encontrada, status:', request.status);
     
     // Deletar itens relacionados primeiro (se houver)
-    const { error: itemsError } = await supabase
+    const { error: itemsError } = await supabaseAdmin
       .from('request_items')
       .delete()
       .eq('request_id', id);
@@ -2242,7 +2242,7 @@ export const deleteRequest = async (req, res) => {
     }
     
     // Deletar serviços relacionados (se houver)
-    const { error: servicesError } = await supabase
+    const { error: servicesError } = await supabaseAdmin
       .from('request_services')
       .delete()
       .eq('request_id', id);
@@ -2254,7 +2254,7 @@ export const deleteRequest = async (req, res) => {
     }
     
     // Deletar comprovantes relacionados (se houver)
-    const { error: comprovantesError } = await supabase
+    const { error: comprovantesError } = await supabaseAdmin
       .from('request_comprovantes')
       .delete()
       .eq('request_id', id);
@@ -2265,8 +2265,8 @@ export const deleteRequest = async (req, res) => {
       console.log('✅ [deleteRequest] Comprovantes da requisição deletados');
     }
     
-    // Agora deletar a requisição principal
-    const { error } = await supabase
+    // Agora deletar a requisição principal usando o cliente admin
+    const { error } = await supabaseAdmin
       .from('requests')
       .delete()
       .eq('id', id);
