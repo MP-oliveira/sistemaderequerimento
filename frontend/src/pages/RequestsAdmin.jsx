@@ -1738,50 +1738,111 @@ export default function RequestsAdmin() {
       >
         {editReq && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Input
-              label="Departamento"
-              value={editReq.department || ''}
-              onChange={(e) => handleEditField('department', e.target.value)}
-              required
-            />
-            <Input
-              label="Nome do Evento"
-              value={editReq.event_name || ''}
-              onChange={(e) => handleEditField('event_name', e.target.value)}
-              required
-            />
-            <Input
-              label="Data"
-              type="date"
-              value={editReq.date || ''}
-              onChange={(e) => handleEditField('date', e.target.value)}
-              required
-            />
-            <Input
-              label="Local"
-              value={editReq.location || ''}
-              onChange={(e) => handleEditField('location', e.target.value)}
-              required
-            />
-            <Input
-              label="Hora de Início"
-              type="time"
-              value={editReq.start_datetime ? editReq.start_datetime.slice(11, 16) : ''}
-              onChange={(e) => handleEditField('start_datetime', e.target.value)}
-              required
-            />
-            <Input
-              label="Hora de Fim"
-              type="time"
-              value={editReq.end_datetime ? editReq.end_datetime.slice(11, 16) : ''}
-              onChange={(e) => handleEditField('end_datetime', e.target.value)}
-              required
-            />
-            <Input
-              label="Público Específico"
-              value={editReq.expected_audience || ''}
-              onChange={(e) => handleEditField('expected_audience', e.target.value)}
-            />
+            {/* Primeira linha: Departamento e Nome do Evento */}
+            <div style={{ display: 'flex', gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <Input
+                  label="Departamento"
+                  value={editReq.department || ''}
+                  onChange={(e) => handleEditField('department', e.target.value)}
+                  required
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <Input
+                  label="Nome do Evento"
+                  value={editReq.event_name || ''}
+                  onChange={(e) => handleEditField('event_name', e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Segunda linha: Data e Local */}
+            <div style={{ display: 'flex', gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <Input
+                  label="Data"
+                  type="date"
+                  value={editReq.date || ''}
+                  onChange={(e) => handleEditField('date', e.target.value)}
+                  required
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <Input
+                  label="Local"
+                  value={editReq.location || ''}
+                  onChange={(e) => handleEditField('location', e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Terceira linha: Hora de Início e Hora de Fim */}
+            <div style={{ display: 'flex', gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <Input
+                  label="Hora de Início"
+                  type="time"
+                  value={editReq.start_datetime ? editReq.start_datetime.slice(11, 16) : ''}
+                  onChange={(e) => handleEditField('start_datetime', e.target.value)}
+                  required
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <Input
+                  label="Hora de Fim"
+                  type="time"
+                  value={editReq.end_datetime ? editReq.end_datetime.slice(11, 16) : ''}
+                  onChange={(e) => handleEditField('end_datetime', e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Quarta linha: Público Específico e Prioridade */}
+            <div style={{ display: 'flex', gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <Input
+                  label="Público Específico"
+                  type="number"
+                  value={editReq.expected_audience || ''}
+                  onChange={(e) => handleEditField('expected_audience', e.target.value)}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <select
+                  value={editReq.prioridade || 'Média'}
+                  onChange={(e) => handleEditField('prioridade', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    backgroundColor: 'white',
+                    color: '#374151'
+                  }}
+                >
+                  <option value="Baixa">Baixa</option>
+                  <option value="Média">Média</option>
+                  <option value="Alta">Alta</option>
+                </select>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: '12px', 
+                  fontWeight: '500', 
+                  color: '#6b7280', 
+                  marginBottom: '4px',
+                  marginTop: '8px'
+                }}>
+                  Prioridade
+                </label>
+              </div>
+            </div>
+
+            {/* Quinta linha: Descrição (largura total) */}
             <Input
               label="Descrição"
               value={editReq.description || ''}
