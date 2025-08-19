@@ -1812,6 +1812,16 @@ export default function RequestsAdmin() {
                 />
               </div>
               <div style={{ flex: 1 }}>
+                <div style={{ marginBottom: '4px' }}>
+                  <label style={{ 
+                    display: 'block', 
+                    fontSize: '12px', 
+                    fontWeight: '500', 
+                    color: '#6b7280'
+                  }}>
+                    Prioridade
+                  </label>
+                </div>
                 <select
                   value={editReq.prioridade || 'Média'}
                   onChange={(e) => handleEditField('prioridade', e.target.value)}
@@ -1822,23 +1832,14 @@ export default function RequestsAdmin() {
                     borderRadius: '6px',
                     fontSize: '14px',
                     backgroundColor: 'white',
-                    color: '#374151'
+                    color: '#374151',
+                    height: '40px'
                   }}
                 >
                   <option value="Baixa">Baixa</option>
                   <option value="Média">Média</option>
                   <option value="Alta">Alta</option>
                 </select>
-                <label style={{ 
-                  display: 'block', 
-                  fontSize: '12px', 
-                  fontWeight: '500', 
-                  color: '#6b7280', 
-                  marginBottom: '4px',
-                  marginTop: '8px'
-                }}>
-                  Prioridade
-                </label>
               </div>
             </div>
 
