@@ -268,7 +268,9 @@ export async function atualizarRequisicao(id, data) {
   try {
     console.log('📝 [atualizarRequisicao] Enviando dados:', { id, data });
     
-    const response = await fetch(`${API_URL}/api/requests/${id}`, {
+    // Adicionar timestamp para evitar cache
+    const timestamp = new Date().getTime();
+    const response = await fetch(`${API_URL}/api/requests/${id}?t=${timestamp}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
