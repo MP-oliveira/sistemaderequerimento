@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
 
   const loadUserData = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/users/me/profile`, {
+      const response = await fetch(`/api/users/me/profile`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -21,11 +21,20 @@ export function AuthProvider({ children }) {
         const data = await response.json();
         console.log('🔍 AuthContext - User data from API:', data);
         return data.data;
+      } else if (response.status === 401) {
+        // Token expirado ou inválido
+        console.log('🔍 AuthContext - Token expirado, limpando dados');
+        localStorage.removeItem('token');
+        setUser(null);
+        return null;
       } else {
         console.error('❌ AuthContext - Erro na resposta da API:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('❌ Erro ao carregar dados do usuário:', error);
+      // Em caso de erro de rede, também limpar o token
+      localStorage.removeItem('token');
+      setUser(null);
     }
     return null;
   };
@@ -40,6 +49,16 @@ export function AuthProvider({ children }) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           console.log('🔍 AuthContext - Token payload:', payload);
+          
+          // Verificar se o token está expirado
+          const currentTime = Math.floor(Date.now() / 1000);
+          if (payload.exp && payload.exp < currentTime) {
+            console.log('🔍 AuthContext - Token expirado, limpando dados');
+            localStorage.removeItem('token');
+            setUser(null);
+            setLoading(false);
+            return;
+          }
           
           // Buscar dados completos do usuário
           const userData = await loadUserData(payload.userId);

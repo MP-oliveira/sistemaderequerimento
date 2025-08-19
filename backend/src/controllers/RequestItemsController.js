@@ -225,10 +225,14 @@ const getTodayItemsByCategory = async (req, res) => {
       targetCategories = ['AUDIO_VIDEO', 'INSTRUMENTO_MUSICAL', 'Instrumento Musical', 'Som', 'SOM', 'AUDIO'];
     } else if (category === 'servico-geral') {
       targetCategories = ['SERVICO_GERAL'];
+    } else if (category === 'decoracao') {
+      targetCategories = ['DECORACAO'];
+    } else if (category === 'esportes') {
+      targetCategories = ['ESPORTES'];
     } else {
       return res.status(400).json({ 
         success: false, 
-        message: 'Categoria inválida. Use "audiovisual" ou "servico-geral".' 
+        message: 'Categoria inválida. Use "audiovisual", "servico-geral", "decoracao" ou "esportes".' 
       });
     }
 
@@ -493,10 +497,14 @@ const getExecutedItemsByCategory = async (req, res) => {
       targetCategories = ['AUDIO_VIDEO', 'INSTRUMENTO_MUSICAL', 'Instrumento Musical', 'Som', 'SOM', 'AUDIO'];
     } else if (category === 'servico-geral') {
       targetCategories = ['SERVICO_GERAL'];
+    } else if (category === 'decoracao') {
+      targetCategories = ['DECORACAO'];
+    } else if (category === 'esportes') {
+      targetCategories = ['ESPORTES'];
     } else {
       return res.status(400).json({ 
         success: false, 
-        message: 'Categoria inválida. Use "audiovisual" ou "servico-geral".' 
+        message: 'Categoria inválida. Use "audiovisual", "servico-geral", "decoracao" ou "esportes".' 
       });
     }
 

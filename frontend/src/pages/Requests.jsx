@@ -410,7 +410,11 @@ export default function Requests() {
       mostrarNotificacao('Requisição deletada com sucesso!', 'sucesso');
       setDeleteModalOpen(false);
       setDeleteReq(null);
-      buscarRequisicoes();
+      
+      // Remover o item da lista localmente em vez de buscar novamente
+      setRequisicoes(prevRequisicoes => 
+        prevRequisicoes.filter(req => req.id !== deleteReq)
+      );
     } catch {
       mostrarNotificacao('Erro ao deletar requisição', 'erro');
     }

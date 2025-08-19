@@ -522,6 +522,10 @@ export default function Inventory() {
                   let isLowStock = false;
                   if (categoria.includes('instrumento') || categoria.includes('musical')) {
                     isLowStock = quantidade === 0;
+                  } else if (categoria.includes('decoracao')) {
+                    isLowStock = quantidade < 3; // Decoração pode precisar de mais itens
+                  } else if (categoria.includes('esportes')) {
+                    isLowStock = quantidade < 2; // Esportes segue a regra padrão
                   } else {
                     isLowStock = quantidade < 2;
                     console.log('isLowStock', isLowStock);

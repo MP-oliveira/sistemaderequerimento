@@ -56,7 +56,7 @@ async function createAdmin() {
       .from('users')
       .insert([{
         ...adminData,
-        password: hashedPassword
+        password_hash: hashedPassword
       }])
       .select()
       .single();
