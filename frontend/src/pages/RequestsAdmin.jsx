@@ -1843,12 +1843,16 @@ export default function RequestsAdmin() {
             </div>
 
             {/* Quinta linha: Descrição (largura total) */}
-            <Input
-              label="Descrição"
-              value={editReq.description || ''}
-              onChange={(e) => handleEditField('description', e.target.value)}
-              multiline
-            />
+            <div style={{ display: 'flex', gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <Input
+                  label="Descrição"
+                  value={editReq.description || ''}
+                  onChange={(e) => handleEditField('description', e.target.value)}
+                  multiline
+                />
+              </div>
+            </div>
           </div>
         )}
       </Modal>
