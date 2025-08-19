@@ -1735,6 +1735,10 @@ export default function RequestsAdmin() {
             <Button variant="primary" size="sm" onClick={handleEditSave}>Salvar</Button>
           </>
         }
+        style={{
+          width: '700px',
+          maxWidth: '90vw'
+        }}
       >
         {editReq && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -1833,7 +1837,10 @@ export default function RequestsAdmin() {
                     fontSize: '14px',
                     backgroundColor: 'white',
                     color: '#374151',
-                    height: '40px'
+                    height: '40px',
+                    boxSizing: 'border-box',
+                    outline: 'none',
+                    transition: 'border-color 0.15s ease-in-out'
                   }}
                 >
                   <option value="Baixa">Baixa</option>
