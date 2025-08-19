@@ -1,6 +1,6 @@
 // Em desenvolvimento, usa o proxy do Vite
-// Em produção, usa a URL completa do backend
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '' : 'https://sistemaderequerimento-backend-fpagk11yz.vercel.app');
+// Em produção, usa URL relativa para o mesmo domínio
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token');
