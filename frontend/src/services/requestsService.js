@@ -264,17 +264,27 @@ export async function removerComprovante(comprovanteId) {
 
 export async function atualizarRequisicao(id, data) {
   try {
+    console.log('📝 [atualizarRequisicao] Enviando dados:', { id, data });
+    
     const response = await fetch(`${API_URL}/api/requests/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
+    
+    console.log('📝 [atualizarRequisicao] Status da resposta:', response.status);
+    
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erro ao atualizar requisição');
+      const errorData = await response.json();
+      console.error('❌ [atualizarRequisicao] Erro da API:', errorData);
+      throw new Error(errorData.message || `Erro ${response.status}: ${response.statusText}`);
     }
-    return await response.json();
+    
+    const result = await response.json();
+    console.log('✅ [atualizarRequisicao] Sucesso:', result);
+    return result;
   } catch (err) {
+    console.error('❌ [atualizarRequisicao] Erro:', err);
     throw err;
   }
 }
