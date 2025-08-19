@@ -313,6 +313,15 @@
   width: 100% !important;
 }
 
+/* Adicionar margin-right nos botões para evitar que sejam cortados */
+.users-page .modal-actions button {
+  margin-right: 8px !important;
+}
+
+.users-page .modal-actions button:last-child {
+  margin-right: 0 !important;
+}
+
 /* Placeholder mais claro para o select */
 .users-page select.input-field option[value=""] {
   color: #9ca3af !important;
