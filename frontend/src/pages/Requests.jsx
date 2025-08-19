@@ -385,25 +385,35 @@ export default function Requests() {
         return;
       }
       
-      // Combinar data com horas para criar datetime completo
-      const dataToSend = { ...editReq };
+      // Criar objeto limpo para envio
+      const dataToSend = {
+        department: editReq.department || '',
+        event_name: editReq.event_name || '',
+        location: editReq.location || '',
+        description: editReq.description || '',
+        date: editReq.date || '',
+        expected_audience: editReq.expected_audience || 0,
+        prioridade: editReq.prioridade || 'Média'
+      };
       
-      // Garantir que os campos de data/hora estejam corretos
-      if (editReq.date && editReq.start_datetime) {
-        dataToSend.start_datetime = `${editReq.date}T${editReq.start_datetime}`;
+      // Processar datas corretamente
+      if (editReq.date) {
+        // Se start_datetime já é um datetime completo, usar como está
+        if (editReq.start_datetime && editReq.start_datetime.includes('T')) {
+          dataToSend.start_datetime = editReq.start_datetime;
+        } else if (editReq.date && editReq.start_datetime) {
+          // Se é apenas hora, combinar com a data
+          dataToSend.start_datetime = `${editReq.date}T${editReq.start_datetime}`;
+        }
+        
+        // Se end_datetime já é um datetime completo, usar como está
+        if (editReq.end_datetime && editReq.end_datetime.includes('T')) {
+          dataToSend.end_datetime = editReq.end_datetime;
+        } else if (editReq.date && editReq.end_datetime) {
+          // Se é apenas hora, combinar com a data
+          dataToSend.end_datetime = `${editReq.date}T${editReq.end_datetime}`;
+        }
       }
-      
-      if (editReq.date && editReq.end_datetime) {
-        dataToSend.end_datetime = `${editReq.date}T${editReq.end_datetime}`;
-      }
-      
-      // Garantir que campos obrigatórios tenham valores padrão se estiverem vazios
-      dataToSend.department = dataToSend.department || '';
-      dataToSend.event_name = dataToSend.event_name || '';
-      dataToSend.location = dataToSend.location || '';
-      dataToSend.description = dataToSend.description || '';
-      dataToSend.expected_audience = dataToSend.expected_audience || 0;
-      dataToSend.prioridade = dataToSend.prioridade || 'Média';
       
       console.log('📝 Dados para atualização:', dataToSend);
       
