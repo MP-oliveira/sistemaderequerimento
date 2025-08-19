@@ -1858,7 +1858,7 @@ export default function RequestsAdmin() {
             {/* Seção de Itens e Serviços */}
             <div style={{ marginTop: '16px' }}>
               {/* Itens do Inventário */}
-              {editReq.request_items && editReq.request_items.length > 0 && (
+              {editReq.itens && editReq.itens.length > 0 && (
                 <div style={{ marginBottom: '16px' }}>
                   <h4 style={{ 
                     fontSize: '14px', 
@@ -1880,7 +1880,7 @@ export default function RequestsAdmin() {
                     backgroundColor: '#f9fafb',
                     borderRadius: '6px'
                   }}>
-                    {editReq.request_items.map((item, index) => (
+                    {editReq.itens.map((item, index) => (
                       <div key={index} style={{ 
                         display: 'flex', 
                         justifyContent: 'space-between', 
@@ -1909,7 +1909,7 @@ export default function RequestsAdmin() {
               )}
 
               {/* Serviços */}
-              {editReq.request_services && editReq.request_services.length > 0 && (
+              {editReq.servicos && editReq.servicos.length > 0 && (
                 <div>
                   <h4 style={{ 
                     fontSize: '14px', 
@@ -1931,7 +1931,7 @@ export default function RequestsAdmin() {
                     backgroundColor: '#f9fafb',
                     borderRadius: '6px'
                   }}>
-                    {editReq.request_services.map((service, index) => (
+                    {editReq.servicos.map((service, index) => (
                       <div key={index} style={{ 
                         display: 'flex', 
                         justifyContent: 'space-between', 
@@ -1962,8 +1962,8 @@ export default function RequestsAdmin() {
               )}
 
               {/* Mensagem quando não há itens ou serviços */}
-              {(!editReq.request_items || editReq.request_items.length === 0) && 
-               (!editReq.request_services || editReq.request_services.length === 0) && (
+              {(!editReq.itens || editReq.itens.length === 0) && 
+               (!editReq.servicos || editReq.servicos.length === 0) && (
                 <div style={{ 
                   textAlign: 'center', 
                   padding: '16px',
