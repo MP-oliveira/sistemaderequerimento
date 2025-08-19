@@ -1819,9 +1819,10 @@ export default function RequestsAdmin() {
                 <div style={{ marginBottom: '4px' }}>
                   <label style={{ 
                     display: 'block', 
-                    fontSize: '12px', 
+                    fontSize: '14px', 
                     fontWeight: '600', 
-                    color: '#374151'
+                    color: '#374151',
+                    marginBottom: '4px'
                   }}>
                     Prioridade
                   </label>
