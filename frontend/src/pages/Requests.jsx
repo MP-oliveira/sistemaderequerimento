@@ -376,9 +376,19 @@ export default function Requests() {
     if (!editReq) return;
     
     try {
+      // Validar campos obrigatórios
+      const camposObrigatorios = ['department', 'event_name', 'location', 'date'];
+      const camposVazios = camposObrigatorios.filter(campo => !editReq[campo]);
+      
+      if (camposVazios.length > 0) {
+        mostrarNotificacao(`Campos obrigatórios vazios: ${camposVazios.join(', ')}`, 'erro');
+        return;
+      }
+      
       // Combinar data com horas para criar datetime completo
       const dataToSend = { ...editReq };
       
+      // Garantir que os campos de data/hora estejam corretos
       if (editReq.date && editReq.start_datetime) {
         dataToSend.start_datetime = `${editReq.date}T${editReq.start_datetime}`;
       }
@@ -387,13 +397,24 @@ export default function Requests() {
         dataToSend.end_datetime = `${editReq.date}T${editReq.end_datetime}`;
       }
       
+      // Garantir que campos obrigatórios tenham valores padrão se estiverem vazios
+      dataToSend.department = dataToSend.department || '';
+      dataToSend.event_name = dataToSend.event_name || '';
+      dataToSend.location = dataToSend.location || '';
+      dataToSend.description = dataToSend.description || '';
+      dataToSend.expected_audience = dataToSend.expected_audience || 0;
+      dataToSend.prioridade = dataToSend.prioridade || 'Média';
+      
+      console.log('📝 Dados para atualização:', dataToSend);
+      
       await atualizarRequisicao(editReq.id, dataToSend);
       mostrarNotificacao('Requisição atualizada com sucesso!', 'sucesso');
       setEditModalOpen(false);
       setEditReq(null);
       buscarRequisicoes();
-    } catch {
-      mostrarNotificacao('Erro ao atualizar requisição', 'erro');
+    } catch (error) {
+      console.error('❌ Erro ao atualizar requisição:', error);
+      mostrarNotificacao(`Erro ao atualizar requisição: ${error.message}`, 'erro');
     }
   };
 
