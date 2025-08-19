@@ -1820,8 +1820,8 @@ export default function RequestsAdmin() {
                   <label style={{ 
                     display: 'block', 
                     fontSize: '12px', 
-                    fontWeight: '500', 
-                    color: '#6b7280'
+                    fontWeight: '600', 
+                    color: '#374151'
                   }}>
                     Prioridade
                   </label>
@@ -1840,7 +1840,8 @@ export default function RequestsAdmin() {
                     height: '40px',
                     boxSizing: 'border-box',
                     outline: 'none',
-                    transition: 'border-color 0.15s ease-in-out'
+                    transition: 'border-color 0.15s ease-in-out',
+                    marginTop: '0px'
                   }}
                 >
                   <option value="Baixa">Baixa</option>
