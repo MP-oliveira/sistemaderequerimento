@@ -231,16 +231,15 @@ export default function Users() {
             required
             className="input-full"
           />
-          {!editingUser && (
-            <Input
-              label="Senha"
-              type="password"
-              value={formData.password}
-              onChange={e => setFormData({ ...formData, password: e.target.value })}
-              required
-              className="input-full"
-            />
-          )}
+          <Input
+            label={editingUser ? "Nova Senha (deixe em branco para manter a atual)" : "Senha"}
+            type="password"
+            value={formData.password}
+            onChange={e => setFormData({ ...formData, password: e.target.value })}
+            required={!editingUser}
+            className="input-full"
+            placeholder={editingUser ? "Digite a nova senha ou deixe em branco" : "Digite a senha"}
+          />
           <div className="input-group">
             <label className="input-label">Função</label>
             <select
