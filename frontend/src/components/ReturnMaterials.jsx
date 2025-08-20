@@ -77,6 +77,40 @@ const ReturnMaterials = () => {
     return Object.values(grupos);
   };
 
+  // Função específica para agrupar todos os requerimentos
+  const agruparTodosRequerimentos = (items) => {
+    const grupos = {};
+    
+    items.forEach(item => {
+      const requestId = item.request_id || item.requests?.id;
+      
+      // Usar os dados da requisição que já estão no item
+      const request = item.requests || {};
+      
+      // Pular requisições finalizadas
+      if (request.status === 'FINALIZADO') {
+        return;
+      }
+      
+      // Garantir que temos um ID único
+      if (!requestId) {
+        console.warn('⚠️ [ReturnMaterials] Item sem requestId (Todos):', item);
+        return;
+      }
+      
+      if (!grupos[requestId]) {
+        grupos[requestId] = {
+          request: request,
+          items: []
+        };
+      }
+      grupos[requestId].items.push(item);
+    });
+    
+    console.log('🔍 [ReturnMaterials] Grupos Todos criados:', Object.keys(grupos));
+    return Object.values(grupos);
+  };
+
   // Itens para despachar (todos os itens) - apenas eventos próximos
   const itensParaDespachar = executedItems.filter(item => {
     // Verificar se o evento é próximo (hoje ou próximos 7 dias)
@@ -273,7 +307,10 @@ const ReturnMaterials = () => {
 
   // Agrupar todos os itens por requisição (para a nova seção)
   const todosOsItens = executedItems;
-  const gruposTodosRequerimentos = agruparItensPorRequisicao(todosOsItens);
+  const gruposTodosRequerimentos = agruparTodosRequerimentos(todosOsItens);
+
+  console.log('🔍 [ReturnMaterials] gruposParaDespachar:', gruposParaDespachar.map(g => ({ id: g.request.id, name: g.request.event_name })));
+  console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({ id: g.request.id, name: g.request.event_name })));
 
   // Calcular totais para o resumo
   const totalParaDespachar = gruposParaDespachar.reduce((total, grupo) => total + grupo.items.length, 0);
