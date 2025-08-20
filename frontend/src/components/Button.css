@@ -12,6 +12,10 @@
   background: var(--ibva-yellow);
   color: #fff;
   box-shadow: var(--ibva-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
 }
 
 .btn-primary {
