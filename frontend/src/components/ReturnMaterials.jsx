@@ -82,7 +82,13 @@ const ReturnMaterials = () => {
     console.log('🔍 [ReturnMaterials] agruparTodosRequerimentos chamada com', items.length, 'itens');
     const grupos = {};
     
-    items.forEach(item => {
+    items.forEach((item, index) => {
+      console.log(`🔍 [ReturnMaterials] Processando item ${index}:`, {
+        requestId: item.request_id || item.requests?.id,
+        eventName: item.requests?.event_name,
+        status: item.requests?.status
+      });
+      
       const requestId = item.request_id || item.requests?.id;
       
       // Usar os dados da requisição que já estão no item
@@ -90,6 +96,7 @@ const ReturnMaterials = () => {
       
       // Pular requisições finalizadas
       if (request.status === 'FINALIZADO') {
+        console.log(`🔍 [ReturnMaterials] Item ${index} finalizado, pulando`);
         return;
       }
       
@@ -104,8 +111,10 @@ const ReturnMaterials = () => {
           request: request,
           items: []
         };
+        console.log(`🔍 [ReturnMaterials] Novo grupo criado para requestId: ${requestId}`);
       }
       grupos[requestId].items.push(item);
+      console.log(`🔍 [ReturnMaterials] Item ${index} adicionado ao grupo ${requestId}`);
     });
     
     console.log('🔍 [ReturnMaterials] Grupos Todos criados:', Object.keys(grupos));
@@ -314,7 +323,9 @@ const ReturnMaterials = () => {
 
   // Agrupar todos os itens por requisição (para a nova seção)
   const todosOsItens = executedItems;
+  console.log('🔍 [ReturnMaterials] todosOsItens antes do agrupamento:', todosOsItens.length);
   const gruposTodosRequerimentos = agruparTodosRequerimentos(todosOsItens);
+  console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos após agrupamento:', gruposTodosRequerimentos.length);
 
   console.log('🔍 [ReturnMaterials] gruposParaDespachar:', gruposParaDespachar.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
   console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
