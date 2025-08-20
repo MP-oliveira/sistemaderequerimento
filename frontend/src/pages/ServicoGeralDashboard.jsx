@@ -13,11 +13,7 @@ import './Dashboard.css';
 import './ServicoGeralDashboard.css';
 
 export default function ServicoGeralDashboard() {
-  console.log('🔍 [ServicoGeralDashboard] Componente sendo montado - INÍCIO');
-  console.log('🔍 [ServicoGeralDashboard] AllFutureRequests importado:', AllFutureRequests);
-  console.log('🔍 [ServicoGeralDashboard] useAuth disponível:', !!useAuth);
   const { user } = useAuth();
-  console.log('🔍 [ServicoGeralDashboard] User obtido:', user);
   const [events, setEvents] = useState([]);
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
@@ -90,7 +86,6 @@ export default function ServicoGeralDashboard() {
 
 
 
-  console.log('🔍 [ServicoGeralDashboard] Iniciando renderização');
   return (
     <div className="dashboard-container servico-geral-dashboard">
       {/* Notificação */}
@@ -106,14 +101,7 @@ export default function ServicoGeralDashboard() {
       </div>
 
       {/* Todos os Requerimentos Futuros */}
-      {console.log('🔍 [ServicoGeralDashboard] ANTES de renderizar AllFutureRequests')}
-      <div style={{border: '2px solid red', padding: '20px', margin: '20px'}}>
-        <h3>TESTE - AllFutureRequests</h3>
-        <p>Se você vê isso, o problema não é na renderização</p>
-        {console.log('🔍 [ServicoGeralDashboard] DENTRO da div de teste')}
-        <AllFutureRequests />
-        {console.log('🔍 [ServicoGeralDashboard] DEPOIS de renderizar AllFutureRequests')}
-      </div>
+      <AllFutureRequests />
 
       {/* Materiais para Despachar (Próximos 7 dias) */}
       <TodayMaterialsServicoGeral />

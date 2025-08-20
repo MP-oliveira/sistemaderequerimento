@@ -5,7 +5,6 @@ import './TodayMaterials.css';
 import { FiClock, FiMapPin, FiUsers, FiCheck, FiX, FiPackage, FiChevronDown, FiChevronRight, FiCalendar } from 'react-icons/fi';
 
 export default function AllFutureRequests() {
-  console.log('🔍 [AllFutureRequests] Componente sendo montado');
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedRequests, setExpandedRequests] = useState(new Set());
@@ -17,34 +16,19 @@ export default function AllFutureRequests() {
   const carregarRequerimentos = async () => {
     setLoading(true);
     try {
-      console.log('🔍 [AllFutureRequests] Carregando requerimentos futuros...');
       const data = await listarTodosRequerimentosFuturosServicoGeral();
-      console.log('🔍 [AllFutureRequests] Dados recebidos:', data);
-      console.log('🔍 [AllFutureRequests] Tipo dos dados:', typeof data);
-      console.log('🔍 [AllFutureRequests] É array?', Array.isArray(data));
       setRequests(data || []);
-      console.log('🔍 [AllFutureRequests] Requerimentos definidos:', data?.length || 0);
     } catch (err) {
       console.error('❌ [AllFutureRequests] Erro ao carregar requerimentos:', err);
-      console.error('❌ [AllFutureRequests] Detalhes do erro:', err.message);
       setRequests([]);
     }
     setLoading(false);
   };
 
   const handleToggleSeparated = async (itemId, currentStatus) => {
-    console.log('🔍 [AllFutureRequests] handleToggleSeparated chamado');
-    console.log('   Item ID:', itemId);
-    console.log('   Status atual:', currentStatus);
-    console.log('   Novo status:', !currentStatus);
-    
     try {
-      console.log('🔍 [AllFutureRequests] Chamando API...');
       await marcarItemComoSeparado(itemId, !currentStatus);
-      console.log('✅ [AllFutureRequests] API chamada com sucesso');
-      console.log('🔍 [AllFutureRequests] Recarregando requerimentos...');
       await carregarRequerimentos();
-      console.log('✅ [AllFutureRequests] Requerimentos recarregados');
     } catch (err) {
       console.error('❌ [AllFutureRequests] Erro ao marcar item como separado:', err);
     }
@@ -79,10 +63,7 @@ export default function AllFutureRequests() {
     total + request.items.filter(item => item.is_separated).length, 0);
   const pendingItems = totalItems - separatedItems;
 
-  console.log('🔍 [AllFutureRequests] Renderizando componente, loading:', loading, 'requests:', requests.length);
-  
   if (loading) {
-    console.log('🔍 [AllFutureRequests] Renderizando loading');
     return (
       <div className="all-future-requests-loading">
         <div className="loading-spinner"></div>
@@ -91,10 +72,7 @@ export default function AllFutureRequests() {
     );
   }
 
-  console.log('🔍 [AllFutureRequests] Renderizando com', requests.length, 'requerimentos');
-  
   if (requests.length === 0) {
-    console.log('🔍 [AllFutureRequests] Renderizando estado vazio');
     return (
       <div className="all-future-requests-empty">
         <FiPackage size={48} />
