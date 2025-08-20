@@ -152,7 +152,7 @@ const ReturnMaterials = () => {
     if (!selectedItem) return;
     
     try {
-      const response = await fetch(`http://localhost:3000/api/request-items/${selectedItem.id}/unavailable`, {
+      const response = await fetch(`/api/request-items/${selectedItem.id}/unavailable`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
