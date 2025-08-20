@@ -242,7 +242,7 @@ const ReturnMaterials = () => {
       <div className="return-materials">
         <div className="return-materials-loading">
           <div className="loading-logo">
-            <img src="/src/assets/images/ibva-logo.png" alt="IBVA" />
+            <img src="/ibva-logo.png" alt="IBVA" />
             <div className="loading-spinner"></div>
           </div>
           <h3>Materiais Audiovisual</h3>
