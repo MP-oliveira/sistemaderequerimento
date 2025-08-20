@@ -217,34 +217,65 @@ export const updateUser = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores ou pastores.' });
     }
     const { id } = req.params;
-    const { full_name, email, role } = req.body;
+    const { full_name, email, role, password } = req.body;
+    
+    console.log('🔍 updateUser - Dados recebidos:', { full_name, email, role, password: password ? '***' : 'undefined' });
     
     // Validar papel se fornecido
     if (role) {
-          const allowedRoles = ['USER', 'LIDER', 'SEC', 'AUDIOVISUAL', 'PASTOR', 'ADM', 'SERVICO_GERAL'];
-    if (!allowedRoles.includes(role)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Papel inválido. Papéis permitidos: USER, LIDER, SEC, AUDIOVISUAL, PASTOR, ADM, SERVICO_GERAL'
-      });
-    }
+      const allowedRoles = ['USER', 'LIDER', 'SEC', 'AUDIOVISUAL', 'PASTOR', 'ADM', 'SERVICO_GERAL'];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Papel inválido. Papéis permitidos: USER, LIDER, SEC, AUDIOVISUAL, PASTOR, ADM, SERVICO_GERAL'
+        });
+      }
     }
     
     const updateData = {};
     if (full_name) updateData.full_name = full_name;
     if (email) updateData.email = email;
     if (role) updateData.role = role;
+    
+    // Se uma nova senha foi fornecida, atualizar no Auth e no banco
+    if (password && password !== '••••••••') {
+      console.log('🔍 updateUser - Atualizando senha no Auth');
+      
+      // Atualizar senha no Supabase Auth
+      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(id, {
+        password: password
+      });
+      
+      if (authError) {
+        console.log('❌ updateUser - Erro ao atualizar senha no Auth:', authError);
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Erro ao atualizar senha.', 
+          error: authError.message 
+        });
+      }
+      
+      // Fazer hash da nova senha para salvar na tabela users
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password_hash = hashedPassword;
+      
+      console.log('✅ updateUser - Senha atualizada com sucesso');
+    }
+    
     const { data: user, error } = await supabase
       .from('users')
       .update(updateData)
       .eq('id', id)
       .select('id, full_name, email, role, is_active, created_at')
       .single();
+      
     if (error || !user) {
       return res.status(400).json({ success: false, message: 'Erro ao atualizar usuário.', error: error?.message });
     }
+    
     res.json({ success: true, message: 'Usuário atualizado com sucesso.', data: user });
   } catch (error) {
+    console.error('❌ updateUser - Erro interno:', error);
     res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
   }
 };
