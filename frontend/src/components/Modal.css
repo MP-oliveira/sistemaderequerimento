@@ -194,6 +194,15 @@
   z-index: 10 !important;
 }
 
+/* Estilos para textareas dentro de modais */
+.modal textarea,
+.modal-content textarea {
+  margin-right: 20px !important;
+  margin-left: 20px !important;
+  box-sizing: border-box !important;
+  width: calc(100% - 40px) !important;
+}
+
 /* Responsivo - iPad Pro */
 @media (min-width: 769px) and (max-width: 1024px) {
   .modal {
