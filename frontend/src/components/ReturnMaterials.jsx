@@ -58,6 +58,12 @@ const ReturnMaterials = () => {
         return;
       }
       
+      // Garantir que temos um ID único
+      if (!requestId) {
+        console.warn('⚠️ [ReturnMaterials] Item sem requestId:', item);
+        return;
+      }
+      
       if (!grupos[requestId]) {
         grupos[requestId] = {
           request: request,
@@ -67,6 +73,7 @@ const ReturnMaterials = () => {
       grupos[requestId].items.push(item);
     });
     
+    console.log('🔍 [ReturnMaterials] Grupos criados:', Object.keys(grupos));
     return Object.values(grupos);
   };
 
@@ -119,12 +126,16 @@ const ReturnMaterials = () => {
   console.log('🔍 [ReturnMaterials] itensParaRetorno:', itensParaRetorno);
 
   const toggleRequest = (requestId) => {
+    console.log('🔍 [ReturnMaterials] toggleRequest chamado com requestId:', requestId);
     const newExpanded = new Set(expandedRequests);
     if (newExpanded.has(requestId)) {
       newExpanded.delete(requestId);
+      console.log('🔍 [ReturnMaterials] Removendo requestId:', requestId);
     } else {
       newExpanded.add(requestId);
+      console.log('🔍 [ReturnMaterials] Adicionando requestId:', requestId);
     }
+    console.log('🔍 [ReturnMaterials] Novo estado expandedRequests:', Array.from(newExpanded));
     setExpandedRequests(newExpanded);
   };
 
