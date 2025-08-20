@@ -883,9 +883,7 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
         status, 
         date, 
         department, 
-        description,
-        approved_by_name,
-        approved_by_email
+        description
       `)
       .eq('status', 'APTO')
       .gte('date', todayStr)
@@ -924,12 +922,7 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
         description,
         is_separated,
         separated_by,
-        separated_at,
-        inventory (
-          name,
-          description,
-          category
-        )
+        separated_at
       `)
       .in('request_id', requestIds);
 
