@@ -217,6 +217,10 @@ const ReturnMaterials = () => {
   const gruposParaDespachar = agruparItensPorRequisicao(itensParaDespachar);
   const gruposParaRetorno = agruparItensPorRequisicao(itensParaRetorno);
 
+  // Agrupar todos os itens por requisição (para a nova seção)
+  const todosOsItens = executedItems;
+  const gruposTodosRequerimentos = agruparItensPorRequisicao(todosOsItens);
+
   // Calcular totais para o resumo
   const totalParaDespachar = gruposParaDespachar.reduce((total, grupo) => total + grupo.items.length, 0);
   const totalSeparados = gruposParaDespachar.reduce((total, grupo) => 
@@ -500,6 +504,136 @@ const ReturnMaterials = () => {
           <p>Não há materiais para despachar ou retornar no momento.</p>
         </div>
       )}
+
+      {/* Seção: Todos os Requerimentos */}
+      <div className="materials-header" style={{ marginTop: '2rem' }}>
+        <h3 className="section-title">
+          <FiPackage style={{marginRight: 8}} />
+          Todos os Requerimentos
+        </h3>
+        <div className="materials-summary">
+          <div className="summary-item">
+            <span className="summary-number">{gruposTodosRequerimentos.length}</span>
+            <span className="summary-label">Requisições</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-number success">{todosOsItens.filter(item => item.is_separated).length}</span>
+            <span className="summary-label">Separados</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-number warning">{todosOsItens.filter(item => !item.is_separated).length}</span>
+            <span className="summary-label">Pendentes</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Lista de Todos os Requerimentos */}
+      <div className="materials-list">
+        {gruposTodosRequerimentos.length > 0 ? (
+          gruposTodosRequerimentos.map((grupo, index) => {
+            const requestId = grupo.request.id;
+            const isExpanded = expandedRequests.has(requestId);
+            
+            // Calcular contadores para esta requisição
+            const totalCount = grupo.items.length;
+            const separatedCount = grupo.items.filter(item => item.is_separated).length;
+            
+            return (
+              <div key={index} className="request-materials-card">
+                <div 
+                  className="request-header accordion-header"
+                  onClick={() => toggleRequest(requestId)}
+                >
+                  <div className="request-info">
+                    <div className="request-title-row">
+                      <button className="accordion-toggle">
+                        {isExpanded ? <FiChevronDown size={16} /> : <FiChevronRight size={16} />}
+                      </button>
+                      <h4>{grupo.request.event_name || grupo.request.description || 'Requisição não identificada'}</h4>
+                    </div>
+                    <div className="request-meta">
+                      <span className="department">{grupo.request.department}</span>
+                      <span className="time">
+                        <FiClock size={14} />
+                        {grupo.request.date}
+                      </span>
+                      {grupo.request.location && (
+                        <span className="location">
+                          <FiMapPin size={14} />
+                          {grupo.request.location}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="request-status">
+                    <div className="status-info">
+                      <span 
+                        className="status-badge"
+                        style={{ 
+                          backgroundColor: 'transparent',
+                          color: '#4caf50',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.8rem',
+                          fontWeight: '700'
+                        }}
+                      >
+                        APTO
+                      </span>
+                      <span className="items-count">
+                        {separatedCount}/{totalCount} itens
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {isExpanded && (
+                  <div className="materials-items accordion-content">
+                    <h5>Materiais Necessários:</h5>
+                    <div className="items-list">
+                      {grupo.items.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className={`material-item ${item.is_separated ? 'separated' : ''}`}
+                        >
+                          <div className="item-info">
+                            <span className="item-name">{item.item_name}</span>
+                            <span className="item-quantity">Qtd: {item.quantity_requested}</span>
+                            {item.description && (
+                              <span className="item-description">{item.description}</span>
+                            )}
+                          </div>
+                          
+                          <button
+                            className={`separate-btn ${item.is_separated ? 'separated' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleSeparated(item.id, item.is_separated);
+                            }}
+                            title={item.is_separated ? 'Desmarcar como separado' : 'Marcar como separado'}
+                          >
+                            {item.is_separated ? <FiCheck size={16} /> : <FiX size={16} />}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="request-progress">
+                      <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${totalCount > 0 ? (separatedCount / totalCount) * 100 : 0}%` }}></div>
+                      </div>
+                      <span className="progress-text">
+                        {separatedCount} de {totalCount} materiais separados
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <p>Nenhum requerimento encontrado</p>
+        )}
+      </div>
 
       {/* Modal para marcar como indisponível */}
       <Modal
