@@ -4,6 +4,7 @@ import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario } from '.
 import Modal from '../components/Modal';
 import TodayMaterialsServicoGeral from '../components/TodayMaterialsServicoGeral';
 import AllFutureRequests from '../components/AllFutureRequests';
+console.log('🔍 [ServicoGeralDashboard] AllFutureRequests importado:', AllFutureRequests);
 import ReturnMaterialsOnly from '../components/ReturnMaterialsOnly';
 import Calendar from '../components/Calendar';
 import { formatTimeUTC } from '../utils/dateUtils';
@@ -101,6 +102,7 @@ export default function ServicoGeralDashboard() {
       </div>
 
       {/* Todos os Requerimentos Futuros */}
+      {console.log('🔍 [ServicoGeralDashboard] Renderizando AllFutureRequests')}
       <AllFutureRequests />
 
       {/* Materiais para Despachar (Próximos 7 dias) */}
