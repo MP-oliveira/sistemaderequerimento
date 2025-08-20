@@ -174,6 +174,7 @@ export default function AppRoutes() {
           element={
             <PrivateRoute>
               <Layout>
+                {console.log('🔍 [Routes] Renderizando ServicoGeralDashboard')}
                 <ServicoGeralDashboard />
               </Layout>
             </PrivateRoute>
