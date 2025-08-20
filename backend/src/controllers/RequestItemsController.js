@@ -858,6 +858,124 @@ const updateAudiovisualNotes = async (req, res) => {
   }
 };
 
+// Listar todos os requerimentos futuros para serviço geral
+const getAllFutureRequestsForServicoGeral = async (req, res) => {
+  try {
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Buscando todos os requerimentos futuros...');
+    
+    // Usar fuso horário local (Brasília)
+    const today = new Date();
+    const todayLocal = new Date(today.getTime() - (today.getTimezoneOffset() * 60000));
+    const todayStr = todayLocal.toISOString().split('T')[0];
+    
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Data de hoje (local):', todayStr);
+
+    // Buscar todas as requisições aprovadas futuras (incluindo hoje)
+    const { data: futureRequests, error: requestsError } = await supabase
+      .from('requests')
+      .select(`
+        id, 
+        event_name, 
+        start_datetime, 
+        end_datetime, 
+        location, 
+        expected_audience, 
+        status, 
+        date, 
+        department, 
+        description,
+        approved_by_name,
+        approved_by_email
+      `)
+      .eq('status', 'APTO')
+      .gte('date', todayStr)
+      .order('date', { ascending: true });
+
+    if (requestsError) {
+      console.error('❌ Erro ao buscar requisições futuras:', requestsError);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições futuras encontradas:', futureRequests?.length || 0);
+
+    if (!futureRequests || futureRequests.length === 0) {
+      return res.json({ 
+        success: true, 
+        data: [] 
+      });
+    }
+
+    // Buscar itens de serviço geral dessas requisições
+    const requestIds = futureRequests.map(req => req.id);
+
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Request IDs para buscar:', requestIds);
+    
+    const { data: items, error: itemsError } = await supabase
+      .from('request_items')
+      .select(`
+        id,
+        request_id,
+        inventory_id,
+        item_name,
+        quantity_requested,
+        description,
+        is_separated,
+        separated_by,
+        separated_at,
+        inventory (
+          name,
+          description,
+          category
+        )
+      `)
+      .in('request_id', requestIds);
+
+    if (itemsError) {
+      console.error('❌ Erro ao buscar itens:', itemsError);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro interno do servidor' 
+      });
+    }
+
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Itens encontrados:', items?.length || 0);
+
+    // Filtrar apenas itens de serviço geral
+    const servicoGeralItems = items.filter(item => {
+      const category = item.inventory?.category || '';
+      return category === 'SERVICO_GERAL';
+    });
+
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Itens de serviço geral:', servicoGeralItems.length);
+
+    // Agrupar itens por requisição
+    const requestsWithItems = futureRequests.map(request => {
+      const requestItems = servicoGeralItems.filter(item => item.request_id === request.id);
+      return {
+        ...request,
+        items: requestItems
+      };
+    }).filter(request => request.items.length > 0); // Apenas requisições que têm itens de serviço geral
+
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições com itens de serviço geral:', requestsWithItems.length);
+
+    res.json({ 
+      success: true, 
+      data: requestsWithItems 
+    });
+
+  } catch (error) {
+    console.error('❌ Erro ao buscar requerimentos futuros:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor' 
+    });
+  }
+};
+
 export {
   createRequestItem,
   getRequestItems,
@@ -872,5 +990,6 @@ export {
   markItemAsUnavailable,
   markItemAsAvailableAndSeparated,
   getRequestItemsWithInventory,
-  updateAudiovisualNotes
+  updateAudiovisualNotes,
+  getAllFutureRequestsForServicoGeral
 }; 
