@@ -79,6 +79,7 @@ const ReturnMaterials = () => {
 
   // Função específica para agrupar todos os requerimentos
   const agruparTodosRequerimentos = (items) => {
+    console.log('🔍 [ReturnMaterials] === INÍCIO DA FUNÇÃO agruparTodosRequerimentos ===');
     try {
       console.log('🔍 [ReturnMaterials] agruparTodosRequerimentos chamada com', items.length, 'itens');
       const grupos = {};
@@ -330,6 +331,8 @@ const ReturnMaterials = () => {
   const todosOsItens = executedItems;
   console.log('🔍 [ReturnMaterials] todosOsItens antes do agrupamento:', todosOsItens.length);
   console.log('🔍 [ReturnMaterials] Chamando agruparTodosRequerimentos...');
+  console.log('🔍 [ReturnMaterials] Tipo de todosOsItens:', typeof todosOsItens);
+  console.log('🔍 [ReturnMaterials] É array?', Array.isArray(todosOsItens));
   const gruposTodosRequerimentos = agruparTodosRequerimentos(todosOsItens);
   console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos após agrupamento:', gruposTodosRequerimentos.length);
 
