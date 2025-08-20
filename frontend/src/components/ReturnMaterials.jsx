@@ -178,31 +178,13 @@ const ReturnMaterials = () => {
     }
   };
 
-  const markItemAsAvailableAndSeparated = async (itemId) => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/request-items/${itemId}/available-and-separated`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
 
-      if (!response.ok) {
-        throw new Error('Erro ao marcar item como disponível e separado');
-      }
-
-      await carregarDados();
-    } catch (error) {
-      console.error('Erro ao marcar item como disponível e separado:', error);
-    }
-  };
 
   const updateNotes = async () => {
     if (!selectedItem) return;
     
     try {
-      const response = await fetch(`http://localhost:3000/api/request-items/${selectedItem.id}/notes`, {
+      const response = await fetch(`/api/request-items/${selectedItem.id}/notes`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -226,48 +208,7 @@ const ReturnMaterials = () => {
     }
   };
 
-  const openUnavailableModal = (item) => {
-    setSelectedItem(item);
-    setUnavailableReason('');
-    setAudiovisualNotes('');
-    setShowUnavailableModal(true);
-  };
 
-  const openNotesModal = (item) => {
-    setSelectedItem(item);
-    setAudiovisualNotes(item.audiovisual_notes || '');
-    setShowNotesModal(true);
-  };
-
-  const getStatusIcon = (item) => {
-    if (item.is_returned) {
-      return <FiCheck size={16} style={{ color: '#2196f3' }} />;
-    } else if (item.is_separated) {
-      return <FiPackage size={16} style={{ color: '#4caf50' }} />;
-    } else {
-      return <FiAlertTriangle size={16} style={{ color: '#ff9800' }} />;
-    }
-  };
-
-  const getStatusText = (item) => {
-    if (item.is_returned) {
-      return 'Retornado';
-    } else if (item.is_separated) {
-      return 'Separado';
-    } else {
-      return 'Pendente';
-    }
-  };
-
-  const getStatusColor = (item) => {
-    if (item.is_returned) {
-      return '#2196f3';
-    } else if (item.is_separated) {
-      return '#4caf50';
-    } else {
-      return '#ff9800';
-    }
-  };
 
   if (loading) {
     return (
