@@ -560,7 +560,7 @@ const ReturnMaterials = () => {
       </div>
 
       {/* Lista de Todos os Requerimentos */}
-      <div className="materials-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+      <div className="materials-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
         {gruposTodosRequerimentos.length > 0 ? (
           gruposTodosRequerimentos.map((grupo, index) => {
             const requestId = grupo.request.id;
