@@ -3,6 +3,7 @@ import { listarItensDoDiaServicoGeral, marcarItemComoSeparado } from '../service
 import { formatTimeUTC } from '../utils/dateUtils';
 import './TodayMaterials.css';
 import { FiClock, FiMapPin, FiUsers, FiCheck, FiX, FiPackage, FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import ibvaLogo from '../assets/images/ibva-logo.png';
 
 export default function TodayMaterialsServicoGeral() {
   const [materials, setMaterials] = useState([]);
@@ -52,6 +53,16 @@ export default function TodayMaterialsServicoGeral() {
     return formatTimeUTC(dateString);
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   const toggleRequest = (requestId) => {
     const newExpanded = new Set(expandedRequests);
     if (newExpanded.has(requestId)) {
@@ -64,7 +75,7 @@ export default function TodayMaterialsServicoGeral() {
 
   // Agrupar materiais por requisição
   const materialsByRequest = materials.reduce((acc, item) => {
-    const requestId = item.requests.id;
+    const requestId = item.requests?.id || item.request_id;
     if (!acc[requestId]) {
       acc[requestId] = {
         request: item.requests,
@@ -81,9 +92,15 @@ export default function TodayMaterialsServicoGeral() {
 
   if (loading) {
     return (
-      <div className="today-materials-loading">
-        <div className="loading-spinner"></div>
-        <p>Carregando materiais do dia...</p>
+      <div className="today-materials">
+        <div className="today-materials-loading">
+          <div className="loading-logo">
+            <img src={ibvaLogo} alt="IBVA" />
+            <div className="loading-spinner"></div>
+          </div>
+          <h3>Materiais Serviço Geral</h3>
+          <p>Carregando...</p>
+        </div>
       </div>
     );
   }
@@ -147,7 +164,7 @@ export default function TodayMaterialsServicoGeral() {
                   <span className="department">{request.department}</span>
                   <span className="time">
                     <FiClock size={14} />
-                    {formatTime(request.start_datetime)} - {formatTime(request.end_datetime)}
+                    {formatDate(request.start_datetime)}
                   </span>
                   {request.location && (
                     <span className="location">
