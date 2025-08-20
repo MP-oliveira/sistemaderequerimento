@@ -14,6 +14,7 @@ import './Dashboard.css';
 import './ServicoGeralDashboard.css';
 
 export default function ServicoGeralDashboard() {
+  console.log('🔍 [ServicoGeralDashboard] Componente sendo montado');
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [showEventModal, setShowEventModal] = useState(false);
@@ -87,6 +88,7 @@ export default function ServicoGeralDashboard() {
 
 
 
+  console.log('🔍 [ServicoGeralDashboard] Iniciando renderização');
   return (
     <div className="dashboard-container servico-geral-dashboard">
       {/* Notificação */}
