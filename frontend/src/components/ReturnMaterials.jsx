@@ -17,6 +17,8 @@ const ReturnMaterials = () => {
   const [unavailableReason, setUnavailableReason] = useState('');
   const [audiovisualNotes, setAudiovisualNotes] = useState('');
   const [expandedRequests, setExpandedRequests] = useState(new Set());
+  const [expandedRequestsRetorno, setExpandedRequestsRetorno] = useState(new Set());
+  const [expandedRequestsTodos, setExpandedRequestsTodos] = useState(new Set());
 
   useEffect(() => {
     carregarDados();
@@ -123,6 +125,26 @@ const ReturnMaterials = () => {
       newExpanded.add(requestId);
     }
     setExpandedRequests(newExpanded);
+  };
+
+  const toggleRequestRetorno = (requestId) => {
+    const newExpanded = new Set(expandedRequestsRetorno);
+    if (newExpanded.has(requestId)) {
+      newExpanded.delete(requestId);
+    } else {
+      newExpanded.add(requestId);
+    }
+    setExpandedRequestsRetorno(newExpanded);
+  };
+
+  const toggleRequestTodos = (requestId) => {
+    const newExpanded = new Set(expandedRequestsTodos);
+    if (newExpanded.has(requestId)) {
+      newExpanded.delete(requestId);
+    } else {
+      newExpanded.add(requestId);
+    }
+    setExpandedRequestsTodos(newExpanded);
   };
 
   const handleToggleReturned = async (itemId, currentStatus) => {
@@ -391,9 +413,9 @@ const ReturnMaterials = () => {
         
         <div className="materials-list">
           {gruposParaRetorno.length > 0 ? (
-            gruposParaRetorno.map((grupo, index) => {
-              const requestId = grupo.request.id;
-              const isExpanded = expandedRequests.has(requestId);
+                      gruposParaRetorno.map((grupo, index) => {
+            const requestId = grupo.request.id;
+            const isExpanded = expandedRequestsRetorno.has(requestId);
               
               // Calcular contadores para esta requisição
               const totalCount = grupo.items.length;
@@ -403,7 +425,7 @@ const ReturnMaterials = () => {
                 <div key={index} className="request-materials-card">
                   <div 
                     className="request-header accordion-header"
-                    onClick={() => toggleRequest(requestId)}
+                    onClick={() => toggleRequestRetorno(requestId)}
                   >
                     <div className="request-info">
                       <div className="request-title-row">
@@ -532,7 +554,7 @@ const ReturnMaterials = () => {
         {gruposTodosRequerimentos.length > 0 ? (
           gruposTodosRequerimentos.map((grupo, index) => {
             const requestId = grupo.request.id;
-            const isExpanded = expandedRequests.has(requestId);
+            const isExpanded = expandedRequestsTodos.has(requestId);
             
             // Calcular contadores para esta requisição
             const totalCount = grupo.items.length;
