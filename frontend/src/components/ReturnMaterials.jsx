@@ -309,8 +309,8 @@ const ReturnMaterials = () => {
   const todosOsItens = executedItems;
   const gruposTodosRequerimentos = agruparTodosRequerimentos(todosOsItens);
 
-  console.log('🔍 [ReturnMaterials] gruposParaDespachar:', gruposParaDespachar.map(g => ({ id: g.request.id, name: g.request.event_name })));
-  console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({ id: g.request.id, name: g.request.event_name })));
+  console.log('🔍 [ReturnMaterials] gruposParaDespachar:', gruposParaDespachar.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
+  console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
 
   // Calcular totais para o resumo
   const totalParaDespachar = gruposParaDespachar.reduce((total, grupo) => total + grupo.items.length, 0);
