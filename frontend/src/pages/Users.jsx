@@ -79,7 +79,7 @@ export default function Users() {
       name: user.name || user.full_name || '',
       email: user.email || '',
       role: user.role || 'USER',
-      password: ''
+      password: '••••••••' // Mostra pontos para indicar que há uma senha
     });
     setShowModal(true);
   };
@@ -232,13 +232,13 @@ export default function Users() {
             className="input-full"
           />
           <Input
-            label={editingUser ? "Nova Senha (deixe em branco para manter a atual)" : "Senha"}
+            label={editingUser ? "Senha (digite nova senha ou mantenha a atual)" : "Senha"}
             type="password"
             value={formData.password}
             onChange={e => setFormData({ ...formData, password: e.target.value })}
             required={!editingUser}
             className="input-full"
-            placeholder={editingUser ? "Digite a nova senha ou deixe em branco" : "Digite a senha"}
+            placeholder={editingUser ? "Senha atual: •••••••• (digite nova senha ou mantenha)" : "Digite a senha"}
           />
           <div className="input-group">
             <label className="input-label">Função</label>
