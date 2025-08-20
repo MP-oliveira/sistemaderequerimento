@@ -104,11 +104,13 @@ export default function ServicoGeralDashboard() {
       </div>
 
       {/* Todos os Requerimentos Futuros */}
-      {console.log('🔍 [ServicoGeralDashboard] Renderizando AllFutureRequests')}
+      {console.log('🔍 [ServicoGeralDashboard] ANTES de renderizar AllFutureRequests')}
       <div style={{border: '2px solid red', padding: '20px', margin: '20px'}}>
         <h3>TESTE - AllFutureRequests</h3>
         <p>Se você vê isso, o problema não é na renderização</p>
+        {console.log('🔍 [ServicoGeralDashboard] DENTRO da div de teste')}
         <AllFutureRequests />
+        {console.log('🔍 [ServicoGeralDashboard] DEPOIS de renderizar AllFutureRequests')}
       </div>
 
       {/* Materiais para Despachar (Próximos 7 dias) */}
