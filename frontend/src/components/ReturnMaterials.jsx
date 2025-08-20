@@ -6,6 +6,7 @@ import Modal from './Modal';
 import Button from './Button';
 import './ReturnMaterials.css';
 import './TodayMaterials.css';
+import ibvaLogo from '../assets/images/ibva-logo.png';
 
 const ReturnMaterials = () => {
   const [executedItems, setExecutedItems] = useState([]);
@@ -47,7 +48,7 @@ const ReturnMaterials = () => {
     const grupos = {};
     
     items.forEach(item => {
-      const requestId = item.request_id;
+      const requestId = item.request_id || item.requests?.id;
       
       // Usar os dados da requisição que já estão no item
       const request = item.requests || {};
@@ -242,7 +243,7 @@ const ReturnMaterials = () => {
       <div className="return-materials">
         <div className="return-materials-loading">
           <div className="loading-logo">
-            <img src="/ibva-logo.png" alt="IBVA" />
+            <img src={ibvaLogo} alt="IBVA" />
             <div className="loading-spinner"></div>
           </div>
           <h3>Materiais Audiovisual</h3>
