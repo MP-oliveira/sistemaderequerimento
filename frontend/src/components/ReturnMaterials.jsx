@@ -150,12 +150,16 @@ const ReturnMaterials = () => {
   };
 
   const toggleRequestTodos = (requestId) => {
+    console.log('🔍 [ReturnMaterials] toggleRequestTodos chamado com requestId:', requestId);
     const newExpanded = new Set(expandedRequestsTodos);
     if (newExpanded.has(requestId)) {
       newExpanded.delete(requestId);
+      console.log('🔍 [ReturnMaterials] Removendo requestId Todos:', requestId);
     } else {
       newExpanded.add(requestId);
+      console.log('🔍 [ReturnMaterials] Adicionando requestId Todos:', requestId);
     }
+    console.log('🔍 [ReturnMaterials] Novo estado expandedRequestsTodos:', Array.from(newExpanded));
     setExpandedRequestsTodos(newExpanded);
   };
 
@@ -314,13 +318,14 @@ const ReturnMaterials = () => {
           gruposParaDespachar.map((grupo, index) => {
             const requestId = grupo.request.id;
             const isExpanded = expandedRequests.has(requestId);
+            console.log('🔍 [ReturnMaterials] Renderizando grupo:', { requestId, isExpanded, index });
             
             // Calcular contadores para esta requisição
             const totalCount = grupo.items.length;
             const separatedCount = grupo.items.filter(item => item.is_separated).length;
             
             return (
-              <div key={index} className="request-materials-card">
+              <div key={`despachar-${requestId}`} className="request-materials-card">
                 <div 
                   className="request-header accordion-header"
                   onClick={() => toggleRequest(requestId)}
@@ -583,13 +588,14 @@ const ReturnMaterials = () => {
           gruposTodosRequerimentos.map((grupo, index) => {
             const requestId = grupo.request.id;
             const isExpanded = expandedRequestsTodos.has(requestId);
+            console.log('🔍 [ReturnMaterials] Renderizando grupo Todos:', { requestId, isExpanded, index });
             
             // Calcular contadores para esta requisição
             const totalCount = grupo.items.length;
             const separatedCount = grupo.items.filter(item => item.is_separated).length;
             
             return (
-              <div key={index} className="request-materials-card">
+              <div key={`todos-${requestId}`} className="request-materials-card">
                 <div 
                   className="request-header accordion-header"
                   onClick={() => toggleRequestTodos(requestId)}
