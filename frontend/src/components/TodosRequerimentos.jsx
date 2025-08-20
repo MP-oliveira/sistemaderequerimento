@@ -5,9 +5,10 @@ import './TodosRequerimentos.css';
 const TodosRequerimentos = ({ executedItems }) => {
   const [expandedRequests, setExpandedRequests] = useState({});
 
-  // Função para agrupar itens por requisição
+  // Função para agrupar itens por requisição usando índices únicos
   const agruparItensPorRequisicao = (items) => {
     const grupos = {};
+    let grupoIndex = 0;
     
     items.forEach(item => {
       const requestId = item.request_id || item.requests?.id;
@@ -19,7 +20,8 @@ const TodosRequerimentos = ({ executedItems }) => {
       if (!grupos[requestId]) {
         grupos[requestId] = {
           request: request,
-          items: []
+          items: [],
+          uniqueIndex: grupoIndex++ // Índice único para cada grupo
         };
       }
       grupos[requestId].items.push(item);
@@ -28,15 +30,15 @@ const TodosRequerimentos = ({ executedItems }) => {
     return Object.values(grupos);
   };
 
-  const toggleRequest = (requestId) => {
-    console.log('🔍 [TodosRequerimentos] toggleRequest chamado com requestId:', requestId);
+  const toggleRequest = (uniqueIndex) => {
+    console.log('🔍 [TodosRequerimentos] toggleRequest chamado com uniqueIndex:', uniqueIndex);
     const newExpanded = { ...expandedRequests };
-    if (newExpanded[requestId]) {
-      delete newExpanded[requestId];
-      console.log('🔍 [TodosRequerimentos] Removendo requestId:', requestId);
+    if (newExpanded[uniqueIndex]) {
+      delete newExpanded[uniqueIndex];
+      console.log('🔍 [TodosRequerimentos] Removendo uniqueIndex:', uniqueIndex);
     } else {
-      newExpanded[requestId] = true;
-      console.log('🔍 [TodosRequerimentos] Adicionando requestId:', requestId);
+      newExpanded[uniqueIndex] = true;
+      console.log('🔍 [TodosRequerimentos] Adicionando uniqueIndex:', uniqueIndex);
     }
     console.log('🔍 [TodosRequerimentos] Novo estado:', newExpanded);
     setExpandedRequests(newExpanded);
@@ -78,10 +80,10 @@ const TodosRequerimentos = ({ executedItems }) => {
       <div className="materials-list todos-requerimentos-list">
         {grupos.length > 0 ? (
           grupos.map((grupo, index) => {
-            const requestId = grupo.request.id;
-            const isExpanded = !!expandedRequests[requestId];
+            const uniqueIndex = grupo.uniqueIndex;
+            const isExpanded = !!expandedRequests[uniqueIndex];
             console.log('🔍 [TodosRequerimentos] Renderizando grupo:', { 
-              requestId, 
+              uniqueIndex, 
               isExpanded, 
               index, 
               eventName: grupo.request.event_name
@@ -91,10 +93,10 @@ const TodosRequerimentos = ({ executedItems }) => {
             const separatedCount = grupo.items.filter(item => item.is_separated).length;
             
             return (
-              <div key={`todos-${requestId}`} className="request-materials-card">
+              <div key={`todos-${uniqueIndex}`} className="request-materials-card">
                 <div 
                   className="request-header accordion-header"
-                  onClick={() => toggleRequest(requestId)}
+                  onClick={() => toggleRequest(uniqueIndex)}
                 >
                   <div className="request-info">
                     <div className="request-title-row">
