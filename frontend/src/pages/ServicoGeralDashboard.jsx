@@ -4,7 +4,6 @@ import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario } from '.
 import Modal from '../components/Modal';
 import TodayMaterialsServicoGeral from '../components/TodayMaterialsServicoGeral';
 import AllFutureRequests from '../components/AllFutureRequests';
-console.log('🔍 [ServicoGeralDashboard] AllFutureRequests importado:', AllFutureRequests);
 import ReturnMaterialsOnly from '../components/ReturnMaterialsOnly';
 import Calendar from '../components/Calendar';
 import { formatTimeUTC } from '../utils/dateUtils';
@@ -15,6 +14,7 @@ import './ServicoGeralDashboard.css';
 
 export default function ServicoGeralDashboard() {
   console.log('🔍 [ServicoGeralDashboard] Componente sendo montado');
+  console.log('🔍 [ServicoGeralDashboard] AllFutureRequests importado:', AllFutureRequests);
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [showEventModal, setShowEventModal] = useState(false);
