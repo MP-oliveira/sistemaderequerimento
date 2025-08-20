@@ -79,6 +79,7 @@ const ReturnMaterials = () => {
 
   // Função específica para agrupar todos os requerimentos
   const agruparTodosRequerimentos = (items) => {
+    console.log('🔍 [ReturnMaterials] agruparTodosRequerimentos chamada com', items.length, 'itens');
     const grupos = {};
     
     items.forEach(item => {
@@ -108,6 +109,11 @@ const ReturnMaterials = () => {
     });
     
     console.log('🔍 [ReturnMaterials] Grupos Todos criados:', Object.keys(grupos));
+    console.log('🔍 [ReturnMaterials] Detalhes dos grupos:', Object.entries(grupos).map(([id, grupo]) => ({
+      id,
+      eventName: grupo.request.event_name,
+      itemsCount: grupo.items.length
+    })));
     return Object.values(grupos);
   };
 
@@ -312,6 +318,8 @@ const ReturnMaterials = () => {
 
   console.log('🔍 [ReturnMaterials] gruposParaDespachar:', gruposParaDespachar.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
   console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
+  console.log('🔍 [ReturnMaterials] Total grupos para despachar:', gruposParaDespachar.length);
+  console.log('🔍 [ReturnMaterials] Total grupos todos requerimentos:', gruposTodosRequerimentos.length);
 
   // Calcular totais para o resumo
   const totalParaDespachar = gruposParaDespachar.reduce((total, grupo) => total + grupo.items.length, 0);
