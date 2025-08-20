@@ -180,6 +180,92 @@
   gap: 0;
 }
 
+/* Loading animado com logo IBVA */
+.return-materials-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.return-materials-loading .loading-logo {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 2rem;
+}
+
+.return-materials-loading .loading-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(100%);
+  animation: logoColorize 2s ease-in-out infinite;
+}
+
+.return-materials-loading .loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  border: 2px solid transparent;
+  border-top: 2px solid #e5e7eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.return-materials-loading .loading-spinner::before,
+.return-materials-loading .loading-spinner::after {
+  content: '';
+  position: absolute;
+  border: 2px solid transparent;
+  border-radius: 50%;
+}
+
+.return-materials-loading .loading-spinner::before {
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border-top: 2px solid #d1d5db;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+.return-materials-loading .loading-spinner::after {
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  border-top: 2px solid #9ca3af;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes logoColorize {
+  0%, 50% { filter: grayscale(100%); }
+  100% { filter: grayscale(0%); }
+}
+
+.return-materials-loading h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.return-materials-loading p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
 /* Responsivo - iPad Pro */
 @media (min-width: 769px) and (max-width: 1024px) {
   .return-materials {

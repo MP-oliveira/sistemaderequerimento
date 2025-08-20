@@ -240,8 +240,14 @@ const ReturnMaterials = () => {
   if (loading) {
     return (
       <div className="return-materials">
-        <h3>Materiais Audiovisual</h3>
-        <p>Carregando...</p>
+        <div className="return-materials-loading">
+          <div className="loading-logo">
+            <img src="/src/assets/images/ibva-logo.png" alt="IBVA" />
+            <div className="loading-spinner"></div>
+          </div>
+          <h3>Materiais Audiovisual</h3>
+          <p>Carregando...</p>
+        </div>
       </div>
     );
   }
