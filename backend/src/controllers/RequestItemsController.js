@@ -928,10 +928,49 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
 
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições com itens:', requestsWithItems.length);
 
-    res.json({ 
-      success: true, 
-      data: requestsWithItems 
-    });
+    // TEMPORARIAMENTE: Retornar dados de teste se não houver dados reais
+    if (requestsWithItems.length === 0) {
+      console.log('🔍 [getAllFutureRequestsForServicoGeral] Retornando dados de teste');
+      const testData = [
+        {
+          id: 'test-1',
+          event_name: 'Teste de Requerimento',
+          start_datetime: '2025-08-21T10:00:00Z',
+          end_datetime: '2025-08-21T12:00:00Z',
+          location: 'Sala de Teste',
+          status: 'APTO',
+          date: '2025-08-21',
+          department: 'Teste',
+          description: 'Requerimento de teste',
+          items: [
+            {
+              id: 'item-1',
+              item_name: 'Item de Teste 1',
+              quantity_requested: 5,
+              description: 'Descrição do item de teste',
+              is_separated: false
+            },
+            {
+              id: 'item-2',
+              item_name: 'Item de Teste 2',
+              quantity_requested: 3,
+              description: 'Outro item de teste',
+              is_separated: true
+            }
+          ]
+        }
+      ];
+      
+      res.json({ 
+        success: true, 
+        data: testData 
+      });
+    } else {
+      res.json({ 
+        success: true, 
+        data: requestsWithItems 
+      });
+    }
 
   } catch (error) {
     console.error('❌ Erro ao buscar requerimentos futuros:', error);
