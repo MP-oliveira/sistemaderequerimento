@@ -165,6 +165,16 @@ const ReturnMaterials = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   const markItemAsUnavailable = async () => {
     if (!selectedItem) return;
     
@@ -550,7 +560,7 @@ const ReturnMaterials = () => {
       </div>
 
       {/* Lista de Todos os Requerimentos */}
-      <div className="materials-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+      <div className="materials-list" style={{ maxHeight: '120px', overflowY: 'auto' }}>
         {gruposTodosRequerimentos.length > 0 ? (
           gruposTodosRequerimentos.map((grupo, index) => {
             const requestId = grupo.request.id;
