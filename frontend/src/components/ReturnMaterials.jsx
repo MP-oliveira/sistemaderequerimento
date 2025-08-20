@@ -67,13 +67,8 @@ const ReturnMaterials = () => {
     return Object.values(grupos);
   };
 
-  // Itens para despachar (status PENDENTE ou SEPARADO) - apenas eventos próximos
+  // Itens para despachar (todos os itens) - apenas eventos próximos
   const itensParaDespachar = executedItems.filter(item => {
-    // Verificar se o item não está separado
-    const naoSeparado = !item.is_separated || item.is_separated === false;
-    
-    if (!naoSeparado) return false;
-    
     // Verificar se o evento é próximo (hoje ou próximos 7 dias)
     if (item.requests && item.requests.date) {
       const eventDate = new Date(item.requests.date);
