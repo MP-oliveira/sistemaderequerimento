@@ -15,10 +15,18 @@ import Layout from '../components/Layout';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
+  console.log('🔍 [PrivateRoute] Executado');
+  console.log('🔍 [PrivateRoute] User:', user);
   try {
-    return user ? children : <Navigate to="/login" />;
+    if (user) {
+      console.log('🔍 [PrivateRoute] Usuário autenticado, renderizando children');
+      return children;
+    } else {
+      console.log('🔍 [PrivateRoute] Usuário não autenticado, redirecionando para login');
+      return <Navigate to="/login" />;
+    }
   } catch (error) {
-    console.error('Erro no PrivateRoute:', error);
+    console.error('❌ [PrivateRoute] Erro no PrivateRoute:', error);
     return <Navigate to="/login" />;
   }
 }
