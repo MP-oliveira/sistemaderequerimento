@@ -946,19 +946,21 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
     // Filtrar apenas itens de serviço geral
     const servicoGeralItems = items.filter(item => {
       const category = item.inventory?.category || '';
+      console.log('🔍 [getAllFutureRequestsForServicoGeral] Item category:', item.item_name, '->', category);
       return category === 'SERVICO_GERAL';
     });
 
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Itens de serviço geral:', servicoGeralItems.length);
 
-    // Agrupar itens por requisição
+    // Agrupar itens por requisição - TEMPORARIAMENTE MOSTRANDO TODOS OS ITENS
     const requestsWithItems = futureRequests.map(request => {
-      const requestItems = servicoGeralItems.filter(item => item.request_id === request.id);
+      const requestItems = items.filter(item => item.request_id === request.id); // Todos os itens, não apenas serviço geral
+      console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisição', request.id, 'tem', requestItems.length, 'itens (todos)');
       return {
         ...request,
         items: requestItems
       };
-    }).filter(request => request.items.length > 0); // Apenas requisições que têm itens de serviço geral
+    }).filter(request => request.items.length > 0); // Apenas requisições que têm itens
 
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições com itens de serviço geral:', requestsWithItems.length);
 
