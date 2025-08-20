@@ -19,10 +19,13 @@ export default function AllFutureRequests() {
       console.log('🔍 [AllFutureRequests] Carregando requerimentos futuros...');
       const data = await listarTodosRequerimentosFuturosServicoGeral();
       console.log('🔍 [AllFutureRequests] Dados recebidos:', data);
+      console.log('🔍 [AllFutureRequests] Tipo dos dados:', typeof data);
+      console.log('🔍 [AllFutureRequests] É array?', Array.isArray(data));
       setRequests(data || []);
       console.log('🔍 [AllFutureRequests] Requerimentos definidos:', data?.length || 0);
     } catch (err) {
       console.error('❌ [AllFutureRequests] Erro ao carregar requerimentos:', err);
+      console.error('❌ [AllFutureRequests] Detalhes do erro:', err.message);
       setRequests([]);
     }
     setLoading(false);
