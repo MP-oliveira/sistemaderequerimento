@@ -265,6 +265,9 @@
   background: #f9f9f9 !important;
   font-family: 'Montserrat', Arial, sans-serif !important;
   transition: border 0.2s, box-shadow 0.2s !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
 }
 
 .users-page select.input-field:focus,
@@ -294,6 +297,9 @@
   font-family: 'Montserrat', Arial, sans-serif !important;
   transition: border 0.2s, box-shadow 0.2s !important;
   outline: none !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
 }
 
 .users-page .modal .input-group select:focus,

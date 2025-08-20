@@ -8,7 +8,7 @@
   z-index: 9999;
   padding: 2rem;
   overflow-y: auto;
-  padding-top: 4rem;
+  padding-top: 2rem;
 }
 
 /* Sobrescrever completamente para mobile */
@@ -32,7 +32,7 @@
   border-radius: 18px;
   min-width: 320px;
   max-width: 90vw;
-  max-height: calc(100vh - 4rem);
+  max-height: calc(100vh - 2rem);
   overflow: hidden;
   box-shadow: 0 8px 32px #2d8cff22;
   padding: 0;
@@ -41,7 +41,7 @@
   font-family: 'Montserrat', Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  margin: 2rem auto auto auto;
+  margin: 1rem auto auto auto;
 }
 
 /* Sobrescrever completamente para mobile */
