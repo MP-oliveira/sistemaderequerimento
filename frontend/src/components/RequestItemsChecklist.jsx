@@ -22,7 +22,7 @@ export default function RequestItemsChecklist({ open, onClose, request, onItemsU
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/request-items/request/${request.id}/with-inventory`, {
+      const response = await fetch(`/api/request-items/request/${request.id}/with-inventory`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ export default function RequestItemsChecklist({ open, onClose, request, onItemsU
     if (!selectedItem) return;
     
     try {
-      const response = await fetch(`http://localhost:3000/api/request-items/${selectedItem.id}/unavailable`, {
+      const response = await fetch(`/api/request-items/${selectedItem.id}/unavailable`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -70,7 +70,7 @@ export default function RequestItemsChecklist({ open, onClose, request, onItemsU
 
   const markItemAsAvailableAndSeparated = async (itemId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/request-items/${itemId}/available-separated`, {
+      const response = await fetch(`/api/request-items/${itemId}/available-separated`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -94,7 +94,7 @@ export default function RequestItemsChecklist({ open, onClose, request, onItemsU
     if (!selectedItem) return;
     
     try {
-      const response = await fetch(`http://localhost:3000/api/request-items/${selectedItem.id}/notes`, {
+      const response = await fetch(`/api/request-items/${selectedItem.id}/notes`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
