@@ -861,7 +861,8 @@ const updateAudiovisualNotes = async (req, res) => {
 // Listar todos os requerimentos futuros para serviço geral
 const getAllFutureRequestsForServicoGeral = async (req, res) => {
   try {
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Buscando todos os requerimentos futuros...');
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Iniciando...');
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] User:', req.user);
     
     // Usar fuso horário local (Brasília)
     const today = new Date();
@@ -873,18 +874,7 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
     // Buscar todas as requisições aprovadas futuras (incluindo hoje)
     const { data: futureRequests, error: requestsError } = await supabase
       .from('requests')
-      .select(`
-        id, 
-        event_name, 
-        start_datetime, 
-        end_datetime, 
-        location, 
-        expected_audience, 
-        status, 
-        date, 
-        department, 
-        description
-      `)
+      .select('*')
       .eq('status', 'APTO')
       .gte('date', todayStr)
       .order('date', { ascending: true });
@@ -900,30 +890,20 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições futuras encontradas:', futureRequests?.length || 0);
 
     if (!futureRequests || futureRequests.length === 0) {
+      console.log('🔍 [getAllFutureRequestsForServicoGeral] Nenhuma requisição encontrada');
       return res.json({ 
         success: true, 
         data: [] 
       });
     }
 
-    // Buscar itens de serviço geral dessas requisições
+    // Buscar todos os itens dessas requisições
     const requestIds = futureRequests.map(req => req.id);
-
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Request IDs para buscar:', requestIds);
     
     const { data: items, error: itemsError } = await supabase
       .from('request_items')
-      .select(`
-        id,
-        request_id,
-        inventory_id,
-        item_name,
-        quantity_requested,
-        description,
-        is_separated,
-        separated_by,
-        separated_at
-      `)
+      .select('*')
       .in('request_id', requestIds);
 
     if (itemsError) {
@@ -936,26 +916,17 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
 
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Itens encontrados:', items?.length || 0);
 
-    // Filtrar apenas itens de serviço geral
-    const servicoGeralItems = items.filter(item => {
-      const category = item.inventory?.category || '';
-      console.log('🔍 [getAllFutureRequestsForServicoGeral] Item category:', item.item_name, '->', category);
-      return category === 'SERVICO_GERAL';
-    });
-
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Itens de serviço geral:', servicoGeralItems.length);
-
-    // Agrupar itens por requisição - TEMPORARIAMENTE MOSTRANDO TODOS OS ITENS
+    // Agrupar itens por requisição
     const requestsWithItems = futureRequests.map(request => {
-      const requestItems = items.filter(item => item.request_id === request.id); // Todos os itens, não apenas serviço geral
-      console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisição', request.id, 'tem', requestItems.length, 'itens (todos)');
+      const requestItems = items.filter(item => item.request_id === request.id);
+      console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisição', request.id, 'tem', requestItems.length, 'itens');
       return {
         ...request,
         items: requestItems
       };
-    }).filter(request => request.items.length > 0); // Apenas requisições que têm itens
+    }).filter(request => request.items.length > 0);
 
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições com itens de serviço geral:', requestsWithItems.length);
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições com itens:', requestsWithItems.length);
 
     res.json({ 
       success: true, 
