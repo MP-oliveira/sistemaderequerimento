@@ -318,7 +318,7 @@ const ReturnMaterials = () => {
                       <span className="department">{grupo.request.department}</span>
                       <span className="time">
                         <FiClock size={14} />
-                        {grupo.request.date}
+                        {formatDate(grupo.request.date)}
                       </span>
                       {grupo.request.location && (
                         <span className="location">
@@ -448,7 +448,7 @@ const ReturnMaterials = () => {
                         <span className="department">{grupo.request.department}</span>
                         <span className="time">
                           <FiClock size={14} />
-                          {grupo.request.date}
+                          {formatDate(grupo.request.date)}
                         </span>
                         {grupo.request.location && (
                           <span className="location">
@@ -560,7 +560,7 @@ const ReturnMaterials = () => {
       </div>
 
       {/* Lista de Todos os Requerimentos */}
-      <div className="materials-list" style={{ maxHeight: '120px', overflowY: 'auto' }}>
+      <div className="materials-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
         {gruposTodosRequerimentos.length > 0 ? (
           gruposTodosRequerimentos.map((grupo, index) => {
             const requestId = grupo.request.id;
@@ -587,7 +587,7 @@ const ReturnMaterials = () => {
                       <span className="department">{grupo.request.department}</span>
                       <span className="time">
                         <FiClock size={14} />
-                        {grupo.request.date}
+                        {formatDate(grupo.request.date)}
                       </span>
                       {grupo.request.location && (
                         <span className="location">
