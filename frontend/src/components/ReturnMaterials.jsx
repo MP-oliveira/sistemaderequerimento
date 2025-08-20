@@ -77,60 +77,7 @@ const ReturnMaterials = () => {
     return Object.values(grupos);
   };
 
-  // Função específica para agrupar todos os requerimentos
-  const agruparTodosRequerimentos = (items) => {
-    console.log('🔍 [ReturnMaterials] === INÍCIO DA FUNÇÃO agruparTodosRequerimentos ===');
-    try {
-      console.log('🔍 [ReturnMaterials] agruparTodosRequerimentos chamada com', items.length, 'itens');
-      const grupos = {};
-      
-      items.forEach((item, index) => {
-        console.log(`🔍 [ReturnMaterials] Processando item ${index}:`, {
-          requestId: item.request_id || item.requests?.id,
-          eventName: item.requests?.event_name,
-          status: item.requests?.status
-        });
-        
-        const requestId = item.request_id || item.requests?.id;
-        
-        // Usar os dados da requisição que já estão no item
-        const request = item.requests || {};
-        
-        // Pular requisições finalizadas
-        if (request.status === 'FINALIZADO') {
-          console.log(`🔍 [ReturnMaterials] Item ${index} finalizado, pulando`);
-          return;
-        }
-        
-        // Garantir que temos um ID único
-        if (!requestId) {
-          console.warn('⚠️ [ReturnMaterials] Item sem requestId (Todos):', item);
-          return;
-        }
-        
-        if (!grupos[requestId]) {
-          grupos[requestId] = {
-            request: request,
-            items: []
-          };
-          console.log(`🔍 [ReturnMaterials] Novo grupo criado para requestId: ${requestId}`);
-        }
-        grupos[requestId].items.push(item);
-        console.log(`🔍 [ReturnMaterials] Item ${index} adicionado ao grupo ${requestId}`);
-      });
-      
-      console.log('🔍 [ReturnMaterials] Grupos Todos criados:', Object.keys(grupos));
-      console.log('🔍 [ReturnMaterials] Detalhes dos grupos:', Object.entries(grupos).map(([id, grupo]) => ({
-        id,
-        eventName: grupo.request.event_name,
-        itemsCount: grupo.items.length
-      })));
-      return Object.values(grupos);
-    } catch (error) {
-      console.error('❌ [ReturnMaterials] Erro em agruparTodosRequerimentos:', error);
-      return [];
-    }
-  };
+
 
   // Itens para despachar (todos os itens) - apenas eventos próximos
   const itensParaDespachar = executedItems.filter(item => {
@@ -329,12 +276,7 @@ const ReturnMaterials = () => {
 
   // Agrupar todos os itens por requisição (para a nova seção)
   const todosOsItens = executedItems;
-  console.log('🔍 [ReturnMaterials] todosOsItens antes do agrupamento:', todosOsItens.length);
-  console.log('🔍 [ReturnMaterials] Chamando agruparTodosRequerimentos...');
-  console.log('🔍 [ReturnMaterials] Tipo de todosOsItens:', typeof todosOsItens);
-  console.log('🔍 [ReturnMaterials] É array?', Array.isArray(todosOsItens));
-  const gruposTodosRequerimentos = agruparTodosRequerimentos(todosOsItens);
-  console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos após agrupamento:', gruposTodosRequerimentos.length);
+  const gruposTodosRequerimentos = agruparItensPorRequisicao(todosOsItens);
 
   console.log('🔍 [ReturnMaterials] gruposParaDespachar:', gruposParaDespachar.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
   console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
