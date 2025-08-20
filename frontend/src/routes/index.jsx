@@ -174,7 +174,7 @@ export default function AppRoutes() {
           element={
             <PrivateRoute>
               <Layout>
-                {console.log('🔍 [Routes] Renderizando ServicoGeralDashboard')}
+                {console.log('🔍 [Routes] Renderizando ServicoGeralDashboard para rota /servico-geral/dashboard')}
                 <ServicoGeralDashboard />
               </Layout>
             </PrivateRoute>
