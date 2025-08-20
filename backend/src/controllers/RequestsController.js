@@ -999,7 +999,8 @@ export const listRequests = async (req, res) => {
           start_datetime,
           end_datetime
         ),
-        users!requests_requester_id_fkey(full_name, email)
+        users!requests_requester_id_fkey(full_name, email),
+        approved_by_user:users!requests_approved_by_fkey(full_name, email)
       `);
     
     // Usuários AUDIOVISUAL podem ver todas as requisições (especialmente as aprovadas)
@@ -1023,6 +1024,8 @@ export const listRequests = async (req, res) => {
       requester_name: request.users?.full_name || 'Usuário não encontrado',
       requester_email: request.users?.email || '',
       approved_by: request.approved_by,
+      approved_by_name: request.approved_by_user?.full_name || null,
+      approved_by_email: request.approved_by_user?.email || null,
       executed_by: request.executed_by,
       created_at: request.created_at,
       updated_at: request.updated_at,
@@ -1054,7 +1057,8 @@ export const getRequest = async (req, res) => {
       .from('requests')
       .select(`
         *,
-        users!requests_requester_id_fkey(full_name, email)
+        users!requests_requester_id_fkey(full_name, email),
+        approved_by_user:users!requests_approved_by_fkey(full_name, email)
       `)
       .eq('id', id)
       .single();
@@ -1079,13 +1083,15 @@ export const getRequest = async (req, res) => {
       .select('*')
       .eq('request_id', id);
 
-    // Retornar os dados da requisição + itens + serviços + dados do solicitante
+    // Retornar os dados da requisição + itens + serviços + dados do solicitante e aprovador
     const requestWithSolicitante = {
       ...request,
       itens: itens || [],
       servicos: servicos || [],
       requester_name: request.users?.full_name || 'Usuário não encontrado',
-      requester_email: request.users?.email || ''
+      requester_email: request.users?.email || '',
+      approved_by_name: request.approved_by_user?.full_name || null,
+      approved_by_email: request.approved_by_user?.email || null
     };
     res.json({ success: true, data: requestWithSolicitante });
   } catch (error) {
@@ -1259,8 +1265,8 @@ export const approveRequest = async (req, res) => {
       .from('requests')
       .update({
         status: 'APTO',
-        approved_at: new Date().toISOString()
-        // approved_by: req.user.userId, // Comentado - pode causar erro de UUID
+        approved_at: new Date().toISOString(),
+        approved_by: req.user.userId
         // status_history: statusHistory // Comentado até a coluna existir
       })
       .eq('id', id)
@@ -1565,8 +1571,8 @@ export const rejectRequest = async (req, res) => {
       .update({
         status: 'REJEITADO',
         approved_at: new Date().toISOString(),
-        rejection_reason
-        // approved_by: req.user.userId, // Comentado - pode causar erro de UUID
+        rejection_reason,
+        approved_by: req.user.userId
         // status_history: statusHistory // Comentado até a coluna existir
       })
       .eq('id', id)
