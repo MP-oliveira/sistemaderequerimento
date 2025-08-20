@@ -564,7 +564,7 @@ const ReturnMaterials = () => {
               <div key={index} className="request-materials-card">
                 <div 
                   className="request-header accordion-header"
-                  onClick={() => toggleRequest(requestId)}
+                  onClick={() => toggleRequestTodos(requestId)}
                 >
                   <div className="request-info">
                     <div className="request-title-row">
