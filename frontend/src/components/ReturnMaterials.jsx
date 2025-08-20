@@ -185,6 +185,7 @@ const ReturnMaterials = () => {
 
   const toggleRequestTodos = (requestId) => {
     console.log('🔍 [ReturnMaterials] toggleRequestTodos chamado com requestId:', requestId);
+    console.log('🔍 [ReturnMaterials] Estado atual expandedRequestsTodos:', Array.from(expandedRequestsTodos));
     const newExpanded = new Set(expandedRequestsTodos);
     if (newExpanded.has(requestId)) {
       newExpanded.delete(requestId);
@@ -625,7 +626,13 @@ const ReturnMaterials = () => {
           gruposTodosRequerimentos.map((grupo, index) => {
             const requestId = grupo.request.id;
             const isExpanded = expandedRequestsTodos.has(requestId);
-            console.log('🔍 [ReturnMaterials] Renderizando grupo Todos:', { requestId, isExpanded, index });
+            console.log('🔍 [ReturnMaterials] Renderizando grupo Todos:', { 
+              requestId, 
+              isExpanded, 
+              index, 
+              eventName: grupo.request.event_name,
+              expandedRequestsTodos: Array.from(expandedRequestsTodos)
+            });
             
             // Calcular contadores para esta requisição
             const totalCount = grupo.items.length;
