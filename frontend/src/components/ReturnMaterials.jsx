@@ -66,6 +66,7 @@ const ReturnMaterials = () => {
       
       // Criar ID único baseado no contexto
       const uniqueId = `${context}-${requestId}`;
+      console.log(`🔍 [ReturnMaterials] Criando uniqueId: ${uniqueId} para evento: ${request.event_name}`);
       
       if (!grupos[uniqueId]) {
         grupos[uniqueId] = {
@@ -73,8 +74,10 @@ const ReturnMaterials = () => {
           items: [],
           uniqueId: uniqueId // Adicionar ID único para controle
         };
+        console.log(`🔍 [ReturnMaterials] Novo grupo criado: ${uniqueId}`);
       }
       grupos[uniqueId].items.push(item);
+      console.log(`🔍 [ReturnMaterials] Item adicionado ao grupo: ${uniqueId}`);
     });
     
     console.log('🔍 [ReturnMaterials] Grupos criados:', Object.keys(grupos));
@@ -280,7 +283,19 @@ const ReturnMaterials = () => {
 
   // Agrupar todos os itens por requisição (para a nova seção)
   const todosOsItens = executedItems;
+  console.log('🔍 [ReturnMaterials] === ANTES DO AGRUPAMENTO TODOS ===');
+  console.log('🔍 [ReturnMaterials] todosOsItens:', todosOsItens.map(item => ({
+    requestId: item.request_id || item.requests?.id,
+    eventName: item.requests?.event_name,
+    status: item.requests?.status
+  })));
   const gruposTodosRequerimentos = agruparItensPorRequisicao(todosOsItens, 'todos');
+  console.log('🔍 [ReturnMaterials] === APÓS DO AGRUPAMENTO TODOS ===');
+  console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({
+    uniqueId: g.uniqueId,
+    eventName: g.request.event_name,
+    itemsCount: g.items.length
+  })));
 
   console.log('🔍 [ReturnMaterials] gruposParaDespachar:', gruposParaDespachar.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
   console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
