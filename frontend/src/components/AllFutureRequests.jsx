@@ -78,7 +78,10 @@ export default function AllFutureRequests() {
     total + request.items.filter(item => item.is_separated).length, 0);
   const pendingItems = totalItems - separatedItems;
 
+  console.log('🔍 [AllFutureRequests] Renderizando componente, loading:', loading, 'requests:', requests.length);
+  
   if (loading) {
+    console.log('🔍 [AllFutureRequests] Renderizando loading');
     return (
       <div className="all-future-requests-loading">
         <div className="loading-spinner"></div>
