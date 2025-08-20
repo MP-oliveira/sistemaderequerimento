@@ -37,27 +37,36 @@ function AdminRoute({ children }) {
 // Componente que redireciona automaticamente baseado no papel do usuário
 function SmartDashboardRoute() {
   const { user } = useAuth();
+  console.log('🔍 [SmartDashboardRoute] Executado');
+  console.log('🔍 [SmartDashboardRoute] User:', user);
+  console.log('🔍 [SmartDashboardRoute] User role:', user?.role);
+  console.log('🔍 [SmartDashboardRoute] User role type:', typeof user?.role);
   
   if (!user) {
+    console.log('🔍 [SmartDashboardRoute] Usuário não encontrado, redirecionando para login');
     return <Navigate to="/login" />;
   }
   
   // Se for admin ou pastor, vai para o dashboard admin
   if (user.role === 'ADM' || user.role === 'PASTOR') {
+    console.log('🔍 [SmartDashboardRoute] Redirecionando admin/pastor para dashboard admin');
     return <Navigate to="/admin/dashboard" replace />;
   }
   
   // Se for audiovisual, vai para o dashboard audiovisual
   if (user.role === 'AUDIOVISUAL') {
+    console.log('🔍 [SmartDashboardRoute] Redirecionando audiovisual para dashboard audiovisual');
     return <Navigate to="/audiovisual/dashboard" />;
   }
   
   // Se for serviço geral, vai para o dashboard serviço geral
   if (user.role === 'SERVICO_GERAL') {
+    console.log('🔍 [SmartDashboardRoute] Redirecionando serviço geral para dashboard serviço geral');
     return <Navigate to="/servico-geral/dashboard" />;
   }
   
   // Se for secretário, líder ou usuário normal, vai para o dashboard normal
+  console.log('🔍 [SmartDashboardRoute] Redirecionando usuário normal para dashboard normal');
   return <Navigate to="/dashboard" />;
 }
 
