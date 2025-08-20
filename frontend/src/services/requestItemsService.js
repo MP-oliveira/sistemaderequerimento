@@ -64,6 +64,23 @@ export async function listarItensDoDiaServicoGeral() {
   }
 }
 
+// Listar todos os requerimentos futuros para serviço geral
+export async function listarTodosRequerimentosFuturosServicoGeral() {
+  try {
+    const response = await fetch(`${API_URL}/api/request-items/future/servico-geral`, {
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao buscar requerimentos futuros');
+    }
+    const data = await response.json();
+    return data.data || data;
+  } catch (err) {
+    throw err;
+  }
+}
+
 // Marcar item como separado
 export async function marcarItemComoSeparado(itemId, isSeparated) {
   try {

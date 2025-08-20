@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario } from '../services/requestsService';
 import Modal from '../components/Modal';
 import TodayMaterialsServicoGeral from '../components/TodayMaterialsServicoGeral';
+import AllFutureRequests from '../components/AllFutureRequests';
 import ReturnMaterialsOnly from '../components/ReturnMaterialsOnly';
 import Calendar from '../components/Calendar';
 import { formatTimeUTC } from '../utils/dateUtils';
@@ -98,6 +99,9 @@ export default function ServicoGeralDashboard() {
         <h1>Dashboard Serviço Geral</h1>
         <p>Gerencie materiais e acompanhe eventos</p>
       </div>
+
+      {/* Todos os Requerimentos Futuros */}
+      <AllFutureRequests />
 
       {/* Materiais para Despachar (Próximos 7 dias) */}
       <TodayMaterialsServicoGeral />
