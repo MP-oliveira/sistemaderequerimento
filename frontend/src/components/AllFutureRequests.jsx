@@ -5,6 +5,7 @@ import './TodayMaterials.css';
 import { FiClock, FiMapPin, FiUsers, FiCheck, FiX, FiPackage, FiChevronDown, FiChevronRight, FiCalendar } from 'react-icons/fi';
 
 export default function AllFutureRequests() {
+  console.log('🔍 [AllFutureRequests] Componente sendo montado');
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedRequests, setExpandedRequests] = useState(new Set());
