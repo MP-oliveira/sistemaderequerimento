@@ -44,7 +44,7 @@ const ReturnMaterials = () => {
   };
 
   // Agrupar itens por requisição
-  const agruparItensPorRequisicao = (items) => {
+  const agruparItensPorRequisicao = (items, context = 'default') => {
     const grupos = {};
     
     items.forEach(item => {
@@ -64,13 +64,17 @@ const ReturnMaterials = () => {
         return;
       }
       
-      if (!grupos[requestId]) {
-        grupos[requestId] = {
+      // Criar ID único baseado no contexto
+      const uniqueId = `${context}-${requestId}`;
+      
+      if (!grupos[uniqueId]) {
+        grupos[uniqueId] = {
           request: request,
-          items: []
+          items: [],
+          uniqueId: uniqueId // Adicionar ID único para controle
         };
       }
-      grupos[requestId].items.push(item);
+      grupos[uniqueId].items.push(item);
     });
     
     console.log('🔍 [ReturnMaterials] Grupos criados:', Object.keys(grupos));
@@ -151,16 +155,16 @@ const ReturnMaterials = () => {
     setExpandedRequestsRetorno(newExpanded);
   };
 
-  const toggleRequestTodos = (requestId) => {
-    console.log('🔍 [ReturnMaterials] toggleRequestTodos chamado com requestId:', requestId);
+  const toggleRequestTodos = (uniqueId) => {
+    console.log('🔍 [ReturnMaterials] toggleRequestTodos chamado com uniqueId:', uniqueId);
     console.log('🔍 [ReturnMaterials] Estado atual expandedRequestsTodos:', Array.from(expandedRequestsTodos));
     const newExpanded = new Set(expandedRequestsTodos);
-    if (newExpanded.has(requestId)) {
-      newExpanded.delete(requestId);
-      console.log('🔍 [ReturnMaterials] Removendo requestId Todos:', requestId);
+    if (newExpanded.has(uniqueId)) {
+      newExpanded.delete(uniqueId);
+      console.log('🔍 [ReturnMaterials] Removendo uniqueId Todos:', uniqueId);
     } else {
-      newExpanded.add(requestId);
-      console.log('🔍 [ReturnMaterials] Adicionando requestId Todos:', requestId);
+      newExpanded.add(uniqueId);
+      console.log('🔍 [ReturnMaterials] Adicionando uniqueId Todos:', uniqueId);
     }
     console.log('🔍 [ReturnMaterials] Novo estado expandedRequestsTodos:', Array.from(newExpanded));
     setExpandedRequestsTodos(newExpanded);
@@ -271,12 +275,12 @@ const ReturnMaterials = () => {
     );
   }
 
-  const gruposParaDespachar = agruparItensPorRequisicao(itensParaDespachar);
-  const gruposParaRetorno = agruparItensPorRequisicao(itensParaRetorno);
+  const gruposParaDespachar = agruparItensPorRequisicao(itensParaDespachar, 'despachar');
+  const gruposParaRetorno = agruparItensPorRequisicao(itensParaRetorno, 'retorno');
 
   // Agrupar todos os itens por requisição (para a nova seção)
   const todosOsItens = executedItems;
-  const gruposTodosRequerimentos = agruparItensPorRequisicao(todosOsItens);
+  const gruposTodosRequerimentos = agruparItensPorRequisicao(todosOsItens, 'todos');
 
   console.log('🔍 [ReturnMaterials] gruposParaDespachar:', gruposParaDespachar.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
   console.log('🔍 [ReturnMaterials] gruposTodosRequerimentos:', gruposTodosRequerimentos.map(g => ({ id: g.request.id, name: g.request.event_name, itemsCount: g.items.length })));
@@ -594,10 +598,10 @@ const ReturnMaterials = () => {
       <div className="materials-list todos-requerimentos-list">
         {gruposTodosRequerimentos.length > 0 ? (
           gruposTodosRequerimentos.map((grupo, index) => {
-            const requestId = grupo.request.id;
-            const isExpanded = expandedRequestsTodos.has(requestId);
+            const uniqueId = grupo.uniqueId;
+            const isExpanded = expandedRequestsTodos.has(uniqueId);
             console.log('🔍 [ReturnMaterials] Renderizando grupo Todos:', { 
-              requestId, 
+              uniqueId, 
               isExpanded, 
               index, 
               eventName: grupo.request.event_name,
@@ -609,10 +613,10 @@ const ReturnMaterials = () => {
             const separatedCount = grupo.items.filter(item => item.is_separated).length;
             
             return (
-              <div key={`todos-${requestId}`} className="request-materials-card">
+              <div key={`todos-${uniqueId}`} className="request-materials-card">
                 <div 
                   className="request-header accordion-header"
-                  onClick={() => toggleRequestTodos(requestId)}
+                  onClick={() => toggleRequestTodos(uniqueId)}
                 >
                   <div className="request-info">
                     <div className="request-title-row">
