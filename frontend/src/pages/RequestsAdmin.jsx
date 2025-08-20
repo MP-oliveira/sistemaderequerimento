@@ -404,8 +404,8 @@ export default function RequestsAdmin() {
           mostrarNotificacaoModal('Requisição marcada como PENDENTE_CONFLITO devido a conflito de intervalo.', 'aviso');
         }
       } else {
-        mostrarNotificacao('Requisição aprovada com sucesso!', 'sucesso');
-        mostrarNotificacaoModal('Requisição aprovada com sucesso!', 'sucesso');
+        mostrarNotificacao(`Requisição aprovada por ${user?.name || 'Administrador'}!`, 'sucesso');
+        mostrarNotificacaoModal(`Requisição aprovada por ${user?.name || 'Administrador'}!`, 'sucesso');
       }
       
       buscarRequisicoes();
@@ -443,7 +443,7 @@ export default function RequestsAdmin() {
   async function rejeitar() {
     try {
       await rejeitarRequisicao(rejeitarId, motivoRejeicao);
-      mostrarNotificacao('Requisição rejeitada com sucesso!', 'sucesso');
+      mostrarNotificacao(`Requisição rejeitada por ${user?.name || 'Administrador'}!`, 'sucesso');
       buscarRequisicoes();
       setModalRejeitar(false);
       setModalDetalhe(false);

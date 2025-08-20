@@ -155,6 +155,12 @@ export default function TodayMaterialsServicoGeral() {
                       {request.location}
                     </span>
                   )}
+                  {request.approved_by_name && (
+                    <span className="approved-by">
+                      <FiUsers size={14} />
+                      Aprovado por: {request.approved_by_name}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="request-status">

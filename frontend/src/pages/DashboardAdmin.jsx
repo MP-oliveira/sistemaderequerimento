@@ -143,11 +143,11 @@ export default function DashboardAdmin() {
       // Verificar se houve rejeições automáticas
       if (resultado && resultado.requisicoesRejeitadas && resultado.requisicoesRejeitadas.length > 0) {
         mostrarNotificacao(
-          `Requisição aprovada! ${resultado.requisicoesRejeitadas.length} requisição(ões) conflitante(s) foi/foram rejeitada(s) automaticamente.`, 
+          `Requisição aprovada por ${user?.name || 'Administrador'}! ${resultado.requisicoesRejeitadas.length} requisição(ões) conflitante(s) foi/foram rejeitada(s) automaticamente.`, 
           'sucesso'
         );
       } else {
-        mostrarNotificacao('Requisição aprovada com sucesso!', 'sucesso');
+        mostrarNotificacao(`Requisição aprovada por ${user?.name || 'Administrador'}!`, 'sucesso');
       }
       
       if (requisicao) {
@@ -169,7 +169,7 @@ export default function DashboardAdmin() {
   const rejeitarRequisicaoHandler = async (id) => {
     try {
       await rejeitarRequisicao(id, 'Rejeitado pelo administrador');
-      mostrarNotificacao('Requisição rejeitada com sucesso!', 'sucesso');
+      mostrarNotificacao(`Requisição rejeitada por ${user?.name || 'Administrador'}!`, 'sucesso');
       
       // Buscar dados da requisição para notificação
       const requisicao = requisicoes.find(req => req.id === id);

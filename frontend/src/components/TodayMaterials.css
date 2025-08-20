@@ -183,6 +183,15 @@
   gap: 0.25rem;
 }
 
+.approved-by {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
 .department {
   background: #e3f2fd;
   color: #1976d2;
