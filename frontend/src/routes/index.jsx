@@ -70,7 +70,8 @@ function SmartDashboardRoute() {
   // Se for serviço geral, vai para o dashboard serviço geral
   if (user.role === 'SERVICO_GERAL') {
     console.log('🔍 [SmartDashboardRoute] Redirecionando serviço geral para dashboard serviço geral');
-    return <Navigate to="/servico-geral/dashboard" />;
+    console.log('🔍 [SmartDashboardRoute] URL de destino: /servico-geral/dashboard');
+    return <Navigate to="/servico-geral/dashboard" replace />;
   }
   
   // Se for secretário, líder ou usuário normal, vai para o dashboard normal
