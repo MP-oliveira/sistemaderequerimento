@@ -19,7 +19,7 @@ const ReturnMaterials = () => {
   const [audiovisualNotes, setAudiovisualNotes] = useState('');
   const [expandedRequests, setExpandedRequests] = useState(new Set());
   const [expandedRequestsRetorno, setExpandedRequestsRetorno] = useState(new Set());
-  const [expandedRequestsTodos, setExpandedRequestsTodos] = useState(new Set());
+  const [expandedRequestsTodos, setExpandedRequestsTodos] = useState({});
 
   useEffect(() => {
     carregarDados();
@@ -160,16 +160,16 @@ const ReturnMaterials = () => {
 
   const toggleRequestTodos = (requestId) => {
     console.log('🔍 [ReturnMaterials] toggleRequestTodos chamado com requestId:', requestId);
-    console.log('🔍 [ReturnMaterials] Estado atual expandedRequestsTodos:', Array.from(expandedRequestsTodos));
-    const newExpanded = new Set(expandedRequestsTodos);
-    if (newExpanded.has(requestId)) {
-      newExpanded.delete(requestId);
+    console.log('🔍 [ReturnMaterials] Estado atual expandedRequestsTodos:', expandedRequestsTodos);
+    const newExpanded = { ...expandedRequestsTodos };
+    if (newExpanded[requestId]) {
+      delete newExpanded[requestId];
       console.log('🔍 [ReturnMaterials] Removendo requestId Todos:', requestId);
     } else {
-      newExpanded.add(requestId);
+      newExpanded[requestId] = true;
       console.log('🔍 [ReturnMaterials] Adicionando requestId Todos:', requestId);
     }
-    console.log('🔍 [ReturnMaterials] Novo estado expandedRequestsTodos:', Array.from(newExpanded));
+    console.log('🔍 [ReturnMaterials] Novo estado expandedRequestsTodos:', newExpanded);
     setExpandedRequestsTodos(newExpanded);
   };
 
@@ -625,13 +625,13 @@ const ReturnMaterials = () => {
         {gruposTodosRequerimentos.length > 0 ? (
           gruposTodosRequerimentos.map((grupo, index) => {
             const requestId = grupo.request.id;
-            const isExpanded = expandedRequestsTodos.has(requestId);
+            const isExpanded = !!expandedRequestsTodos[requestId];
             console.log('🔍 [ReturnMaterials] Renderizando grupo Todos:', { 
               requestId, 
               isExpanded, 
               index, 
               eventName: grupo.request.event_name,
-              expandedRequestsTodos: Array.from(expandedRequestsTodos)
+              expandedRequestsTodos: expandedRequestsTodos
             });
             
             // Calcular contadores para esta requisição
