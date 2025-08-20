@@ -56,11 +56,17 @@ export default function Users() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Se estiver editando e a senha for apenas pontos, remover a senha do formData
+      const dataToSend = { ...formData };
+      if (editingUser && dataToSend.password === '••••••••') {
+        delete dataToSend.password;
+      }
+      
       if (editingUser) {
-        await atualizarUsuario(editingUser.id, formData);
+        await atualizarUsuario(editingUser.id, dataToSend);
         mostrarNotificacao('Usuário atualizado com sucesso!', 'sucesso');
       } else {
-        await criarUsuario(formData);
+        await criarUsuario(dataToSend);
         mostrarNotificacao('Usuário criado com sucesso!', 'sucesso');
       }
       setShowModal(false);
