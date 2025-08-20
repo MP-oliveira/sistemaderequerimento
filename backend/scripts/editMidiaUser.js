@@ -1,13 +1,13 @@
 import { supabase } from '../src/config/supabaseClient.js';
 import bcrypt from 'bcryptjs';
 
-async function setAdminPassword() {
+async function editMidiaUser() {
   try {
-    console.log('🔧 Configurando usuário admin...');
+    console.log('🔧 Editando usuário midia@ibva.com.br...');
     
-    const email = 'mauoliver@gmail.com';
+    const email = 'midia@ibva.com.br';
     const password = '123456';
-    const role = 'ADM';
+    const role = 'AUDIOVISUAL';
 
     // Verificar se o usuário já existe
     const { data: existingUser, error: checkError } = await supabase
@@ -17,7 +17,7 @@ async function setAdminPassword() {
       .single();
 
     if (existingUser) {
-      console.log('⚠️ Usuário já existe! Atualizando senha e role...');
+      console.log('⚠️ Usuário encontrado! Atualizando senha...');
       
       // Fazer hash da nova senha
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -26,7 +26,6 @@ async function setAdminPassword() {
       const { data: updatedUser, error: updateError } = await supabase
         .from('users')
         .update({
-          role: role,
           password_hash: hashedPassword
         })
         .eq('id', existingUser.id)
@@ -43,7 +42,7 @@ async function setAdminPassword() {
       console.log('🔑 Role:', updatedUser.role);
       console.log('');
       console.log('🚀 Use estas credenciais para fazer login:');
-      console.log('   Email: mauoliver@gmail.com');
+      console.log('   Email: midia@ibva.com.br');
       console.log('   Senha: 123456');
       return;
     }
@@ -57,4 +56,4 @@ async function setAdminPassword() {
 }
 
 // Executar o script
-setAdminPassword(); 
+editMidiaUser();
