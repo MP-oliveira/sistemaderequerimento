@@ -354,6 +354,24 @@
   box-sizing: border-box !important;
 }
 
+/* Regra com máxima especificidade para o select */
+.users-page .modal .input-group select.input-field,
+.users-page .modal-content .input-group select.input-field,
+.users-page .modal select.input-field,
+.users-page .modal-content select.input-field,
+.users-page .modal .input-group select,
+.users-page .modal-content .input-group select,
+.users-page .modal select,
+.users-page .modal-content select {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding-right: 40px !important;
+}
+
 @media (max-width: 1200px) {
   .users-page {
     max-width: 99vw;
