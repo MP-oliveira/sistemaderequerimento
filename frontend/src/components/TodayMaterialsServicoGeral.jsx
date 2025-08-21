@@ -185,14 +185,11 @@ export default function TodayMaterialsServicoGeral() {
                 <span 
                   className="status-badge"
                   style={{ 
-                    backgroundColor: 'transparent',
                     color: request.status === 'APTO' ? '#4caf50' : 
                            request.status === 'EXECUTADO' ? '#9c27b0' : 
                            request.status === 'PENDENTE' ? '#ff9800' : 
                            request.status === 'REJEITADO' ? '#f44336' : 
                            request.status === 'PENDENTE_CONFLITO' ? '#ff5722' : '#6b7280',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
                     fontSize: '0.8rem',
                     fontWeight: '700'
                   }}

@@ -169,8 +169,12 @@
 }
 
 .return-materials .status-badge {
-  padding: 0.125rem 0.375rem !important;
   font-size: 0.7rem !important;
+}
+
+.return-materials .item-status {
+  background: transparent;
+  border: none;
 }
 
 /* Lista de Todos os Requerimentos */

@@ -179,7 +179,15 @@ const TodosRequerimentos = ({ executedItems, onDataChange }) => {
                           </div>
                           <div className="item-status">
                             {item.is_separated ? (
-                              <FiCheck className="status-icon success" size={24} />
+                              <FiCheck 
+                                className="status-icon success" 
+                                size={24}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleSeparated(item.id, item.is_separated);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                              />
                             ) : (
                               <FiX 
                                 className="status-icon warning" 
