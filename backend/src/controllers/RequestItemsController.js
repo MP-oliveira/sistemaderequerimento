@@ -879,6 +879,20 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
       .gte('date', todayStr)
       .order('date', { ascending: true });
 
+    // TEMPORARIAMENTE: Buscar também todas as requisições para debug
+    const { data: allRequests, error: allRequestsError } = await supabase
+      .from('requests')
+      .select('*')
+      .eq('status', 'APTO')
+      .order('date', { ascending: true });
+
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] TODAS as requisições APTO:', allRequests?.map(req => ({
+      id: req.id,
+      event_name: req.event_name,
+      date: req.date,
+      status: req.status
+    })));
+
     if (requestsError) {
       console.error('❌ Erro ao buscar requisições futuras:', requestsError);
       return res.status(500).json({ 
