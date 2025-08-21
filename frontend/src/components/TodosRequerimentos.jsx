@@ -9,23 +9,54 @@ const TodosRequerimentos = ({ executedItems, onDataChange }) => {
 
   // Função para agrupar itens por requisição
   const agruparItensPorRequisicao = (items) => {
+    console.log('🔍 [TodosRequerimentos] Itens recebidos:', items.length);
+    console.log('🔍 [TodosRequerimentos] Itens detalhados:', items.map(item => ({
+      id: item.id,
+      requestId: item.request_id || item.requests?.id,
+      eventName: item.requests?.event_name,
+      date: item.requests?.date,
+      status: item.requests?.status
+    })));
+    
     const grupos = {};
     
     items.forEach(item => {
       const requestId = item.request_id || item.requests?.id;
       const request = item.requests || {};
       
-      if (!requestId) return;
-      if (request.status === 'FINALIZADO') return;
+      console.log('🔍 [TodosRequerimentos] Processando item:', {
+        itemId: item.id,
+        requestId,
+        eventName: request.event_name,
+        date: request.date,
+        status: request.status
+      });
+      
+      if (!requestId) {
+        console.log('🔍 [TodosRequerimentos] Item sem requestId, pulando');
+        return;
+      }
+      if (request.status === 'FINALIZADO') {
+        console.log('🔍 [TodosRequerimentos] Item finalizado, pulando');
+        return;
+      }
       
       if (!grupos[requestId]) {
         grupos[requestId] = {
           request: request,
           items: []
         };
+        console.log('🔍 [TodosRequerimentos] Novo grupo criado para:', request.event_name);
       }
       grupos[requestId].items.push(item);
     });
+    
+    console.log('🔍 [TodosRequerimentos] Grupos criados:', Object.keys(grupos).length);
+    console.log('🔍 [TodosRequerimentos] Detalhes dos grupos:', Object.values(grupos).map(g => ({
+      eventName: g.request.event_name,
+      date: g.request.date,
+      itemsCount: g.items.length
+    })));
     
     return Object.values(grupos);
   };
