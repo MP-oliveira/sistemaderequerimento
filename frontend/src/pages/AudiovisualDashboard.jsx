@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { listarRequisicoes, listarEventos } from '../services/requestsService';
+import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario } from '../services/requestsService';
 import Modal from '../components/Modal';
 import TodayMaterials from '../components/TodayMaterials';
 import ReturnMaterials from '../components/ReturnMaterials';
@@ -32,14 +32,15 @@ export default function AudiovisualDashboard() {
         const requisicoesData = await listarRequisicoes();
         setRequisicoes(requisicoesData || []);
         
-        const reqsParaAgenda = (requisicoesData || []).filter(req => ['APTO', 'EXECUTADO', 'FINALIZADO'].includes(req.status));
+        // Buscar todas as requisições para o calendário (histórico completo)
+        const requisicoesCalendario = await buscarRequisicoesCalendario();
         
-        const eventosReqs = reqsParaAgenda.map(req => ({
+        const eventosReqs = (requisicoesCalendario || []).map(req => ({
           id: req.id,
-          title: req.event_name || req.description || 'Requisição',
+          title: req.title || req.event_name || req.description || 'Requisição',
           location: req.location,
-          start_datetime: req.start_datetime,
-          end_datetime: req.end_datetime,
+          start_datetime: req.start,
+          end_datetime: req.end,
           status: req.status,
           type: 'requisicao',
         }));

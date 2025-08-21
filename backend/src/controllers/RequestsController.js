@@ -2436,23 +2436,15 @@ export const returnInstruments = async (req, res) => {
   }
 };
 
-// Buscar requisições aprovadas para histórico no calendário
+// Buscar requisições para histórico no calendário (todas as requisições)
 export const getApprovedRequestsForCalendar = async (req, res) => {
   try {
     const { month, year } = req.query;
     
-    // Construir filtro de data
-    let dateFilter = {};
-    if (month && year) {
-      const startDate = `${year}-${month.padStart(2, '0')}-01`;
-      const endDate = `${year}-${month.padStart(2, '0')}-31`;
-      dateFilter = {
-        gte: startDate,
-        lte: endDate
-      };
-    }
+    console.log('🔍 [getApprovedRequestsForCalendar] Buscando requisições para calendário');
+    console.log('🔍 [getApprovedRequestsForCalendar] Month:', month, 'Year:', year);
 
-    // Buscar todas as requisições do mês (independente do status)
+    // Buscar todas as requisições (independente do status e data)
     let query = supabase
       .from('requests')
       .select(`
@@ -2471,22 +2463,34 @@ export const getApprovedRequestsForCalendar = async (req, res) => {
       `)
       .order('start_datetime', { ascending: true });
 
-    // Aplicar filtro de data se fornecido
+    // Se month e year foram fornecidos, filtrar apenas esse mês
     if (month && year) {
       const startDate = `${year}-${month.padStart(2, '0')}-01`;
       const endDate = `${year}-${month.padStart(2, '0')}-31`;
+      console.log('🔍 [getApprovedRequestsForCalendar] Filtrando por mês:', startDate, 'até', endDate);
       query = query.gte('start_datetime', startDate).lte('start_datetime', endDate);
+    } else {
+      console.log('🔍 [getApprovedRequestsForCalendar] Buscando todas as requisições (sem filtro de data)');
     }
 
     const { data: requests, error } = await query;
 
     if (error) {
+      console.error('❌ [getApprovedRequestsForCalendar] Erro ao buscar requisições:', error);
       return res.status(400).json({ 
         success: false, 
         message: 'Erro ao buscar requisições.', 
         error: error.message 
       });
     }
+
+    console.log('🔍 [getApprovedRequestsForCalendar] Requisições encontradas:', requests?.length || 0);
+    console.log('🔍 [getApprovedRequestsForCalendar] Detalhes das requisições:', requests?.map(req => ({
+      id: req.id,
+      event_name: req.event_name,
+      start_datetime: req.start_datetime,
+      status: req.status
+    })));
 
     // Formatar dados para o calendário
     const calendarEvents = requests.map(request => ({

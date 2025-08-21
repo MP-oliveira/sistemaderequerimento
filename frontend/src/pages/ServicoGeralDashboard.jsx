@@ -33,11 +33,8 @@ export default function ServicoGeralDashboard() {
         const requisicoesData = await listarRequisicoes();
         setRequisicoes(requisicoesData || []);
         
-        // Buscar requisições para o calendário usando a função correta
-        const currentDate = new Date();
-        const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-        const year = currentDate.getFullYear().toString();
-        const requisicoesCalendario = await buscarRequisicoesCalendario(month, year);
+        // Buscar todas as requisições para o calendário (histórico completo)
+        const requisicoesCalendario = await buscarRequisicoesCalendario();
         
         const eventosReqs = (requisicoesCalendario || []).map(req => ({
           id: req.id,
