@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { FiPackage, FiChevronDown, FiChevronRight, FiClock, FiMapPin, FiX } from 'react-icons/fi';
+import { FiPackage, FiChevronDown, FiChevronRight, FiClock, FiMapPin, FiCheck, FiX } from 'react-icons/fi';
+import { marcarItemComoSeparado } from '../services/requestItemsService';
 import './TodosRequerimentos.css';
 
-const TodosRequerimentos = ({ executedItems }) => {
+const TodosRequerimentos = ({ executedItems, onDataChange }) => {
   const [expandedRequests, setExpandedRequests] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const [selectedGrupo, setSelectedGrupo] = useState(null);
+  const [localItems, setLocalItems] = useState(executedItems);
 
-  // Função para agrupar itens por requisição usando índices únicos
+  // Função para agrupar itens por requisição
   const agruparItensPorRequisicao = (items) => {
     const grupos = {};
-    let grupoIndex = 0;
     
     items.forEach(item => {
       const requestId = item.request_id || item.requests?.id;
@@ -22,8 +21,7 @@ const TodosRequerimentos = ({ executedItems }) => {
       if (!grupos[requestId]) {
         grupos[requestId] = {
           request: request,
-          items: [],
-          uniqueIndex: grupoIndex++ // Índice único para cada grupo
+          items: []
         };
       }
       grupos[requestId].items.push(item);
@@ -32,14 +30,19 @@ const TodosRequerimentos = ({ executedItems }) => {
     return Object.values(grupos);
   };
 
-  const openModal = (grupo) => {
-    setSelectedGrupo(grupo);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedGrupo(null);
+  const toggleRequest = (requestId) => {
+    console.log('🔍 [TodosRequerimentos] toggleRequest chamado com requestId:', requestId);
+    console.log('🔍 [TodosRequerimentos] Estado atual:', expandedRequests);
+    const newExpanded = { ...expandedRequests };
+    if (newExpanded[requestId]) {
+      delete newExpanded[requestId];
+      console.log('🔍 [TodosRequerimentos] Removendo requestId:', requestId);
+    } else {
+      newExpanded[requestId] = true;
+      console.log('🔍 [TodosRequerimentos] Adicionando requestId:', requestId);
+    }
+    console.log('🔍 [TodosRequerimentos] Novo estado:', newExpanded);
+    setExpandedRequests(newExpanded);
   };
 
   const formatDate = (dateString) => {
@@ -48,7 +51,29 @@ const TodosRequerimentos = ({ executedItems }) => {
     return date.toLocaleDateString('pt-BR');
   };
 
-  const grupos = agruparItensPorRequisicao(executedItems);
+  const handleToggleSeparated = async (itemId, currentStatus) => {
+    try {
+      await marcarItemComoSeparado(itemId, !currentStatus);
+      
+      // Atualizar o item localmente
+      const updatedItems = localItems.map(item => 
+        item.id === itemId 
+          ? { ...item, is_separated: !currentStatus }
+          : item
+      );
+      
+      setLocalItems(updatedItems);
+      
+      // Notificar o componente pai sobre a mudança
+      if (onDataChange) {
+        onDataChange(updatedItems);
+      }
+    } catch (error) {
+      console.error('Erro ao marcar item como separado:', error);
+    }
+  };
+
+  const grupos = agruparItensPorRequisicao(localItems);
 
   return (
     <div className="todos-requerimentos">
@@ -78,18 +103,29 @@ const TodosRequerimentos = ({ executedItems }) => {
       <div className="materials-list todos-requerimentos-list">
         {grupos.length > 0 ? (
           grupos.map((grupo, index) => {
+            const requestId = grupo.request.id;
+            const isExpanded = !!expandedRequests[requestId];
+            console.log('🔍 [TodosRequerimentos] Renderizando grupo:', { 
+              requestId, 
+              isExpanded, 
+              index, 
+              eventName: grupo.request.event_name
+            });
+            
             const totalCount = grupo.items.length;
             const separatedCount = grupo.items.filter(item => item.is_separated).length;
             
             return (
-              <div key={`todos-${grupo.uniqueIndex}`} className="request-materials-card">
+              <div key={`todos-${requestId}`} className="request-materials-card">
                 <div 
-                  className="request-header"
-                  onClick={() => openModal(grupo)}
-                  style={{ cursor: 'pointer' }}
+                  className="request-header accordion-header"
+                  onClick={() => toggleRequest(requestId)}
                 >
                   <div className="request-info">
                     <div className="request-title-row">
+                      <button className="accordion-toggle">
+                        {isExpanded ? <FiChevronDown size={16} /> : <FiChevronRight size={16} />}
+                      </button>
                       <h4>{grupo.request.event_name || grupo.request.description || 'Requisição não identificada'}</h4>
                     </div>
                     <div className="request-meta">
@@ -127,6 +163,41 @@ const TodosRequerimentos = ({ executedItems }) => {
                     </div>
                   </div>
                 </div>
+                
+                {isExpanded && (
+                  <div className="materials-items accordion-content">
+                    <h5>Materiais Necessários:</h5>
+                    <div className="items-list">
+                      {grupo.items.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className={`item ${item.is_separated ? 'separated' : 'pending'}`}
+                        >
+                          <div className="item-info">
+                            <span className="item-name">{item.item_name}</span>
+                            <span className="item-quantity">Qtd: {item.quantity_requested}</span>
+                          </div>
+                          <div className="item-status">
+                            {item.is_separated ? (
+                              <FiCheck className="status-icon success" size={24} />
+                            ) : (
+                              <FiX 
+                                className="status-icon warning" 
+                                size={32} 
+                                strokeWidth={4}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleSeparated(item.id, item.is_separated);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })
@@ -137,51 +208,6 @@ const TodosRequerimentos = ({ executedItems }) => {
           </div>
         )}
       </div>
-
-      {/* Modal para mostrar materiais */}
-      {showModal && selectedGrupo && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{selectedGrupo.request.event_name || 'Requisição'}</h3>
-              <button className="modal-close" onClick={closeModal}>
-                <FiX size={20} />
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="modal-info">
-                <p><strong>Departamento:</strong> {selectedGrupo.request.department}</p>
-                <p><strong>Data:</strong> {formatDate(selectedGrupo.request.date)}</p>
-                {selectedGrupo.request.location && (
-                  <p><strong>Local:</strong> {selectedGrupo.request.location}</p>
-                )}
-              </div>
-              
-              <h4>Materiais Necessários:</h4>
-              <div className="modal-items-list">
-                {selectedGrupo.items.map((item) => (
-                  <div 
-                    key={item.id} 
-                    className={`modal-item ${item.is_separated ? 'separated' : 'pending'}`}
-                  >
-                    <div className="item-info">
-                      <span className="item-name">{item.item_name}</span>
-                      <span className="item-quantity">Qtd: {item.quantity_requested}</span>
-                    </div>
-                    <div className="item-status">
-                      {item.is_separated ? (
-                        <span className="status-badge success">Separado</span>
-                      ) : (
-                        <span className="status-badge warning">Pendente</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

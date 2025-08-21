@@ -559,7 +559,12 @@ const ReturnMaterials = () => {
       )}
 
       {/* Componente separado para Todos os Requerimentos */}
-      <TodosRequerimentos executedItems={executedItems} />
+      <TodosRequerimentos 
+        executedItems={executedItems} 
+        onDataChange={(updatedItems) => {
+          setExecutedItems(updatedItems);
+        }}
+      />
 
       {/* Modal para marcar como indisponível */}
       <Modal
