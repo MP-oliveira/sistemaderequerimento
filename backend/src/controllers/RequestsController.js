@@ -2436,15 +2436,16 @@ export const returnInstruments = async (req, res) => {
   }
 };
 
-// Buscar requisições para histórico no calendário (todas as requisições)
+// Buscar TODAS as requisições para histórico completo no calendário
 export const getApprovedRequestsForCalendar = async (req, res) => {
   try {
+    console.log('🚀 [getApprovedRequestsForCalendar] FUNÇÃO CHAMADA!');
     const { month, year } = req.query;
     
     console.log('🔍 [getApprovedRequestsForCalendar] Buscando requisições para calendário');
     console.log('🔍 [getApprovedRequestsForCalendar] Month:', month, 'Year:', year);
 
-    // Buscar todas as requisições (independente do status e data)
+    // Buscar TODAS as requisições (histórico completo - todos os status)
     let query = supabase
       .from('requests')
       .select(`
@@ -2529,12 +2530,13 @@ const getStatusColor = (status) => {
     'PENDENTE': '#ff9800',           // Laranja
     'APTO': '#10b981',               // Verde
     'REJEITADO': '#ef4444',          // Vermelho
+    'CANCELADO': '#ef4444',          // Vermelho
     'EXECUTADO': '#3b82f6',          // Azul
     'FINALIZADO': '#8b5cf6',         // Roxo
     'PENDENTE_CONFLITO': '#ff5722',  // Laranja escuro
     'PREENCHIDO': '#2196f3'          // Azul claro
   };
-  return colors[status] || '#6b7280';
+  return colors[status] || '#6b7280'; // Cinza para status desconhecidos
 };
 
 // Buscar requisições com serviços para dashboards específicos

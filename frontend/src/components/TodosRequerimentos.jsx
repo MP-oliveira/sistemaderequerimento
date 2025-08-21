@@ -1,13 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiPackage, FiChevronDown, FiChevronRight, FiClock, FiMapPin, FiCheck, FiX } from 'react-icons/fi';
-import { marcarItemComoSeparado } from '../services/requestItemsService';
+import { marcarItemComoSeparado, listarTodosRequerimentosFuturosServicoGeral } from '../services/requestItemsService';
 import './TodosRequerimentos.css';
 
-const TodosRequerimentos = ({ executedItems, onDataChange }) => {
+const TodosRequerimentos = ({ onDataChange }) => {
   const [expandedRequests, setExpandedRequests] = useState({});
-  const [localItems, setLocalItems] = useState(executedItems);
+  const [todosRequerimentos, setTodosRequerimentos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Função para agrupar itens por requisição
+  useEffect(() => {
+    carregarTodosRequerimentos();
+  }, []);
+
+  const carregarTodosRequerimentos = async () => {
+    try {
+      setLoading(true);
+      const data = await listarTodosRequerimentosFuturosServicoGeral();
+      console.log('🔍 [TodosRequerimentos] Dados recebidos da API:', data);
+      setTodosRequerimentos(data || []);
+    } catch (error) {
+      console.error('❌ [TodosRequerimentos] Erro ao carregar dados:', error);
+      setTodosRequerimentos([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Função para agrupar itens por requisição (não é mais necessária, pois os dados já vêm agrupados)
   const agruparItensPorRequisicao = (items) => {
     console.log('🔍 [TodosRequerimentos] Itens recebidos:', items.length);
     console.log('🔍 [TodosRequerimentos] Itens detalhados:', items.map(item => ({
@@ -104,7 +123,26 @@ const TodosRequerimentos = ({ executedItems, onDataChange }) => {
     }
   };
 
-  const grupos = agruparItensPorRequisicao(localItems);
+  if (loading) {
+    return (
+      <div className="todos-requerimentos">
+        <div className="materials-header">
+          <h3 className="section-title">
+            <FiPackage style={{marginRight: 8}} />
+            Todos os Requerimentos
+          </h3>
+        </div>
+        <div className="loading">Carregando...</div>
+      </div>
+    );
+  }
+
+  // Calcular totais para o resumo
+  const totalItens = todosRequerimentos.reduce((total, req) => total + (req.items?.length || 0), 0);
+  const totalSeparados = todosRequerimentos.reduce((total, req) => 
+    total + (req.items?.filter(item => item.is_separated).length || 0), 0
+  );
+  const totalPendentes = totalItens - totalSeparados;
 
   return (
     <div className="todos-requerimentos">
@@ -116,15 +154,15 @@ const TodosRequerimentos = ({ executedItems, onDataChange }) => {
         </h3>
         <div className="materials-summary">
           <div className="summary-item">
-            <span className="summary-number">{grupos.length}</span>
+            <span className="summary-number">{todosRequerimentos.length}</span>
             <span className="summary-label">Requisições</span>
           </div>
           <div className="summary-item">
-            <span className="summary-number success">{executedItems.filter(item => item.is_separated).length}</span>
+            <span className="summary-number success">{totalSeparados}</span>
             <span className="summary-label">Separados</span>
           </div>
           <div className="summary-item">
-            <span className="summary-number warning">{executedItems.filter(item => !item.is_separated).length}</span>
+            <span className="summary-number warning">{totalPendentes}</span>
             <span className="summary-label">Pendentes</span>
           </div>
         </div>
@@ -132,19 +170,19 @@ const TodosRequerimentos = ({ executedItems, onDataChange }) => {
 
       {/* Lista */}
       <div className="materials-list todos-requerimentos-list">
-        {grupos.length > 0 ? (
-          grupos.map((grupo, index) => {
-            const requestId = grupo.request.id;
+        {todosRequerimentos.length > 0 ? (
+          todosRequerimentos.map((requisicao, index) => {
+            const requestId = requisicao.id;
             const isExpanded = !!expandedRequests[requestId];
-            console.log('🔍 [TodosRequerimentos] Renderizando grupo:', { 
+            console.log('🔍 [TodosRequerimentos] Renderizando requisição:', { 
               requestId, 
               isExpanded, 
               index, 
-              eventName: grupo.request.event_name
+              eventName: requisicao.event_name
             });
             
-            const totalCount = grupo.items.length;
-            const separatedCount = grupo.items.filter(item => item.is_separated).length;
+            const totalCount = requisicao.items?.length || 0;
+            const separatedCount = requisicao.items?.filter(item => item.is_separated).length || 0;
             
             return (
               <div key={`todos-${requestId}`} className="request-materials-card">
@@ -157,18 +195,18 @@ const TodosRequerimentos = ({ executedItems, onDataChange }) => {
                       <button className="accordion-toggle">
                         {isExpanded ? <FiChevronDown size={16} /> : <FiChevronRight size={16} />}
                       </button>
-                      <h4>{grupo.request.event_name || grupo.request.description || 'Requisição não identificada'}</h4>
+                      <h4>{requisicao.event_name || requisicao.description || 'Requisição não identificada'}</h4>
                     </div>
                     <div className="request-meta">
-                      <span className="department">{grupo.request.department}</span>
+                      <span className="department">{requisicao.department}</span>
                       <span className="time">
                         <FiClock size={14} />
-                        {formatDate(grupo.request.date)}
+                        {formatDate(requisicao.date)}
                       </span>
-                      {grupo.request.location && (
+                      {requisicao.location && (
                         <span className="location">
                           <FiMapPin size={14} />
-                          {grupo.request.location}
+                          {requisicao.location}
                         </span>
                       )}
                     </div>
@@ -197,9 +235,11 @@ const TodosRequerimentos = ({ executedItems, onDataChange }) => {
                 
                 {isExpanded && (
                   <div className="materials-items accordion-content">
-                    <h5>Materiais Necessários:</h5>
-                    <div className="items-list">
-                      {grupo.items.map((item) => (
+                    {totalCount > 0 ? (
+                      <>
+                        <h5>Materiais Necessários:</h5>
+                        <div className="items-list">
+                          {requisicao.items.map((item) => (
                         <div 
                           key={item.id} 
                           className={`item ${item.is_separated ? 'separated' : 'pending'}`}
@@ -233,8 +273,15 @@ const TodosRequerimentos = ({ executedItems, onDataChange }) => {
                             )}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="no-items">
+                        <p>Esta requisição não possui itens de audiovisual.</p>
+                        <p>{requisicao.description}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

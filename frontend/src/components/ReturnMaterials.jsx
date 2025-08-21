@@ -560,9 +560,9 @@ const ReturnMaterials = () => {
 
       {/* Componente separado para Todos os Requerimentos */}
       <TodosRequerimentos 
-        executedItems={executedItems} 
-        onDataChange={(updatedItems) => {
-          setExecutedItems(updatedItems);
+        onDataChange={() => {
+          // Recarregar dados se necessário
+          carregarDados();
         }}
       />
 

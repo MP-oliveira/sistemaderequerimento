@@ -858,35 +858,24 @@ const updateAudiovisualNotes = async (req, res) => {
   }
 };
 
-// Listar todos os requerimentos futuros para serviço geral
+// Listar TODAS as requisições para histórico completo
 const getAllFutureRequestsForServicoGeral = async (req, res) => {
   try {
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Iniciando...');
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] User:', req.user);
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Iniciando busca de TODAS as requisições...');
     
-    // Usar fuso horário local (Brasília)
-    const today = new Date();
-    const todayLocal = new Date(today.getTime() - (today.getTimezoneOffset() * 60000));
-    const todayStr = todayLocal.toISOString().split('T')[0];
-    
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Data de hoje (local):', todayStr);
-
-    // Buscar todas as requisições aprovadas futuras (incluindo hoje)
-    const { data: futureRequests, error: requestsError } = await supabase
-      .from('requests')
-      .select('*')
-      .eq('status', 'APTO')
-      .gte('date', todayStr)
-      .order('date', { ascending: true });
-
-    // TEMPORARIAMENTE: Buscar também todas as requisições para debug
-    const { data: allRequests, error: allRequestsError } = await supabase
+    // Buscar TODAS as requisições APTO (histórico completo)
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Fazendo query para buscar requisições APTO...');
+    const { data: allRequests, error: requestsError } = await supabase
       .from('requests')
       .select('*')
       .eq('status', 'APTO')
       .order('date', { ascending: true });
+    
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Query executada. Error:', requestsError);
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Raw data:', allRequests);
 
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] TODAS as requisições APTO:', allRequests?.map(req => ({
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições APTO encontradas:', allRequests?.length || 0);
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Detalhes:', allRequests?.map(req => ({
       id: req.id,
       event_name: req.event_name,
       date: req.date,
@@ -894,23 +883,15 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
     })));
 
     if (requestsError) {
-      console.error('❌ Erro ao buscar requisições futuras:', requestsError);
+      console.error('❌ Erro ao buscar requisições:', requestsError);
       return res.status(500).json({ 
         success: false, 
         message: 'Erro interno do servidor' 
       });
     }
 
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições futuras encontradas:', futureRequests?.length || 0);
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Detalhes das requisições:', futureRequests?.map(req => ({
-      id: req.id,
-      event_name: req.event_name,
-      date: req.date,
-      status: req.status
-    })));
-
-    if (!futureRequests || futureRequests.length === 0) {
-      console.log('🔍 [getAllFutureRequestsForServicoGeral] Nenhuma requisição encontrada');
+    if (!allRequests || allRequests.length === 0) {
+      console.log('🔍 [getAllFutureRequestsForServicoGeral] Nenhuma requisição APTO encontrada');
       return res.json({ 
         success: true, 
         data: [] 
@@ -918,8 +899,8 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
     }
 
     // Buscar todos os itens dessas requisições
-    const requestIds = futureRequests.map(req => req.id);
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Request IDs para buscar:', requestIds);
+    const requestIds = allRequests.map(req => req.id);
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Buscando itens para:', requestIds);
     
     const { data: items, error: itemsError } = await supabase
       .from('request_items')
@@ -934,66 +915,31 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
       });
     }
 
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Itens encontrados:', items?.length || 0);
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Total de itens encontrados:', items?.length || 0);
 
-    // Agrupar itens por requisição
-    const requestsWithItems = futureRequests.map(request => {
-      const requestItems = items.filter(item => item.request_id === request.id);
-      console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisição', request.id, 'tem', requestItems.length, 'itens');
+    // Incluir TODAS as requisições, mesmo as sem itens
+    const requestsWithItems = allRequests.map(request => {
+      const requestItems = items ? items.filter(item => item.request_id === request.id) : [];
+      console.log(`🔍 [getAllFutureRequestsForServicoGeral] "${request.event_name}" tem ${requestItems.length} itens`);
+      
       return {
         ...request,
         items: requestItems
       };
-    }).filter(request => request.items.length > 0);
+    });
 
-    console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições com itens:', requestsWithItems.length);
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Total de requisições retornadas:', requestsWithItems.length);
 
-    // TEMPORARIAMENTE: Retornar dados de teste se não houver dados reais
-    if (requestsWithItems.length === 0) {
-      console.log('🔍 [getAllFutureRequestsForServicoGeral] Retornando dados de teste');
-      const testData = [
-        {
-          id: 'test-1',
-          event_name: 'Teste de Requerimento',
-          start_datetime: '2025-08-21T10:00:00Z',
-          end_datetime: '2025-08-21T12:00:00Z',
-          location: 'Sala de Teste',
-          status: 'APTO',
-          date: '2025-08-21',
-          department: 'Teste',
-          description: 'Requerimento de teste',
-          items: [
-            {
-              id: 'item-1',
-              item_name: 'Item de Teste 1',
-              quantity_requested: 5,
-              description: 'Descrição do item de teste',
-              is_separated: false
-            },
-            {
-              id: 'item-2',
-              item_name: 'Item de Teste 2',
-              quantity_requested: 3,
-              description: 'Outro item de teste',
-              is_separated: true
-            }
-          ]
-        }
-      ];
-      
-      res.json({ 
-        success: true, 
-        data: testData 
-      });
-    } else {
-      res.json({ 
-        success: true, 
-        data: requestsWithItems 
-      });
-    }
+    // TEMPORARIAMENTE: Forçar retorno de ambas as requisições para teste
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] TESTE: Forçando retorno de ambas as requisições');
+    
+    res.json({ 
+      success: true, 
+      data: requestsWithItems 
+    });
 
   } catch (error) {
-    console.error('❌ Erro ao buscar requerimentos futuros:', error);
+    console.error('❌ Erro ao buscar requerimentos:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Erro interno do servidor' 
