@@ -888,6 +888,12 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
     }
 
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Requisições futuras encontradas:', futureRequests?.length || 0);
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] Detalhes das requisições:', futureRequests?.map(req => ({
+      id: req.id,
+      event_name: req.event_name,
+      date: req.date,
+      status: req.status
+    })));
 
     if (!futureRequests || futureRequests.length === 0) {
       console.log('🔍 [getAllFutureRequestsForServicoGeral] Nenhuma requisição encontrada');
