@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiArrowLeft } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiArrowLeft, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
@@ -15,6 +15,7 @@ export default function Users() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -71,6 +72,7 @@ export default function Users() {
       }
       setShowModal(false);
       setEditingUser(null);
+      setShowPassword(false);
       setFormData({ name: '', email: '', role: 'USER', password: '' });
       buscarUsuarios();
     } catch {
@@ -81,6 +83,7 @@ export default function Users() {
 
   const handleEdit = (user) => {
     setEditingUser(user);
+    setShowPassword(false);
     setFormData({
       name: user.name || user.full_name || '',
       email: user.email || '',
@@ -102,6 +105,7 @@ export default function Users() {
 
   const handleOpenModal = () => {
     setEditingUser(null);
+    setShowPassword(false);
     setFormData({ name: '', email: '', role: 'USER', password: '' });
     setShowModal(true);
   };
@@ -237,15 +241,42 @@ export default function Users() {
             required
             className="input-full"
           />
-          <Input
-            label={editingUser ? "Senha (digite nova senha ou mantenha a atual)" : "Senha"}
-            type="password"
-            value={formData.password}
-            onChange={e => setFormData({ ...formData, password: e.target.value })}
-            required={!editingUser}
-            className="input-full"
-            placeholder={editingUser ? "Senha atual: •••••••• (digite nova senha ou mantenha)" : "Digite a senha"}
-          />
+          <div className="input-group">
+            <label className="input-label">
+              {editingUser ? "Senha (digite nova senha ou mantenha a atual)" : "Senha"}
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                className="input-field"
+                value={formData.password}
+                onChange={e => setFormData({ ...formData, password: e.target.value })}
+                required={!editingUser}
+                placeholder={editingUser ? "Senha atual: •••••••• (digite nova senha ou mantenha)" : "Digite a senha"}
+                style={{ paddingRight: '40px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  padding: '0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {showPassword ? <FiEye size={20} /> : <FiEyeOff size={20} />}
+              </button>
+            </div>
+          </div>
           <div className="input-group">
             <label className="input-label">Função</label>
             <select

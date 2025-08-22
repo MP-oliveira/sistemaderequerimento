@@ -71,16 +71,23 @@ export async function criarUsuario({ name, email, role, password }) {
   }
 } 
 
-export async function atualizarUsuario(id, { name, email, role }) {
+export async function atualizarUsuario(id, { name, email, role, password }) {
   try {
+    const updateData = {
+      full_name: name,
+      email,
+      role
+    };
+    
+    // Adicionar senha apenas se for fornecida
+    if (password && password !== '••••••••') {
+      updateData.senha = password;
+    }
+    
     const response = await fetch(`${API_URL}/api/users/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify({
-        full_name: name,
-        email,
-        role
-      }),
+      body: JSON.stringify(updateData),
     });
     
     if (!response.ok) {
