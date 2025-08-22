@@ -255,6 +255,18 @@ export default function Users() {
             <label className="input-label">
               {editingUser ? "Senha (digite nova senha ou mantenha a atual)" : "Senha"}
             </label>
+            {editingUser && (
+              <div style={{ 
+                marginBottom: '8px', 
+                padding: '8px', 
+                backgroundColor: '#f3f4f6', 
+                borderRadius: '4px',
+                fontSize: '12px',
+                color: '#6b7280'
+              }}>
+                💡 <strong>Senha atual:</strong> •••••••• (protegida por segurança)
+              </div>
+            )}
             <div style={{ position: 'relative' }}>
               <input
                 key={`password-${showPassword}`}
@@ -263,7 +275,7 @@ export default function Users() {
                 value={formData.password}
                 onChange={e => setFormData({ ...formData, password: e.target.value })}
                 required={!editingUser}
-                placeholder={editingUser ? "Senha atual: •••••••• (digite nova senha ou mantenha)" : "Digite a senha"}
+                placeholder={editingUser ? "Digite nova senha ou deixe em branco para manter a atual" : "Digite a senha"}
                 style={{ paddingRight: '40px' }}
                 onFocus={() => console.log('🔍 Input focado, showPassword:', showPassword, 'tipo:', showPassword ? "text" : "password")}
                 ref={passwordInputRef}
