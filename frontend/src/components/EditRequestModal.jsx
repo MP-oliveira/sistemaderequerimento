@@ -22,27 +22,35 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   
   // Processar dados diretamente no render
   const processedItems = React.useMemo(() => {
+    console.log('🔍 [EditRequestModal] Processando itens:', request?.itens);
     if (request && request.itens) {
-      return (request.itens || []).map(item => ({
+      const items = (request.itens || []).map(item => ({
         id: item.inventory_id,
         name: item.item_name,
         quantity: item.quantity_requested,
         ...item
       }));
+      console.log('🔍 [EditRequestModal] Itens processados:', items);
+      return items;
     }
+    console.log('🔍 [EditRequestModal] Nenhum item encontrado');
     return [];
   }, [request?.itens]);
   
   const processedServices = React.useMemo(() => {
+    console.log('🔍 [EditRequestModal] Processando serviços:', request?.servicos);
     if (request && request.servicos) {
-      return (request.servicos || []).map((service, index) => ({
+      const services = (request.servicos || []).map((service, index) => ({
         ...service,
         id: service.id || `service_${Date.now()}_${index}_${Math.random()}`,
         tipo: service.tipo,
         nome: service.nome,
         quantidade: service.quantidade || 1
       }));
+      console.log('🔍 [EditRequestModal] Serviços processados:', services);
+      return services;
     }
+    console.log('🔍 [EditRequestModal] Nenhum serviço encontrado');
     return [];
   }, [request?.servicos]);
   
@@ -493,50 +501,53 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
               overflowY: 'auto'
             }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-
-                {selectedItems.map((item) => (
-                  <div key={item.id} style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column',
-                    padding: '0.5rem',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    backgroundColor: '#fff'
-                  }}>
-                    <div style={{ marginBottom: '0.5rem' }}>
-                      <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>{item.name}</div>
-                      <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
-                        Disponível: {item.quantity_available}
+                {console.log('🔍 [EditRequestModal] Renderizando itens:', selectedItems)}
+                {selectedItems.map((item) => {
+                  console.log('🔍 [EditRequestModal] Renderizando item:', item);
+                  return (
+                    <div key={item.id} style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column',
+                      padding: '0.5rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      backgroundColor: '#fff'
+                    }}>
+                      <div style={{ marginBottom: '0.5rem' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>{item.name}</div>
+                        <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+                          Disponível: {item.quantity_available}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <input
+                          type="number"
+                          min="1"
+                          max={item.quantity_available}
+                          value={item.quantity}
+                          onChange={(e) => alterarQuantidadeItem(item.id, parseInt(e.target.value) || 0)}
+                          style={{
+                            width: '50px',
+                            padding: '0.25rem',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '4px',
+                            textAlign: 'center',
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          onClick={() => removerItem(item.id)}
+                          style={{ padding: '0.25rem', minWidth: 'auto' }}
+                        >
+                          ✕
+                        </Button>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <input
-                        type="number"
-                        min="1"
-                        max={item.quantity_available}
-                        value={item.quantity}
-                        onChange={(e) => alterarQuantidadeItem(item.id, parseInt(e.target.value) || 0)}
-                        style={{
-                          width: '50px',
-                          padding: '0.25rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '4px',
-                          textAlign: 'center',
-                          fontSize: '0.75rem'
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="danger"
-                        size="sm"
-                        onClick={() => removerItem(item.id)}
-                        style={{ padding: '0.25rem', minWidth: 'auto' }}
-                      >
-                        ✕
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ) : (
