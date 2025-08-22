@@ -247,6 +247,7 @@ export default function Users() {
             </label>
             <div style={{ position: 'relative' }}>
               <input
+                key={`password-${showPassword}`}
                 type={showPassword ? "text" : "password"}
                 className="input-field"
                 value={formData.password}
