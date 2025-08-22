@@ -65,19 +65,32 @@ export default function Users() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('🔍 handleSubmit - Iniciando...');
+    console.log('🔍 handleSubmit - formData:', formData);
+    console.log('🔍 handleSubmit - editingUser:', editingUser);
+    
     setLoading(true);
     try {
       // Se estiver editando e a senha for apenas pontos, remover a senha do formData
       const dataToSend = { ...formData };
       if (editingUser && dataToSend.password === '••••••••') {
         delete dataToSend.password;
+        console.log('🔍 handleSubmit - Senha removida (era pontos)');
+      } else {
+        console.log('🔍 handleSubmit - Senha mantida:', dataToSend.password ? '***' : 'undefined');
       }
       
+      console.log('🔍 handleSubmit - dataToSend final:', dataToSend);
+      
       if (editingUser) {
+        console.log('🔍 handleSubmit - Chamando atualizarUsuario...');
         await atualizarUsuario(editingUser.id, dataToSend);
+        console.log('🔍 handleSubmit - atualizarUsuario concluído');
         mostrarNotificacao('Usuário atualizado com sucesso!', 'sucesso');
       } else {
+        console.log('🔍 handleSubmit - Chamando criarUsuario...');
         await criarUsuario(dataToSend);
+        console.log('🔍 handleSubmit - criarUsuario concluído');
         mostrarNotificacao('Usuário criado com sucesso!', 'sucesso');
       }
       setShowModal(false);
@@ -85,7 +98,8 @@ export default function Users() {
       setShowPassword(false);
       setFormData({ name: '', email: '', role: 'USER', password: '' });
       buscarUsuarios();
-    } catch {
+    } catch (error) {
+      console.error('❌ handleSubmit - Erro:', error);
       mostrarNotificacao('Erro ao salvar usuário', 'erro');
     }
     setLoading(false);
