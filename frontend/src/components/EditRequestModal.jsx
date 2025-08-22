@@ -56,6 +56,8 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   
   // Atualizar estados quando os dados processados mudarem
   React.useEffect(() => {
+    console.log('🔍 [EditRequestModal] useEffect - processedItems:', processedItems);
+    console.log('🔍 [EditRequestModal] useEffect - processedServices:', processedServices);
     setSelectedItems(processedItems);
     setSelectedServices(processedServices);
   }, [processedItems, processedServices]);
@@ -491,6 +493,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
             </div>
           </div>
           
+          {console.log('🔍 [EditRequestModal] selectedItems.length:', selectedItems.length)}
           {selectedItems.length > 0 ? (
             <div style={{ 
               border: '1px solid #e5e7eb', 
