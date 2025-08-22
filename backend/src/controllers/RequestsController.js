@@ -1003,8 +1003,8 @@ export const listRequests = async (req, res) => {
         approved_by_user:users!requests_approved_by_fkey(full_name, email)
       `);
     
-    // Usuários AUDIOVISUAL podem ver todas as requisições (especialmente as aprovadas)
-    if (req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC' && req.user.role !== 'AUDIOVISUAL') {
+    // Usuários AUDIOVISUAL e SERVICO_GERAL podem ver todas as requisições (especialmente as aprovadas)
+    if (req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC' && req.user.role !== 'AUDIOVISUAL' && req.user.role !== 'SERVICO_GERAL') {
       query = query.or(`requester_id.eq.${req.user.userId},approved_by.eq.${req.user.userId},executed_by.eq.${req.user.userId}`);
     }
     
