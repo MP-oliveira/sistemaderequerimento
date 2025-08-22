@@ -1,7 +1,7 @@
 import React from 'react';
 import './Input.css';
 
-export default function Input({ label, error, type, options, ...props }) {
+export default function Input({ label, error, type, options, multiline, ...props }) {
   if (type === 'select') {
     return (
       <div className="input-group">
