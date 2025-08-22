@@ -925,9 +925,12 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
       const requestItems = items ? items.filter(item => item.request_id === request.id) : [];
       console.log(`🔍 [getAllFutureRequestsForServicoGeral] "${request.event_name}" tem ${requestItems.length} itens`);
       
+      const approvedByName = request.approved_by_user?.full_name || null;
+      console.log(`🔍 [getAllFutureRequestsForServicoGeral] "${request.event_name}" aprovado por: ${approvedByName}`);
+      
       return {
         ...request,
-        approved_by_name: request.approved_by_user?.full_name || null,
+        approved_by_name: approvedByName,
         items: requestItems
       };
     });

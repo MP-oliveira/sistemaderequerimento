@@ -17,6 +17,12 @@ export default function AllFutureRequests() {
     setLoading(true);
     try {
       const data = await listarTodosRequerimentosFuturosServicoGeral();
+      console.log('🔍 [AllFutureRequests] Dados recebidos:', data);
+      if (data && data.length > 0) {
+        data.forEach(request => {
+          console.log(`🔍 [AllFutureRequests] "${request.event_name}" - approved_by_name: ${request.approved_by_name}`);
+        });
+      }
       setRequests(data || []);
     } catch (err) {
       console.error('❌ [AllFutureRequests] Erro ao carregar requerimentos:', err);

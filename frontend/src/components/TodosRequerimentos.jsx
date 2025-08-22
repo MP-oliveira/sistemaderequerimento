@@ -17,6 +17,11 @@ const TodosRequerimentos = ({ onDataChange }) => {
       setLoading(true);
       const data = await listarTodosRequerimentosFuturosServicoGeral();
       console.log('🔍 [TodosRequerimentos] Dados recebidos da API:', data);
+      if (data && data.length > 0) {
+        data.forEach(request => {
+          console.log(`🔍 [TodosRequerimentos] "${request.event_name}" - approved_by_name: ${request.approved_by_name}`);
+        });
+      }
       setTodosRequerimentos(data || []);
     } catch (error) {
       console.error('❌ [TodosRequerimentos] Erro ao carregar dados:', error);
@@ -210,6 +215,12 @@ const TodosRequerimentos = ({ onDataChange }) => {
                         <span className="location">
                           <FiMapPin size={14} />
                           {requisicao.location}
+                        </span>
+                      )}
+                      {requisicao.approved_by_name && (
+                        <span className="approved-by">
+                          <FiUsers size={14} />
+                          Aprovado por: {requisicao.approved_by_name}
                         </span>
                       )}
                     </div>
