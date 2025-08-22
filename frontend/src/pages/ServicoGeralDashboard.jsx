@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario } from '../services/requestsService';
 import Modal from '../components/Modal';
 import TodayMaterialsServicoGeral from '../components/TodayMaterialsServicoGeral';
-import AllFutureRequests from '../components/AllFutureRequests';
+import TodosRequerimentos from '../components/TodosRequerimentos';
 import ReturnMaterialsOnly from '../components/ReturnMaterialsOnly';
 import Calendar from '../components/Calendar';
 import { formatTimeUTC } from '../utils/dateUtils';
@@ -169,7 +169,7 @@ export default function ServicoGeralDashboard() {
       />
 
       {/* Todos os Requerimentos Futuros */}
-      <AllFutureRequests />
+      <TodosRequerimentos />
 
       {/* Modal de Eventos do Dia */}
       <Modal 
