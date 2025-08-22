@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FiEdit, FiTrash2, FiArrowLeft, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -11,6 +11,7 @@ import './Users.css';
 export default function Users() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const passwordInputRef = useRef(null);
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -22,6 +23,15 @@ export default function Users() {
     role: 'USER',
     password: ''
   });
+
+  // Forçar atualização do input de senha
+  useEffect(() => {
+    console.log('🔍 useEffect - showPassword mudou para:', showPassword);
+    if (passwordInputRef.current) {
+      passwordInputRef.current.type = showPassword ? 'text' : 'password';
+      console.log('🔍 Input type alterado para:', passwordInputRef.current.type);
+    }
+  }, [showPassword]);
 
   // Estado para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
@@ -256,6 +266,7 @@ export default function Users() {
                 placeholder={editingUser ? "Senha atual: •••••••• (digite nova senha ou mantenha)" : "Digite a senha"}
                 style={{ paddingRight: '40px' }}
                 onFocus={() => console.log('🔍 Input focado, showPassword:', showPassword, 'tipo:', showPassword ? "text" : "password")}
+                ref={passwordInputRef}
               />
               <button
                 type="button"
