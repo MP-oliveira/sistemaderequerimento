@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiPackage, FiChevronDown, FiChevronRight, FiClock, FiMapPin, FiCheck, FiX } from 'react-icons/fi';
-import { marcarItemComoSeparado, listarTodosRequerimentosFuturosServicoGeral } from '../services/requestItemsService';
+import { marcarItemComoSeparado } from '../services/requestItemsService';
+import { listarRequisicoes } from '../services/requestsService';
 import './TodosRequerimentos.css';
 
 const TodosRequerimentos = ({ onDataChange }) => {
@@ -15,14 +16,19 @@ const TodosRequerimentos = ({ onDataChange }) => {
   const carregarTodosRequerimentos = async () => {
     try {
       setLoading(true);
-      const data = await listarTodosRequerimentosFuturosServicoGeral();
+      const data = await listarRequisicoes();
       console.log('🔍 [TodosRequerimentos] Dados recebidos da API:', data);
-      if (data && data.length > 0) {
-        data.forEach(request => {
-          console.log(`🔍 [TodosRequerimentos] "${request.event_name}" - approved_by_name: ${request.approved_by_name}`);
+      
+      // Filtrar apenas requisições aprovadas
+      const requisicoesAprovadas = data.filter(req => req.status === 'APTO');
+      console.log('🔍 [TodosRequerimentos] Requisições aprovadas:', requisicoesAprovadas.length);
+      
+      if (requisicoesAprovadas && requisicoesAprovadas.length > 0) {
+        requisicoesAprovadas.forEach(request => {
+          console.log(`🔍 [TodosRequerimentos] "${request.event_name}" - approved_by_name: ${request.approved_by_user?.full_name}`);
         });
       }
-      setTodosRequerimentos(data || []);
+      setTodosRequerimentos(requisicoesAprovadas || []);
     } catch (error) {
       console.error('❌ [TodosRequerimentos] Erro ao carregar dados:', error);
       setTodosRequerimentos([]);
@@ -218,10 +224,10 @@ const TodosRequerimentos = ({ onDataChange }) => {
                           {requisicao.location}
                         </span>
                       )}
-                      {requisicao.approved_by_name && (
+                      {requisicao.approved_by_user?.full_name && (
                         <span className="approved-by">
                           <FiUsers size={14} />
-                          Aprovado por: {requisicao.approved_by_name}
+                          Aprovado por: {requisicao.approved_by_user.full_name}
                         </span>
                       )}
                     </div>
