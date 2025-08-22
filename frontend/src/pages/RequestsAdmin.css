@@ -559,6 +559,8 @@
   width: 550px !important;
   max-width: 550px !important;
   min-width: 550px !important;
+  margin: 0 !important;
+  margin-top: -2rem !important;
 }
 
 .requests-admin-page .modal-overlay {
@@ -569,7 +571,7 @@
 /* Estilos específicos para o modal de detalhes da requisição */
 /* Aplica apenas quando há um elemento com classe request-details-admin dentro do modal */
 .modal-overlay:has(.request-details-admin) {
-  padding-top: calc(2rem - 150px) !important;
+  margin-top: -2rem !important;
 }
 
 /* Garantir que todos os modais do admin tenham o mesmo width */
