@@ -636,6 +636,11 @@ export default function DashboardAdmin() {
                             Local: {req.location}
                           </span>
                         )}
+                        {req.approved_by_name && (
+                          <span className="request-item-approved-by">
+                            Aprovado por: {req.approved_by_name}
+                          </span>
+                        )}
                       </div>
                     </div>
                     
@@ -711,6 +716,12 @@ export default function DashboardAdmin() {
                     {request.requester && (
                       <div className="request-card-info">
                         <strong>Solicitante:</strong> {request.requester}
+                      </div>
+                    )}
+                    
+                    {request.approved_by_name && (
+                      <div className="request-card-info">
+                        <strong>Aprovado por:</strong> {request.approved_by_name}
                       </div>
                     )}
                   </div>
