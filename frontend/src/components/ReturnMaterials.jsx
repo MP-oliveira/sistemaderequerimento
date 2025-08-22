@@ -29,10 +29,16 @@ const ReturnMaterials = () => {
     try {
       setLoading(true);
       
+      console.log('🔍 [ReturnMaterials] Iniciando carregamento de dados...');
+      
       const [itemsResponse, requisicoesData] = await Promise.all([
         getExecutedItemsByCategory('audiovisual'),
         listarRequisicoes()
       ]);
+      
+      console.log('🔍 [ReturnMaterials] itemsResponse completo:', itemsResponse);
+      console.log('🔍 [ReturnMaterials] itemsResponse.data:', itemsResponse.data);
+      console.log('🔍 [ReturnMaterials] requisicoesData:', requisicoesData);
       
       setExecutedItems(itemsResponse.data || []);
       setRequisicoes(requisicoesData || []);
