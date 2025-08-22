@@ -231,14 +231,18 @@ const TodosRequerimentos = ({ onDataChange }) => {
                         className="status-badge"
                         style={{ 
                           backgroundColor: 'transparent',
-                          color: '#4caf50',
+                          color: requisicao.status === 'APTO' ? '#4caf50' : 
+                                 requisicao.status === 'PENDENTE' ? '#ff9800' :
+                                 requisicao.status === 'REJEITADO' ? '#f44336' :
+                                 requisicao.status === 'EXECUTADO' ? '#2196f3' :
+                                 requisicao.status === 'FINALIZADO' ? '#9c27b0' : '#757575',
                           padding: '4px 8px',
                           borderRadius: '4px',
                           fontSize: '0.8rem',
                           fontWeight: '700'
                         }}
                       >
-                        APTO
+                        {requisicao.status || 'PENDENTE'}
                       </span>
                       <span className="items-count">
                         {separatedCount}/{totalCount} itens
