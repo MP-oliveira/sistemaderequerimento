@@ -17,8 +17,11 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
   const carregarTodosRequerimentos = async () => {
     try {
       setLoading(true);
+      console.log('🔍 [TodosRequerimentos] Iniciando carregamento...');
       const data = await listarRequisicoes();
+      console.log('🔍 [TodosRequerimentos] Dados recebidos:', data?.length || 0);
       const requisicoesAprovadas = data.filter(req => req.status === 'APTO');
+      console.log('🔍 [TodosRequerimentos] Requisições aprovadas:', requisicoesAprovadas.length);
       
       // Definir categorias baseado no parâmetro
       let targetCategories = [];
@@ -35,11 +38,17 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
         targetCategories = null;
       }
       
+      console.log('🔍 [TodosRequerimentos] Categoria:', category);
+      console.log('🔍 [TodosRequerimentos] Target categories:', targetCategories);
+      
       // Buscar itens para cada requisição
       const requisicoesComItens = await Promise.all(
         requisicoesAprovadas.map(async (requisicao) => {
           try {
+            console.log('🔍 [TodosRequerimentos] Buscando itens para:', requisicao.event_name);
             const itens = await listarItensRequisicao(requisicao.id);
+            console.log('🔍 [TodosRequerimentos] Itens encontrados para', requisicao.event_name, ':', itens?.length || 0);
+            
             // Filtrar apenas itens da categoria especificada, ou mostrar todos se não especificada
             const itensFiltrados = targetCategories 
               ? itens.filter(item => {
@@ -47,6 +56,9 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
                   return targetCategories.includes(category);
                 })
               : itens; // Mostrar todos os itens se não especificada categoria
+            
+            console.log('🔍 [TodosRequerimentos] Itens filtrados para', requisicao.event_name, ':', itensFiltrados?.length || 0);
+            
             return {
               ...requisicao,
               items: itensFiltrados
@@ -60,6 +72,10 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
           }
         })
       );
+      
+      console.log('🔍 [TodosRequerimentos] Requisições com itens:', requisicoesComItens.length);
+      const totalItens = requisicoesComItens.reduce((total, req) => total + (req.items?.length || 0), 0);
+      console.log('🔍 [TodosRequerimentos] Total de itens:', totalItens);
       
       setTodosRequerimentos(requisicoesComItens || []);
     } catch (error) {
