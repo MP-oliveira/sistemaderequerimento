@@ -7,7 +7,7 @@ import Button from './Button';
 import './ReturnMaterials.css';
 import './TodayMaterials.css';
 import ibvaLogo from '../assets/images/ibva-logo.png';
-import TodosRequerimentos from './TodosRequerimentos';
+
 
 const ReturnMaterials = () => {
   const [executedItems, setExecutedItems] = useState([]);
@@ -558,13 +558,7 @@ const ReturnMaterials = () => {
         </div>
       )}
 
-      {/* Componente separado para Todos os Requerimentos */}
-      <TodosRequerimentos 
-        onDataChange={() => {
-          // Recarregar dados se necessário
-          carregarDados();
-        }}
-      />
+
 
       {/* Modal para marcar como indisponível */}
       <Modal

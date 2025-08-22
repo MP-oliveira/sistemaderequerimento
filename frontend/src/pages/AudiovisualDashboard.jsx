@@ -4,6 +4,7 @@ import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario } from '.
 import Modal from '../components/Modal';
 import TodayMaterials from '../components/TodayMaterials';
 import ReturnMaterials from '../components/ReturnMaterials';
+import TodosRequerimentos from '../components/TodosRequerimentos';
 import Calendar from '../components/Calendar';
 import { formatTimeUTC } from '../utils/dateUtils';
 import { FiFileText, FiPackage, FiClock, FiZap, FiPlus, FiCalendar, FiMapPin, FiUsers } from 'react-icons/fi';
@@ -155,8 +156,6 @@ export default function AudiovisualDashboard() {
       {/* Materiais Audiovisual */}
       <ReturnMaterials />
 
-
-
       {/* Calendário */}
       <Calendar 
         events={events}
@@ -165,6 +164,13 @@ export default function AudiovisualDashboard() {
         onCloseEventModal={closeEventModal}
         selectedDayEvents={selectedDayEvents}
         selectedDay={selectedDay}
+      />
+
+      {/* Todos os Requerimentos */}
+      <TodosRequerimentos 
+        onDataChange={() => {
+          // Recarregar dados se necessário
+        }}
       />
 
       {/* Modal de Eventos do Dia */}
