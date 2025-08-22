@@ -12,6 +12,27 @@
   box-sizing: border-box;
 }
 
+.todos-requerimentos-header {
+  margin-bottom: 1rem;
+}
+
+.todos-requerimentos-header h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.todos-requerimentos-summary {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.todos-requerimentos-summary span {
+  font-weight: 500;
+}
+
 .todos-requerimentos .materials-header {
   margin-bottom: 1rem;
 }
