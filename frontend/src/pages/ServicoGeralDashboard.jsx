@@ -97,8 +97,60 @@ export default function ServicoGeralDashboard() {
         <p>Gerencie materiais e acompanhe eventos</p>
       </div>
 
-      {/* Todos os Requerimentos Futuros */}
-      <AllFutureRequests />
+      {/* Cards de Estatísticas */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon blue">
+              <FiFileText size={18} />
+            </div>
+          </div>
+          <div className="stat-info">
+            <div className="stat-number">{requisicoes.length}</div>
+            <div className="stat-label">Requisições Aprovadas</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon yellow">
+              <FiClock size={18} />
+            </div>
+          </div>
+          <div className="stat-info">
+            <div className="stat-number">{requisicoes.filter(req => req.status === 'EXECUTADO').length}</div>
+            <div className="stat-label">Em Preparação</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-icon success">
+              <FiPackage size={18} />
+            </div>
+          </div>
+          <div className="stat-info">
+            <div className="stat-number">{requisicoes.filter(req => req.status === 'FINALIZADO').length}</div>
+            <div className="stat-label">Finalizadas</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Ações Rápidas */}
+      <div className="quick-actions">
+        <h3 className="section-title">
+          <FiZap style={{marginRight: 8}} />
+          Ações Rápidas
+        </h3>
+        <div className="actions-grid">
+          <Link to="/servico-geral/requisicoes" className="action-btn">
+            <FiPlus />
+            Ver Requisições
+          </Link>
+          <Link to="/inventario" className="action-btn">
+            <FiPackage />
+            Gerenciar Inventário
+          </Link>
+        </div>
+      </div>
 
       {/* Materiais para Despachar (Próximos 7 dias) */}
       <TodayMaterialsServicoGeral />
@@ -115,6 +167,9 @@ export default function ServicoGeralDashboard() {
         selectedDayEvents={selectedDayEvents}
         selectedDay={selectedDay}
       />
+
+      {/* Todos os Requerimentos Futuros */}
+      <AllFutureRequests />
 
       {/* Modal de Eventos do Dia */}
       <Modal 
