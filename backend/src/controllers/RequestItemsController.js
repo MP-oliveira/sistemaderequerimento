@@ -863,11 +863,14 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
   try {
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Iniciando busca de TODAS as requisições...');
     
-    // Buscar TODAS as requisições APTO (histórico completo)
+    // Buscar TODAS as requisições APTO (histórico completo) com informações de quem aprovou
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Fazendo query para buscar requisições APTO...');
     const { data: allRequests, error: requestsError } = await supabase
       .from('requests')
-      .select('*')
+      .select(`
+        *,
+        approved_by_user:users!requests_approved_by_fkey(full_name, email)
+      `)
       .eq('status', 'APTO')
       .order('date', { ascending: true });
     
@@ -924,6 +927,7 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
       
       return {
         ...request,
+        approved_by_name: request.approved_by_user?.full_name || null,
         items: requestItems
       };
     });
