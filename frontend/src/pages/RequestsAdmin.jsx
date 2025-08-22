@@ -1903,23 +1903,55 @@ export default function RequestsAdmin() {
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center',
-                        padding: '6px 8px',
+                        padding: '8px',
                         backgroundColor: 'white',
                         borderRadius: '4px',
                         border: '1px solid #e5e7eb'
                       }}>
-                        <span style={{ fontSize: '13px', color: '#374151' }}>
+                        <span style={{ fontSize: '13px', color: '#374151', flex: 1 }}>
                           {item.item_name || item.inventory?.name}
                         </span>
-                        <span style={{ 
-                          fontSize: '12px', 
-                          color: '#6b7280',
-                          backgroundColor: '#f3f4f6',
-                          padding: '2px 6px',
-                          borderRadius: '4px'
-                        }}>
-                          Qtd: {item.quantity_requested || item.quantity}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity_requested || item.quantity || 1}
+                            onChange={(e) => {
+                              const newItens = [...editReq.itens];
+                              newItens[index] = {
+                                ...newItens[index],
+                                quantity_requested: parseInt(e.target.value) || 1
+                              };
+                              setEditReq({ ...editReq, itens: newItens });
+                            }}
+                            style={{
+                              width: '60px',
+                              padding: '4px',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '4px',
+                              textAlign: 'center',
+                              fontSize: '12px'
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newItens = editReq.itens.filter((_, i) => i !== index);
+                              setEditReq({ ...editReq, itens: newItens });
+                            }}
+                            style={{
+                              background: '#ef4444',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              padding: '4px 8px',
+                              fontSize: '12px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1954,25 +1986,57 @@ export default function RequestsAdmin() {
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center',
-                        padding: '6px 8px',
+                        padding: '8px',
                         backgroundColor: 'white',
                         borderRadius: '4px',
                         border: '1px solid #e5e7eb'
                       }}>
-                        <span style={{ fontSize: '13px', color: '#374151' }}>
+                        <span style={{ fontSize: '13px', color: '#374151', flex: 1 }}>
                           {service.tipo === 'DIACONIA' ? 'Diaconia' : 
                            service.tipo === 'SERVICO_GERAL' ? 'Serviço Geral' : 
                            service.tipo === 'AUDIOVISUAL' ? 'Audiovisual' : service.tipo}
                         </span>
-                        <span style={{ 
-                          fontSize: '12px', 
-                          color: '#6b7280',
-                          backgroundColor: '#f3f4f6',
-                          padding: '2px 6px',
-                          borderRadius: '4px'
-                        }}>
-                          Qtd: {service.quantidade}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <input
+                            type="number"
+                            min="1"
+                            value={service.quantidade || 1}
+                            onChange={(e) => {
+                              const newServicos = [...editReq.servicos];
+                              newServicos[index] = {
+                                ...newServicos[index],
+                                quantidade: parseInt(e.target.value) || 1
+                              };
+                              setEditReq({ ...editReq, servicos: newServicos });
+                            }}
+                            style={{
+                              width: '60px',
+                              padding: '4px',
+                              border: '1px solid #d1d5db',
+                              borderRadius: '4px',
+                              textAlign: 'center',
+                              fontSize: '12px'
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newServicos = editReq.servicos.filter((_, i) => i !== index);
+                              setEditReq({ ...editReq, servicos: newServicos });
+                            }}
+                            style={{
+                              background: '#ef4444',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              padding: '4px 8px',
+                              fontSize: '12px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
