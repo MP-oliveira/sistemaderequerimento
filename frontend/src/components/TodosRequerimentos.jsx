@@ -5,14 +5,14 @@ import { listarRequisicoes } from '../services/requestsService';
 import { listarItensRequisicao } from '../services/requestItemsService';
 import './TodosRequerimentos.css';
 
-const TodosRequerimentos = () => {
+const TodosRequerimentos = ({ category = 'audiovisual' }) => {
   const [todosRequerimentos, setTodosRequerimentos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedRequests, setExpandedRequests] = useState({});
 
   useEffect(() => {
     carregarTodosRequerimentos();
-  }, []);
+  }, [category]);
 
   const carregarTodosRequerimentos = async () => {
     try {
@@ -20,19 +20,31 @@ const TodosRequerimentos = () => {
       const data = await listarRequisicoes();
       const requisicoesAprovadas = data.filter(req => req.status === 'APTO');
       
-      // Buscar itens de audiovisual para cada requisição
+      // Definir categorias baseado no parâmetro
+      let targetCategories = [];
+      if (category === 'audiovisual') {
+        targetCategories = ['AUDIO_VIDEO', 'INSTRUMENTO_MUSICAL'];
+      } else if (category === 'servico-geral') {
+        targetCategories = ['SERVICO_GERAL'];
+      } else if (category === 'decoracao') {
+        targetCategories = ['DECORACAO'];
+      } else if (category === 'esportes') {
+        targetCategories = ['ESPORTES'];
+      }
+      
+      // Buscar itens para cada requisição
       const requisicoesComItens = await Promise.all(
         requisicoesAprovadas.map(async (requisicao) => {
           try {
             const itens = await listarItensRequisicao(requisicao.id);
-            // Filtrar apenas itens de audiovisual
-            const itensAudiovisual = itens.filter(item => {
+            // Filtrar apenas itens da categoria especificada
+            const itensFiltrados = itens.filter(item => {
               const category = item.inventory?.category;
-              return category === 'AUDIO_VIDEO' || category === 'INSTRUMENTO_MUSICAL';
+              return targetCategories.includes(category);
             });
             return {
               ...requisicao,
-              items: itensAudiovisual
+              items: itensFiltrados
             };
           } catch (error) {
             console.error('❌ [TodosRequerimentos] Erro ao buscar itens da requisição:', requisicao.id, error);
@@ -71,6 +83,36 @@ const TodosRequerimentos = () => {
     }
     
     return dateString;
+  };
+
+  const getCategoryTitle = () => {
+    switch (category) {
+      case 'audiovisual':
+        return 'Materiais de Audiovisual';
+      case 'servico-geral':
+        return 'Materiais de Serviço Geral';
+      case 'decoracao':
+        return 'Materiais de Decoração';
+      case 'esportes':
+        return 'Materiais de Esportes';
+      default:
+        return 'Materiais';
+    }
+  };
+
+  const getNoItemsMessage = () => {
+    switch (category) {
+      case 'audiovisual':
+        return 'Esta requisição não possui itens de audiovisual.';
+      case 'servico-geral':
+        return 'Esta requisição não possui itens de serviço geral.';
+      case 'decoracao':
+        return 'Esta requisição não possui itens de decoração.';
+      case 'esportes':
+        return 'Esta requisição não possui itens de esportes.';
+      default:
+        return 'Esta requisição não possui itens.';
+    }
   };
 
   if (loading) {
@@ -171,7 +213,7 @@ const TodosRequerimentos = () => {
                   <div className="materials-items accordion-content">
                     {totalCount > 0 ? (
                       <>
-                        <h5>Materiais de Audiovisual:</h5>
+                        <h5>{getCategoryTitle()}:</h5>
                         <div className="items-list">
                           {requisicao.items.map((item) => (
                             <div key={item.id} className="item">
@@ -185,7 +227,7 @@ const TodosRequerimentos = () => {
                       </>
                     ) : (
                       <div className="no-items">
-                        <p>Esta requisição não possui itens de audiovisual.</p>
+                        <p>{getNoItemsMessage()}</p>
                         <p>{requisicao.description}</p>
                       </div>
                     )}
