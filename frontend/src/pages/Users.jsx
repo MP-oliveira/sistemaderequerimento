@@ -254,10 +254,16 @@ export default function Users() {
                 required={!editingUser}
                 placeholder={editingUser ? "Senha atual: •••••••• (digite nova senha ou mantenha)" : "Digite a senha"}
                 style={{ paddingRight: '40px' }}
+                onFocus={() => console.log('🔍 Input focado, showPassword:', showPassword, 'tipo:', showPassword ? "text" : "password")}
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => {
+                  console.log('🔍 Clique no ícone de senha');
+                  console.log('🔍 showPassword antes:', showPassword);
+                  setShowPassword(!showPassword);
+                  console.log('🔍 showPassword depois:', !showPassword);
+                }}
                 style={{
                   position: 'absolute',
                   right: '10px',
