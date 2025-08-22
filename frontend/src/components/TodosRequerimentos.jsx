@@ -106,17 +106,20 @@ const TodosRequerimentos = ({ onDataChange }) => {
       await marcarItemComoSeparado(itemId, !currentStatus);
       
       // Atualizar o item localmente
-      const updatedItems = localItems.map(item => 
-        item.id === itemId 
-          ? { ...item, is_separated: !currentStatus }
-          : item
-      );
+      const updatedRequerimentos = todosRequerimentos.map(req => ({
+        ...req,
+        items: req.items?.map(item => 
+          item.id === itemId 
+            ? { ...item, is_separated: !currentStatus }
+            : item
+        ) || []
+      }));
       
-      setLocalItems(updatedItems);
+      setTodosRequerimentos(updatedRequerimentos);
       
       // Notificar o componente pai sobre a mudança
       if (onDataChange) {
-        onDataChange(updatedItems);
+        onDataChange(updatedRequerimentos);
       }
     } catch (error) {
       console.error('Erro ao marcar item como separado:', error);
