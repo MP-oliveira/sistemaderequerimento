@@ -230,6 +230,10 @@ const TodosRequerimentos = ({ onDataChange }) => {
                           Aprovado por: {requisicao.approved_by_user.full_name}
                         </span>
                       )}
+                      {/* Debug: mostrar dados da requisição */}
+                      <span style={{fontSize: '0.7rem', color: '#999'}}>
+                        Debug: approved_by_user = {JSON.stringify(requisicao.approved_by_user)}
+                      </span>
                     </div>
                   </div>
                   <div className="request-status">
