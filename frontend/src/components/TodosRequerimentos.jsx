@@ -102,8 +102,9 @@ const TodosRequerimentos = ({ onDataChange }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Data não informada';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+    // Evitar problemas de timezone criando a data a partir da string diretamente
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
   };
 
   const handleToggleSeparated = async (itemId, currentStatus) => {
