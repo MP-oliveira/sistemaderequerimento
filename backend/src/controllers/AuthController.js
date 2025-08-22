@@ -104,9 +104,14 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    console.log('🔍 Backend - Login iniciado');
+    console.log('🔍 Backend - Email:', email);
+    console.log('🔍 Backend - Password:', password ? '***' : 'undefined');
 
     // Validações
     if (!email || !password) {
+      console.log('❌ Backend - Email ou senha vazios');
       return res.status(400).json({
         success: false,
         message: 'Email e senha são obrigatórios'
@@ -114,6 +119,7 @@ export const login = async (req, res) => {
     }
 
     // Buscar usuário diretamente na tabela users
+    console.log('🔍 Backend - Buscando usuário no banco...');
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
@@ -121,13 +127,18 @@ export const login = async (req, res) => {
       .single();
 
     if (error || !user) {
+      console.log('❌ Backend - Usuário não encontrado:', error);
       return res.status(401).json({
         success: false,
         message: 'Credenciais inválidas'
       });
     }
 
+    console.log('✅ Backend - Usuário encontrado:', { id: user.id, email: user.email, role: user.role });
+    console.log('🔍 Backend - password_hash existe?', !!user.password_hash);
+
     if (!user.is_active) {
+      console.log('❌ Backend - Usuário inativo');
       return res.status(401).json({
         success: false,
         message: 'Usuário inativo. Contate o administrador.'
@@ -136,20 +147,26 @@ export const login = async (req, res) => {
 
     // Verificar senha
     if (!user.password_hash) {
+      console.log('❌ Backend - Usuário sem senha definida');
       return res.status(401).json({
         success: false,
         message: 'Usuário sem senha definida. Contate o administrador.'
       });
     }
 
+    console.log('🔍 Backend - Verificando senha com bcrypt...');
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    console.log('🔍 Backend - Senha válida?', isPasswordValid);
+    
     if (!isPasswordValid) {
+      console.log('❌ Backend - Senha inválida');
       return res.status(401).json({
         success: false,
         message: 'Credenciais inválidas'
       });
     }
 
+    console.log('✅ Backend - Senha válida, gerando token...');
     // Gerar token JWT
     const token = generateToken(user.id, user.role, user.full_name);
 
@@ -167,7 +184,7 @@ export const login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erro no login:', error);
+    console.error('❌ Backend - Erro no login:', error);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor',
