@@ -942,23 +942,41 @@
     gap: 4px;
     padding: 4px 0;
   }
-
+  
   .detail-row-admin {
     gap: 4px;
   }
-
+  
   .detail-item-admin {
     padding: 4px;
     font-size: 0.8rem;
   }
-
+  
   .detail-item-admin strong {
     font-size: 0.7rem;
   }
-
+  
   .detail-item-admin span {
     font-size: 0.8rem;
   }
+}
+
+/* Estilos para modais da página Requests - ajustes específicos */
+.requests-page .modal {
+  width: 550px !important;
+  max-width: 550px !important;
+  min-width: 550px !important;
+}
+
+.requests-page .modal-overlay {
+  align-items: flex-start !important;
+  padding-top: calc(2rem - 60px) !important;
+}
+
+.requests-page .modal-content {
+  width: 550px !important;
+  max-width: 550px !important;
+  min-width: 550px !important;
 } 
 
 /* Estilos para validação de disponibilidade de materiais */

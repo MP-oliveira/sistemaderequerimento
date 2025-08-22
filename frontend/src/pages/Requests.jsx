@@ -170,7 +170,11 @@ export default function Requests() {
     if (!dataString) return '';
     try {
       const date = new Date(dataString);
-      const data = date.toLocaleDateString('pt-BR');
+      // Formato dia/mês/ano em vez de ano/mês/dia
+      const dia = date.getDate().toString().padStart(2, '0');
+      const mes = (date.getMonth() + 1).toString().padStart(2, '0');
+      const ano = date.getFullYear();
+      const data = `${dia}/${mes}/${ano}`;
       const hora = formatTimeUTC(dataString);
       return `${data} ${hora}`;
     } catch (error) {
