@@ -47,8 +47,11 @@ export default function DashboardAdmin() {
     try {
       setLoading(true);
       
+      console.log('🔄 [DashboardAdmin] Carregando dados...');
       const response = await listarRequisicoes();
       const requisicoesData = response.data || response || [];
+      console.log('🔄 [DashboardAdmin] Dados carregados:', requisicoesData.length, 'requisições');
+      console.log('🔄 [DashboardAdmin] Status das requisições:', requisicoesData.map(r => ({ id: r.id, event_name: r.event_name, status: r.status })));
       setRequisicoes(requisicoesData);
       
       // Calcular estatísticas
@@ -135,7 +138,9 @@ export default function DashboardAdmin() {
   // Função para aprovar requisição
   const aprovarRequisicaoHandler = async (id) => {
     try {
+      console.log('🔄 [DashboardAdmin] Aprovando requisição:', id);
       const resultado = await aprovarRequisicao(id);
+      console.log('🔄 [DashboardAdmin] Resultado da aprovação:', resultado);
       
       // Buscar dados da requisição para notificação
       const requisicao = requisicoes.find(req => req.id === id);

@@ -873,10 +873,7 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Fazendo query para buscar requisições APTO...');
     const { data: allRequests, error: requestsError } = await supabase
       .from('requests')
-      .select(`
-        *,
-        approved_by_user:users!requests_approved_by_fkey(full_name, email)
-      `)
+      .select('*')
       .eq('status', 'APTO')
       .order('date', { ascending: true });
     
@@ -926,12 +923,37 @@ const getAllFutureRequestsForServicoGeral = async (req, res) => {
 
     console.log('🔍 [getAllFutureRequestsForServicoGeral] Total de itens encontrados:', items?.length || 0);
 
+    // Buscar nomes dos usuários que aprovaram
+    const approvedByIds = allRequests
+      .filter(req => req.approved_by)
+      .map(req => req.approved_by);
+    
+    console.log('🔍 [getAllFutureRequestsForServicoGeral] IDs de usuários que aprovaram:', approvedByIds);
+    
+    let approvedByUsers = {};
+    if (approvedByIds.length > 0) {
+      const { data: users, error: usersError } = await supabase
+        .from('users')
+        .select('id, full_name, email')
+        .in('id', approvedByIds);
+      
+      if (usersError) {
+        console.error('❌ Erro ao buscar usuários:', usersError);
+      } else {
+        approvedByUsers = users.reduce((acc, user) => {
+          acc[user.id] = user.full_name;
+          return acc;
+        }, {});
+        console.log('🔍 [getAllFutureRequestsForServicoGeral] Usuários encontrados:', approvedByUsers);
+      }
+    }
+
     // Incluir TODAS as requisições, mesmo as sem itens
     const requestsWithItems = allRequests.map(request => {
       const requestItems = items ? items.filter(item => item.request_id === request.id) : [];
       console.log(`🔍 [getAllFutureRequestsForServicoGeral] "${request.event_name}" tem ${requestItems.length} itens`);
       
-      const approvedByName = request.approved_by_user?.full_name || null;
+      const approvedByName = request.approved_by ? approvedByUsers[request.approved_by] || null : null;
       console.log(`🔍 [getAllFutureRequestsForServicoGeral] "${request.event_name}" aprovado por: ${approvedByName}`);
       
       return {
