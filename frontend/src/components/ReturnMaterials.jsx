@@ -31,19 +31,20 @@ const ReturnMaterials = () => {
       
       console.log('🔍 [ReturnMaterials] Iniciando carregamento de dados...');
       
-      const [itemsResponse, requisicoesData] = await Promise.all([
-        getExecutedItemsByCategory('audiovisual'),
-        listarRequisicoes()
-      ]);
-      
+      console.log('🔍 [ReturnMaterials] Chamando getExecutedItemsByCategory...');
+      const itemsResponse = await getExecutedItemsByCategory('audiovisual');
       console.log('🔍 [ReturnMaterials] itemsResponse completo:', itemsResponse);
       console.log('🔍 [ReturnMaterials] itemsResponse.data:', itemsResponse.data);
+      
+      console.log('🔍 [ReturnMaterials] Chamando listarRequisicoes...');
+      const requisicoesData = await listarRequisicoes();
       console.log('🔍 [ReturnMaterials] requisicoesData:', requisicoesData);
       
       setExecutedItems(itemsResponse.data || []);
       setRequisicoes(requisicoesData || []);
     } catch (error) {
       console.error('🎯 ReturnMaterials - Erro ao carregar dados:', error);
+      console.error('🎯 ReturnMaterials - Stack trace:', error.stack);
     } finally {
       setLoading(false);
     }
