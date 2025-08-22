@@ -961,23 +961,7 @@
   }
 }
 
-/* Estilos para modais da página Requests - ajustes específicos */
-.requests-page .modal {
-  width: 550px !important;
-  max-width: 550px !important;
-  min-width: 550px !important;
-}
-
-.requests-page .modal-overlay {
-  align-items: flex-start !important;
-  padding-top: calc(2rem - 60px) !important;
-}
-
-.requests-page .modal-content {
-  width: 550px !important;
-  max-width: 550px !important;
-  min-width: 550px !important;
-} 
+ 
 
 /* Estilos para validação de disponibilidade de materiais */
 .conflict-validation-container.conflict-error {

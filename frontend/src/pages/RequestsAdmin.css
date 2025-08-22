@@ -563,7 +563,7 @@
 
 .requests-admin-page .modal-overlay {
   align-items: flex-start !important;
-  padding-top: calc(2rem + 30px) !important;
+  padding-top: calc(2rem - 30px) !important;
 }
 
 /* Garantir que todos os modais do admin tenham o mesmo width */
