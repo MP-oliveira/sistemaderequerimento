@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { FiPackage, FiChevronDown, FiChevronRight, FiClock, FiMapPin, FiCheck, FiX } from 'react-icons/fi';
+import { FiPackage, FiChevronDown, FiChevronRight, FiClock, FiMapPin, FiCheck, FiX, FiUsers } from 'react-icons/fi';
 import { marcarItemComoSeparado } from '../services/requestItemsService';
 import { listarRequisicoes } from '../services/requestsService';
+import { listarItensRequisicao } from '../services/requestItemsService';
 import './TodosRequerimentos.css';
 
-const TodosRequerimentos = ({ onDataChange }) => {
-  const [expandedRequests, setExpandedRequests] = useState({});
+const TodosRequerimentos = () => {
   const [todosRequerimentos, setTodosRequerimentos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [expandedRequests, setExpandedRequests] = useState({});
 
   useEffect(() => {
     carregarTodosRequerimentos();
@@ -17,18 +18,33 @@ const TodosRequerimentos = ({ onDataChange }) => {
     try {
       setLoading(true);
       const data = await listarRequisicoes();
-      console.log('🔍 [TodosRequerimentos] Dados recebidos da API:', data);
-      
-      // Filtrar apenas requisições aprovadas
       const requisicoesAprovadas = data.filter(req => req.status === 'APTO');
-      console.log('🔍 [TodosRequerimentos] Requisições aprovadas:', requisicoesAprovadas.length);
       
-      if (requisicoesAprovadas && requisicoesAprovadas.length > 0) {
-        requisicoesAprovadas.forEach(request => {
-          console.log(`🔍 [TodosRequerimentos] "${request.event_name}" - approved_by_name: ${request.approved_by_user?.full_name}`);
-        });
-      }
-      setTodosRequerimentos(requisicoesAprovadas || []);
+      // Buscar itens de audiovisual para cada requisição
+      const requisicoesComItens = await Promise.all(
+        requisicoesAprovadas.map(async (requisicao) => {
+          try {
+            const itens = await listarItensRequisicao(requisicao.id);
+            // Filtrar apenas itens de audiovisual
+            const itensAudiovisual = itens.filter(item => {
+              const category = item.inventory?.category;
+              return category === 'AUDIO_VIDEO' || category === 'INSTRUMENTO_MUSICAL';
+            });
+            return {
+              ...requisicao,
+              items: itensAudiovisual
+            };
+          } catch (error) {
+            console.error('❌ [TodosRequerimentos] Erro ao buscar itens da requisição:', requisicao.id, error);
+            return {
+              ...requisicao,
+              items: []
+            };
+          }
+        })
+      );
+      
+      setTodosRequerimentos(requisicoesComItens || []);
     } catch (error) {
       console.error('❌ [TodosRequerimentos] Erro ao carregar dados:', error);
       setTodosRequerimentos([]);
@@ -37,164 +53,57 @@ const TodosRequerimentos = ({ onDataChange }) => {
     }
   };
 
-  // Função para agrupar itens por requisição (não é mais necessária, pois os dados já vêm agrupados)
-  const agruparItensPorRequisicao = (items) => {
-    console.log('🔍 [TodosRequerimentos] Itens recebidos:', items.length);
-    console.log('🔍 [TodosRequerimentos] Itens detalhados:', items.map(item => ({
-      id: item.id,
-      requestId: item.request_id || item.requests?.id,
-      eventName: item.requests?.event_name,
-      date: item.requests?.date,
-      status: item.requests?.status
-    })));
-    
-    const grupos = {};
-    
-    items.forEach(item => {
-      const requestId = item.request_id || item.requests?.id;
-      const request = item.requests || {};
-      
-      console.log('🔍 [TodosRequerimentos] Processando item:', {
-        itemId: item.id,
-        requestId,
-        eventName: request.event_name,
-        date: request.date,
-        status: request.status
-      });
-      
-      if (!requestId) {
-        console.log('🔍 [TodosRequerimentos] Item sem requestId, pulando');
-        return;
-      }
-      if (request.status === 'FINALIZADO') {
-        console.log('🔍 [TodosRequerimentos] Item finalizado, pulando');
-        return;
-      }
-      
-      if (!grupos[requestId]) {
-        grupos[requestId] = {
-          request: request,
-          items: []
-        };
-        console.log('🔍 [TodosRequerimentos] Novo grupo criado para:', request.event_name);
-      }
-      grupos[requestId].items.push(item);
-    });
-    
-    console.log('🔍 [TodosRequerimentos] Grupos criados:', Object.keys(grupos).length);
-    console.log('🔍 [TodosRequerimentos] Detalhes dos grupos:', Object.values(grupos).map(g => ({
-      eventName: g.request.event_name,
-      date: g.request.date,
-      itemsCount: g.items.length
-    })));
-    
-    return Object.values(grupos);
-  };
-
   const toggleRequest = (requestId) => {
-    console.log('🔍 [TodosRequerimentos] toggleRequest chamado com requestId:', requestId);
-    console.log('🔍 [TodosRequerimentos] Estado atual:', expandedRequests);
-    const newExpanded = { ...expandedRequests };
-    if (newExpanded[requestId]) {
-      delete newExpanded[requestId];
-      console.log('🔍 [TodosRequerimentos] Removendo requestId:', requestId);
-    } else {
-      newExpanded[requestId] = true;
-      console.log('🔍 [TodosRequerimentos] Adicionando requestId:', requestId);
-    }
-    console.log('🔍 [TodosRequerimentos] Novo estado:', newExpanded);
-    setExpandedRequests(newExpanded);
+    setExpandedRequests(prev => ({
+      ...prev,
+      [requestId]: !prev[requestId]
+    }));
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Data não informada';
-    // Evitar problemas de timezone criando a data a partir da string diretamente
-    const [year, month, day] = dateString.split('-');
-    return `${day}/${month}/${year}`;
-  };
-
-  const handleToggleSeparated = async (itemId, currentStatus) => {
-    try {
-      await marcarItemComoSeparado(itemId, !currentStatus);
-      
-      // Atualizar o item localmente
-      const updatedRequerimentos = todosRequerimentos.map(req => ({
-        ...req,
-        items: req.items?.map(item => 
-          item.id === itemId 
-            ? { ...item, is_separated: !currentStatus }
-            : item
-        ) || []
-      }));
-      
-      setTodosRequerimentos(updatedRequerimentos);
-      
-      // Notificar o componente pai sobre a mudança
-      if (onDataChange) {
-        onDataChange(updatedRequerimentos);
-      }
-    } catch (error) {
-      console.error('Erro ao marcar item como separado:', error);
+    
+    // Evitar conversão de timezone usando split manual
+    const parts = dateString.split('T')[0].split('-');
+    if (parts.length === 3) {
+      const [year, month, day] = parts;
+      return `${day}/${month}/${year}`;
     }
+    
+    return dateString;
   };
 
   if (loading) {
     return (
-      <div className="todos-requerimentos">
-        <div className="materials-header">
-          <h3 className="section-title">
-            <FiPackage style={{marginRight: 8}} />
-            Todos os Requerimentos
-          </h3>
-        </div>
-        <div className="loading">Carregando...</div>
+      <div className="todos-requerimentos-loading">
+        <div className="loading-spinner"></div>
+        <p>Carregando requerimentos...</p>
       </div>
     );
   }
 
-  // Calcular totais para o resumo
+  const totalRequisicoes = todosRequerimentos.length;
   const totalItens = todosRequerimentos.reduce((total, req) => total + (req.items?.length || 0), 0);
-  const totalSeparados = todosRequerimentos.reduce((total, req) => 
-    total + (req.items?.filter(item => item.is_separated).length || 0), 0
-  );
-  const totalPendentes = totalItens - totalSeparados;
+  const itensSeparados = todosRequerimentos.reduce((total, req) => {
+    return total + (req.items?.filter(item => item.is_separated).length || 0);
+  }, 0);
 
   return (
     <div className="todos-requerimentos">
-      {/* Header */}
-      <div className="materials-header">
-        <h3 className="section-title">
-          <FiPackage style={{marginRight: 8}} />
-          Todos os Requerimentos
-        </h3>
-        <div className="materials-summary">
-          <div className="summary-item">
-            <span className="summary-number">{todosRequerimentos.length}</span>
-            <span className="summary-label">Requisições</span>
-          </div>
-          <div className="summary-item">
-            <span className="summary-number success">{totalSeparados}</span>
-            <span className="summary-label">Separados</span>
-          </div>
-          <div className="summary-item">
-            <span className="summary-number warning">{totalPendentes}</span>
-            <span className="summary-label">Pendentes</span>
-          </div>
+      <div className="todos-requerimentos-header">
+        <h3>Todos os Requerimentos</h3>
+        <div className="todos-requerimentos-summary">
+          <span>{totalRequisicoes} REQUISIÇÕES</span>
+          <span>{itensSeparados} SEPARADOS</span>
+          <span>{totalItens - itensSeparados} PENDENTES</span>
         </div>
       </div>
 
-      {/* Lista */}
-      <div className="materials-list todos-requerimentos-list">
+      <div className="materials-list">
         {todosRequerimentos.length > 0 ? (
           todosRequerimentos.map((requisicao, index) => {
             const requestId = requisicao.id;
             const isExpanded = !!expandedRequests[requestId];
-            console.log('🔍 [TodosRequerimentos] Renderizando requisição:', { 
-              requestId, 
-              isExpanded, 
-              index, 
-              eventName: requisicao.event_name
-            });
             
             const totalCount = requisicao.items?.length || 0;
             const separatedCount = requisicao.items?.filter(item => item.is_separated).length || 0;
@@ -224,16 +133,12 @@ const TodosRequerimentos = ({ onDataChange }) => {
                           {requisicao.location}
                         </span>
                       )}
-                      {requisicao.approved_by_user?.full_name && (
+                      {requisicao.approved_by_name && (
                         <span className="approved-by">
                           <FiUsers size={14} />
-                          Aprovado por: {requisicao.approved_by_user.full_name}
+                          Aprovado por: {requisicao.approved_by_name}
                         </span>
                       )}
-                      {/* Debug: mostrar dados da requisição */}
-                      <span style={{fontSize: '0.7rem', color: '#999'}}>
-                        Debug: approved_by_user = {JSON.stringify(requisicao.approved_by_user)}
-                      </span>
                     </div>
                   </div>
                   <div className="request-status">
@@ -266,42 +171,15 @@ const TodosRequerimentos = ({ onDataChange }) => {
                   <div className="materials-items accordion-content">
                     {totalCount > 0 ? (
                       <>
-                        <h5>Materiais Necessários:</h5>
+                        <h5>Materiais de Audiovisual:</h5>
                         <div className="items-list">
                           {requisicao.items.map((item) => (
-                        <div 
-                          key={item.id} 
-                          className={`item ${item.is_separated ? 'separated' : 'pending'}`}
-                        >
-                          <div className="item-info">
-                            <span className="item-name">{item.item_name}</span>
-                            <span className="item-quantity">Qtd: {item.quantity_requested}</span>
-                          </div>
-                          <div className="item-status">
-                            {item.is_separated ? (
-                              <FiCheck 
-                                className="status-icon success" 
-                                size={24}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleSeparated(item.id, item.is_separated);
-                                }}
-                                style={{ cursor: 'pointer' }}
-                              />
-                            ) : (
-                              <FiX 
-                                className="status-icon warning" 
-                                size={32} 
-                                strokeWidth={4}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleSeparated(item.id, item.is_separated);
-                                }}
-                                style={{ cursor: 'pointer' }}
-                              />
-                            )}
-                          </div>
-                        </div>
+                            <div key={item.id} className="item">
+                              <div className="item-info">
+                                <span className="item-name">{item.item_name}</span>
+                                <span className="item-quantity">Qtd: {item.quantity_requested}</span>
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </>
