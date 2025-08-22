@@ -16,7 +16,7 @@ function getAuthHeaders() {
 // Listar itens de uma requisição
 export async function listarItensRequisicao(requestId) {
   try {
-    const response = await fetch(`${API_URL}/api/request-items/${requestId}`, {
+    const response = await fetch(`${API_URL}/api/request-items/request/${requestId}/with-inventory`, {
       headers: getAuthHeaders()
     });
     if (!response.ok) {
