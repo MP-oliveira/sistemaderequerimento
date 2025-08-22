@@ -26,10 +26,8 @@ export default function Users() {
 
   // Forçar atualização do input de senha
   useEffect(() => {
-    console.log('🔍 useEffect - showPassword mudou para:', showPassword);
     if (passwordInputRef.current) {
       passwordInputRef.current.type = showPassword ? 'text' : 'password';
-      console.log('🔍 Input type alterado para:', passwordInputRef.current.type);
     }
   }, [showPassword]);
 
@@ -65,9 +63,6 @@ export default function Users() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('🔍 handleSubmit - Iniciando...');
-    console.log('🔍 handleSubmit - formData:', formData);
-    console.log('🔍 handleSubmit - editingUser:', editingUser);
     
     setLoading(true);
     try {
@@ -75,22 +70,13 @@ export default function Users() {
       const dataToSend = { ...formData };
       if (editingUser && dataToSend.password === '••••••••') {
         delete dataToSend.password;
-        console.log('🔍 handleSubmit - Senha removida (era pontos)');
-      } else {
-        console.log('🔍 handleSubmit - Senha mantida:', dataToSend.password ? '***' : 'undefined');
       }
       
-      console.log('🔍 handleSubmit - dataToSend final:', dataToSend);
-      
       if (editingUser) {
-        console.log('🔍 handleSubmit - Chamando atualizarUsuario...');
         await atualizarUsuario(editingUser.id, dataToSend);
-        console.log('🔍 handleSubmit - atualizarUsuario concluído');
         mostrarNotificacao('Usuário atualizado com sucesso!', 'sucesso');
       } else {
-        console.log('🔍 handleSubmit - Chamando criarUsuario...');
         await criarUsuario(dataToSend);
-        console.log('🔍 handleSubmit - criarUsuario concluído');
         mostrarNotificacao('Usuário criado com sucesso!', 'sucesso');
       }
       setShowModal(false);
@@ -106,7 +92,6 @@ export default function Users() {
   };
 
   const handleEdit = (user) => {
-    console.log('🔍 handleEdit - Usuário selecionado:', user);
     setEditingUser(user);
     setShowPassword(false);
     const newFormData = {
@@ -115,10 +100,8 @@ export default function Users() {
       role: user.role || 'USER',
       password: '••••••••' // Mostra pontos para indicar que há uma senha
     };
-    console.log('🔍 handleEdit - formData definido:', newFormData);
     setFormData(newFormData);
     setShowModal(true);
-    console.log('🔍 handleEdit - Modal aberto');
   };
 
   const handleDelete = async (id) => {
@@ -242,7 +225,6 @@ export default function Users() {
               Cancelar
             </Button>
             <Button variant="primary" size="sm" onClick={() => {
-              console.log('🔍 Botão Salvar clicado!');
               handleSubmit({ preventDefault: () => {} });
             }} loading={loading}>
               {editingUser ? 'Salvar' : 'Adicionar'}
@@ -298,16 +280,13 @@ export default function Users() {
                 required={!editingUser}
                 placeholder={editingUser ? "Digite nova senha ou deixe em branco para manter a atual" : "Digite a senha"}
                 style={{ paddingRight: '40px' }}
-                onFocus={() => console.log('🔍 Input focado, showPassword:', showPassword, 'tipo:', showPassword ? "text" : "password")}
+                onFocus={() => {}}
                 ref={passwordInputRef}
               />
               <button
                 type="button"
                 onClick={() => {
-                  console.log('🔍 Clique no ícone de senha');
-                  console.log('🔍 showPassword antes:', showPassword);
                   setShowPassword(!showPassword);
-                  console.log('🔍 showPassword depois:', !showPassword);
                 }}
                 style={{
                   position: 'absolute',
