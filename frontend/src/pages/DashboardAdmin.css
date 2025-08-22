@@ -1040,6 +1040,7 @@ body, html {
   flex-direction: column;
   gap: 16px;
   padding: 16px;
+  padding-left: 0px;
   padding-bottom: 32px;
   margin-right: 16px;
 }
