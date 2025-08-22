@@ -158,16 +158,26 @@ export const getExecutedItems = async () => {
 // Buscar itens executados por categoria
 export const getExecutedItemsByCategory = async (category) => {
   try {
+    console.log(`🔍 [getExecutedItemsByCategory] Fazendo requisição para: ${API_URL}/api/request-items/executed/${category}`);
+    console.log(`🔍 [getExecutedItemsByCategory] Headers:`, getAuthHeaders());
+    
     const response = await fetch(`${API_URL}/api/request-items/executed/${category}`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
 
+    console.log(`🔍 [getExecutedItemsByCategory] Response status:`, response.status);
+    console.log(`🔍 [getExecutedItemsByCategory] Response ok:`, response.ok);
+
     if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`🔍 [getExecutedItemsByCategory] Erro na resposta:`, errorData);
       throw new Error('Erro ao buscar itens executados por categoria');
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log(`🔍 [getExecutedItemsByCategory] Dados recebidos:`, data);
+    return data;
   } catch (error) {
     console.error('Erro ao buscar itens executados por categoria:', error);
     throw error;
