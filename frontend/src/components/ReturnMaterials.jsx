@@ -33,7 +33,13 @@ const ReturnMaterials = () => {
       
       console.log('🔍 [ReturnMaterials] Chamando getExecutedItemsByCategory...');
       try {
-        const itemsResponse = await getExecutedItemsByCategory('audiovisual');
+        console.log('🔍 [ReturnMaterials] Iniciando chamada da API...');
+        const itemsResponse = await Promise.race([
+          getExecutedItemsByCategory('audiovisual'),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout: API demorou mais de 10 segundos')), 10000)
+          )
+        ]);
         console.log('🔍 [ReturnMaterials] itemsResponse completo:', itemsResponse);
         console.log('🔍 [ReturnMaterials] itemsResponse.data:', itemsResponse.data);
       } catch (apiError) {
