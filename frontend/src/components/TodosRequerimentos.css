@@ -17,8 +17,6 @@
 }
 
 .todos-requerimentos .materials-list {
-  max-height: 600px;
-  overflow-y: auto;
   gap: 0;
 }
 
