@@ -552,4 +552,23 @@
 
 .services-summary-quantity {
   font-weight: 600;
+}
+
+/* Estilos para modais do admin - width fixo e posição ajustada */
+.requests-admin-page .modal {
+  width: 550px !important;
+  max-width: 550px !important;
+  min-width: 550px !important;
+}
+
+.requests-admin-page .modal-overlay {
+  align-items: flex-start !important;
+  padding-top: calc(2rem + 30px) !important;
+}
+
+/* Garantir que todos os modais do admin tenham o mesmo width */
+.requests-admin-page .modal-content {
+  width: 550px !important;
+  max-width: 550px !important;
+  min-width: 550px !important;
 } 

@@ -1535,4 +1535,23 @@ body, html {
     padding: 8px;
     font-size: 0.8rem;
   }
+}
+
+/* Estilos para modais do DashboardAdmin - width fixo e posição ajustada */
+.dashboard-admin .modal {
+  width: 550px !important;
+  max-width: 550px !important;
+  min-width: 550px !important;
+}
+
+.dashboard-admin .modal-overlay {
+  align-items: flex-start !important;
+  padding-top: calc(2rem + 30px) !important;
+}
+
+/* Garantir que todos os modais do dashboard admin tenham o mesmo width */
+.dashboard-admin .modal-content {
+  width: 550px !important;
+  max-width: 550px !important;
+  min-width: 550px !important;
 } 

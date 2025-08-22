@@ -30,7 +30,7 @@
 .modal {
   background: var(--ibva-white);
   border-radius: 18px;
-  min-width: 320px;
+  width: 550px;
   max-width: 90vw;
   max-height: calc(100vh - 2rem);
   overflow: hidden;
@@ -41,7 +41,7 @@
   font-family: 'Montserrat', Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  margin: 1rem auto auto auto;
+  margin: 3rem auto auto auto;
 }
 
 /* Sobrescrever completamente para mobile */
