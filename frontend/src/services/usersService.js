@@ -82,7 +82,12 @@ export async function atualizarUsuario(id, { name, email, role, password }) {
     // Adicionar senha apenas se for fornecida
     if (password && password !== '••••••••') {
       updateData.senha = password;
+      console.log('🔍 Frontend - Senha será enviada:', password ? '***' : 'undefined');
+    } else {
+      console.log('🔍 Frontend - Senha não será enviada (vazia ou pontos)');
     }
+    
+    console.log('🔍 Frontend - Dados para atualização:', updateData);
     
     const response = await fetch(`${API_URL}/api/users/${id}`, {
       method: 'PUT',
@@ -99,6 +104,7 @@ export async function atualizarUsuario(id, { name, email, role, password }) {
     }
     
     const data = await response.json();
+    console.log('🔍 Frontend - Resposta do backend:', data);
     return data;
   } catch (err) {
     throw err;
