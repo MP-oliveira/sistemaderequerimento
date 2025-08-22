@@ -169,7 +169,7 @@ export default function ServicoGeralDashboard() {
       />
 
       {/* Todos os Requerimentos Futuros */}
-      <TodosRequerimentos category="servico-geral" />
+      <TodosRequerimentos />
 
       {/* Modal de Eventos do Dia */}
       <Modal 

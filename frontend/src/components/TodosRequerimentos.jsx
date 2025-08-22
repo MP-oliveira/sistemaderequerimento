@@ -30,6 +30,9 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
         targetCategories = ['DECORACAO'];
       } else if (category === 'esportes') {
         targetCategories = ['ESPORTES'];
+      } else {
+        // Se não for especificada categoria ou for "todos", mostrar todos os itens
+        targetCategories = null;
       }
       
       // Buscar itens para cada requisição
@@ -37,11 +40,13 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
         requisicoesAprovadas.map(async (requisicao) => {
           try {
             const itens = await listarItensRequisicao(requisicao.id);
-            // Filtrar apenas itens da categoria especificada
-            const itensFiltrados = itens.filter(item => {
-              const category = item.inventory?.category;
-              return targetCategories.includes(category);
-            });
+            // Filtrar apenas itens da categoria especificada, ou mostrar todos se não especificada
+            const itensFiltrados = targetCategories 
+              ? itens.filter(item => {
+                  const category = item.inventory?.category;
+                  return targetCategories.includes(category);
+                })
+              : itens; // Mostrar todos os itens se não especificada categoria
             return {
               ...requisicao,
               items: itensFiltrados
