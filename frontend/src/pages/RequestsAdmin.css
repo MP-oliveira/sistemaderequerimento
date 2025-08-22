@@ -563,6 +563,12 @@
 
 .requests-admin-page .modal-overlay {
   align-items: flex-start !important;
+  padding-top: calc(2rem + 30px) !important;
+}
+
+/* Estilos específicos para o modal de detalhes da requisição */
+/* Aplica apenas quando há um elemento com classe request-details-admin dentro do modal */
+.modal-overlay:has(.request-details-admin) {
   padding-top: calc(2rem - 150px) !important;
 }
 
