@@ -98,6 +98,20 @@
   background: var(--white);
   border-radius: 1rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+/* Estilos específicos para AllFutureRequests no Serviço Geral */
+.servico-geral-dashboard .all-future-requests {
+  width: 100% !important;
+  max-width: 1270px !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  min-width: auto !important;
+  background: var(--white) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  border: 1px solid var(--border) !important;
+  padding: 2rem !important;
+}
   border: 1px solid #e5e7eb;
   padding: 2rem;
   width: 100%;
