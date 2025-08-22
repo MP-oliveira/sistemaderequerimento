@@ -110,10 +110,13 @@ const ReturnMaterials = () => {
   const itensParaDespachar = executedItems.filter(item => {
     // Verificar se o evento é próximo (hoje ou próximos 7 dias)
     if (item.requests && item.requests.date) {
-      const eventDate = new Date(item.requests.date);
+      // Criar datas sem considerar hora para comparação
+      const eventDate = new Date(item.requests.date + 'T00:00:00');
       const today = new Date();
+      today.setHours(0, 0, 0, 0); // Zerar horas para comparação de data
       const nextWeek = new Date();
       nextWeek.setDate(today.getDate() + 7);
+      nextWeek.setHours(23, 59, 59, 999); // Final do dia
       
       const isProximo = eventDate >= today && eventDate <= nextWeek;
       console.log(`🔍 [ReturnMaterials] Verificando evento: ${item.requests.event_name}`);
