@@ -579,10 +579,16 @@ const getExecutedItemsByCategory = async (req, res) => {
 
     // Filtrar itens por categoria do inventário
     const filteredData = data.filter(item => {
+      console.log(`🔍 [getExecutedItemsByCategory] Verificando item: ${item.item_name}`);
+      console.log(`🔍 [getExecutedItemsByCategory] Categoria do item: ${item.inventory?.category || 'SEM CATEGORIA'}`);
+      console.log(`🔍 [getExecutedItemsByCategory] Target categories: ${targetCategories}`);
+      
       if (!item.inventory || !item.inventory.category) {
+        console.log(`🔍 [getExecutedItemsByCategory] Item sem categoria: ${item.item_name}`);
         return false; // Se não tem categoria, não mostrar
       }
       const isIncluded = targetCategories.includes(item.inventory.category);
+      console.log(`🔍 [getExecutedItemsByCategory] Item incluído: ${item.item_name} - ${isIncluded}`);
       return isIncluded;
     });
 
