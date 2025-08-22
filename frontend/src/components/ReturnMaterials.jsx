@@ -32,9 +32,15 @@ const ReturnMaterials = () => {
       console.log('🔍 [ReturnMaterials] Iniciando carregamento de dados...');
       
       console.log('🔍 [ReturnMaterials] Chamando getExecutedItemsByCategory...');
-      const itemsResponse = await getExecutedItemsByCategory('audiovisual');
-      console.log('🔍 [ReturnMaterials] itemsResponse completo:', itemsResponse);
-      console.log('🔍 [ReturnMaterials] itemsResponse.data:', itemsResponse.data);
+      try {
+        const itemsResponse = await getExecutedItemsByCategory('audiovisual');
+        console.log('🔍 [ReturnMaterials] itemsResponse completo:', itemsResponse);
+        console.log('🔍 [ReturnMaterials] itemsResponse.data:', itemsResponse.data);
+      } catch (apiError) {
+        console.error('🔍 [ReturnMaterials] Erro na API getExecutedItemsByCategory:', apiError);
+        console.error('🔍 [ReturnMaterials] Erro completo:', apiError.message);
+        throw apiError;
+      }
       
       console.log('🔍 [ReturnMaterials] Chamando listarRequisicoes...');
       const requisicoesData = await listarRequisicoes();
