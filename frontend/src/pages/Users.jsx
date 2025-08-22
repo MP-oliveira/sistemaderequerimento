@@ -106,15 +106,19 @@ export default function Users() {
   };
 
   const handleEdit = (user) => {
+    console.log('🔍 handleEdit - Usuário selecionado:', user);
     setEditingUser(user);
     setShowPassword(false);
-    setFormData({
+    const newFormData = {
       name: user.name || user.full_name || '',
       email: user.email || '',
       role: user.role || 'USER',
       password: '••••••••' // Mostra pontos para indicar que há uma senha
-    });
+    };
+    console.log('🔍 handleEdit - formData definido:', newFormData);
+    setFormData(newFormData);
     setShowModal(true);
+    console.log('🔍 handleEdit - Modal aberto');
   };
 
   const handleDelete = async (id) => {
