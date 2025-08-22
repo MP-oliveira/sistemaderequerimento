@@ -132,6 +132,13 @@ const ReturnMaterials = () => {
   // Debug: Log dos dados carregados
   console.log('🔍 [ReturnMaterials] executedItems:', executedItems);
   console.log('🔍 [ReturnMaterials] requisicoes:', requisicoes);
+  
+  // Log detalhado dos itens para debug
+  if (executedItems.length > 0) {
+    console.log('🔍 [ReturnMaterials] Primeiro item detalhado:', executedItems[0]);
+    console.log('🔍 [ReturnMaterials] Estrutura do item.requests:', executedItems[0].requests);
+    console.log('🔍 [ReturnMaterials] Data do primeiro item:', executedItems[0].requests?.date);
+  }
 
   // Itens para retorno (status EXECUTADO) - apenas eventos recentes
   const itensParaRetorno = executedItems.filter(item => {
