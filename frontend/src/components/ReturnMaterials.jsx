@@ -95,7 +95,15 @@ const ReturnMaterials = () => {
       const nextWeek = new Date();
       nextWeek.setDate(today.getDate() + 7);
       
-      return eventDate >= today && eventDate <= nextWeek;
+      const isProximo = eventDate >= today && eventDate <= nextWeek;
+      console.log(`🔍 [ReturnMaterials] Verificando evento: ${item.requests.event_name}`);
+      console.log(`🔍 [ReturnMaterials] Data do evento: ${item.requests.date}`);
+      console.log(`🔍 [ReturnMaterials] eventDate: ${eventDate.toISOString()}`);
+      console.log(`🔍 [ReturnMaterials] today: ${today.toISOString()}`);
+      console.log(`🔍 [ReturnMaterials] nextWeek: ${nextWeek.toISOString()}`);
+      console.log(`🔍 [ReturnMaterials] É próximo? ${isProximo}`);
+      
+      return isProximo;
     }
     
     return false;
