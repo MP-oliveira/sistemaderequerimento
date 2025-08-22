@@ -243,7 +243,7 @@ export default function Users() {
             </Button>
             <Button variant="primary" size="sm" onClick={() => {
               console.log('🔍 Botão Salvar clicado!');
-              handleSubmit();
+              handleSubmit({ preventDefault: () => {} });
             }} loading={loading}>
               {editingUser ? 'Salvar' : 'Adicionar'}
             </Button>
