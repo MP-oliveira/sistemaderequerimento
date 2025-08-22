@@ -777,13 +777,18 @@ export default function RequestsAdmin() {
             
             <div className="filter-group">
               <label className="filter-label">Departamento</label>
-              <input
-                type="text"
+              <select
                 value={filtroDepartamento}
                 onChange={e => setFiltroDepartamento(e.target.value)}
-                placeholder="Digite o departamento..."
-                className="filter-input"
-              />
+                className="filter-select"
+              >
+                <option value="">Selecione um departamento</option>
+                {departamentosOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
             
             <div className="filter-group">
