@@ -205,3 +205,77 @@ export const markItemAsReturned = async (itemId, currentStatus) => {
     throw error;
   }
 }; 
+
+// Atualizar item de uma requisição
+export async function atualizarItemRequisicao(itemId, itemData) {
+  try {
+    const response = await fetch(`${API_URL}/api/request-items/${itemId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(itemData)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao atualizar item');
+    }
+    const data = await response.json();
+    return data.data || data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Deletar item de uma requisição
+export async function deletarItemRequisicao(itemId) {
+  try {
+    const response = await fetch(`${API_URL}/api/request-items/${itemId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao deletar item');
+    }
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Atualizar serviço de uma requisição
+export async function atualizarServicoRequisicao(serviceId, serviceData) {
+  try {
+    const response = await fetch(`${API_URL}/api/request-services/${serviceId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(serviceData)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao atualizar serviço');
+    }
+    const data = await response.json();
+    return data.data || data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+// Deletar serviço de uma requisição
+export async function deletarServicoRequisicao(serviceId) {
+  try {
+    const response = await fetch(`${API_URL}/api/request-services/${serviceId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Erro ao deletar serviço');
+    }
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    throw err;
+  }
+} 

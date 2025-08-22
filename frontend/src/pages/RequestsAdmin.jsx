@@ -6,6 +6,7 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import Input from '../components/Input';
 import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao, aprovarRequisicao, rejeitarRequisicao, verificarDisponibilidadeMateriais } from '../services/requestsService';
+import { atualizarItemRequisicao, deletarItemRequisicao, atualizarServicoRequisicao, deletarServicoRequisicao } from '../services/requestItemsService';
 import { listarItensInventario } from '../services/inventoryService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
@@ -527,7 +528,57 @@ export default function RequestsAdmin() {
       
       console.log('📝 Dados para atualização:', dataToSend);
       
+      // Atualizar a requisição básica
       await atualizarRequisicao(editReq.id, dataToSend);
+      
+      // Atualizar itens modificados
+      if (editReq.itens && editReq.itens.length > 0) {
+        console.log('🔄 Atualizando itens modificados...');
+        for (const item of editReq.itens) {
+          if (item.id) { // Se tem ID, é um item existente
+            try {
+              await atualizarItemRequisicao(item.id, {
+                quantity_requested: item.quantity_requested || item.quantity || 1
+              });
+              console.log(`✅ Item ${item.id} atualizado`);
+            } catch (error) {
+              console.error(`❌ Erro ao atualizar item ${item.id}:`, error);
+              // Se não conseguir atualizar, tentar deletar
+              try {
+                await deletarItemRequisicao(item.id);
+                console.log(`🗑️ Item ${item.id} deletado`);
+              } catch (deleteError) {
+                console.error(`❌ Erro ao deletar item ${item.id}:`, deleteError);
+              }
+            }
+          }
+        }
+      }
+      
+      // Atualizar serviços modificados
+      if (editReq.servicos && editReq.servicos.length > 0) {
+        console.log('🔄 Atualizando serviços modificados...');
+        for (const service of editReq.servicos) {
+          if (service.id) { // Se tem ID, é um serviço existente
+            try {
+              await atualizarServicoRequisicao(service.id, {
+                quantidade: service.quantidade || 1
+              });
+              console.log(`✅ Serviço ${service.id} atualizado`);
+            } catch (error) {
+              console.error(`❌ Erro ao atualizar serviço ${service.id}:`, error);
+              // Se não conseguir atualizar, tentar deletar
+              try {
+                await deletarServicoRequisicao(service.id);
+                console.log(`🗑️ Serviço ${service.id} deletado`);
+              } catch (deleteError) {
+                console.error(`❌ Erro ao deletar serviço ${service.id}:`, deleteError);
+              }
+            }
+          }
+        }
+      }
+      
       mostrarNotificacao('Requisição atualizada com sucesso!', 'sucesso');
       setEditModalOpen(false);
       setEditReq(null);
