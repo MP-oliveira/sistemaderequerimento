@@ -13,6 +13,7 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   console.log('🔍 EditRequestModal - request é undefined?', request === undefined);
   console.log('🔍 request.itens:', request?.itens);
   console.log('🔍 request.servicos:', request?.servicos);
+  console.log('🔍 request completo:', request);
   
   const [editedRequest, setEditedRequest] = useState(request || {});
   const [saving, setSaving] = useState(false);
@@ -23,6 +24,8 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   // Processar dados diretamente no render
   const processedItems = React.useMemo(() => {
     console.log('🔍 [EditRequestModal] Processando itens:', request?.itens);
+    console.log('🔍 [EditRequestModal] Tipo de request.itens:', typeof request?.itens);
+    console.log('🔍 [EditRequestModal] request.itens é array?', Array.isArray(request?.itens));
     if (request && request.itens) {
       const items = (request.itens || []).map(item => ({
         id: item.inventory_id,
@@ -39,6 +42,8 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   
   const processedServices = React.useMemo(() => {
     console.log('🔍 [EditRequestModal] Processando serviços:', request?.servicos);
+    console.log('🔍 [EditRequestModal] Tipo de request.servicos:', typeof request?.servicos);
+    console.log('🔍 [EditRequestModal] request.servicos é array?', Array.isArray(request?.servicos));
     if (request && request.servicos) {
       const services = (request.servicos || []).map((service, index) => ({
         ...service,
