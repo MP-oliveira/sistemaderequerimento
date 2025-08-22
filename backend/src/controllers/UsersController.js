@@ -240,6 +240,7 @@ export const updateUser = async (req, res) => {
     // Se uma nova senha foi fornecida, atualizar no Auth e no banco
     if (password && password !== '••••••••') {
       console.log('🔍 updateUser - Atualizando senha no Auth');
+      console.log('🔍 updateUser - Senha recebida:', password);
       
       // Tentar atualizar senha no Supabase Auth (pode falhar se usuário não existir no Auth)
       const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(id, {
@@ -254,10 +255,14 @@ export const updateUser = async (req, res) => {
       }
       
       // Fazer hash da nova senha para salvar na tabela users
+      console.log('🔍 updateUser - Fazendo hash da senha...');
       const hashedPassword = await bcrypt.hash(password, 10);
+      console.log('🔍 updateUser - Hash gerado:', hashedPassword.substring(0, 20) + '...');
       updateData.password_hash = hashedPassword;
       
       console.log('✅ updateUser - Senha atualizada no banco com sucesso');
+    } else {
+      console.log('ℹ️ updateUser - Nenhuma nova senha fornecida');
     }
     
     const { data: user, error } = await supabase
