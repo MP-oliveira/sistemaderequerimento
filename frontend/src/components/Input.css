@@ -55,9 +55,10 @@ select.input-field {
   cursor: pointer;
   height: 42px;
   line-height: 1.4;
-  overflow: hidden !important;
+  overflow: visible !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
+  min-height: 42px;
 }
 
 select.input-field:focus {

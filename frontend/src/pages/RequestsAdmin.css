@@ -146,6 +146,11 @@
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: visible;
+  min-height: 40px;
+  line-height: 1.2;
 }
 
 .filter-actions {
