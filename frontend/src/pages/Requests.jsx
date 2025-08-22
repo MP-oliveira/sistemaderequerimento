@@ -285,11 +285,13 @@ export default function Requests() {
       const dataToSend = { ...formData };
       
       if (formData.date && formData.start_datetime) {
-        dataToSend.start_datetime = `${formData.date}T${formData.start_datetime}`;
+        // Adicionar timezone explícito para evitar conversão automática
+        dataToSend.start_datetime = `${formData.date}T${formData.start_datetime}-03:00`;
       }
       
       if (formData.date && formData.end_datetime) {
-        dataToSend.end_datetime = `${formData.date}T${formData.end_datetime}`;
+        // Adicionar timezone explícito para evitar conversão automática
+        dataToSend.end_datetime = `${formData.date}T${formData.end_datetime}-03:00`;
       }
       
       // Verificar conflitos antes de criar a requisição
@@ -407,13 +409,13 @@ export default function Requests() {
           // Se já tem data duplicada, extrair apenas a parte final
           if (editReq.start_datetime.includes('T') && editReq.start_datetime.split('T').length > 2) {
             const parts = editReq.start_datetime.split('T');
-            dataToSend.start_datetime = `${parts[parts.length - 2]}T${parts[parts.length - 1]}`;
+            dataToSend.start_datetime = `${parts[parts.length - 2]}T${parts[parts.length - 1]}-03:00`;
           } else if (editReq.start_datetime.includes('T')) {
             // Se é um datetime válido, usar como está
             dataToSend.start_datetime = editReq.start_datetime;
           } else if (editReq.date && editReq.start_datetime) {
             // Se é apenas hora, combinar com a data
-            dataToSend.start_datetime = `${editReq.date}T${editReq.start_datetime}`;
+            dataToSend.start_datetime = `${editReq.date}T${editReq.start_datetime}-03:00`;
           }
         }
         
@@ -422,13 +424,13 @@ export default function Requests() {
           // Se já tem data duplicada, extrair apenas a parte final
           if (editReq.end_datetime.includes('T') && editReq.end_datetime.split('T').length > 2) {
             const parts = editReq.end_datetime.split('T');
-            dataToSend.end_datetime = `${parts[parts.length - 2]}T${parts[parts.length - 1]}`;
+            dataToSend.end_datetime = `${parts[parts.length - 2]}T${parts[parts.length - 1]}-03:00`;
           } else if (editReq.end_datetime.includes('T')) {
             // Se é um datetime válido, usar como está
             dataToSend.end_datetime = editReq.end_datetime;
           } else if (editReq.date && editReq.end_datetime) {
             // Se é apenas hora, combinar com a data
-            dataToSend.end_datetime = `${editReq.date}T${editReq.end_datetime}`;
+            dataToSend.end_datetime = `${editReq.date}T${editReq.end_datetime}-03:00`;
           }
         }
       }
