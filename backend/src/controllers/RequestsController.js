@@ -1065,9 +1065,9 @@ export const getRequest = async (req, res) => {
     if (error || !request) {
       return res.status(404).json({ success: false, message: 'Requisição não encontrada.' });
     }
-    // Permissão: só ADM, PASTOR ou SEC podem ver detalhes completos para edição
+    // Permissão: ADM, PASTOR, SEC e AUDIOVISUAL podem ver detalhes completos para edição
     if (
-      req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC'
+      req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC' && req.user.role !== 'AUDIOVISUAL'
     ) {
       return res.status(403).json({ success: false, message: 'Acesso negado.' });
     }
