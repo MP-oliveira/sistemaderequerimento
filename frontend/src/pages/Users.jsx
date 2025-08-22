@@ -237,7 +237,10 @@ export default function Users() {
             <Button variant="secondary" size="sm" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
-            <Button variant="primary" size="sm" onClick={handleSubmit} loading={loading}>
+            <Button variant="primary" size="sm" onClick={() => {
+              console.log('🔍 Botão Salvar clicado!');
+              handleSubmit();
+            }} loading={loading}>
               {editingUser ? 'Salvar' : 'Adicionar'}
             </Button>
           </>
