@@ -1041,6 +1041,7 @@ body, html {
   gap: 16px;
   padding: 16px;
   padding-bottom: 32px;
+  margin-right: 16px;
 }
 
 .request-card {
