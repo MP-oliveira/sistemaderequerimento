@@ -81,7 +81,7 @@ export async function atualizarUsuario(id, { name, email, role, password }) {
     
     // Adicionar senha apenas se for fornecida
     if (password && password !== '••••••••') {
-      updateData.senha = password;
+      updateData.password = password;
       console.log('🔍 Frontend - Senha será enviada:', password ? '***' : 'undefined');
     } else {
       console.log('🔍 Frontend - Senha não será enviada (vazia ou pontos)');
