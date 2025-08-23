@@ -180,7 +180,14 @@ export default function RequestsAdmin() {
 
     setValidandoDisponibilidade(true);
     try {
-      const resultado = await verificarDisponibilidadeMateriais(itens);
+      // Preparar informações de data se disponíveis
+      const dataInfo = formData.date && formData.start_datetime && formData.end_datetime ? {
+        date: formData.date,
+        start_datetime: formData.start_datetime,
+        end_datetime: formData.end_datetime
+      } : null;
+
+      const resultado = await verificarDisponibilidadeMateriais(itens, dataInfo);
 
       setDisponibilidadeInfo({
         temConflito: resultado.temConflito,

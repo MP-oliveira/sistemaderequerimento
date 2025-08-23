@@ -609,9 +609,10 @@ const verificarConflitosAprovacao = async (requestData) => {
 // Verificar disponibilidade de materiais em tempo real
 export const checkInventoryAvailability = async (req, res) => {
   try {
-    const { itens = [] } = req.body;
+    const { itens = [], date = '', start_datetime = '', end_datetime = '' } = req.body;
 
     console.log('🔍 [checkInventoryAvailability] Verificando disponibilidade de materiais:', itens);
+    console.log('🔍 [checkInventoryAvailability] Data do requerimento:', { date, start_datetime, end_datetime });
 
     if (!itens || itens.length === 0) {
       return res.status(200).json({
@@ -646,32 +647,99 @@ export const checkInventoryAvailability = async (req, res) => {
       console.log(`   Quantidade solicitada: ${item.quantity_requested}`);
       console.log(`   Status atual: ${inv.status}`);
 
-      // Verificar se há quantidade suficiente
-      if (inv.quantity_available < item.quantity_requested) {
-        materiaisIndisponiveis.push({
-          id: inv.id,
-          nome: inv.name,
-          quantidade_disponivel: inv.quantity_available,
-          quantidade_solicitada: item.quantity_requested,
-          quantidade_faltante: item.quantity_requested - inv.quantity_available,
-          status: inv.status,
-          categoria: inv.category
-        });
-        console.log(`❌ [checkInventoryAvailability] ${inv.name} - Quantidade insuficiente`);
-      } else if (inv.quantity_available - item.quantity_requested <= 2) {
-        // Verificar se ficará com baixo estoque
-        materiaisBaixoEstoque.push({
-          id: inv.id,
-          nome: inv.name,
-          quantidade_disponivel: inv.quantity_available,
-          quantidade_solicitada: item.quantity_requested,
-          quantidade_restante: inv.quantity_available - item.quantity_requested,
-          status: inv.status,
-          categoria: inv.category
-        });
-        console.log(`⚠️ [checkInventoryAvailability] ${inv.name} - Baixo estoque após uso`);
+      // Se temos data do requerimento, verificar conflitos de data
+      if (date && start_datetime && end_datetime) {
+        console.log(`🔍 [checkInventoryAvailability] Verificando conflitos de data para ${inv.name}`);
+        
+        // Buscar requisições aprovadas que usam este item na mesma data
+        const { data: reqsConflitantes } = await supabase
+          .from('request_items')
+          .select(`
+            quantity_requested,
+            requests!inner(
+              id,
+              event_name,
+              start_datetime,
+              end_datetime,
+              status
+            )
+          `)
+          .eq('inventory_id', item.inventory_id)
+          .eq('requests.status', 'APTO')
+          .gte('requests.start_datetime', start_datetime)
+          .lte('requests.end_datetime', end_datetime);
+
+        console.log(`🔍 [checkInventoryAvailability] Requisições conflitantes para ${inv.name}:`, reqsConflitantes?.length || 0);
+
+        // Calcular quantidade já reservada para esta data
+        let quantidadeReservada = 0;
+        if (reqsConflitantes && reqsConflitantes.length > 0) {
+          quantidadeReservada = reqsConflitantes.reduce((total, req) => total + req.quantity_requested, 0);
+          console.log(`🔍 [checkInventoryAvailability] Quantidade já reservada para ${inv.name}: ${quantidadeReservada}`);
+        }
+
+        // Verificar se há quantidade suficiente considerando reservas
+        const quantidadeDisponivel = inv.quantity_available - quantidadeReservada;
+        console.log(`🔍 [checkInventoryAvailability] Quantidade disponível para ${inv.name} (considerando reservas): ${quantidadeDisponivel}`);
+
+        if (quantidadeDisponivel < item.quantity_requested) {
+          materiaisIndisponiveis.push({
+            id: inv.id,
+            nome: inv.name,
+            quantidade_disponivel: quantidadeDisponivel,
+            quantidade_solicitada: item.quantity_requested,
+            quantidade_faltante: item.quantity_requested - quantidadeDisponivel,
+            quantidade_reservada: quantidadeReservada,
+            status: inv.status,
+            categoria: inv.category,
+            motivo: 'Item já reservado para esta data'
+          });
+          console.log(`❌ [checkInventoryAvailability] ${inv.name} - Indisponível para esta data (já reservado)`);
+        } else if (quantidadeDisponivel - item.quantity_requested <= 2) {
+          // Verificar se ficará com baixo estoque
+          materiaisBaixoEstoque.push({
+            id: inv.id,
+            nome: inv.name,
+            quantidade_disponivel: quantidadeDisponivel,
+            quantidade_solicitada: item.quantity_requested,
+            quantidade_restante: quantidadeDisponivel - item.quantity_requested,
+            quantidade_reservada: quantidadeReservada,
+            status: inv.status,
+            categoria: inv.category
+          });
+          console.log(`⚠️ [checkInventoryAvailability] ${inv.name} - Baixo estoque após uso`);
+        } else {
+          console.log(`✅ [checkInventoryAvailability] ${inv.name} - Disponível para esta data`);
+        }
       } else {
-        console.log(`✅ [checkInventoryAvailability] ${inv.name} - Disponível`);
+        // Verificação sem data (comportamento original)
+        if (inv.quantity_available < item.quantity_requested) {
+          materiaisIndisponiveis.push({
+            id: inv.id,
+            nome: inv.name,
+            quantidade_disponivel: inv.quantity_available,
+            quantidade_solicitada: item.quantity_requested,
+            quantidade_faltante: item.quantity_requested - inv.quantity_available,
+            status: inv.status,
+            categoria: inv.category,
+            motivo: 'Quantidade insuficiente'
+          });
+          console.log(`❌ [checkInventoryAvailability] ${inv.name} - Quantidade insuficiente`);
+        } else if (inv.quantity_available - item.quantity_requested <= 2) {
+          // Verificar se ficará com baixo estoque
+          materiaisBaixoEstoque.push({
+            id: inv.id,
+            nome: inv.name,
+            quantidade_disponivel: inv.quantity_available,
+            quantidade_solicitada: item.quantity_requested,
+            quantidade_restante: inv.quantity_available - item.quantity_requested,
+            status: inv.status,
+            categoria: inv.category
+          });
+          console.log(`⚠️ [checkInventoryAvailability] ${inv.name} - Baixo estoque após uso`);
+        } else {
+          console.log(`✅ [checkInventoryAvailability] ${inv.name} - Disponível`);
+        }
       }
     }
 
@@ -685,7 +753,7 @@ export const checkInventoryAvailability = async (req, res) => {
       materiaisIndisponiveis,
       materiaisBaixoEstoque,
       message: temConflito 
-        ? 'Alguns materiais não estão disponíveis na quantidade solicitada.'
+        ? 'Alguns materiais não estão disponíveis na quantidade solicitada para esta data.'
         : temBaixoEstoque
         ? 'Todos os materiais estão disponíveis, mas alguns ficarão com baixo estoque.'
         : 'Todos os materiais estão disponíveis na quantidade solicitada.'

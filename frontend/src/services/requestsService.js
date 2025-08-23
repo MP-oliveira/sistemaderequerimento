@@ -30,12 +30,21 @@ export async function verificarConflitosTempoReal(data) {
   }
 }
 
-export async function verificarDisponibilidadeMateriais(itens) {
+export async function verificarDisponibilidadeMateriais(itens, dataInfo = null) {
   try {
+    const requestBody = { itens };
+    
+    // Se temos informações de data, incluí-las na requisição
+    if (dataInfo && dataInfo.date && dataInfo.start_datetime && dataInfo.end_datetime) {
+      requestBody.date = dataInfo.date;
+      requestBody.start_datetime = dataInfo.start_datetime;
+      requestBody.end_datetime = dataInfo.end_datetime;
+    }
+    
     const response = await fetch(`${API_URL}/api/requests/check-inventory-availability`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ itens }),
+      body: JSON.stringify(requestBody),
     });
     if (!response.ok) {
       const error = await response.json();
