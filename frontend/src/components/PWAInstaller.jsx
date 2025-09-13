@@ -117,7 +117,7 @@ const PWAInstaller = () => {
               <img src="/ibva-logo.png" alt="IBVA" />
             </div>
             <div className="pwa-install-text">
-              <h3>Instalar App IBVA</h3>
+              <h3>Instalar App de Requerimentos IBVA</h3>
               <p>Acesse rapidamente o sistema de requerimentos</p>
             </div>
             <div className="pwa-install-actions">

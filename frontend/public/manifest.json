@@ -1,8 +1,9 @@
 
 
+
 {
-  "name": "IBVA - Sistema de Requerimentos",
-  "short_name": "IBVA Requerimentos",
+  "name": "Requerimentos IBVA",
+  "short_name": "Requerimentos IBVA",
   "description": "Sistema de Requerimentos da Igreja Batista Vilas do Atlântico",
   "start_url": "/",
   "display": "standalone",
