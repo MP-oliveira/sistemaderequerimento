@@ -1,31 +1,33 @@
 /* PWA Installer Component Styles */
 .pwa-installer {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% - 10px));
   z-index: 1000;
   pointer-events: none;
+  max-width: 90vw;
+  width: 100%;
 }
 
 .pwa-install-banner {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   padding: 16px;
-  margin: 16px;
+  margin: 0;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
   pointer-events: auto;
-  animation: slideUp 0.3s ease-out;
+  animation: fadeInScale 0.3s ease-out;
 }
 
-@keyframes slideUp {
+@keyframes fadeInScale {
   from {
-    transform: translateY(100%);
+    transform: scale(0.8);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: scale(1);
     opacity: 1;
   }
 }
@@ -126,8 +128,12 @@
 
 /* Responsive Design */
 @media (max-width: 480px) {
+  .pwa-installer {
+    max-width: 95vw;
+  }
+  
   .pwa-install-banner {
-    margin: 12px;
+    margin: 0;
     padding: 12px;
   }
   
