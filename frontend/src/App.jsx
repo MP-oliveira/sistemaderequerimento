@@ -2,8 +2,8 @@ import React from 'react';
 import { AuthProvider } from './context/AuthContext';
 import AppRoutes from './routes';
 import PWAInstaller from './components/PWAInstaller';
-import PWAInstallInstructions from './components/PWAInstallInstructions';
 import OfflineIndicator from './components/OfflineIndicator';
+import PWADebug from './components/PWADebug';
 
 export default function App() {
   return (
@@ -11,7 +11,7 @@ export default function App() {
       <OfflineIndicator />
       <AppRoutes />
       <PWAInstaller />
-      <PWAInstallInstructions />
+      <PWADebug />
     </AuthProvider>
   );
 }

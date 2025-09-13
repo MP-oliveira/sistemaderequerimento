@@ -12,5 +12,18 @@ export default defineConfig({
         secure: true,
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        // Garantir que os arquivos PWA sejam incluídos no build
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'manifest.json' || assetInfo.name === 'sw.js') {
+            return '[name][extname]'
+          }
+          return 'assets/[name]-[hash][extname]'
+        }
+      }
+    }
   }
 })
