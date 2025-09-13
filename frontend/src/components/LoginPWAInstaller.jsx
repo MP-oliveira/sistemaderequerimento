@@ -73,11 +73,6 @@ const LoginPWAInstaller = () => {
     }
   };
 
-  // Não mostrar nada se já estiver instalado ou em modo standalone
-  if (isInstalled || isStandalone) {
-    return null;
-  }
-
   // TESTE: Forçar exibição do botão para debug
   console.log('🔍 PWA Debug:', {
     showInstallButton,
@@ -86,27 +81,26 @@ const LoginPWAInstaller = () => {
     userAgent: navigator.userAgent
   });
 
+  // TESTE: Sempre mostrar o botão para debug
   return (
     <div className="login-pwa-installer">
-      {showInstallButton && (
-        <div className="login-pwa-banner">
-          <div className="login-pwa-content">
-            <div className="login-pwa-icon">
-              <img src="/ibva-logo.png" alt="IBVA" />
-            </div>
-            <div className="login-pwa-text">
-              <h4>Instalar App de Requerimentos IBVA</h4>
-              <p>Acesse rapidamente o sistema</p>
-            </div>
-            <button 
-              className="login-pwa-btn"
-              onClick={handleInstallClick}
-            >
-              Instalar
-            </button>
+      <div className="login-pwa-banner">
+        <div className="login-pwa-content">
+          <div className="login-pwa-icon">
+            <img src="/ibva-logo.png" alt="IBVA" />
           </div>
+          <div className="login-pwa-text">
+            <h4>Instalar App de Requerimentos IBVA</h4>
+            <p>Acesse rapidamente o sistema</p>
+          </div>
+          <button 
+            className="login-pwa-btn"
+            onClick={handleInstallClick}
+          >
+            Instalar
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };
