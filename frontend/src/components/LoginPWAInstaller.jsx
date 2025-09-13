@@ -83,13 +83,27 @@ const LoginPWAInstaller = () => {
     userAgent: navigator.userAgent
   });
 
-  // Verificar se é mobile
-  const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  // Verificar se é mobile - mais restritivo
+  const isMobile = () => {
+    // Verificar largura da tela
+    const isSmallScreen = window.innerWidth <= 768;
+    
+    // Verificar User Agent
+    const isMobileUA = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Verificar se é touch device
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    return isSmallScreen && (isMobileUA || isTouchDevice);
+  };
   
   // Não mostrar em desktop
-  if (!isMobile) {
+  if (!isMobile()) {
+    console.log('🖥️ Desktop detectado - PWA button oculto');
     return null;
   }
+  
+  console.log('📱 Mobile detectado - PWA button visível');
 
   return (
     <div style={{
