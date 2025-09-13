@@ -83,7 +83,7 @@ const LoginPWAInstaller = () => {
     userAgent: navigator.userAgent
   });
 
-  // Verificar se é mobile - mais restritivo
+  // Verificar se é mobile
   const isMobile = () => {
     // Verificar largura da tela
     const isSmallScreen = window.innerWidth <= 768;
@@ -99,11 +99,8 @@ const LoginPWAInstaller = () => {
   
   // Não mostrar em desktop
   if (!isMobile()) {
-    console.log('🖥️ Desktop detectado - PWA button oculto');
     return null;
   }
-  
-  console.log('📱 Mobile detectado - PWA button visível');
 
   return (
     <div style={{
@@ -112,8 +109,9 @@ const LoginPWAInstaller = () => {
       padding: '12px 16px', 
       margin: '16px 0',
       borderRadius: '12px',
-      textAlign: 'center',
-      boxShadow: '0 4px 16px rgba(37, 99, 235, 0.3)'
+      boxShadow: '0 4px 16px rgba(37, 99, 235, 0.3)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.2)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <img 
@@ -139,7 +137,8 @@ const LoginPWAInstaller = () => {
             borderRadius: '6px',
             cursor: 'pointer',
             fontWeight: '600',
-            fontSize: '12px'
+            fontSize: '12px',
+            transition: 'all 0.2s ease'
           }}
         >
           Instalar
