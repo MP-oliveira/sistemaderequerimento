@@ -83,24 +83,46 @@ const LoginPWAInstaller = () => {
     userAgent: navigator.userAgent
   });
 
-  // Verificar se é mobile
+  // Verificar se é mobile - mais restritivo
   const isMobile = () => {
     // Verificar largura da tela
     const isSmallScreen = window.innerWidth <= 768;
     
-    // Verificar User Agent
+    // Verificar User Agent - mais específico
     const isMobileUA = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     // Verificar se é touch device
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
-    return isSmallScreen && (isMobileUA || isTouchDevice);
+    // Verificar se é Chrome em modo mobile
+    const isChromeMobile = /Chrome/i.test(navigator.userAgent) && /Mobile/i.test(navigator.userAgent);
+    
+    // Verificar se é Safari mobile
+    const isSafariMobile = /Safari/i.test(navigator.userAgent) && /Mobile/i.test(navigator.userAgent);
+    
+    // Só mostrar se for realmente mobile
+    return isSmallScreen && (isMobileUA || isTouchDevice || isChromeMobile || isSafariMobile);
   };
+  
+  // Debug para verificar detecção
+  console.log('🔍 Mobile Detection:', {
+    innerWidth: window.innerWidth,
+    userAgent: navigator.userAgent,
+    isSmallScreen: window.innerWidth <= 768,
+    isMobileUA: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+    isTouchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+    isChromeMobile: /Chrome/i.test(navigator.userAgent) && /Mobile/i.test(navigator.userAgent),
+    isSafariMobile: /Safari/i.test(navigator.userAgent) && /Mobile/i.test(navigator.userAgent),
+    result: isMobile()
+  });
   
   // Não mostrar em desktop
   if (!isMobile()) {
+    console.log('🖥️ Desktop detectado - PWA button oculto');
     return null;
   }
+  
+  console.log('📱 Mobile detectado - PWA button visível');
 
   return (
     <div style={{
