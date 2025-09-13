@@ -148,6 +148,15 @@ const PWAInstaller = () => {
     return null;
   }
 
+  // TESTE: Forçar exibição do botão para debug
+  console.log('🔍 PWA Debug:', {
+    showInstallButton,
+    isInstalled,
+    isStandalone,
+    deferredPrompt: !!deferredPrompt,
+    userAgent: navigator.userAgent
+  });
+
   return (
     <div className="pwa-installer">
       {showInstallButton && (
