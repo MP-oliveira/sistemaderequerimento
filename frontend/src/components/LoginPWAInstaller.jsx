@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './LoginPWAInstaller.css';
 
 const LoginPWAInstaller = () => {
+  console.log('🚀 LoginPWAInstaller: Componente carregado!');
+  
   const [showInstallButton, setShowInstallButton] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -81,25 +83,53 @@ const LoginPWAInstaller = () => {
     userAgent: navigator.userAgent
   });
 
-  // TESTE: Sempre mostrar o botão para debug
+  // Verificar se é mobile
+  const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Não mostrar em desktop
+  if (!isMobile) {
+    return null;
+  }
+
   return (
-    <div className="login-pwa-installer">
-      <div className="login-pwa-banner">
-        <div className="login-pwa-content">
-          <div className="login-pwa-icon">
-            <img src="/ibva-logo.png" alt="IBVA" />
-          </div>
-          <div className="login-pwa-text">
-            <h4>Instalar App de Requerimentos IBVA</h4>
-            <p>Acesse rapidamente o sistema</p>
-          </div>
-          <button 
-            className="login-pwa-btn"
-            onClick={handleInstallClick}
-          >
-            Instalar
-          </button>
+    <div style={{
+      background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', 
+      color: 'white', 
+      padding: '12px 16px', 
+      margin: '16px 0',
+      borderRadius: '12px',
+      textAlign: 'center',
+      boxShadow: '0 4px 16px rgba(37, 99, 235, 0.3)'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <img 
+          src="/ibva-logo.png" 
+          alt="IBVA" 
+          style={{ width: '32px', height: '32px', borderRadius: '6px' }}
+        />
+        <div style={{ flex: 1, textAlign: 'left' }}>
+          <h4 style={{ margin: '0 0 2px 0', fontSize: '14px', fontWeight: '600' }}>
+            Instalar App de Requerimentos IBVA
+          </h4>
+          <p style={{ margin: '0', fontSize: '12px', opacity: '0.9' }}>
+            Acesse rapidamente o sistema
+          </p>
         </div>
+        <button 
+          onClick={handleInstallClick}
+          style={{
+            background: 'rgba(255, 255, 255, 0.2)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '12px'
+          }}
+        >
+          Instalar
+        </button>
       </div>
     </div>
   );
