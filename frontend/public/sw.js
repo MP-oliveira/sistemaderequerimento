@@ -1,5 +1,5 @@
 // Service Worker para PWA do Sistema de Requerimentos IBVA
-const CACHE_NAME = 'ibva-requerimentos-v1.0.0';
+const CACHE_NAME = 'ibva-requerimentos-v1.0.1';
 const STATIC_CACHE_NAME = 'ibva-static-v1.0.0';
 const DYNAMIC_CACHE_NAME = 'ibva-dynamic-v1.0.0';
 
