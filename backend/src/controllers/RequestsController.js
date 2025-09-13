@@ -1249,71 +1249,85 @@ export const approveRequest = async (req, res) => {
     } else if (requestItems && requestItems.length > 0) {
       console.log(`📦 [approveRequest] Processando ${requestItems.length} itens...`);
       
-      for (const reqItem of requestItems) {
-        if (!reqItem.inventory_id || !reqItem.quantity_requested) continue;
-
-        // Buscar item do inventário
-        const { data: inv, error: errInv } = await supabase
+      // Buscar todos os itens de inventário de uma vez para otimizar
+      const inventoryIds = requestItems
+        .filter(item => item.inventory_id && item.quantity_requested)
+        .map(item => item.inventory_id);
+      
+      if (inventoryIds.length > 0) {
+        const { data: inventoryItems, error: invError } = await supabase
           .from('inventory')
           .select('*')
-          .eq('id', reqItem.inventory_id)
-          .single();
+          .in('id', inventoryIds);
 
-        if (errInv || !inv) {
-          console.log(`⚠️ [approveRequest] Erro ao buscar item ${reqItem.inventory_id}:`, errInv);
-          continue;
-        }
-
-        // Calcular nova quantidade disponível
-        const novaQuantidade = Math.max(0, inv.quantity_available - reqItem.quantity_requested);
-        
-        // Determinar novo status baseado na quantidade
-        let novoStatus = inv.status;
-        if (novaQuantidade === 0) {
-          novoStatus = 'INDISPONIVEL';
-        } else if (novaQuantidade <= 2) {
-          novoStatus = 'BAIXO_ESTOQUE';
+        if (invError) {
+          console.log('⚠️ [approveRequest] Erro ao buscar itens do inventário:', invError);
         } else {
-          novoStatus = 'DISPONIVEL';
-        }
-
-        console.log(`📦 [approveRequest] Item: ${inv.name}`);
-        console.log(`   Quantidade anterior: ${inv.quantity_available}`);
-        console.log(`   Quantidade solicitada: ${reqItem.quantity_requested}`);
-        console.log(`   Nova quantidade: ${novaQuantidade}`);
-        console.log(`   Status anterior: ${inv.status}`);
-        console.log(`   Novo status: ${novoStatus}`);
-
-        // Atualizar inventário
-        const { error: updateError } = await supabase
-          .from('inventory')
-          .update({
-            quantity_available: novaQuantidade,
-            status: novoStatus,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', reqItem.inventory_id);
-
-        if (updateError) {
-          console.log(`❌ [approveRequest] Erro ao atualizar item ${inv.name}:`, updateError);
-        } else {
-          console.log(`✅ [approveRequest] Item ${inv.name} atualizado com sucesso`);
+          // Criar mapa para acesso rápido
+          const inventoryMap = new Map(inventoryItems.map(item => [item.id, item]));
           
-          // Registrar histórico
-          try {
-            await logInventoryHistory({
-              inventory_id: reqItem.inventory_id,
-              user_id: req.user.userId,
-              action: 'APROVACAO_REQUISICAO',
-              status_anterior: inv.status,
-              status_novo: novoStatus,
-              quantidade_anterior: inv.quantity_available,
-              quantidade_nova: novaQuantidade,
-              observacao: `Item reservado para requisição aprovada ${id} - ${requestData.event_name || 'Evento'}`
+          // Processar atualizações em paralelo
+          const updatePromises = requestItems
+            .filter(reqItem => reqItem.inventory_id && reqItem.quantity_requested)
+            .map(async (reqItem) => {
+              const inv = inventoryMap.get(reqItem.inventory_id);
+              if (!inv) {
+                console.log(`⚠️ [approveRequest] Item ${reqItem.inventory_id} não encontrado no inventário`);
+                return;
+              }
+
+              // Calcular nova quantidade disponível
+              const novaQuantidade = Math.max(0, inv.quantity_available - reqItem.quantity_requested);
+              
+              // Determinar novo status baseado na quantidade
+              let novoStatus = inv.status;
+              if (novaQuantidade === 0) {
+                novoStatus = 'INDISPONIVEL';
+              } else if (novaQuantidade <= 2) {
+                novoStatus = 'BAIXO_ESTOQUE';
+              } else {
+                novoStatus = 'DISPONIVEL';
+              }
+
+              console.log(`📦 [approveRequest] Item: ${inv.name} - Nova quantidade: ${novaQuantidade}`);
+
+              // Atualizar inventário
+              const { error: updateError } = await supabase
+                .from('inventory')
+                .update({
+                  quantity_available: novaQuantidade,
+                  status: novoStatus,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', reqItem.inventory_id);
+
+              if (updateError) {
+                console.log(`❌ [approveRequest] Erro ao atualizar item ${inv.name}:`, updateError);
+              } else {
+                console.log(`✅ [approveRequest] Item ${inv.name} atualizado com sucesso`);
+                
+                // Registrar histórico de forma assíncrona
+                setImmediate(async () => {
+                  try {
+                    await logInventoryHistory({
+                      inventory_id: reqItem.inventory_id,
+                      user_id: req.user.userId,
+                      action: 'APROVACAO_REQUISICAO',
+                      status_anterior: inv.status,
+                      status_novo: novoStatus,
+                      quantidade_anterior: inv.quantity_available,
+                      quantidade_nova: novaQuantidade,
+                      observacao: `Item reservado para requisição aprovada ${id} - ${requestData.event_name || 'Evento'}`
+                    });
+                  } catch (historyError) {
+                    console.log(`⚠️ [approveRequest] Erro ao registrar histórico:`, historyError);
+                  }
+                });
+              }
             });
-          } catch (historyError) {
-            console.log(`⚠️ [approveRequest] Erro ao registrar histórico:`, historyError);
-          }
+
+          // Aguardar todas as atualizações
+          await Promise.all(updatePromises);
         }
       }
     }
@@ -1393,7 +1407,9 @@ export const approveRequest = async (req, res) => {
               department: reqConflitante.department
             });
             
-            // Enviar e-mail de notificação para o solicitante da requisição rejeitada
+            // TEMPORARIAMENTE COMENTADO - Enviar e-mail de notificação para o solicitante da requisição rejeitada
+            // TODO: Reativar quando necessário
+            /*
             try {
               const { data: usuarioRejeitado } = await supabase
                 .from('users')
@@ -1427,32 +1443,39 @@ Sistema de Requerimentos`;
             } catch (emailError) {
               console.log(`⚠️ [approveRequest] Erro ao enviar e-mail de rejeição:`, emailError);
             }
+            */
           }
         }
       }
     }
     
-    // Enviar e-mail automático ao usuário solicitante
-    const { data: usuario } = await supabase
-      .from('users')
-      .select('email, full_name')
-      .eq('id', requestData.requester_id)
-      .single();
-    if (usuario && usuario.email) {
+    // TEMPORARIAMENTE COMENTADO - Enviar e-mails de forma assíncrona (não bloqueia a resposta)
+    // TODO: Reativar quando necessário
+    /*
+    setImmediate(async () => {
       try {
-        await enviarEmail(
-          usuario.email,
-          'Sua requisição foi aprovada!',
-          `Olá ${usuario.full_name},\n\nSua requisição #${id} foi aprovada e está apta para execução.\n\nAcesse o sistema para mais detalhes.`
-        );
-      } catch (e) {
-        console.error('Erro ao enviar e-mail de aprovação:', e);
-      }
-    }
+        // Buscar dados do usuário para e-mails
+        const { data: usuario } = await supabase
+          .from('users')
+          .select('email, full_name')
+          .eq('id', requestData.requester_id)
+          .single();
 
-    // Enviar e-mail para audiovisual sobre a requisição aprovada
-    try {
-      const mensagemAudiovisual = `Requisição aprovada e aguardando execução!
+        // Enviar e-mail para o solicitante
+        if (usuario && usuario.email) {
+          try {
+            await enviarEmail(
+              usuario.email,
+              'Sua requisição foi aprovada!',
+              `Olá ${usuario.full_name},\n\nSua requisição #${id} foi aprovada e está apta para execução.\n\nAcesse o sistema para mais detalhes.`
+            );
+          } catch (e) {
+            console.error('Erro ao enviar e-mail de aprovação:', e);
+          }
+        }
+
+        // Enviar e-mail para audiovisual
+        const mensagemAudiovisual = `Requisição aprovada e aguardando execução!
 
 ID da Requisição: ${id}
 Departamento: ${requestData.department}
@@ -1463,44 +1486,51 @@ Local: ${requestData.location || 'Não informado'}
 
 Acesse o sistema para executar esta requisição.`;
 
-      await enviarEmailPorPapel('AUDIOVISUAL', 'Requisição Aprovada - Aguardando Execução', mensagemAudiovisual);
-      console.log('✅ E-mail enviado para audiovisual sobre requisição aprovada');
-    } catch (e) {
-      console.error('❌ Erro ao enviar e-mail para audiovisual:', e);
-    }
-    
-    // Criar evento automaticamente baseado na requisição
-    if (requestData.start_datetime && requestData.end_datetime) {
-      const eventName = `Evento - ${requestData.department}`;
-      const eventDescription = requestData.description || `Evento aprovado da requisição ${id}`;
-      
-      const { data: event, error: eventError } = await supabase
-        .from('events')
-        .insert([{
-          name: eventName,
-          location: requestData.location || 'Local a definir',
-          start_datetime: requestData.start_datetime,
-          end_datetime: requestData.end_datetime,
-          description: eventDescription,
-          expected_audience: requestData.expected_audience,
-          created_by: req.user.userId,
-          status: 'CONFIRMADO'
-        }])
-        .select()
-        .single();
-      
-      if (eventError) {
-        console.log('⚠️ Erro ao criar evento automaticamente:', eventError);
-        // Não falha a aprovação se o evento não for criado
-      } else {
-        // Atualizar a requisição com o ID do evento criado
-        await supabase
-          .from('requests')
-          .update({ event_id: event.id })
-          .eq('id', id);
-        
-        console.log('✅ Evento criado automaticamente:', event.id);
+        await enviarEmailPorPapel('AUDIOVISUAL', 'Requisição Aprovada - Aguardando Execução', mensagemAudiovisual);
+        console.log('✅ E-mails enviados de forma assíncrona');
+      } catch (e) {
+        console.error('❌ Erro ao enviar e-mails de forma assíncrona:', e);
       }
+    });
+    */
+    
+    // Criar evento automaticamente de forma assíncrona (não bloqueia a resposta)
+    if (requestData.start_datetime && requestData.end_datetime) {
+      setImmediate(async () => {
+        try {
+          const eventName = `Evento - ${requestData.department}`;
+          const eventDescription = requestData.description || `Evento aprovado da requisição ${id}`;
+          
+          const { data: event, error: eventError } = await supabase
+            .from('events')
+            .insert([{
+              name: eventName,
+              location: requestData.location || 'Local a definir',
+              start_datetime: requestData.start_datetime,
+              end_datetime: requestData.end_datetime,
+              description: eventDescription,
+              expected_audience: requestData.expected_audience,
+              created_by: req.user.userId,
+              status: 'CONFIRMADO'
+            }])
+            .select()
+            .single();
+          
+          if (eventError) {
+            console.log('⚠️ Erro ao criar evento automaticamente:', eventError);
+          } else {
+            // Atualizar a requisição com o ID do evento criado
+            await supabase
+              .from('requests')
+              .update({ event_id: event.id })
+              .eq('id', id);
+            
+            console.log('✅ Evento criado automaticamente:', event.id);
+          }
+        } catch (error) {
+          console.error('❌ Erro ao criar evento de forma assíncrona:', error);
+        }
+      });
     }
     
     res.json({ 
