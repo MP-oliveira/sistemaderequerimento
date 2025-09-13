@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import ibvaLogo from '../assets/images/ibva-logo.png';
-import LoginPWAInstaller from '../components/LoginPWAInstaller';
+import AlwaysVisiblePWAButton from '../components/AlwaysVisiblePWAButton';
 import './Login.css';
 
 export default function Login() {
@@ -75,7 +75,7 @@ export default function Login() {
             >
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
-            <LoginPWAInstaller />
+                 <AlwaysVisiblePWAButton />
           </form>
         </div>
       </div>

@@ -1,0 +1,80 @@
+/* PWA Button - Visível apenas em mobile */
+.pwa-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  padding: 16px 20px 18px 20px;
+  margin: 20px 0;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  backdrop-filter: blur(10px);
+}
+
+.pwa-button img {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  object-fit: contain;
+  flex-shrink: 0;
+  align-self: center;
+  margin: -8px 0 0 0;
+  padding: 0;
+}
+
+.pwa-button h4 {
+  margin: -12px 0 6px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.pwa-button p {
+  margin: 6px 0 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.3;
+  text-align: center;
+}
+
+.pwa-button button {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  align-self: center;
+  min-width: 120px;
+}
+
+.pwa-button button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.pwa-button button:active {
+  transform: translateY(0);
+}
+
+/* Esconder em desktop (telas maiores que 768px) */
+@media (min-width: 769px) {
+  .pwa-button {
+    display: none !important;
+  }
+}
+
+/* Mostrar em mobile (telas menores ou iguais a 768px) */
+@media (max-width: 768px) {
+  .pwa-button {
+    display: flex !important;
+  }
+}
