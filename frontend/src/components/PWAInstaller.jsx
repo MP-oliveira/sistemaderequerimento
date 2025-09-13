@@ -19,6 +19,12 @@ const PWAInstaller = () => {
       setIsInstalled(isStandaloneMode);
     };
 
+    // Detectar Safari no iOS
+    const isSafariIOS = () => {
+      const ua = navigator.userAgent;
+      return /iPad|iPhone|iPod/.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|mercury/.test(ua);
+    };
+
     // Verificar se o app foi instalado
     const handleAppInstalled = () => {
       console.log('🎉 PWA: App instalado com sucesso!');
@@ -27,9 +33,9 @@ const PWAInstaller = () => {
       setDeferredPrompt(null);
     };
 
-    // Capturar o prompt de instalação
+    // Capturar o prompt de instalação (Chrome/Edge)
     const handleBeforeInstallPrompt = (e) => {
-      console.log('📱 PWA: Prompt de instalação disponível');
+      console.log('📱 PWA: Prompt de instalação disponível (Chrome/Edge)');
       e.preventDefault();
       setDeferredPrompt(e);
       setShowInstallButton(true);
@@ -42,12 +48,22 @@ const PWAInstaller = () => {
       setDeferredPrompt(null);
     };
 
-    // Event listeners
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
-    
     // Verificar instalação inicial
     checkInstallation();
+
+    // Para Safari iOS, mostrar botão após um delay
+    if (isSafariIOS()) {
+      console.log('🍎 PWA: Safari iOS detectado - mostrando botão manual');
+      setTimeout(() => {
+        setShowInstallButton(true);
+      }, 2000); // 2 segundos de delay
+    } else {
+      // Para Chrome/Edge, usar o evento beforeinstallprompt
+      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    }
+
+    // Event listeners
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     // Cleanup
     return () => {
@@ -57,10 +73,22 @@ const PWAInstaller = () => {
   }, []);
 
   const handleInstallClick = async () => {
+    // Detectar Safari no iOS
+    const isSafariIOS = () => {
+      const ua = navigator.userAgent;
+      return /iPad|iPhone|iPod/.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|mercury/.test(ua);
+    };
+
+    if (isSafariIOS()) {
+      // Para Safari iOS, mostrar instruções
+      alert('Para instalar o app no Safari:\n\n1. Toque no botão de compartilhar (📤)\n2. Selecione "Adicionar à Tela de Início"\n3. Digite "Requerimentos IBVA"\n4. Toque em "Adicionar"');
+      return;
+    }
+
     if (!deferredPrompt) return;
 
     try {
-      // Mostrar o prompt de instalação
+      // Mostrar o prompt de instalação (Chrome/Edge)
       deferredPrompt.prompt();
       
       // Aguardar a resposta do usuário
@@ -82,6 +110,18 @@ const PWAInstaller = () => {
   };
 
   const handleShareClick = async () => {
+    // Detectar Safari no iOS
+    const isSafariIOS = () => {
+      const ua = navigator.userAgent;
+      return /iPad|iPhone|iPod/.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|mercury/.test(ua);
+    };
+
+    if (isSafariIOS()) {
+      // Para Safari iOS, mostrar instruções específicas
+      alert('Para instalar o app:\n\n1. Toque no botão de compartilhar (📤) na barra do Safari\n2. Role para baixo e selecione "Adicionar à Tela de Início"\n3. Digite "Requerimentos IBVA" como nome\n4. Toque em "Adicionar" no canto superior direito');
+      return;
+    }
+
     if (navigator.share) {
       try {
         await navigator.share({
