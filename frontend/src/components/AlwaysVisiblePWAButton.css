@@ -71,10 +71,3 @@
     display: none !important;
   }
 }
-
-/* Mostrar em mobile (telas menores ou iguais a 768px) */
-@media (max-width: 768px) {
-  .pwa-button {
-    display: flex !important;
-  }
-}

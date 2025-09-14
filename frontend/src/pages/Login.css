@@ -231,6 +231,80 @@ html:has(.login-bg) {
   margin-top: 12px;
 }
 
+/* Classes novas para inputs com largura maior - não interfere no CSS original */
+.larger-email-input {
+  padding: 16px 24px !important;
+  margin-bottom: 18px !important;
+  width: calc(100% + 15px) !important;
+  box-sizing: border-box !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.larger-email-input::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.larger-email-input:focus {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  outline: none !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.larger-password-input {
+  padding: 16px 42px 16px 24px !important;
+  margin-bottom: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.larger-password-input::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.larger-password-input:focus {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  outline: none !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Estilos para autofill do Chrome */
+.larger-email-input:-webkit-autofill,
+.larger-email-input:-webkit-autofill:hover,
+.larger-email-input:-webkit-autofill:focus,
+.larger-email-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+.larger-password-input:-webkit-autofill,
+.larger-password-input:-webkit-autofill:hover,
+.larger-password-input:-webkit-autofill:focus,
+.larger-password-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Container do input de senha para evitar overflow */
+.password-input-container {
+  width: calc(100% + 15px) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  margin-left: -7.5px !important;
+}
+
 .login-bg::before {
   content: '';
   position: absolute;
