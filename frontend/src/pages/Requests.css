@@ -10,6 +10,21 @@
   gap: 32px;
 }
 
+/* Correção específica para desktop - balanceamento das seções */
+@media (min-width: 769px) {
+  /* Container principal - reduz padding lateral */
+  .requests-page {
+    overflow-x: hidden;
+    padding: 24px 50px 40px 20px !important; /* Reduz padding esquerdo, aumenta direito */
+  }
+  
+  /* Header e seções - move para esquerda */
+  .requests-header-top,
+  .card {
+    margin-left: -20px;
+  }
+}
+
 .requests-header-top {
   display: flex;
   justify-content: flex-start;
@@ -550,6 +565,12 @@
 @media (max-width: 480px) {
   .requests-page {
     padding: 12px 8px 20px 8px;
+  }
+  
+  /* Header e seções - move para esquerda */
+  .requests-header-top,
+  .card {
+    margin-left: -10px;
   }
 
   .card {
