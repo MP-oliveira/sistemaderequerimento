@@ -423,3 +423,11 @@
     align-self: flex-end;
   }
 }
+
+/* Balanceamento de layout para desktop - centraliza melhor */
+@media (min-width: 769px) {
+  /* Ajusta o card principal para centralizar melhor */
+  .users-card {
+    margin-left: 70px !important; /* Move o card para a direita */
+  }
+}
