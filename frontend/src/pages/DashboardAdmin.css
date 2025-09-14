@@ -241,6 +241,34 @@ body, html {
   margin-bottom: 24px;
 }
 
+/* Correção específica para desktop - ajustar padding do container */
+@media (min-width: 769px) {
+  /* Container principal - reduz padding lateral */
+  .dashboard-admin {
+    overflow-x: hidden;
+    padding: 32px 50px 48px 20px !important; /* Reduz padding esquerdo, aumenta direito */
+  }
+  
+  /* Header do dashboard - ajusta posição */
+  .dashboard-header {
+    margin-left: -20px;
+  }
+  
+  /* Seções específicas - ajusta posição */
+  .dashboard-section.status-distribution,
+  .dashboard-section.pending-requests,
+  .dashboard-section.all-requests {
+    margin-left: -20px;
+  }
+  
+  /* Ações rápidas - ajusta posição e padding */
+  .quick-actions,
+  .dashboard-section.quick-actions {
+    margin-left: -20px;
+    padding: 10px 10px 10px 10px !important; /* Reduz padding lateral em 10px */
+  }
+}
+
 /* Correção específica para mobile - balanceamento das seções */
 @media (max-width: 480px) {
   .dashboard-section {
