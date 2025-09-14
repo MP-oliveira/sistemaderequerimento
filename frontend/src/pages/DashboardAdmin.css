@@ -25,6 +25,13 @@
   z-index: 1;
 }
 
+/* Correção específica para mobile - balanceamento de padding */
+@media (max-width: 480px) {
+  .dashboard-admin {
+    padding: 32px 15px 48px 0px; /* Reduz padding esquerdo em 15px */
+  }
+}
+
 /* Forçar scroll no body e html */
 body, html {
   overflow-y: auto !important;
@@ -80,6 +87,13 @@ body, html {
   box-sizing: border-box;
   margin-left: 0;
   margin-right: 0;
+}
+
+/* Correção específica para mobile - balanceamento dos cards */
+@media (max-width: 480px) {
+  .admin-stats-grid {
+    padding: 0 15px 0 0px; /* Reduz padding esquerdo em 15px */
+  }
 }
 
 .admin-stat-card {
@@ -225,6 +239,58 @@ body, html {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   margin-bottom: 24px;
+}
+
+/* Correção específica para mobile - balanceamento das seções */
+@media (max-width: 480px) {
+  .dashboard-section {
+    padding: 32px 47px 32px 32px; /* Reduz padding direito em 15px */
+  }
+  
+  /* Header do dashboard - move para esquerda */
+  .dashboard-header {
+    margin-left: -10px;
+  }
+  
+  /* Seções específicas - move para esquerda */
+  .dashboard-section.status-distribution,
+  .dashboard-section.pending-requests,
+  .dashboard-section.all-requests {
+    margin-left: -10px;
+  }
+  
+  /* Ações rápidas - reduz padding interno e move para esquerda */
+  .quick-actions {
+    padding: 10px 4px 10px 4px !important; /* Padding lateral mínimo */
+    margin-left: -10px !important; /* Move 10px para esquerda */
+  }
+  
+  .dashboard-section.quick-actions {
+    padding: 10px 4px 10px 4px !important; /* Padding lateral mínimo */
+    margin-left: -10px !important; /* Move 10px para esquerda */
+  }
+  
+  /* Título das ações rápidas */
+  .quick-actions .section-title,
+  .dashboard-section.quick-actions .section-title {
+    margin-bottom: 8px !important;
+    font-size: 1.1rem !important;
+  }
+  
+  /* Grid de ações */
+  .quick-actions .actions-grid,
+  .dashboard-section.quick-actions .actions-grid {
+    gap: 6px !important;
+  }
+  
+  /* Botões de ação */
+  .quick-actions .action-btn,
+  .dashboard-section.quick-actions .action-btn {
+    padding: 6px 8px !important; /* Padding mínimo dos botões */
+    font-size: 0.75rem !important; /* Texto ainda menor */
+    margin-bottom: 2px !important; /* Espaço mínimo entre botões */
+    border-radius: 4px !important;
+  }
 }
 
 .dashboard-section h2 {

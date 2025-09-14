@@ -378,7 +378,7 @@ export default function DashboardAdmin() {
           </div>
 
           {/* Gráfico de Status */}
-          <div className="dashboard-section">
+          <div className="dashboard-section status-distribution">
             <h2>Distribuição por Status</h2>
             <div className="status-chart">
               {Object.entries(stats).filter(([key, value]) => key !== 'total' && value > 0).map(([key, value]) => (
@@ -402,7 +402,7 @@ export default function DashboardAdmin() {
           </div>
 
           {/* Requisições Pendentes */}
-          <div className="dashboard-section">
+          <div className="dashboard-section pending-requests">
             <div className="section-header">
               <h2>Requisições Pendentes de Aprovação</h2>
               <Button 
@@ -558,7 +558,7 @@ export default function DashboardAdmin() {
           </div>
 
           {/* Ações Rápidas */}
-          <div className="quick-actions">
+          <div className="quick-actions dashboard-section quick-actions">
             <h3 className="section-title">
               <FiZap style={{marginRight: 8}} />
               Ações Rápidas
@@ -584,7 +584,7 @@ export default function DashboardAdmin() {
           </div>
 
           {/* Lista de Requisições */}
-          <div className="dashboard-section">
+          <div className="dashboard-section all-requests">
             <div className="section-header">
               <h2>Todas as Requisições</h2>
               <Button 
