@@ -6,10 +6,5 @@
       "source": "/api/(.*)",
       "destination": "/api/[...all].mjs"
     }
-  ],
-  "functions": {
-    "api/**/*.mjs": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  ]
 }
