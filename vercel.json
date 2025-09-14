@@ -5,6 +5,10 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/[...all].mjs"
+    },
+    {
+      "source": "/((?!api).*)",
+      "destination": "/index.html"
     }
   ]
 }
