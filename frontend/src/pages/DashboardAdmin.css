@@ -245,29 +245,29 @@ body, html {
 /* Correção específica para desktop - ajustar padding do container */
 @media (min-width: 769px) {
   /* Container principal - reduz padding lateral */
-  .dashboard-admin {
-    overflow-x: hidden;
-    padding: 32px 50px 48px 20px !important; /* Reduz padding esquerdo, aumenta direito */
-  }
-  
-  /* Header do dashboard - ajusta posição */
-  .dashboard-header {
-    margin-left: -20px;
-  }
-  
-  /* Seções específicas - ajusta posição */
-  .dashboard-section.status-distribution,
-  .dashboard-section.pending-requests,
-  .dashboard-section.all-requests {
-    margin-left: -20px;
-  }
-  
-  /* Ações rápidas - ajusta posição e padding */
-  .quick-actions,
-  .dashboard-section.quick-actions {
-    margin-left: -20px;
-    padding: 10px 10px 10px 10px !important; /* Reduz padding lateral em 10px */
-  }
+    .dashboard-admin {
+      overflow-x: hidden;
+      padding: 32px 20px 48px 20px !important; /* Padding balanceado */
+    }
+    
+    /* Header do dashboard - centralizado */
+    .dashboard-header {
+      margin-left: 0;
+    }
+    
+    /* Seções específicas - centralizadas */
+    .dashboard-section.status-distribution,
+    .dashboard-section.pending-requests,
+    .dashboard-section.all-requests {
+      margin-left: 0;
+    }
+    
+    /* Ações rápidas - centralizadas */
+    .quick-actions,
+    .dashboard-section.quick-actions {
+      margin-left: 0;
+      padding: 24px;
+    }
 }
 
 /* Correção específica para mobile - balanceamento das seções */
@@ -1654,6 +1654,16 @@ body, html {
     min-width: 100vw !important;
     height: 100vh !important;
     border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    transform: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
   }
   
   .request-card {
@@ -1706,4 +1716,17 @@ body, html {
 /* Garantir que todos os modais do dashboard admin tenham o mesmo width */
 .dashboard-admin .modal-content {
   width: 430px !important;
-} 
+}
+
+/* Cards do modal - desktop */
+@media (min-width: 769px) {
+  .dashboard-admin .modal-content {
+    width: 550px !important;
+  }
+  
+  .request-card {
+    width: 100% !important;
+    margin-left: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
