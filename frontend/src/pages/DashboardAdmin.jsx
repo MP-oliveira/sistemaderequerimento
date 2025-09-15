@@ -784,6 +784,18 @@ export default function DashboardAdmin() {
       >
         {reqDetalhe && (
           <div className="request-details-admin">
+            {/* Botão Voltar para mobile */}
+            <div className="mobile-back-button-container">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={() => setModalDetalhe(false)}
+                className="mobile-back-button"
+              >
+                ← Voltar
+              </Button>
+            </div>
+            
             <div className="detail-item-admin">
               <strong>Evento:</strong> {reqDetalhe.event_name || reqDetalhe.description || 'Sem título'}
             </div>
