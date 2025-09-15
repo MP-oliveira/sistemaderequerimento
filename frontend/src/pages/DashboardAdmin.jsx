@@ -670,7 +670,7 @@ export default function DashboardAdmin() {
       <Modal 
         open={showFilterModal} 
         onClose={() => setShowFilterModal(false)}
-        title={`Requisições ${getStatusLabel(currentFilter)}`}
+        title={currentFilter === 'TOTAL' ? 'Total de Requisições' : `Requisições ${getStatusLabel(currentFilter)}`}
       >
         {filterLoading ? (
           <div className="loading-state">
@@ -755,6 +755,16 @@ export default function DashboardAdmin() {
                 onClick={() => { window.history.pushState({}, '', '/admin/requisicoes'); window.dispatchEvent(new PopStateEvent('popstate')); }}
               >
                 Ver Todas as Requisições
+              </Button>
+            </div>
+            
+            <div style={{ marginTop: '20px', textAlign: 'center' }}>
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={() => setModalDetalhe(false)}
+              >
+                Fechar
               </Button>
             </div>
           </div>

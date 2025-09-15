@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import Button from './Button';
-import ibvaLogo from '../assets/images/ibva-logo.png';
+// Logo será carregada diretamente da pasta public
 import './Header.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const { user, logout, login } = useAuth();
+  const navigate = useNavigate();
   
   console.log('🔍 Header - User data:', user);
 
@@ -22,18 +23,43 @@ export default function Header() {
   
   // Determinar para onde o logo deve redirecionar
   const getDashboardPath = () => {
-    if (!user) return '/';
-    if (isAdmin) return '/admin/dashboard';
-    if (user.role === 'AUDIOVISUAL') return '/audiovisual/dashboard';
+    console.log('🔍 Header - getDashboardPath - user:', user);
+    console.log('🔍 Header - getDashboardPath - isAdmin:', isAdmin);
+    
+    if (!user) {
+      console.log('🔍 Header - getDashboardPath - redirecionando para /');
+      return '/';
+    }
+    if (isAdmin) {
+      console.log('🔍 Header - getDashboardPath - redirecionando para /admin/dashboard');
+      return '/admin/dashboard';
+    }
+    if (user.role === 'AUDIOVISUAL') {
+      console.log('🔍 Header - getDashboardPath - redirecionando para /audiovisual/dashboard');
+      return '/audiovisual/dashboard';
+    }
+    console.log('🔍 Header - getDashboardPath - redirecionando para /dashboard');
     return '/dashboard';
   };
 
   return (
     <header className="main-header">
       <div className="header-left">
-        <Link to={getDashboardPath()}>
-          <img src={ibvaLogo} alt="IBVA Logo" className="header-logo" />
-        </Link>
+        <button
+          onClick={() => {
+            const path = getDashboardPath();
+            console.log('🔍 Header - Logo clicada, redirecionando para:', path);
+            navigate(path);
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer'
+          }}
+        >
+          <img src="/ibva-logo.png" alt="IBVA Logo" className="header-logo" />
+        </button>
       </div>
       
       <div className="header-center">

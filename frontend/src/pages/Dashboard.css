@@ -951,17 +951,6 @@
   gap: 16px;
 }
 
-.request-card {
-  background: #f9fafb;
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid #e5e7eb;
-  transition: all 0.2s;
-}
-
-.request-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
 .request-header {
   display: flex;
