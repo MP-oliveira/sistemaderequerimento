@@ -1121,35 +1121,47 @@ export const listRequests = async (req, res) => {
 export const getRequest = async (req, res) => {
   try {
     const { id } = req.params;
-    const { data: request, error } = await supabase
-      .from('requests')
-      .select(`
-        *,
-        users!requests_requester_id_fkey(full_name, email),
-        approved_by_user:users!requests_approved_by_fkey(full_name, email)
-      `)
-      .eq('id', id)
-      .single();
+    
+    // Executar todas as queries em paralelo para melhor performance
+    const [requestResult, itensResult, servicosResult] = await Promise.all([
+      // Buscar requisição
+      supabase
+        .from('requests')
+        .select(`
+          *,
+          users!requests_requester_id_fkey(full_name, email),
+          approved_by_user:users!requests_approved_by_fkey(full_name, email)
+        `)
+        .eq('id', id)
+        .single(),
+      
+      // Buscar itens relacionados à requisição
+      supabase
+        .from('request_items')
+        .select('*')
+        .eq('request_id', id),
+      
+      // Buscar serviços relacionados à requisição
+      supabase
+        .from('request_services')
+        .select('*')
+        .eq('request_id', id)
+    ]);
+
+    const { data: request, error } = requestResult;
+    const { data: itens } = itensResult;
+    const { data: servicos } = servicosResult;
+
     if (error || !request) {
       return res.status(404).json({ success: false, message: 'Requisição não encontrada.' });
     }
+    
     // Permissão: ADM, PASTOR, SEC e AUDIOVISUAL podem ver detalhes completos para edição
     if (
       req.user.role !== 'ADM' && req.user.role !== 'PASTOR' && req.user.role !== 'SEC' && req.user.role !== 'AUDIOVISUAL'
     ) {
       return res.status(403).json({ success: false, message: 'Acesso negado.' });
     }
-    // Buscar itens relacionados à requisição
-    const { data: itens, error: itensError } = await supabase
-      .from('request_items')
-      .select('*')
-      .eq('request_id', id);
-
-    // Buscar serviços relacionados à requisição
-    const { data: servicos, error: servicosError } = await supabase
-      .from('request_services')
-      .select('*')
-      .eq('request_id', id);
 
     // Retornar os dados da requisição + itens + serviços + dados do solicitante e aprovador
     const requestWithSolicitante = {
