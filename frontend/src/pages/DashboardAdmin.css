@@ -1720,12 +1720,18 @@ body, html {
 
 /* Cards do modal - desktop */
 @media (min-width: 769px) {
+  .dashboard-admin .modal {
+    width: 700px !important;
+    max-width: 700px !important;
+    min-width: 700px !important;
+  }
+  
   .dashboard-admin .modal-content {
-    width: 550px !important;
+    width: 700px !important;
   }
   
   .request-card {
-    width: 100% !important;
+    width: calc(100% - 10px) !important;
     margin-left: 0 !important;
     box-sizing: border-box !important;
   }
