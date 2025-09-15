@@ -105,9 +105,7 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    console.log('🔍 Backend - Login iniciado');
-    console.log('🔍 Backend - Email:', email);
-    console.log('🔍 Backend - Password:', password ? '***' : 'undefined');
+    // Login iniciado
 
     // Validações
     if (!email || !password) {
@@ -119,7 +117,6 @@ export const login = async (req, res) => {
     }
 
     // Buscar usuário diretamente na tabela users
-    console.log('🔍 Backend - Buscando usuário no banco...');
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
@@ -127,15 +124,11 @@ export const login = async (req, res) => {
       .single();
 
     if (error || !user) {
-      console.log('❌ Backend - Usuário não encontrado:', error);
       return res.status(401).json({
         success: false,
         message: 'Credenciais inválidas'
       });
     }
-
-    console.log('✅ Backend - Usuário encontrado:', { id: user.id, email: user.email, role: user.role });
-    console.log('🔍 Backend - password_hash existe?', !!user.password_hash);
 
     if (!user.is_active) {
       console.log('❌ Backend - Usuário inativo');
