@@ -29,35 +29,25 @@ const ReturnMaterials = () => {
     try {
       setLoading(true);
       
-      console.log('🔍 [ReturnMaterials] Iniciando carregamento de dados...');
-      
-      console.log('🔍 [ReturnMaterials] Chamando getExecutedItemsByCategory...');
       let itemsResponse;
       try {
-        console.log('🔍 [ReturnMaterials] Iniciando chamada da API...');
         itemsResponse = await Promise.race([
           getExecutedItemsByCategory('audiovisual'),
           new Promise((_, reject) => 
             setTimeout(() => reject(new Error('Timeout: API demorou mais de 10 segundos')), 10000)
           )
         ]);
-        console.log('🔍 [ReturnMaterials] itemsResponse completo:', itemsResponse);
-        console.log('🔍 [ReturnMaterials] itemsResponse.data:', itemsResponse.data);
       } catch (apiError) {
-        console.error('🔍 [ReturnMaterials] Erro na API getExecutedItemsByCategory:', apiError);
-        console.error('🔍 [ReturnMaterials] Erro completo:', apiError.message);
+        console.error('Erro na API getExecutedItemsByCategory:', apiError);
         throw apiError;
       }
       
-      console.log('🔍 [ReturnMaterials] Chamando listarRequisicoes...');
       const requisicoesData = await listarRequisicoes();
-      console.log('🔍 [ReturnMaterials] requisicoesData:', requisicoesData);
       
       setExecutedItems(itemsResponse.data || []);
       setRequisicoes(requisicoesData || []);
     } catch (error) {
-      console.error('🎯 ReturnMaterials - Erro ao carregar dados:', error);
-      console.error('🎯 ReturnMaterials - Stack trace:', error.stack);
+      console.error('Erro ao carregar dados:', error);
     } finally {
       setLoading(false);
     }
@@ -119,29 +109,12 @@ const ReturnMaterials = () => {
       nextWeek.setHours(23, 59, 59, 999); // Final do dia
       
       const isProximo = eventDate >= today && eventDate <= nextWeek;
-      console.log(`🔍 [ReturnMaterials] Verificando evento: ${item.requests.event_name}`);
-      console.log(`🔍 [ReturnMaterials] Data do evento: ${item.requests.date}`);
-      console.log(`🔍 [ReturnMaterials] eventDate: ${eventDate.toISOString()}`);
-      console.log(`🔍 [ReturnMaterials] today: ${today.toISOString()}`);
-      console.log(`🔍 [ReturnMaterials] nextWeek: ${nextWeek.toISOString()}`);
-      console.log(`🔍 [ReturnMaterials] É próximo? ${isProximo}`);
-      
       return isProximo;
     }
     
     return false;
   });
 
-  // Debug: Log dos dados carregados
-  console.log('🔍 [ReturnMaterials] executedItems:', executedItems);
-  console.log('🔍 [ReturnMaterials] requisicoes:', requisicoes);
-  
-  // Log detalhado dos itens para debug
-  if (executedItems.length > 0) {
-    console.log('🔍 [ReturnMaterials] Primeiro item detalhado:', executedItems[0]);
-    console.log('🔍 [ReturnMaterials] Estrutura do item.requests:', executedItems[0].requests);
-    console.log('🔍 [ReturnMaterials] Data do primeiro item:', executedItems[0].requests?.date);
-  }
 
   // Itens para retorno (status EXECUTADO) - apenas eventos recentes
   const itensParaRetorno = executedItems.filter(item => {

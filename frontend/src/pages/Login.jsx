@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import ibvaLogo from '../assets/images/ibva-logo.png';
 import AlwaysVisiblePWAButton from '../components/AlwaysVisiblePWAButton';
+import LoadingSpinner from '../components/LoadingSpinner';
 import './Login.css';
 
 export default function Login() {
@@ -58,7 +59,7 @@ export default function Login() {
   if (loadingAuth) {
     return (
       <div className="login-bg">
-        <div className="login-loading">Carregando...</div>
+        <LoadingSpinner size="lg" text="Carregando..." />
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import * as authService from '../services/authService';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export const 
 AuthContext = createContext();
@@ -98,13 +99,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async ({ email, password }) => {
-    console.log('🔍 AuthContext - Iniciando login:', { email });
     const data = await authService.login({ email, password });
-    console.log('🔍 AuthContext - Login response:', data);
     
     // Buscar dados completos do usuário após login
     const userData = await loadUserData(data.user.id);
-    console.log('🔍 AuthContext - User data from API:', userData);
     
     const userInfo = {
       id: userData?.id || data.user.id,
@@ -114,8 +112,6 @@ export function AuthProvider({ children }) {
       token: data.token
     };
     
-    console.log('🔍 AuthContext - Final user info:', userInfo);
-    console.log('🔍 AuthContext - Role do usuário:', userInfo.role);
     setUser(userInfo);
     return userInfo;
   };
@@ -128,13 +124,10 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <div>Carregando...</div>
-        </div>
+        <LoadingSpinner fullScreen={true} text="Carregando aplicação..." />
       ) : (
         children
       )}
-      {console.log('🔍 AuthContext - Renderizando com user:', user)}
     </AuthContext.Provider>
   );
 }

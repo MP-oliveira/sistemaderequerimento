@@ -4,13 +4,13 @@ import Modal from '../components/Modal';
 import Table from '../components/Table';
 import AdminButtons from '../components/AdminButtons';
 import EditRequestModal from '../components/EditRequestModal';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag, FiList, FiCheckSquare, FiXSquare, FiPlay, FiFileText, FiPause, FiAlertCircle, FiCheck, FiX, FiActivity, FiThumbsUp, FiThumbsDown, FiShield, FiStar, FiAward, FiEye } from 'react-icons/fi';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada } from '../services/requestsService';
 import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparation } from '../utils/notificationUtils';
 import './DashboardAdmin.css';
 
 export default function DashboardAdmin() {
-  console.log('🔍 DashboardAdmin - Componente sendo renderizado');
   
   const [requisicoes, setRequisicoes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,11 +47,8 @@ export default function DashboardAdmin() {
     try {
       setLoading(true);
       
-      console.log('🔄 [DashboardAdmin] Carregando dados...');
       const response = await listarRequisicoes();
       const requisicoesData = response.data || response || [];
-      console.log('🔄 [DashboardAdmin] Dados carregados:', requisicoesData.length, 'requisições');
-      console.log('🔄 [DashboardAdmin] Status das requisições:', requisicoesData.map(r => ({ id: r.id, event_name: r.event_name, status: r.status })));
       setRequisicoes(requisicoesData);
       
       // Calcular estatísticas
@@ -67,7 +64,7 @@ export default function DashboardAdmin() {
       setStats(statsData);
       
     } catch (error) {
-      console.error('❌ DashboardAdmin - Erro ao carregar dados:', error);
+      console.error('Erro ao carregar dados:', error);
       mostrarNotificacao('Erro ao carregar dados do dashboard', 'erro');
     } finally {
       setLoading(false);
@@ -303,10 +300,8 @@ export default function DashboardAdmin() {
         <p>Visão geral das requisições e estatísticas do sistema</p>
       </div>
 
-      {console.log('🔍 ANTES DO LOADING - loading:', loading)}
-
       {loading ? (
-        <div className="dashboard-loading">Carregando dashboard...</div>
+        <LoadingSpinner size="lg" text="Carregando dashboard..." />
       ) : (
         <>
           {/* Cards de Estatísticas */}
@@ -673,9 +668,7 @@ export default function DashboardAdmin() {
         title={currentFilter === 'TOTAL' ? 'Total de Requisições' : `Requisições ${getStatusLabel(currentFilter)}`}
       >
         {filterLoading ? (
-          <div className="loading-state">
-            <p>Carregando requisições...</p>
-          </div>
+          <LoadingSpinner size="md" text="Carregando requisições..." />
         ) : filteredRequests.length === 0 ? (
           <div className="empty-state">
             <p>Nenhuma requisição encontrada para este filtro.</p>

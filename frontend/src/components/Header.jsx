@@ -8,8 +8,6 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function Header() {
   const { user, logout, login } = useAuth();
   const navigate = useNavigate();
-  
-  console.log('🔍 Header - User data:', user);
 
   const handleAutoLogin = async () => {
     try {
@@ -23,22 +21,15 @@ export default function Header() {
   
   // Determinar para onde o logo deve redirecionar
   const getDashboardPath = () => {
-    console.log('🔍 Header - getDashboardPath - user:', user);
-    console.log('🔍 Header - getDashboardPath - isAdmin:', isAdmin);
-    
     if (!user) {
-      console.log('🔍 Header - getDashboardPath - redirecionando para /');
       return '/';
     }
     if (isAdmin) {
-      console.log('🔍 Header - getDashboardPath - redirecionando para /admin/dashboard');
       return '/admin/dashboard';
     }
     if (user.role === 'AUDIOVISUAL') {
-      console.log('🔍 Header - getDashboardPath - redirecionando para /audiovisual/dashboard');
       return '/audiovisual/dashboard';
     }
-    console.log('🔍 Header - getDashboardPath - redirecionando para /dashboard');
     return '/dashboard';
   };
 
@@ -48,7 +39,6 @@ export default function Header() {
         <button
           onClick={() => {
             const path = getDashboardPath();
-            console.log('🔍 Header - Logo clicada, redirecionando para:', path);
             navigate(path);
           }}
           style={{

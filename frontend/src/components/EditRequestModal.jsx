@@ -7,13 +7,6 @@ import { salasOptions } from '../utils/salasConfig';
 import { FiSearch, FiPlus, FiX } from 'react-icons/fi';
 
 export default function EditRequestModal({ open, onClose, request, onSave }) {
-      // Log removido para limpeza
-  console.log('🔍 EditRequestModal - open é boolean?', typeof open);
-  console.log('🔍 EditRequestModal - request é null?', request === null);
-  console.log('🔍 EditRequestModal - request é undefined?', request === undefined);
-  console.log('🔍 request.itens:', request?.itens);
-  console.log('🔍 request.servicos:', request?.servicos);
-  console.log('🔍 request completo:', request);
   
   const [editedRequest, setEditedRequest] = useState(request || {});
   const [saving, setSaving] = useState(false);
@@ -23,9 +16,6 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
   
   // Processar dados diretamente no render
   const processedItems = React.useMemo(() => {
-    console.log('🔍 [EditRequestModal] Processando itens:', request?.itens);
-    console.log('🔍 [EditRequestModal] Tipo de request.itens:', typeof request?.itens);
-    console.log('🔍 [EditRequestModal] request.itens é array?', Array.isArray(request?.itens));
     if (request && request.itens) {
       const items = (request.itens || []).map(item => ({
         id: item.inventory_id,
@@ -33,17 +23,12 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
         quantity: item.quantity_requested,
         ...item
       }));
-      console.log('🔍 [EditRequestModal] Itens processados:', items);
       return items;
     }
-    console.log('🔍 [EditRequestModal] Nenhum item encontrado');
     return [];
   }, [request?.itens]);
   
   const processedServices = React.useMemo(() => {
-    console.log('🔍 [EditRequestModal] Processando serviços:', request?.servicos);
-    console.log('🔍 [EditRequestModal] Tipo de request.servicos:', typeof request?.servicos);
-    console.log('🔍 [EditRequestModal] request.servicos é array?', Array.isArray(request?.servicos));
     if (request && request.servicos) {
       const services = (request.servicos || []).map((service, index) => ({
         ...service,
@@ -52,17 +37,13 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
         nome: service.nome,
         quantidade: service.quantidade || 1
       }));
-      console.log('🔍 [EditRequestModal] Serviços processados:', services);
       return services;
     }
-    console.log('🔍 [EditRequestModal] Nenhum serviço encontrado');
     return [];
   }, [request?.servicos]);
   
   // Atualizar estados quando os dados processados mudarem
   React.useEffect(() => {
-    console.log('🔍 [EditRequestModal] useEffect - processedItems:', processedItems);
-    console.log('🔍 [EditRequestModal] useEffect - processedServices:', processedServices);
     setSelectedItems(processedItems);
     setSelectedServices(processedServices);
   }, [processedItems, processedServices]);
@@ -73,8 +54,6 @@ export default function EditRequestModal({ open, onClose, request, onSave }) {
 
   // Função para formatar horário para o input time
   const formatTimeForInput = (datetime) => {
-    console.log('🕐 Formatando datetime:', datetime);
-  console.log('🔄 EditRequestModal - useEffect será executado?');
     
     if (!datetime) {
       console.log('🕐 Datetime vazio, retornando vazio');
