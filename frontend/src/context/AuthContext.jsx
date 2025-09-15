@@ -62,7 +62,7 @@ export function AuthProvider({ children }) {
           }
           
           // Buscar dados completos do usuário
-          const userData = await loadUserData(payload.userId);
+          const userData = await loadUserData();
           console.log('🔍 AuthContext - User data from API:', userData);
           
           if (userData) {
@@ -102,7 +102,7 @@ export function AuthProvider({ children }) {
     const data = await authService.login({ email, password });
     
     // Buscar dados completos do usuário após login
-    const userData = await loadUserData(data.user.id);
+    const userData = await loadUserData();
     
     const userInfo = {
       id: userData?.id || data.user.id,

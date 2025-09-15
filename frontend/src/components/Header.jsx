@@ -21,15 +21,22 @@ export default function Header() {
   
   // Determinar para onde o logo deve redirecionar
   const getDashboardPath = () => {
+    console.log('🔍 Header - getDashboardPath - user:', user);
+    console.log('🔍 Header - getDashboardPath - isAdmin:', isAdmin);
+    
     if (!user) {
+      console.log('🔍 Header - getDashboardPath - no user, returning /');
       return '/';
     }
     if (isAdmin) {
+      console.log('🔍 Header - getDashboardPath - is admin, returning /admin/dashboard');
       return '/admin/dashboard';
     }
     if (user.role === 'AUDIOVISUAL') {
+      console.log('🔍 Header - getDashboardPath - is audiovisual, returning /audiovisual/dashboard');
       return '/audiovisual/dashboard';
     }
+    console.log('🔍 Header - getDashboardPath - default, returning /dashboard');
     return '/dashboard';
   };
 
@@ -39,6 +46,7 @@ export default function Header() {
         <button
           onClick={() => {
             const path = getDashboardPath();
+            console.log('🔍 Header - Logo clicked, navigating to:', path);
             navigate(path);
           }}
           style={{
