@@ -5,7 +5,7 @@ import Table from '../components/Table';
 import AdminButtons from '../components/AdminButtons';
 import EditRequestModal from '../components/EditRequestModal';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag, FiList, FiCheckSquare, FiXSquare, FiPlay, FiFileText, FiPause, FiAlertCircle, FiCheck, FiX, FiActivity, FiThumbsUp, FiThumbsDown, FiShield, FiStar, FiAward, FiEye } from 'react-icons/fi';
+import { FiZap, FiPlus, FiUserPlus, FiCalendar, FiDownload, FiBarChart2, FiClock, FiAlertTriangle, FiCheckCircle, FiXCircle, FiFlag, FiList, FiCheckSquare, FiXSquare, FiPlay, FiFileText, FiPause, FiAlertCircle, FiCheck, FiX, FiActivity, FiThumbsUp, FiThumbsDown, FiShield, FiStar, FiAward, FiEye, FiPrinter } from 'react-icons/fi';
 import { listarRequisicoes, aprovarRequisicao, rejeitarRequisicao, getRequisicaoDetalhada } from '../services/requestsService';
 import { notifyRequestApproved, notifyRequestRejected, notifyAudiovisualPreparation } from '../utils/notificationUtils';
 import './DashboardAdmin.css';
@@ -37,6 +37,9 @@ export default function DashboardAdmin() {
   // Estados para o modal de edição
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  
+  // Estado para controlar se é mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 430);
 
   function mostrarNotificacao(mensagem, tipo) {
     setNotificacao({ mensagem, tipo });
@@ -74,6 +77,8 @@ export default function DashboardAdmin() {
   // Função para abrir modal com requisições filtradas
   const abrirFiltro = async (status) => {
     try {
+      console.log('Abrindo modal com status:', status);
+      console.log('isMobile:', isMobile);
       setFilterLoading(true);
       setCurrentFilter(status);
       setShowFilterModal(true);
@@ -103,6 +108,315 @@ export default function DashboardAdmin() {
     } catch {
       return '';
     }
+  };
+
+  // Função para imprimir requisição
+  const handlePrint = async (id) => {
+    try {
+      const detalhe = await getRequisicaoDetalhada(id);
+      generatePDF(detalhe);
+    } catch (error) {
+      mostrarNotificacao('Erro ao buscar detalhes da requisição para impressão', 'erro');
+    }
+  };
+
+  // Função para gerar PDF
+  const generatePDF = (requisicao) => {
+    // Criar um novo documento HTML para impressão
+    const printWindow = window.open('', '_blank');
+    
+    // Formatar data para o padrão brasileiro
+    const formatarDataPDF = (data) => {
+      if (!data) return '';
+      const date = new Date(data);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit'
+      });
+    };
+
+    // Formatar horário
+    const formatarHorario = (data) => {
+      if (!data) return '';
+      const date = new Date(data);
+      return date.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
+
+    // Formatar data de solicitação (data atual)
+    const dataSolicitacao = formatarDataPDF(new Date());
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Requerimento para Evento - ${requisicao.event_name}</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 2cm;
+          }
+          
+          body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            background: white;
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 25px;
+          }
+          
+          .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+          
+          .instruction {
+            font-size: 10px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: normal;
+          }
+          
+          .form-section {
+            margin-bottom: 20px;
+          }
+          
+          .form-row {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: center;
+            min-height: 20px;
+          }
+          
+          .form-label {
+            font-weight: bold;
+            min-width: 140px;
+            margin-right: 10px;
+            font-size: 11px;
+          }
+          
+          .form-value {
+            flex: 1;
+            border-bottom: 1px solid #000;
+            padding: 2px 5px;
+            min-height: 18px;
+            font-size: 11px;
+          }
+          
+          .checkbox {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #000;
+          }
+          
+          .requests-section {
+            margin: 25px 0;
+          }
+          
+          .requests-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-decoration: underline;
+            font-size: 12px;
+          }
+          
+          .request-item {
+            margin-bottom: 6px;
+            padding-left: 15px;
+            font-size: 11px;
+            line-height: 1.3;
+          }
+          
+          .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+          }
+          
+          .signature-block {
+            flex: 1;
+          }
+          
+          .signature-line {
+            border-bottom: 1px solid #000;
+            margin-bottom: 15px;
+            height: 18px;
+            width: 100%;
+          }
+          
+          .signature-label {
+            font-size: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+          }
+          
+          .solicitation-method {
+            margin: 8px 0;
+            font-size: 10px;
+          }
+          
+          .method-option {
+            margin-right: 15px;
+          }
+          
+          .logo {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+          }
+          
+          .logo-full {
+            font-size: 9px;
+            margin-top: 3px;
+            color: #333;
+            font-weight: normal;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="title">REQUERIMENTO PARA EVENTO</div>
+          <div class="instruction">ESTE DOCUMENTO DEVERÁ SER ENTREGUE TENDO UM PRAZO MÍNIMO DE 10 DIAS ANTES DO EVENTO.</div>
+        </div>
+        
+        <div class="form-section">
+          <div class="form-row">
+            <span class="form-label">SOLICITANTE:</span>
+            <span class="form-value">${requisicao.user?.name || requisicao.requester_name || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <div class="form-row">
+            <span class="form-label">LÍDER:</span>
+            <span class="form-value">${requisicao.user?.name || requisicao.requester_name || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <div class="form-row">
+            <span class="form-label">DEPARTAMENTO:</span>
+            <span class="form-value">${requisicao.department || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <div class="form-row">
+            <span class="form-label">EVENTO:</span>
+            <span class="form-value">${requisicao.event_name || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <div class="form-row">
+            <span class="form-label">DATA DO EVENTO:</span>
+            <span class="form-value">${formatarDataPDF(requisicao.start_datetime || requisicao.date)}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <div class="form-row">
+            <span class="form-label">HORÁRIO:</span>
+            <span class="form-value">${formatarHorario(requisicao.start_datetime)}${requisicao.end_datetime ? ' - ' + formatarHorario(requisicao.end_datetime) : ''}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <div class="form-row">
+            <span class="form-label">PÚBLICO PREVISTO:</span>
+            <span class="form-value">${requisicao.expected_audience || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <div class="form-row">
+            <span class="form-label">LOCAL DO EVENTO:</span>
+            <span class="form-value">${requisicao.location || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+        </div>
+        
+        <div class="requests-section">
+          <div class="requests-title">SOLICITAÇÕES:</div>
+          ${requisicao.itens && requisicao.itens.length > 0 ? 
+            requisicao.itens.map((item, index) => `
+              <div class="request-item">
+                ${index + 1}. ${item.item_name || item.inventory?.name || 'Item'} - Quantidade: ${item.quantity_requested || item.quantity || 1}
+                ${item.description ? ` (${item.description})` : ''}
+              </div>
+            `).join('') : ''
+          }
+          ${requisicao.servicos && requisicao.servicos.length > 0 ? 
+            requisicao.servicos.map((servico, index) => `
+              <div class="request-item">
+                ${(requisicao.itens?.length || 0) + index + 1}. ${servico.nome || servico.tipo} - Quantidade: ${servico.quantidade || 1}
+              </div>
+            `).join('') : ''
+          }
+        </div>
+        
+        <div class="signature-section">
+          <div class="signature-block">
+            <div class="signature-label">PARECER IBVA:</div>
+            <div class="signature-line"></div>
+            <div class="signature-line"></div>
+            <div class="signature-line"></div>
+            
+            <div class="signature-label">SOLICITADO:</div>
+            <div class="solicitation-method">
+              <span class="method-option">WHATS APP ( )</span>
+              <span class="method-option">EMAIL ( )</span>
+              <span class="method-option">PESSOALMENTE (☑)</span>
+            </div>
+            
+            <div class="signature-label">DATA DA SOLICITAÇÃO:</div>
+            <div class="signature-line" style="width: 100px; display: inline-block;"></div>
+            <span style="margin-left: 10px; font-size: 10px;">${dataSolicitacao}</span>
+            
+            <div class="signature-label">ASSINATURA DO LÍDER:</div>
+            <div class="signature-line"></div>
+            
+            <div class="signature-label">ASSINATURA DO SOLICITANTE:</div>
+            <div class="signature-line"></div>
+          </div>
+          
+          <div class="signature-block">
+            <div class="signature-label">AUTORIZADO POR:</div>
+            <div class="signature-line"></div>
+            
+            <div class="signature-label">ASSINATURA DA SECRETÁRIA:</div>
+            <div class="signature-line"></div>
+          </div>
+        </div>
+        
+        <div class="logo">
+          IBVA
+          <div class="logo-full">INSTITUTO BRASILEIRO DE VALORIZAÇÃO DO SER HUMANO</div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    // Aguardar o conteúdo carregar e então imprimir
+    printWindow.onload = function() {
+      printWindow.print();
+      printWindow.close();
+    };
   };
 
   // Função para obter label do status
@@ -280,6 +594,16 @@ export default function DashboardAdmin() {
   useEffect(() => {
     carregarDados();
     console.log('DashboardAdmin carregado - JavaScript funcionando');
+  }, []);
+
+  // Detectar mudanças no tamanho da tela
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 430);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
 
@@ -664,8 +988,13 @@ export default function DashboardAdmin() {
       {/* Modal de Filtros */}
       <Modal 
         open={showFilterModal} 
-        onClose={() => setShowFilterModal(false)}
-        title={currentFilter === 'TOTAL' ? 'Total de Requisições' : `Requisições ${getStatusLabel(currentFilter)}`}
+        onClose={() => {
+          setShowFilterModal(false);
+          setCurrentFilter('');
+          setFilteredRequests([]);
+          setFilterLoading(false);
+        }}
+        title={currentFilter === 'TOTAL' ? 'Total de Requerimentos' : `Requerimentos ${getStatusLabel(currentFilter)}`}
       >
         {filterLoading ? (
           <LoadingSpinner size="md" text="Carregando requisições..." />
@@ -852,6 +1181,19 @@ export default function DashboardAdmin() {
                 <strong>Descrição:</strong> {reqDetalhe.description}
               </div>
             )}
+            
+            {/* Botões de ação */}
+            <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <Button 
+                variant="primary" 
+                size="sm" 
+                onClick={() => handlePrint(reqDetalhe.id)}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <FiPrinter size={16} />
+                Imprimir Requerimento
+              </Button>
+            </div>
           </div>
         )}
       </Modal>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX, FiSearch } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX, FiSearch, FiPrinter } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
@@ -635,6 +635,384 @@ export default function RequestsAdmin() {
     mostrarNotificacao('Dados copiados com sucesso! Preencha a nova data e horário.', 'sucesso');
   };
 
+  // Função para imprimir requisição
+  const handlePrint = async (id) => {
+    try {
+      const detalhe = await getRequisicaoDetalhada(id);
+      generatePDF(detalhe);
+    } catch (error) {
+      mostrarNotificacao('Erro ao buscar detalhes da requisição para impressão', 'erro');
+    }
+  };
+
+  // Função para gerar PDF
+  const generatePDF = (requisicao) => {
+    // Criar um novo documento HTML para impressão
+    const printWindow = window.open('', '_blank');
+    
+    // Formatar data para o padrão brasileiro
+    const formatarData = (data) => {
+      if (!data) return '';
+      const date = new Date(data);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit'
+      });
+    };
+
+    // Formatar horário
+    const formatarHorario = (data) => {
+      if (!data) return '';
+      const date = new Date(data);
+      return date.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
+
+    // Formatar data de solicitação (data atual)
+    const dataSolicitacao = formatarData(new Date());
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Requerimento para Evento - ${requisicao.event_name}</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 2cm;
+          }
+          
+          body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+          }
+          
+          .a4-container {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            padding: 20mm;
+            box-sizing: border-box;
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 25px;
+          }
+          
+          .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 8px 0;
+          }
+          
+          .instruction {
+            font-size: 10px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: normal;
+            margin: 0 0 20px 0;
+          }
+          
+          .form-section {
+            margin-bottom: 20px;
+          }
+          
+          .form-row {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: center;
+            min-height: 20px;
+          }
+          
+          .form-row-inline {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+          }
+          
+          .form-field {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 200px;
+          }
+          
+          .form-label {
+            font-weight: bold;
+            min-width: 90px;
+            margin-right: 0px;
+            font-size: 11px;
+            white-space: nowrap;
+          }
+          
+          .form-value {
+            flex: 1;
+            border-bottom: 1px solid #000;
+            padding: 2px 5px;
+            min-height: 18px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-right: 8px;
+          }
+          
+          .checkbox {
+            font-size: 14px;
+            color: #000;
+            margin-left: 5px;
+          }
+          
+          .requests-section {
+            margin: 25px 0;
+          }
+          
+          .requests-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-decoration: underline;
+            font-size: 12px;
+          }
+          
+          .requests-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            width: 100%;
+          }
+          
+          .request-item {
+            margin-bottom: 2px;
+            padding-left: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.2;
+            flex: 1;
+            min-width: 45%;
+            max-width: 48%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          
+          .signature-section {
+            margin-top: 40px;
+          }
+          
+          .signature-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+          }
+          
+          .signature-line {
+            border-bottom: 1px solid #000;
+            margin-bottom: 15px;
+            height: 18px;
+            width: 100%;
+          }
+          
+          .signature-label {
+            font-size: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+          }
+          
+          .solicitation-method {
+            margin: 8px 0;
+            font-size: 10px;
+          }
+          
+          .method-option {
+            margin-right: 15px;
+          }
+          
+          .logo {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+          }
+          
+          .logo-full {
+            font-size: 9px;
+            margin-top: 3px;
+            color: #333;
+            font-weight: normal;
+          }
+          
+          .date-input {
+            width: 80px;
+            border-bottom: 1px solid #000;
+            text-align: center;
+            font-size: 10px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="a4-container">
+          <div class="header">
+          <h1 class="title">REQUERIMENTO PARA EVENTO</h1>
+          <p class="instruction">ESTE DOCUMENTO DEVERÁ SER ENTREGUE TENDO UM PRAZO MÍNIMO DE 10 DIAS ANTES DO EVENTO.</p>
+        </div>
+        
+        <div class="form-section">
+          <!-- Solicitante e Líder na mesma linha -->
+          <div class="form-row-inline">
+            <div class="form-field">
+              <span class="form-label">SOLICITANTE:</span>
+              <span class="form-value">${requisicao.user?.name || 'N/A'}</span>
+              <span class="checkbox">☑</span>
+            </div>
+            <div class="form-field">
+              <span class="form-label">LÍDER:</span>
+              <span class="form-value">${requisicao.user?.name || 'N/A'}</span>
+              <span class="checkbox">☑</span>
+            </div>
+          </div>
+          
+          <!-- Departamento -->
+          <div class="form-row">
+            <span class="form-label">DEPARTAMENTO:</span>
+            <span class="form-value">${requisicao.department || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <!-- Evento -->
+          <div class="form-row">
+            <span class="form-label">EVENTO:</span>
+            <span class="form-value">${requisicao.event_name || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+          
+          <!-- Data, Horário e Público na mesma linha -->
+          <div class="form-row-inline">
+            <div class="form-field">
+              <span class="form-label">DATA DO EVENTO:</span>
+              <span class="form-value">${formatarData(requisicao.start_datetime || requisicao.date)}</span>
+              <span class="checkbox">☑</span>
+            </div>
+            <div class="form-field">
+              <span class="form-label" style="min-width: auto; margin-right: 0;">HORÁRIO:</span>
+              <span class="form-value" style="display: flex; align-items: center; gap: 5px; margin-left: 0;">
+                <span>${formatarHorario(requisicao.start_datetime)}</span>
+                ${requisicao.end_datetime ? '<span>-</span><span>' + formatarHorario(requisicao.end_datetime) + '</span>' : ''}
+              </span>
+              <span class="checkbox">☑</span>
+            </div>
+            <div class="form-field">
+              <span class="form-label">PÚBLICO PREVISTO:</span>
+              <span class="form-value">${requisicao.expected_audience || 'N/A'}</span>
+              <span class="checkbox">☑</span>
+            </div>
+          </div>
+          
+          <!-- Local do Evento -->
+          <div class="form-row">
+            <span class="form-label">LOCAL DO EVENTO:</span>
+            <span class="form-value">${requisicao.location || 'N/A'}</span>
+            <span class="checkbox">☑</span>
+          </div>
+        </div>
+        
+        <div class="requests-section">
+          <div class="requests-title">SOLICITAÇÕES:</div>
+          <div class="requests-container">
+            ${requisicao.itens && requisicao.itens.length > 0 ? 
+              requisicao.itens.map((item, index) => `
+                <div class="request-item">
+                  ${index + 1}. ${item.item_name || item.inventory?.name || 'Item'} - Qtd: ${item.quantity_requested || item.quantity || 1}
+                  ${item.description ? ` (${item.description})` : ''}
+                </div>
+              `).join('') : ''
+            }
+            ${requisicao.servicos && requisicao.servicos.length > 0 ? 
+              requisicao.servicos.map((servico, index) => `
+                <div class="request-item">
+                  ${(requisicao.itens?.length || 0) + index + 1}. ${servico.nome || servico.tipo} - Qtd: ${servico.quantidade || 1}
+                </div>
+              `).join('') : ''
+            }
+          </div>
+        </div>
+        
+        <div class="signature-section">
+          <div class="signature-label">PARECER IBVA:</div>
+          <div class="signature-line"></div>
+          <div class="signature-line"></div>
+          <div class="signature-line"></div>
+          
+          <div class="signature-row">
+            <div class="signature-label">SOLICITADO:</div>
+            <div class="solicitation-method">
+              <span class="method-option">WHATS APP ( )</span>
+              <span class="method-option">EMAIL ( )</span>
+              <span class="method-option">PESSOALMENTE (☑)</span>
+            </div>
+          </div>
+          
+          <div class="signature-row">
+            <div class="signature-label">DATA DA SOLICITAÇÃO:</div>
+            <div class="signature-line" style="width: 100px; display: inline-block;"></div>
+            <span style="margin-left: 10px; font-size: 12px; font-weight: 500;">${dataSolicitacao}</span>
+            <div class="signature-label" style="margin-left: 30px;">ASSINATURA DO LÍDER:</div>
+            <div class="signature-line" style="flex: 1; margin-left: 10px;"></div>
+          </div>
+          
+          <div class="signature-label">ASSINATURA DO SOLICITANTE:</div>
+          <div class="signature-line"></div>
+          
+          <div class="signature-row">
+            <div class="signature-label">AUTORIZADO POR:</div>
+            <div class="signature-line" style="flex: 1; margin-right: 20px;"></div>
+            <div class="signature-label">ASSINATURA DA SECRETÁRIA:</div>
+            <div class="signature-line" style="flex: 1;"></div>
+          </div>
+        </div>
+        
+        <div class="logo">
+          IBVA
+          <div class="logo-full">INSTITUTO BRASILEIRO DE VALORIZAÇÃO DO SER HUMANO</div>
+        </div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    // Aguardar o conteúdo carregar
+    printWindow.onload = function() {
+      // Por enquanto, apenas abrir a janela para visualização e formatação
+      // Depois podemos adicionar o print() quando estiver pronto
+      console.log('Documento carregado para formatação');
+    };
+  };
+
   // Função para editar campo
   const handleEditField = (field, value) => {
     if (editReq) {
@@ -923,6 +1301,28 @@ export default function RequestsAdmin() {
                     }}
                   >
                     C
+                  </button>
+                  <button 
+                    onClick={() => handlePrint(req.id)}
+                    className="print-request-button"
+                    title="Imprimir"
+                    style={{
+                      backgroundColor: '#374151',
+                      color: 'white',
+                      cursor: 'pointer',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '8px 12px',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      minWidth: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <FiPrinter size={18} style={{ color: 'white' }} />
                   </button>
                   <Button 
                     onClick={() => handleDelete(req.id)}
