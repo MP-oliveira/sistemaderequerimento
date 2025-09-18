@@ -764,7 +764,7 @@ export default function RequestsAdmin() {
           }
           
           .form-label {
-            font-weight: bold;
+            font-weight: bold !important;
             min-width: 90px;
             margin-right: 0px;
             font-size: 11px;
@@ -792,7 +792,7 @@ export default function RequestsAdmin() {
           }
           
           .requests-title {
-            font-weight: bold;
+            font-weight: bold !important;
             margin-bottom: 12px;
             text-decoration: underline;
             font-size: 12px;
@@ -838,14 +838,23 @@ export default function RequestsAdmin() {
           }
           
           .signature-label {
-            font-size: 10px;
+            font-size: 12px;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: bold !important;
           }
           
           .solicitation-method {
             margin: 8px 0;
             font-size: 10px;
+          }
+          
+          /* Forçar negrito em todos os títulos */
+          .form-label,
+          .requests-title,
+          .signature-label,
+          .print-section-title,
+          .print-signature-title {
+            font-weight: bold !important;
           }
           
           .method-option {
@@ -878,7 +887,7 @@ export default function RequestsAdmin() {
       <body>
         <div class="a4-container">
           <div class="header">
-          <h1 class="title">REQUERIMENTO PARA EVENTO</h1>
+          <h1 class="print-main-title">REQUERIMENTO PARA EVENTO</h1>
           <p class="instruction">ESTE DOCUMENTO DEVERÁ SER ENTREGUE TENDO UM PRAZO MÍNIMO DE 10 DIAS ANTES DO EVENTO.</p>
         </div>
         
@@ -942,7 +951,7 @@ export default function RequestsAdmin() {
         </div>
         
         <div class="requests-section">
-          <div class="requests-title">SOLICITAÇÕES:</div>
+          <div class="print-section-title">SOLICITAÇÕES:</div>
           <div class="requests-container">
             ${requisicao.itens && requisicao.itens.length > 0 ? 
               requisicao.itens.map((item, index) => `
@@ -963,13 +972,13 @@ export default function RequestsAdmin() {
         </div>
         
         <div class="signature-section">
-          <div class="signature-label">PARECER IBVA:</div>
+          <div class="print-signature-title">PARECER IBVA:</div>
           <div class="signature-line"></div>
           <div class="signature-line"></div>
           <div class="signature-line"></div>
           
           <div class="signature-row">
-            <div class="signature-label">SOLICITADO:</div>
+            <div class="print-signature-title">SOLICITADO:</div>
             <div class="solicitation-method">
               <span class="method-option">WHATS APP ( )</span>
               <span class="method-option">EMAIL ( )</span>
@@ -978,21 +987,21 @@ export default function RequestsAdmin() {
           </div>
           
           <div class="signature-row">
-            <div class="signature-label">DATA DA SOLICITAÇÃO:</div>
-            <div class="signature-line" style="width: 100px; display: inline-block;"></div>
-            <span style="margin-left: 10px; font-size: 12px; font-weight: 500;">${dataSolicitacao}</span>
-            <div class="signature-label" style="margin-left: 30px;">ASSINATURA DO LÍDER:</div>
-            <div class="signature-line" style="flex: 1; margin-left: 10px;"></div>
+            <div class="print-signature-title">DATA DA SOLICITAÇÃO:</div>
+            <div class="signature-line print-date-line"></div>
+            <span class="print-date-value">${dataSolicitacao}</span>
+            <div class="print-signature-title print-signature-label-spaced">ASSINATURA DO LÍDER:</div>
+            <div class="signature-line print-signature-line-flex"></div>
           </div>
           
-          <div class="signature-label">ASSINATURA DO SOLICITANTE:</div>
+          <div class="print-signature-title">ASSINATURA DO SOLICITANTE:</div>
           <div class="signature-line"></div>
           
           <div class="signature-row">
-            <div class="signature-label">AUTORIZADO POR:</div>
-            <div class="signature-line" style="flex: 1; margin-right: 20px;"></div>
-            <div class="signature-label">ASSINATURA DA SECRETÁRIA:</div>
-            <div class="signature-line" style="flex: 1;"></div>
+            <div class="print-signature-title">AUTORIZADO POR:</div>
+            <div class="signature-line print-signature-line-flex print-signature-line-margin"></div>
+            <div class="print-signature-title">ASSINATURA DA SECRETÁRIA:</div>
+            <div class="signature-line print-signature-line-flex"></div>
           </div>
         </div>
         

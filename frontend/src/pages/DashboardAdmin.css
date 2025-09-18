@@ -41,6 +41,59 @@ body, html {
   min-height: 100vh !important;
 }
 
+/* Classes para impressão - Data da Solicitação */
+.print-date-line {
+  width: 100px;
+  display: inline-block;
+  position: relative;
+}
+
+.print-date-value {
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  font-size: 10px;
+  background: white;
+  padding: 0 2px;
+  z-index: 1;
+}
+
+/* Classes para padronizar tamanhos de fonte na impressão */
+.print-main-title {
+  font-size: 18px;
+  font-weight: bold !important;
+  color: #0066cc;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.print-section-title {
+  font-size: 12px;
+  font-weight: bold !important;
+  margin-bottom: 12px;
+  text-decoration: underline;
+}
+
+.print-signature-title {
+  font-size: 12px;
+  font-weight: bold !important;
+  margin-bottom: 5px;
+}
+
+.print-signature-line-margin {
+  margin-right: 20px;
+}
+
+/* Forçar negrito em todos os títulos de impressão */
+.print-main-title,
+.print-section-title,
+.print-signature-title,
+.requests-title,
+.signature-label {
+  font-weight: bold !important;
+}
+
 #root {
   overflow-y: auto !important;
   overflow-x: hidden !important;

@@ -205,7 +205,7 @@ export default function DashboardAdmin() {
           }
           
           .form-label {
-            font-weight: bold;
+            font-weight: bold !important;
             min-width: 140px;
             margin-right: 10px;
             font-size: 11px;
@@ -230,7 +230,7 @@ export default function DashboardAdmin() {
           }
           
           .requests-title {
-            font-weight: bold;
+            font-weight: bold !important;
             margin-bottom: 12px;
             text-decoration: underline;
             font-size: 12px;
@@ -262,14 +262,23 @@ export default function DashboardAdmin() {
           }
           
           .signature-label {
-            font-size: 10px;
+            font-size: 12px;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: bold !important;
           }
           
           .solicitation-method {
             margin: 8px 0;
             font-size: 10px;
+          }
+          
+          /* Forçar negrito em todos os títulos */
+          .form-label,
+          .requests-title,
+          .signature-label,
+          .print-section-title,
+          .print-signature-title {
+            font-weight: bold !important;
           }
           
           .method-option {
@@ -369,34 +378,34 @@ export default function DashboardAdmin() {
         
         <div class="signature-section">
           <div class="signature-block">
-            <div class="signature-label">PARECER IBVA:</div>
+            <div class="print-signature-title">PARECER IBVA:</div>
             <div class="signature-line"></div>
             <div class="signature-line"></div>
             <div class="signature-line"></div>
             
-            <div class="signature-label">SOLICITADO:</div>
+            <div class="print-signature-title">SOLICITADO:</div>
             <div class="solicitation-method">
               <span class="method-option">WHATS APP ( )</span>
               <span class="method-option">EMAIL ( )</span>
               <span class="method-option">PESSOALMENTE (☑)</span>
             </div>
             
-            <div class="signature-label">DATA DA SOLICITAÇÃO:</div>
-            <div class="signature-line" style="width: 100px; display: inline-block;"></div>
-            <span style="margin-left: 10px; font-size: 10px;">${dataSolicitacao}</span>
+            <div class="print-signature-title">DATA DA SOLICITAÇÃO:</div>
+            <div class="signature-line print-date-line"></div>
+            <span class="print-date-value">${dataSolicitacao}</span>
             
-            <div class="signature-label">ASSINATURA DO LÍDER:</div>
+            <div class="print-signature-title">ASSINATURA DO LÍDER:</div>
             <div class="signature-line"></div>
             
-            <div class="signature-label">ASSINATURA DO SOLICITANTE:</div>
+            <div class="print-signature-title">ASSINATURA DO SOLICITANTE:</div>
             <div class="signature-line"></div>
           </div>
           
           <div class="signature-block">
-            <div class="signature-label">AUTORIZADO POR:</div>
+            <div class="print-signature-title">AUTORIZADO POR:</div>
             <div class="signature-line"></div>
             
-            <div class="signature-label">ASSINATURA DA SECRETÁRIA:</div>
+            <div class="print-signature-title">ASSINATURA DA SECRETÁRIA:</div>
             <div class="signature-line"></div>
           </div>
         </div>
