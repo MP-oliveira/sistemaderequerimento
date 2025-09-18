@@ -23,7 +23,7 @@ import { PRIORIDADE_OPTIONS, PRIORIDADE_DEFAULT } from '../utils/prioridadeConfi
 import { formatTimeUTC } from '../utils/dateUtils';
 import './Requests.css';
 
-// Função debounce para evitar muitas requisições
+// Função debounce para evitar muitas Requerimentos
 function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
@@ -250,7 +250,7 @@ export default function Requests() {
       const data = await listarRequisicoes();
       setRequisicoes(Array.isArray(data) ? data : []);
     } catch {
-      mostrarNotificacao('Erro ao buscar requisições', 'erro');
+      mostrarNotificacao('Erro ao buscar Requerimentos', 'erro');
     }
     setLoading(false);
   }
@@ -294,7 +294,7 @@ export default function Requests() {
         dataToSend.end_datetime = `${formData.date}T${formData.end_datetime}-03:00`;
       }
       
-      // Verificar conflitos antes de criar a requisição
+      // Verificar conflitos antes de criar a Requerimento
       if (formData.location && dataToSend.start_datetime && dataToSend.end_datetime) {
         try {
           const conflitoResult = await verificarConflitos({
@@ -362,7 +362,7 @@ export default function Requests() {
       if (error.message && error.message.includes('conflito')) {
         mostrarNotificacao(error.message, 'erro');
       } else {
-        mostrarNotificacao('Erro ao criar requisição', 'erro');
+        mostrarNotificacao('Erro ao criar Requerimento', 'erro');
       }
     }
     setLoading(false);
@@ -443,8 +443,8 @@ export default function Requests() {
       setEditReq(null);
       buscarRequisicoes();
     } catch (error) {
-      console.error('❌ Erro ao atualizar requisição:', error);
-      mostrarNotificacao(`Erro ao atualizar requisição: ${error.message}`, 'erro');
+      console.error('❌ Erro ao atualizar Requerimento:', error);
+      mostrarNotificacao(`Erro ao atualizar Requerimento: ${error.message}`, 'erro');
     }
   };
 
@@ -467,7 +467,7 @@ export default function Requests() {
         prevRequisicoes.filter(req => req.id !== deleteReq)
       );
     } catch {
-      mostrarNotificacao('Erro ao deletar requisição', 'erro');
+      mostrarNotificacao('Erro ao deletar Requerimento', 'erro');
     }
   };
 
@@ -611,7 +611,7 @@ export default function Requests() {
     }
   };
 
-  // Debounce para evitar muitas requisições
+  // Debounce para evitar muitas Requerimentos
   const debouncedVerificarConflito = useCallback(
     debounce(verificarConflitoTempoReal, 500),
     []
@@ -730,7 +730,7 @@ export default function Requests() {
         ) : filtrar(requisicoes).length === 0 ? (
           <div className="requests-empty">
             <span>📋</span>
-            <p>Nenhuma requisição encontrada.</p>
+            <p>Nenhuma Requerimento encontrada.</p>
           </div>
         ) : (
           <div className="requests-list-container">
@@ -833,7 +833,7 @@ export default function Requests() {
             <div><b>Status:</b> {reqDetalhe.status}</div>
             {reqDetalhe.status === 'PENDENTE_CONFLITO' && (
               <div className="requests-alert-conflito" style={{ fontWeight: 700, fontSize: 16, marginTop: 8 }}>
-                ⚠️ Conflito de agenda detectado! Esta requisição precisa de avaliação manual.
+                ⚠️ Conflito de agenda detectado! Esta Requerimento precisa de avaliação manual.
               </div>
             )}
             {/* Histórico de status */}
@@ -1005,7 +1005,7 @@ export default function Requests() {
           </>
         }
       >
-        <p>Tem certeza que deseja deletar esta requisição? Esta ação não pode ser desfeita.</p>
+        <p>Tem certeza que deseja deletar esta Requerimento? Esta ação não pode ser desfeita.</p>
       </Modal>
 
       {/* Modal de Adicionar Requisição */}

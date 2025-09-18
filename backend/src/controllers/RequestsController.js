@@ -1135,10 +1135,13 @@ export const getRequest = async (req, res) => {
         .eq('id', id)
         .single(),
       
-      // Buscar itens relacionados à requisição
+      // Buscar itens relacionados à requisição com dados do inventário
       supabase
         .from('request_items')
-        .select('*')
+        .select(`
+          *,
+          inventory:inventory_id(name, description, category)
+        `)
         .eq('request_id', id),
       
       // Buscar serviços relacionados à requisição

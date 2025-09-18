@@ -24,30 +24,30 @@ export const addNotification = (type, title, message) => {
   window.dispatchEvent(new CustomEvent('notificationAdded', { detail: notification }));
 };
 
-// Função para criar notificação de requisição aprovada
+// Função para criar notificação de Requerimento aprovada
 export const notifyRequestApproved = (requestData) => {
   addNotification(
     'approved',
     'Requisição Aprovada',
-    `A requisição "${requestData.event_name || requestData.description}" do departamento ${requestData.department} foi aprovada.`
+    `A Requerimento "${requestData.event_name || requestData.description}" do departamento ${requestData.department} foi aprovada.`
   );
 };
 
-// Função para criar notificação de requisição rejeitada
+// Função para criar notificação de Requerimento rejeitada
 export const notifyRequestRejected = (requestData) => {
   addNotification(
     'rejected',
     'Requisição Rejeitada',
-    `A requisição "${requestData.event_name || requestData.description}" do departamento ${requestData.department} foi rejeitada.`
+    `A Requerimento "${requestData.event_name || requestData.description}" do departamento ${requestData.department} foi rejeitada.`
   );
 };
 
-// Função para criar notificação de requisição executada
+// Função para criar notificação de Requerimento executada
 export const notifyRequestExecuted = (requestData) => {
   addNotification(
     'executed',
     'Requisição Executada',
-    `A requisição "${requestData.event_name || requestData.description}" foi executada com sucesso.`
+    `A Requerimento "${requestData.event_name || requestData.description}" foi executada com sucesso.`
   );
 };
 

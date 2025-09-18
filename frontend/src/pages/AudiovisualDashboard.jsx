@@ -33,7 +33,7 @@ export default function AudiovisualDashboard() {
         const requisicoesData = await listarRequisicoes();
         setRequisicoes(requisicoesData || []);
         
-        // Buscar todas as requisições para o calendário (histórico completo)
+        // Buscar todas as Requerimentos para o calendário (histórico completo)
         const requisicoesCalendario = await buscarRequisicoesCalendario();
         
         const eventosReqs = (requisicoesCalendario || []).map(req => ({
@@ -92,7 +92,7 @@ export default function AudiovisualDashboard() {
 
       <div className="dashboard-header">
         <h1>Dashboard Audiovisual</h1>
-        <p>Gerencie requisições aprovadas e prepare materiais</p>
+        <p>Gerencie Requerimentos aprovadas e prepare materiais</p>
       </div>
 
       {/* Cards de Estatísticas */}

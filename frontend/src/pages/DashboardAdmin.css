@@ -1491,17 +1491,17 @@ body, html {
 
 
 
-  /* Esconder todos os botões que não são os nativos no mobile */
-  .request-item-actions button:not(.mobile-reject-native):not(.mobile-approve-native) {
-    display: none !important;
+  /* Manter todos os botões visíveis no mobile */
+  .request-item-actions button {
+    display: flex !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
   }
 
-
-
-  /* Esconder componentes Button no mobile */
+  /* Manter componentes Button visíveis no mobile */
   .reject-button,
   .approve-button {
-    display: none !important;
+    display: flex !important;
   }
 
   /* Mostrar botões nativos apenas no mobile */

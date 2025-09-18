@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 10001;
   padding: 0;
   overflow-y: auto;
 }
@@ -83,7 +83,7 @@
   background: white;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 10002;
   padding: 20px 20px 10px 20px;
   border-bottom: 1px solid #e5e7eb;
   border-radius: 18px 18px 0 0;
@@ -136,7 +136,7 @@
   background: white !important;
   position: sticky !important;
   top: 0 !important;
-  z-index: 10 !important;
+  z-index: 10002 !important;
 }
 
 .modal-close {
@@ -175,7 +175,7 @@
   margin-bottom: 0 !important;
   flex: 1 !important;
   overflow-y: auto !important;
-  padding: 0 !important;
+  padding: 0 0 80px 0 !important; /* Espaço para o footer fixo */
   min-height: 0 !important;
 }
 
@@ -211,7 +211,7 @@
   background: white !important;
   position: sticky !important;
   bottom: 0 !important;
-  z-index: 10 !important;
+  z-index: 10002 !important;
 }
 
 /* Estilos para textareas dentro de modais */
@@ -256,10 +256,74 @@
   .modal-close {
     font-size: 24px;
     padding: 0 6px;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10003 !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
   }
   
   .modal-actions-mobile button {
     width: 100%;
     justify-content: center;
+  }
+  
+  /* Garantir que o botão fechar seja sempre visível no mobile */
+  .modal-header .modal-close {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10003 !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    font-size: 24px !important;
+    color: #6b7280 !important;
+    background: none !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 0 8px !important;
+    line-height: 1 !important;
+    width: 32px !important;
+    height: 32px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Footer fixo para mobile com botão Fechar */
+  .modal-footer-mobile {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 16px;
+    z-index: 10002;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal-close-mobile {
+    width: 100%;
+    background: #1A4B8B;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-family: 'Montserrat', Arial, sans-serif;
+  }
+  
+  .modal-close-mobile:hover {
+    background: #123a7b;
+  }
+  
+  .modal-close-mobile:active {
+    background: #0f345f;
   }
 }

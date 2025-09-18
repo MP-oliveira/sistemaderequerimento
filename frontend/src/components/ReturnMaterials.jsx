@@ -53,17 +53,17 @@ const ReturnMaterials = () => {
     }
   };
 
-  // Agrupar itens por requisição
+  // Agrupar itens por Requerimento
   const agruparItensPorRequisicao = (items, context = 'default') => {
     const grupos = {};
     
     items.forEach(item => {
       const requestId = item.request_id || item.requests?.id;
       
-      // Usar os dados da requisição que já estão no item
+      // Usar os dados da Requerimento que já estão no item
       const request = item.requests || {};
       
-      // Pular requisições finalizadas
+      // Pular Requerimentos finalizadas
       if (request.status === 'FINALIZADO') {
         return;
       }
@@ -329,7 +329,7 @@ const ReturnMaterials = () => {
             const isExpanded = expandedRequests.has(requestId);
             console.log('🔍 [ReturnMaterials] Renderizando grupo:', { requestId, isExpanded, index });
             
-            // Calcular contadores para esta requisição
+            // Calcular contadores para esta Requerimento
             const totalCount = grupo.items.length;
             const separatedCount = grupo.items.filter(item => item.is_separated).length;
             
@@ -459,7 +459,7 @@ const ReturnMaterials = () => {
             const requestId = grupo.request.id;
             const isExpanded = expandedRequestsRetorno.has(requestId);
               
-              // Calcular contadores para esta requisição
+              // Calcular contadores para esta Requerimento
               const totalCount = grupo.items.length;
               const returnedCount = grupo.items.filter(item => item.is_returned).length;
               

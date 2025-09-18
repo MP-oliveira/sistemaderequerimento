@@ -74,7 +74,7 @@ export default function DashboardAdmin() {
     }
   };
 
-  // Função para abrir modal com requisições filtradas
+  // Função para abrir modal com Requerimentos filtradas
   const abrirFiltro = async (status) => {
     try {
       console.log('Abrindo modal com status:', status);
@@ -83,18 +83,18 @@ export default function DashboardAdmin() {
       setCurrentFilter(status);
       setShowFilterModal(true);
       
-      // Filtrar requisições pelo status
+      // Filtrar Requerimentos pelo status
       let requests;
       if (status === 'TOTAL') {
-        requests = requisicoes; // Mostrar todas as requisições
+        requests = requisicoes; // Mostrar todas as Requerimentos
       } else {
         requests = requisicoes.filter(r => r.status === status);
       }
       
       setFilteredRequests(requests);
     } catch (error) {
-      console.error('Erro ao filtrar requisições:', error);
-      mostrarNotificacao('Erro ao carregar requisições filtradas', 'erro');
+      console.error('Erro ao filtrar Requerimentos:', error);
+      mostrarNotificacao('Erro ao carregar Requerimentos filtradas', 'erro');
     } finally {
       setFilterLoading(false);
     }
@@ -110,13 +110,13 @@ export default function DashboardAdmin() {
     }
   };
 
-  // Função para imprimir requisição
+  // Função para imprimir Requerimento
   const handlePrint = async (id) => {
     try {
       const detalhe = await getRequisicaoDetalhada(id);
       generatePDF(detalhe);
     } catch (error) {
-      mostrarNotificacao('Erro ao buscar detalhes da requisição para impressão', 'erro');
+      mostrarNotificacao('Erro ao buscar detalhes da Requerimento para impressão', 'erro');
     }
   };
 
@@ -446,20 +446,20 @@ export default function DashboardAdmin() {
     return colors[status] || '#6b7280';
   };
 
-  // Função para aprovar requisição
+  // Função para aprovar Requerimento
   const aprovarRequisicaoHandler = async (id) => {
     try {
-      console.log('🔄 [DashboardAdmin] Aprovando requisição:', id);
+      console.log('🔄 [DashboardAdmin] Aprovando Requerimento:', id);
       const resultado = await aprovarRequisicao(id);
       console.log('🔄 [DashboardAdmin] Resultado da aprovação:', resultado);
       
-      // Buscar dados da requisição para notificação
+      // Buscar dados da Requerimento para notificação
       const requisicao = requisicoes.find(req => req.id === id);
       
       // Verificar se houve rejeições automáticas
       if (resultado && resultado.requisicoesRejeitadas && resultado.requisicoesRejeitadas.length > 0) {
         mostrarNotificacao(
-          `Requisição aprovada por ${user?.name || 'Administrador'}! ${resultado.requisicoesRejeitadas.length} requisição(ões) conflitante(s) foi/foram rejeitada(s) automaticamente.`, 
+          `Requisição aprovada por ${user?.name || 'Administrador'}! ${resultado.requisicoesRejeitadas.length} Requerimento(ões) conflitante(s) foi/foram rejeitada(s) automaticamente.`, 
           'sucesso'
         );
       } else {
@@ -476,18 +476,18 @@ export default function DashboardAdmin() {
       
       carregarDados(); // Recarregar dados
     } catch (error) {
-      console.error('Erro ao aprovar requisição:', error);
-      mostrarNotificacao('Erro ao aprovar requisição', 'erro');
+      console.error('Erro ao aprovar Requerimento:', error);
+      mostrarNotificacao('Erro ao aprovar Requerimento', 'erro');
     }
   };
 
-  // Função para rejeitar requisição
+  // Função para rejeitar Requerimento
   const rejeitarRequisicaoHandler = async (id) => {
     try {
       await rejeitarRequisicao(id, 'Rejeitado pelo administrador');
       mostrarNotificacao(`Requisição rejeitada por ${user?.name || 'Administrador'}!`, 'sucesso');
       
-      // Buscar dados da requisição para notificação
+      // Buscar dados da Requerimento para notificação
       const requisicao = requisicoes.find(req => req.id === id);
       if (requisicao) {
         // Notificar SEC sobre rejeição
@@ -496,8 +496,8 @@ export default function DashboardAdmin() {
       
       carregarDados(); // Recarregar dados
     } catch (error) {
-      console.error('Erro ao rejeitar requisição:', error);
-      mostrarNotificacao('Erro ao rejeitar requisição', 'erro');
+      console.error('Erro ao rejeitar Requerimento:', error);
+      mostrarNotificacao('Erro ao rejeitar Requerimento', 'erro');
     }
   };
 
@@ -505,9 +505,9 @@ export default function DashboardAdmin() {
   const abrirModalEdicao = async (requisicao) => {
     console.log('🔍 Abrindo modal de edição para:', requisicao);
     try {
-      // Buscar dados completos da requisição
+      // Buscar dados completos da Requerimento
       const detalhe = await getRequisicaoDetalhada(requisicao.id);
-      console.log('🔍 Dados da requisição:', detalhe);
+      console.log('🔍 Dados da Requerimento:', detalhe);
       console.log('🔍 Tipo do detalhe:', typeof detalhe);
       console.log('🔍 Detalhe é null?', detalhe === null);
       console.log('🔍 Detalhe é undefined?', detalhe === undefined);
@@ -525,7 +525,7 @@ export default function DashboardAdmin() {
   // Função para salvar alterações
       const handleSaveRequest = async (editedRequest) => {
       try {
-        console.log('🔄 Salvando requisição:', editedRequest);
+        console.log('🔄 Salvando Requerimento:', editedRequest);
         console.log('🔄 editedRequest.itens:', editedRequest.itens);
         console.log('🔄 editedRequest.servicos:', editedRequest.servicos);
         console.log('🔄 editedRequest.request_items:', editedRequest.request_items);
@@ -545,8 +545,8 @@ export default function DashboardAdmin() {
       console.log('📤 Dados sendo enviados para API:', dadosParaEnviar);
       console.log('📤 request_items:', dadosParaEnviar.request_items);
       console.log('📤 request_services:', dadosParaEnviar.request_services);
-      console.log('📤 ID da requisição:', editedRequest.id);
-      console.log('📤 Status da requisição:', editedRequest.status);
+      console.log('📤 ID da Requerimento:', editedRequest.id);
+      console.log('📤 Status da Requerimento:', editedRequest.status);
       console.log('📤 Usuário atual:', localStorage.getItem('user'));
 
       // Verificar se o token existe
@@ -570,7 +570,7 @@ export default function DashboardAdmin() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao salvar requisição');
+        throw new Error(errorData.message || 'Erro ao salvar Requerimento');
       }
 
       const resultado = await response.json();
@@ -621,7 +621,7 @@ export default function DashboardAdmin() {
 
       <div className="dashboard-header">
         <h1>Dashboard Administrativo</h1>
-        <p>Visão geral das requisições e estatísticas do sistema</p>
+        <p>Visão geral das Requerimentos e estatísticas do sistema</p>
       </div>
 
       {loading ? (
@@ -737,8 +737,8 @@ export default function DashboardAdmin() {
             {requisicoesPendentes.length === 0 ? (
               <div className="requests-empty">
                 <span>🎉</span>
-                <p>Nenhuma requisição pendente de aprovação!</p>
-                <p>Todas as requisições foram processadas.</p>
+                <p>Nenhuma Requerimento pendente de aprovação!</p>
+                <p>Todas as Requerimentos foram processadas.</p>
               </div>
             ) : (
               <div className="requests-list-container">
@@ -749,7 +749,7 @@ export default function DashboardAdmin() {
                     key={req.id} 
                     className="request-item"
                     onClick={() => {
-                      console.log('🔍 Clique detectado na requisição:', req);
+                      console.log('🔍 Clique detectado na Requerimento:', req);
                       abrirModalEdicao(req);
                     }}
                     style={{ 
@@ -918,7 +918,7 @@ export default function DashboardAdmin() {
             {requisicoes.length === 0 ? (
               <div className="requests-empty">
                 <span>📋</span>
-                <p>Nenhuma requisição encontrada!</p>
+                <p>Nenhuma Requerimento encontrada!</p>
               </div>
             ) : (
               <div className="requests-list-container">
@@ -997,10 +997,10 @@ export default function DashboardAdmin() {
         title={currentFilter === 'TOTAL' ? 'Total de Requerimentos' : `Requerimentos ${getStatusLabel(currentFilter)}`}
       >
         {filterLoading ? (
-          <LoadingSpinner size="md" text="Carregando requisições..." />
+          <LoadingSpinner size="md" text="Carregando Requerimentos..." />
         ) : filteredRequests.length === 0 ? (
           <div className="empty-state">
-            <p>Nenhuma requisição encontrada para este filtro.</p>
+            <p>Nenhuma Requerimento encontrada para este filtro.</p>
           </div>
         ) : (
           <div className="filtered-requests">
@@ -1053,7 +1053,7 @@ export default function DashboardAdmin() {
                       className="request-card-view-btn"
                       onClick={async () => {
                         try {
-                          // Buscar detalhes completos da requisição
+                          // Buscar detalhes completos da Requerimento
                           const detalhe = await getRequisicaoDetalhada(request.id);
                           setReqDetalhe(detalhe);
                           setModalDetalhe(true);

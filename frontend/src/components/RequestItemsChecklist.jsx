@@ -183,7 +183,7 @@ export default function RequestItemsChecklist({ open, onClose, request, onItemsU
           <div className="checklist-empty">
             <FiPackage size={48} />
             <h3>Nenhum item encontrado</h3>
-            <p>Esta requisição não possui itens associados.</p>
+            <p>Esta Requerimento não possui itens associados.</p>
           </div>
         ) : (
           <div className="checklist-items">

@@ -73,7 +73,7 @@ export default function TodayMaterialsServicoGeral() {
     setExpandedRequests(newExpanded);
   };
 
-  // Agrupar materiais por requisição
+  // Agrupar materiais por Requerimento
   const materialsByRequest = materials.reduce((acc, item) => {
     const requestId = item.requests?.id || item.request_id;
     if (!acc[requestId]) {
@@ -113,7 +113,7 @@ export default function TodayMaterialsServicoGeral() {
       <div className="today-materials-empty">
         <FiPackage size={48} />
         <h3>Nenhum material para hoje</h3>
-        <p>Não há requisições aprovadas com materiais para hoje.</p>
+        <p>Não há Requerimentos aprovadas com materiais para hoje.</p>
       </div>
     );
   }

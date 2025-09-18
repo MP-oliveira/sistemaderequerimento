@@ -579,6 +579,107 @@
   margin-top: -2rem !important;
 }
 
+/* Estilos para itens e serviços no modal de detalhes */
+.request-items-section,
+.request-services-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.request-items-section h4,
+.request-services-section h4 {
+  margin: 0 0 12px 0;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.request-items-list,
+.request-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.request-item-detail,
+.request-service-detail {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.item-info,
+.service-info {
+  flex: 1;
+}
+
+.item-info strong,
+.service-info strong {
+  display: block;
+  color: #1f2937;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.item-quantity {
+  color: #6b7280;
+  font-size: 0.8rem;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.item-description,
+.service-notes {
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.item-category {
+  color: #1A4B8B;
+  font-size: 0.75rem;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.service-quantity {
+  color: #059669;
+  font-size: 0.8rem;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.service-type {
+  color: #1A4B8B;
+  font-size: 0.75rem;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.item-status,
+.service-status {
+  margin-left: 8px;
+}
+
+.no-items-message {
+  margin-top: 16px;
+  padding: 16px;
+  text-align: center;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px dashed #d1d5db;
+}
+
 /* Garantir que todos os modais do admin tenham o mesmo width */
 .requests-admin-page .modal-content {
   width: 550px !important;

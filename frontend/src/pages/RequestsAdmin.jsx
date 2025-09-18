@@ -78,7 +78,7 @@ export default function RequestsAdmin() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteReq, setDeleteReq] = useState(null);
   
-  // Estados para copiar requisição
+  // Estados para copiar Requerimento
   const [copyModalOpen, setCopyModalOpen] = useState(false);
   const [copyReq, setCopyReq] = useState(null);
 
@@ -151,7 +151,7 @@ export default function RequestsAdmin() {
       const data = await listarRequisicoes();
       setRequisicoes(Array.isArray(data) ? data : []);
     } catch (err) {
-      mostrarNotificacao('Erro ao buscar requisições', 'erro');
+      mostrarNotificacao('Erro ao buscar Requerimentos', 'erro');
     }
     setLoading(false);
   }
@@ -395,6 +395,9 @@ export default function RequestsAdmin() {
   async function abrirDetalhe(id) {
     try {
       const detalhe = await getRequisicaoDetalhada(id);
+      console.log('🔍 Dados do requerimento:', detalhe);
+      console.log('🔍 Itens:', detalhe.itens);
+      console.log('🔍 Serviços:', detalhe.servicos);
       setReqDetalhe(detalhe);
       setModalDetalhe(true);
     } catch {
@@ -435,13 +438,13 @@ export default function RequestsAdmin() {
             mostrarNotificacaoModal('Requisição marcada como PENDENTE_CONFLITO devido a conflito de intervalo.', 'aviso');
           }
         } else {
-          mostrarNotificacao(errorData.message || 'Erro ao aprovar requisição', 'erro');
-          mostrarNotificacaoModal(errorData.message || 'Erro ao aprovar requisição', 'erro');
+          mostrarNotificacao(errorData.message || 'Erro ao aprovar Requerimento', 'erro');
+          mostrarNotificacaoModal(errorData.message || 'Erro ao aprovar Requerimento', 'erro');
         }
       } catch {
         // Se não conseguir parsear como JSON, mostrar erro genérico
-        mostrarNotificacao('Erro ao aprovar requisição', 'erro');
-        mostrarNotificacaoModal('Erro ao aprovar requisição', 'erro');
+        mostrarNotificacao('Erro ao aprovar Requerimento', 'erro');
+        mostrarNotificacaoModal('Erro ao aprovar Requerimento', 'erro');
       }
     }
   }
@@ -460,11 +463,11 @@ export default function RequestsAdmin() {
       setModalRejeitar(false);
       setModalDetalhe(false);
     } catch {
-      mostrarNotificacao('Erro ao rejeitar requisição', 'erro');
+      mostrarNotificacao('Erro ao rejeitar Requerimento', 'erro');
     }
   }
 
-  // Função para editar requisição
+  // Função para editar Requerimento
   const handleEdit = async (id) => {
     try {
       const detalhe = await getRequisicaoDetalhada(id);
@@ -555,7 +558,7 @@ export default function RequestsAdmin() {
       
       console.log('📝 Dados para atualização:', dataToSend);
       
-      // Atualizar a requisição com itens e serviços
+      // Atualizar a Requerimento com itens e serviços
       await atualizarRequisicao(editReq.id, dataToSend);
       
       mostrarNotificacao('Requisição atualizada com sucesso!', 'sucesso');
@@ -563,12 +566,12 @@ export default function RequestsAdmin() {
       setEditReq(null);
       buscarRequisicoes();
     } catch (error) {
-      console.error('❌ Erro ao atualizar requisição:', error);
-      mostrarNotificacao(`Erro ao atualizar requisição: ${error.message}`, 'erro');
+      console.error('❌ Erro ao atualizar Requerimento:', error);
+      mostrarNotificacao(`Erro ao atualizar Requerimento: ${error.message}`, 'erro');
     }
   };
 
-  // Função para deletar requisição
+  // Função para deletar Requerimento
   const handleDelete = (id) => {
     setDeleteReq(id);
     setDeleteModalOpen(true);
@@ -589,18 +592,18 @@ export default function RequestsAdmin() {
         prevRequisicoes.filter(req => req.id !== deleteReq)
       );
     } catch {
-      mostrarNotificacao('Erro ao deletar requisição', 'erro');
+      mostrarNotificacao('Erro ao deletar Requerimento', 'erro');
     }
   };
 
-  // Função para copiar requisição
+  // Função para copiar Requerimento
   const handleCopyRequest = async (id) => {
     try {
       const detalhe = await getRequisicaoDetalhada(id);
       setCopyReq(detalhe);
       setCopyModalOpen(true);
     } catch (error) {
-      mostrarNotificacao('Erro ao buscar detalhes da requisição', 'erro');
+      mostrarNotificacao('Erro ao buscar detalhes da Requerimento', 'erro');
     }
   };
 
@@ -635,13 +638,13 @@ export default function RequestsAdmin() {
     mostrarNotificacao('Dados copiados com sucesso! Preencha a nova data e horário.', 'sucesso');
   };
 
-  // Função para imprimir requisição
+  // Função para imprimir Requerimento
   const handlePrint = async (id) => {
     try {
       const detalhe = await getRequisicaoDetalhada(id);
       generatePDF(detalhe);
     } catch (error) {
-      mostrarNotificacao('Erro ao buscar detalhes da requisição para impressão', 'erro');
+      mostrarNotificacao('Erro ao buscar detalhes da Requerimento para impressão', 'erro');
     }
   };
 
@@ -1067,7 +1070,7 @@ export default function RequestsAdmin() {
       setSelectedServices([]); // Limpar serviços selecionados
       buscarRequisicoes();
     } catch {
-      mostrarNotificacao('Erro ao criar requisição', 'erro');
+      mostrarNotificacao('Erro ao criar Requerimento', 'erro');
     }
     setLoading(false);
   };
@@ -1231,7 +1234,7 @@ export default function RequestsAdmin() {
         ) : filtrar(requisicoes).length === 0 ? (
           <div className="requests-empty">
             <span>📋</span>
-            <p>Nenhuma requisição encontrada.</p>
+            <p>Nenhuma Requerimento encontrada.</p>
           </div>
         ) : (
           <div className="requests-list-container">
@@ -1343,7 +1346,7 @@ export default function RequestsAdmin() {
       {/* Modal de detalhes */}
       <Modal
         open={modalDetalhe}
-        title="Detalhes da Requisição"
+        title="Detalhes do Requerimento"
         onClose={() => setModalDetalhe(false)}
         actions={
           reqDetalhe && reqDetalhe.status === 'PENDENTE' ? (
@@ -1436,9 +1439,90 @@ export default function RequestsAdmin() {
             
             {reqDetalhe.status === 'PENDENTE_CONFLITO' && (
               <div className="requests-alert-conflito" style={{ fontWeight: 700, fontSize: 16, marginTop: 8 }}>
-                ⚠️ Conflito de agenda detectado! Esta requisição precisa de avaliação manual.
+                ⚠️ Conflito de agenda detectado! Esta Requerimento precisa de avaliação manual.
               </div>
             )}
+            
+            {/* Itens solicitados */}
+            <div className="request-items-section">
+              <h4>Itens Solicitados</h4>
+              {Array.isArray(reqDetalhe.itens) && reqDetalhe.itens.length > 0 ? (
+                <div className="request-items-list">
+                  {reqDetalhe.itens.map((item, idx) => (
+                    <div key={idx} className="request-item-detail">
+                      <div className="item-info">
+                        <strong>{item.inventory?.name || item.inventory_name || item.name || item.item_name || 'Item'}</strong>
+                        <span className="item-quantity">Qtd: {item.quantity_requested || item.quantity || 1}</span>
+                      </div>
+                      {(item.inventory?.description || item.description) && (
+                        <div className="item-description">{item.inventory?.description || item.description}</div>
+                      )}
+                      {item.inventory?.category && (
+                        <div className="item-category">Categoria: {item.inventory.category}</div>
+                      )}
+                      {item.status && (
+                        <div className="item-status">
+                          <span className={`status-badge ${item.status.toLowerCase()}`}>
+                            {item.status}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-items-message" style={{
+                  padding: '16px',
+                  textAlign: 'center',
+                  color: '#6b7280',
+                  backgroundColor: '#f9fafb',
+                  borderRadius: '8px',
+                  border: '1px dashed #d1d5db'
+                }}>
+                  📝 Nenhum item solicitado para esta Requerimento
+                </div>
+              )}
+            </div>
+            
+            {/* Serviços solicitados */}
+            <div className="request-services-section">
+              <h4>Serviços Solicitados</h4>
+              {Array.isArray(reqDetalhe.servicos) && reqDetalhe.servicos.length > 0 ? (
+                <div className="request-services-list">
+                  {reqDetalhe.servicos.map((servico, idx) => (
+                    <div key={idx} className="request-service-detail">
+                      <div className="service-info">
+                        <strong>{servico.nome || servico.service_name || servico.name || 'Serviço'}</strong>
+                        <span className="service-quantity">Qtd pessoas: {servico.quantidade || 1}</span>
+                        <div className="service-type">Tipo: {servico.tipo}</div>
+                        {servico.notes && (
+                          <div className="service-notes">{servico.notes}</div>
+                        )}
+                      </div>
+                      {servico.status && (
+                        <div className="service-status">
+                          <span className={`status-badge ${servico.status.toLowerCase()}`}>
+                            {servico.status}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-services-message" style={{
+                  padding: '16px',
+                  textAlign: 'center',
+                  color: '#6b7280',
+                  backgroundColor: '#f9fafb',
+                  borderRadius: '8px',
+                  border: '1px dashed #d1d5db'
+                }}>
+                  📝 Nenhum serviço solicitado para esta Requerimento
+                </div>
+              )}
+            </div>
+            
             
             {/* Histórico de status */}
             {Array.isArray(reqDetalhe.status_history) && reqDetalhe.status_history.length > 0 && (
@@ -2485,7 +2569,7 @@ export default function RequestsAdmin() {
                   borderRadius: '6px',
                   border: '1px dashed #d1d5db'
                 }}>
-                  📝 Nenhum item ou serviço selecionado para esta requisição
+                  📝 Nenhum item ou serviço selecionado para esta Requerimento
                 </div>
               )}
             </div>
@@ -2506,7 +2590,7 @@ export default function RequestsAdmin() {
         }
       >
         <div style={{ padding: 16 }}>
-          <p>Tem certeza que deseja deletar esta requisição?</p>
+          <p>Tem certeza que deseja deletar esta Requerimento?</p>
           <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: 8 }}>
             Esta ação não pode ser desfeita.
           </p>
@@ -2735,7 +2819,7 @@ export default function RequestsAdmin() {
         {copyReq && (
           <div className="copy-modal-content">
             <p className="copy-modal-description">
-              Você está prestes a copiar a requisição:
+              Você está prestes a copiar a Requerimento:
             </p>
             <div className="copy-modal-details">
               <div className="copy-modal-detail-item">
@@ -2752,7 +2836,7 @@ export default function RequestsAdmin() {
               </div>
             </div>
             <p className="copy-modal-warning">
-              <strong>⚠️ Atenção:</strong> A nova requisição será criada com "(Cópia)" no nome e precisará ser aprovada novamente. 
+              <strong>⚠️ Atenção:</strong> A nova Requerimento será criada com "(Cópia)" no nome e precisará ser aprovada novamente. 
               Data e horário devem ser preenchidos manualmente.
             </p>
           </div>

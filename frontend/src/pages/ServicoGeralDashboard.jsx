@@ -33,7 +33,7 @@ export default function ServicoGeralDashboard() {
         const requisicoesData = await listarRequisicoes();
         setRequisicoes(requisicoesData || []);
         
-        // Buscar todas as requisições para o calendário (histórico completo)
+        // Buscar todas as Requerimentos para o calendário (histórico completo)
         const requisicoesCalendario = await buscarRequisicoesCalendario();
         
         const eventosReqs = (requisicoesCalendario || []).map(req => ({

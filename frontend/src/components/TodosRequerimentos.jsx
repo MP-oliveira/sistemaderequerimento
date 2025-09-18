@@ -41,7 +41,7 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
       console.log('🔍 [TodosRequerimentos] Categoria:', category);
       console.log('🔍 [TodosRequerimentos] Target categories:', targetCategories);
       
-      // Buscar itens para cada requisição
+      // Buscar itens para cada Requerimento
       const requisicoesComItens = await Promise.all(
         requisicoesAprovadas.map(async (requisicao) => {
           try {
@@ -64,7 +64,7 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
               items: itensFiltrados
             };
           } catch (error) {
-            console.error('❌ [TodosRequerimentos] Erro ao buscar itens da requisição:', requisicao.id, error);
+            console.error('❌ [TodosRequerimentos] Erro ao buscar itens da Requerimento:', requisicao.id, error);
             return {
               ...requisicao,
               items: []
@@ -124,15 +124,15 @@ const TodosRequerimentos = ({ category = 'audiovisual' }) => {
   const getNoItemsMessage = () => {
     switch (category) {
       case 'audiovisual':
-        return 'Esta requisição não possui itens de audiovisual.';
+        return 'Esta Requerimento não possui itens de audiovisual.';
       case 'servico-geral':
-        return 'Esta requisição não possui itens de serviço geral.';
+        return 'Esta Requerimento não possui itens de serviço geral.';
       case 'decoracao':
-        return 'Esta requisição não possui itens de decoração.';
+        return 'Esta Requerimento não possui itens de decoração.';
       case 'esportes':
-        return 'Esta requisição não possui itens de esportes.';
+        return 'Esta Requerimento não possui itens de esportes.';
       default:
-        return 'Esta requisição não possui itens.';
+        return 'Esta Requerimento não possui itens.';
     }
   };
 

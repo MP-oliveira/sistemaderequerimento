@@ -40,17 +40,17 @@ const ReturnMaterialsOnly = () => {
     }
   };
 
-  // Agrupar itens por requisição
+  // Agrupar itens por Requerimento
   const agruparItensPorRequisicao = (items) => {
     const grupos = {};
     
     items.forEach(item => {
       const requestId = item.request_id;
       
-      // Usar os dados da requisição que já estão no item
+      // Usar os dados da Requerimento que já estão no item
       const request = item.requests || {};
       
-      // Pular requisições finalizadas
+      // Pular Requerimentos finalizadas
       if (request.status === 'FINALIZADO') {
         return;
       }
@@ -252,7 +252,7 @@ const ReturnMaterialsOnly = () => {
               const requestId = grupo.request.id;
               const isExpanded = expandedRequests.has(requestId);
               
-              // Calcular contadores para esta requisição
+              // Calcular contadores para esta Requerimento
               const totalCount = grupo.items.length;
               const returnedCount = grupo.items.filter(item => item.is_returned).length;
               

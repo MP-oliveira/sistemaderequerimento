@@ -34,7 +34,7 @@ export async function verificarDisponibilidadeMateriais(itens, dataInfo = null) 
   try {
     const requestBody = { itens };
     
-    // Se temos informações de data, incluí-las na requisição
+    // Se temos informações de data, incluí-las na Requerimento
     if (dataInfo && dataInfo.date && dataInfo.start_datetime && dataInfo.end_datetime) {
       requestBody.date = dataInfo.date;
       requestBody.start_datetime = dataInfo.start_datetime;
@@ -82,7 +82,7 @@ export async function criarRequisicao(data) {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao criar requisição');
+      throw new Error(error.message || 'Erro ao criar Requerimento');
     }
     return await response.json();
   } catch (err) {
@@ -97,7 +97,7 @@ export async function listarRequisicoes() {
       headers: getAuthHeaders()
     });
     if (!response.ok) {
-      throw new Error('Erro ao buscar requisições');
+      throw new Error('Erro ao buscar Requerimentos');
     }
     const data = await response.json();
     return data.data || data;
@@ -124,7 +124,7 @@ export async function aprovarRequisicao(id) {
           conflitos: data.conflitos
         }));
       }
-      throw new Error(data.message || 'Erro ao aprovar requisição');
+      throw new Error(data.message || 'Erro ao aprovar Requerimento');
     }
     
     return data;
@@ -142,7 +142,7 @@ export async function rejeitarRequisicao(id, motivo) {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao rejeitar requisição');
+      throw new Error(error.message || 'Erro ao rejeitar Requerimento');
     }
     return await response.json();
   } catch (err) {
@@ -158,7 +158,7 @@ export async function executarRequisicao(id) {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao executar requisição');
+      throw new Error(error.message || 'Erro ao executar Requerimento');
     }
     return await response.json();
   } catch (err) {
@@ -175,7 +175,7 @@ export async function finalizarRequisicao(id, itensDevolvidos) {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao finalizar requisição');
+      throw new Error(error.message || 'Erro ao finalizar Requerimento');
     }
     return await response.json();
   } catch (err) {
@@ -211,7 +211,7 @@ export async function uploadComprovante(requestId, file, description) {
   }
 }
 
-// Listar comprovantes de uma requisição
+// Listar comprovantes de uma Requerimento
 export async function listarComprovantes(requestId) {
   try {
     const response = await fetch(`${API_URL}/api/requests/${requestId}/comprovantes`, {
@@ -325,7 +325,7 @@ export async function deletarRequisicao(id) {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao deletar requisição');
+      throw new Error(error.message || 'Erro ao deletar Requerimento');
     }
     return await response.json();
   } catch (err) {
@@ -340,7 +340,7 @@ export async function getRequisicaoDetalhada(id) {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao buscar requisição detalhada');
+      throw new Error(error.message || 'Erro ao buscar Requerimento detalhada');
     }
     const data = await response.json();
     return data.data || data;
@@ -367,7 +367,7 @@ export async function retornarInstrumentos(id, returnNotes = '') {
   }
 }
 
-// Buscar requisições para calendário
+// Buscar Requerimentos para calendário
 export async function buscarRequisicoesCalendario(month = null, year = null) {
   try {
     let url = `${API_URL}/api/requests/calendar`;
@@ -386,7 +386,7 @@ export async function buscarRequisicoesCalendario(month = null, year = null) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao buscar requisições para calendário');
+      throw new Error(error.message || 'Erro ao buscar Requerimentos para calendário');
     }
 
     const data = await response.json();

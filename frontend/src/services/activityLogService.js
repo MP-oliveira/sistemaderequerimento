@@ -44,7 +44,7 @@ export async function buscarHistoricoEvento(eventId) {
   }
 }
 
-// Buscar histórico de uma requisição
+// Buscar histórico de uma Requerimento
 export async function buscarHistoricoRequisicao(requestId) {
   try {
     const response = await fetch(`${API_URL}/api/requests/${requestId}/history`, {
@@ -52,7 +52,7 @@ export async function buscarHistoricoRequisicao(requestId) {
     });
     
     if (!response.ok) {
-      throw new Error('Erro ao buscar histórico da requisição');
+      throw new Error('Erro ao buscar histórico da Requerimento');
     }
     
     const data = await response.json();

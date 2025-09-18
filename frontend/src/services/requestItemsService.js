@@ -13,7 +13,7 @@ function getAuthHeaders() {
   };
 }
 
-// Listar itens de uma requisição
+// Listar itens de uma Requerimento
 export async function listarItensRequisicao(requestId) {
   try {
     const response = await fetch(`${API_URL}/api/request-items/request/${requestId}/with-inventory`, {
@@ -21,7 +21,7 @@ export async function listarItensRequisicao(requestId) {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Erro ao buscar itens da requisição');
+      throw new Error(error.message || 'Erro ao buscar itens da Requerimento');
     }
     const data = await response.json();
     return data.data || data;
@@ -100,7 +100,7 @@ export async function marcarItemComoSeparado(itemId, isSeparated) {
   }
 }
 
-// Adicionar item a uma requisição
+// Adicionar item a uma Requerimento
 export async function adicionarItemRequisicao(itemData) {
   try {
     const response = await fetch(`${API_URL}/api/request-items`, {
@@ -119,7 +119,7 @@ export async function adicionarItemRequisicao(itemData) {
   }
 }
 
-// Remover item de uma requisição
+// Remover item de uma Requerimento
 export async function removerItemRequisicao(itemId) {
   try {
     const response = await fetch(`${API_URL}/api/request-items/${itemId}`, {
@@ -158,7 +158,7 @@ export const getExecutedItems = async () => {
 // Buscar itens executados por categoria
 export const getExecutedItemsByCategory = async (category) => {
   try {
-    console.log(`🔍 [getExecutedItemsByCategory] Fazendo requisição para: ${API_URL}/api/request-items/executed/${category}`);
+    console.log(`🔍 [getExecutedItemsByCategory] Fazendo Requerimento para: ${API_URL}/api/request-items/executed/${category}`);
     console.log(`🔍 [getExecutedItemsByCategory] Headers:`, getAuthHeaders());
     
     const response = await fetch(`${API_URL}/api/request-items/executed/${category}`, {
@@ -206,7 +206,7 @@ export const markItemAsReturned = async (itemId, currentStatus) => {
   }
 }; 
 
-// Atualizar item de uma requisição
+// Atualizar item de uma Requerimento
 export async function atualizarItemRequisicao(itemId, itemData) {
   try {
     const response = await fetch(`${API_URL}/api/request-items/${itemId}`, {
@@ -225,7 +225,7 @@ export async function atualizarItemRequisicao(itemId, itemData) {
   }
 }
 
-// Deletar item de uma requisição
+// Deletar item de uma Requerimento
 export async function deletarItemRequisicao(itemId) {
   try {
     const response = await fetch(`${API_URL}/api/request-items/${itemId}`, {
@@ -243,7 +243,7 @@ export async function deletarItemRequisicao(itemId) {
   }
 }
 
-// Atualizar serviço de uma requisição
+// Atualizar serviço de uma Requerimento
 export async function atualizarServicoRequisicao(serviceId, serviceData) {
   try {
     const response = await fetch(`${API_URL}/api/request-services/${serviceId}`, {
@@ -262,7 +262,7 @@ export async function atualizarServicoRequisicao(serviceId, serviceData) {
   }
 }
 
-// Deletar serviço de uma requisição
+// Deletar serviço de uma Requerimento
 export async function deletarServicoRequisicao(serviceId) {
   try {
     const response = await fetch(`${API_URL}/api/request-services/${serviceId}`, {

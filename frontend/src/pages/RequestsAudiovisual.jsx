@@ -43,7 +43,7 @@ export default function RequestsAudiovisual() {
       const data = await listarRequisicoes();
       setRequisicoes(data || []);
     } catch (err) {
-      console.error('Erro ao buscar requisições:', err);
+      console.error('Erro ao buscar Requerimentos:', err);
       setRequisicoes([]);
     }
     setLoading(false);
@@ -96,7 +96,7 @@ export default function RequestsAudiovisual() {
     buscarRequisicoes();
   };
 
-  // Filtrar requisições por status
+  // Filtrar Requerimentos por status
   const requisicoesAprovadas = requisicoes.filter(req => 
     req.status === 'APTO' && 
     (req.start_datetime || req.event_name || req.location)
@@ -129,7 +129,7 @@ export default function RequestsAudiovisual() {
 
       <div className="dashboard-header">
         <h1>Requisições - Audiovisual</h1>
-        <p>Gerencie requisições aprovadas e prepare materiais</p>
+        <p>Gerencie Requerimentos aprovadas e prepare materiais</p>
       </div>
 
       {/* Cards de Estatísticas */}
@@ -179,7 +179,7 @@ export default function RequestsAudiovisual() {
         {loading ? (
           <div className="audiovisual-loading-container">
             <div className="audiovisual-loading-spinner"></div>
-            <p>Carregando requisições...</p>
+            <p>Carregando Requerimentos...</p>
           </div>
         ) : requisicoesAprovadas.length > 0 ? (
           <div className="audiovisual-requests-list">
@@ -252,8 +252,8 @@ export default function RequestsAudiovisual() {
         ) : (
           <div className="audiovisual-empty-state">
             <FiEye size={48} />
-            <h3>Nenhuma requisição aprovada</h3>
-            <p>Não há requisições aprovadas aguardando preparação.</p>
+            <h3>Nenhuma Requerimento aprovada</h3>
+            <p>Não há Requerimentos aprovadas aguardando preparação.</p>
           </div>
         )}
       </div>
