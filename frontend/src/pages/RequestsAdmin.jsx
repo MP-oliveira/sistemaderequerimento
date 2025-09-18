@@ -1490,11 +1490,10 @@ export default function RequestsAdmin() {
               {Array.isArray(reqDetalhe.servicos) && reqDetalhe.servicos.length > 0 ? (
                 <div className="request-services-list">
                   {reqDetalhe.servicos.map((servico, idx) => (
-                    <div key={idx} className="request-service-detail">
+                    <div key={idx} className="request-service-detail service-spacing">
                       <div className="service-info">
-                        <strong>{servico.nome || servico.service_name || servico.name || 'Serviço'}</strong>
-                        <span className="service-quantity">Qtd pessoas: {servico.quantidade || 1}</span>
-                        <div className="service-type">Tipo: {servico.tipo}</div>
+                        <strong>{(servico.nome || servico.service_name || servico.name || 'Serviço').toUpperCase()}:</strong>
+                        <span className="service-quantity"> Qtd de pessoas: {servico.quantidade || 1}</span>
                         {servico.notes && (
                           <div className="service-notes">{servico.notes}</div>
                         )}

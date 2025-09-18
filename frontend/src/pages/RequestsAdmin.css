@@ -591,7 +591,7 @@
 
 .request-items-section h4,
 .request-services-section h4 {
-  margin: 0 0 12px 0;
+  margin: 16px 0 12px 0;
   color: #1f2937;
   font-size: 1rem;
   font-weight: 600;
@@ -613,6 +613,11 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+}
+
+/* Classe específica para espaçamento dos serviços */
+.service-spacing {
+  margin-bottom: 20px !important;
 }
 
 .item-info,
