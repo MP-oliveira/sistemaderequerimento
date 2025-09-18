@@ -99,5 +99,9 @@
   },
   "launch_handler": {
     "client_mode": "navigate-existing"
+  },
+  "badge": {
+    "src": "/pwa-icon-192x192.png",
+    "sizes": "192x192"
   }
 }

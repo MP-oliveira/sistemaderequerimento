@@ -20,7 +20,8 @@ import {
   checkRealTimeConflicts,
   checkInventoryAvailability,
   getRequestsWithServices,
-  uploadMiddleware
+  uploadMiddleware,
+  getPendingRequestsCount
 } from '../controllers/RequestsController.js';
 
 const router = express.Router();
@@ -30,6 +31,7 @@ router.post('/', authenticateToken, createRequest);
 router.get('/', authenticateToken, listRequests);
 router.get('/calendar', authenticateToken, getApprovedRequestsForCalendar);
 router.get('/services', authenticateToken, getRequestsWithServices);
+router.get('/pending-count', authenticateToken, getPendingRequestsCount);
 router.get('/:id', authenticateToken, getRequest);
 router.put('/:id', authenticateToken, updateRequest);
 router.delete('/:id', authenticateToken, deleteRequest);

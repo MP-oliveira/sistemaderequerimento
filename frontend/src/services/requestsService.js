@@ -394,4 +394,23 @@ export async function buscarRequisicoesCalendario(month = null, year = null) {
   } catch (err) {
     throw err;
   }
+}
+
+// Buscar contagem de requerimentos pendentes para badges PWA
+export async function getPendingRequestsCount() {
+  try {
+    const response = await fetch(`${API_URL}/api/requests/pending-count`, {
+      headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao buscar contagem de requerimentos pendentes');
+    }
+
+    const data = await response.json();
+    return data.count || 0;
+  } catch (err) {
+    console.error('Erro ao buscar contagem de requerimentos pendentes:', err);
+    return 0;
+  }
 } 

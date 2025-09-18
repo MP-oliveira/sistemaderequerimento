@@ -27,6 +27,37 @@ const upload = multer({
   }
 });
 
+// Contar requerimentos pendentes para badges PWA
+export const getPendingRequestsCount = async (req, res) => {
+  try {
+    const { data: requests, error } = await supabase
+      .from('requests')
+      .select('id')
+      .eq('status', 'PENDENTE');
+
+    if (error) {
+      console.error('Erro ao buscar requerimentos pendentes:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro ao buscar requerimentos pendentes' 
+      });
+    }
+
+    const count = requests ? requests.length : 0;
+    
+    res.json({ 
+      success: true, 
+      count: count 
+    });
+  } catch (error) {
+    console.error('Erro no getPendingRequestsCount:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor' 
+    });
+  }
+};
+
 // Verificar conflitos em tempo real (para validação no frontend)
 export const checkRealTimeConflicts = async (req, res) => {
   try {
