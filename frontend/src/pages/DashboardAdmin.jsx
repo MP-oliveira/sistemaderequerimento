@@ -206,9 +206,150 @@ export default function DashboardAdmin() {
           
           .form-label {
             font-weight: bold !important;
-            min-width: 140px;
-            margin-right: 10px;
+            min-width: 100px;
+            margin-right: 0px;
             font-size: 11px;
+            white-space: nowrap;
+          }
+          
+          /* Labels para 2 itens por linha */
+          .form-label-2 {
+            font-weight: bold !important;
+            min-width: 100px;
+            margin-right: 0px;
+            font-size: 11px;
+            white-space: nowrap;
+          }
+          
+          /* Labels para 3 itens por linha */
+          .form-label-3 {
+            font-weight: bold !important;
+            min-width: 80px;
+            margin-right: 0px;
+            font-size: 11px;
+            white-space: nowrap;
+          }
+          
+          /* Classe específica para LÍDER - aproximar da resposta */
+          .form-label-lider {
+            font-weight: bold !important;
+            min-width: 60px;
+            margin-right: 0px;
+            font-size: 11px;
+            white-space: nowrap;
+          }
+          
+          /* Classe específica para margin-bottom do SOLICITAÇÕES */
+          .solicitacoes-margin {
+            margin-bottom: 15px !important;
+          }
+          
+          /* Classe específica para margin-bottom da última linha do Parecer IBVA */
+          .parecer-ibva-margin {
+            margin-bottom: 15px !important;
+          }
+          
+          /* Classe mais específica para forçar o margin-bottom */
+          .print-signature-title.parecer-ibva-margin {
+            margin-bottom: 15px !important;
+            padding-bottom: 15px !important;
+          }
+          
+          /* Regra universal para qualquer elemento com essa classe */
+          *[class*="parecer-ibva-margin"] {
+            margin-bottom: 15px !important;
+            padding-bottom: 15px !important;
+          }
+          
+          /* Classes específicas para evitar quebra de texto e ajustar tamanhos */
+          .print-signature-title {
+            white-space: nowrap !important;
+            font-weight: bold !important;
+          }
+          
+          .data-solicitacao-field {
+            min-width: 80px !important;
+            max-width: 120px !important;
+          }
+          
+          /* Classe para data sem linha, bem próxima dos dois pontos */
+          .data-solicitacao-simples {
+            display: inline !important;
+            margin-left: 5px !important;
+            font-weight: normal !important;
+            border: none !important;
+            background: none !important;
+          }
+          
+          /* Classe para assinatura do solicitante na mesma linha */
+          .assinatura-solicitante-inline {
+            display: inline-block !important;
+            margin-left: 5px !important;
+            min-width: 200px !important;
+            border-bottom: 1px solid #000 !important;
+            height: 18px !important;
+          }
+          
+          /* Classe para margin-top do SOLICITADO */
+          .solicitado-margin-top {
+            margin-top: 50px !important;
+          }
+          
+          /* Ajustar espaçamentos entre textos */
+          .signature-row {
+            margin-bottom: 10px !important;
+          }
+          
+          .print-signature-title {
+            margin-bottom: 8px !important;
+          }
+          
+          /* Reduzir espaçamento específico entre DATA DA SOLICITAÇÃO e ASSINATURA DO SOLICITANTE */
+          .print-signature-title.parecer-ibva-margin {
+            margin-bottom: 0px !important;
+            padding-bottom: 0px !important;
+          }
+          
+          /* Classe específica para reduzir ainda mais o espaçamento */
+          .assinatura-solicitante-container {
+            margin-top: 0px !important;
+            padding-top: 0px !important;
+          }
+          
+          /* Ajustar alinhamento das opções de solicitação */
+          .solicitation-method {
+            display: inline !important;
+            margin-left: 5px !important;
+          }
+          
+          .method-option {
+            margin-right: 15px !important;
+          }
+          
+          /* Ajustar tamanho e espaçamento do logo IBVA */
+          .logo {
+            margin-top: 20px !important;
+            text-align: center !important;
+          }
+          
+          .logo h1, .logo > div:first-child {
+            font-size: 14px !important;
+            font-weight: bold !important;
+            color: #000 !important;
+            margin: 0 !important;
+          }
+          
+          .logo-full {
+            font-size: 18px !important;
+            font-weight: normal !important;
+            color: #000 !important;
+            margin-top: 100px !important;
+            text-transform: uppercase !important;
+          }
+          
+          .assinatura-lider-field {
+            min-width: 200px !important;
+            flex: 1 !important;
           }
           
           .form-value {
@@ -231,7 +372,7 @@ export default function DashboardAdmin() {
           
           .requests-title {
             font-weight: bold !important;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             text-decoration: underline;
             font-size: 12px;
           }
@@ -358,7 +499,7 @@ export default function DashboardAdmin() {
         </div>
         
         <div class="requests-section">
-          <div class="requests-title">SOLICITAÇÕES:</div>
+          <div class="requests-title solicitacoes-margin">SOLICITAÇÕES:</div>
           ${requisicao.itens && requisicao.itens.length > 0 ? 
             requisicao.itens.map((item, index) => `
               <div class="request-item">
@@ -382,23 +523,20 @@ export default function DashboardAdmin() {
             <div class="signature-line"></div>
             <div class="signature-line"></div>
             <div class="signature-line"></div>
+            <div class="signature-line"></div>
             
-            <div class="print-signature-title">SOLICITADO:</div>
-            <div class="solicitation-method">
+            <div class="print-signature-title solicitado-margin-top">SOLICITADO: <span class="solicitation-method">
               <span class="method-option">WHATS APP ( )</span>
               <span class="method-option">EMAIL ( )</span>
               <span class="method-option">PESSOALMENTE (☑)</span>
-            </div>
+            </span></div>
             
-            <div class="print-signature-title">DATA DA SOLICITAÇÃO:</div>
-            <div class="signature-line print-date-line"></div>
-            <span class="print-date-value">${dataSolicitacao}</span>
+            <div class="print-signature-title parecer-ibva-margin">DATA DA SOLICITAÇÃO: <span class="data-solicitacao-simples">${dataSolicitacao}</span></div>
             
             <div class="print-signature-title">ASSINATURA DO LÍDER:</div>
-            <div class="signature-line"></div>
+            <div class="signature-line assinatura-lider-field"></div>
             
-            <div class="print-signature-title">ASSINATURA DO SOLICITANTE:</div>
-            <div class="signature-line"></div>
+            <div class="print-signature-title assinatura-solicitante-container">ASSINATURA DO SOLICITANTE: <span class="assinatura-solicitante-inline"></span></div>
           </div>
           
           <div class="signature-block">
@@ -412,7 +550,7 @@ export default function DashboardAdmin() {
         
         <div class="logo">
           IBVA
-          <div class="logo-full">INSTITUTO BRASILEIRO DE VALORIZAÇÃO DO SER HUMANO</div>
+          <div class="logo-full">Igreja Batista Vilas do Atlantico</div>
         </div>
       </body>
       </html>

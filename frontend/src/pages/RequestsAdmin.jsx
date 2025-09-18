@@ -763,12 +763,168 @@ export default function RequestsAdmin() {
             min-width: 200px;
           }
           
+          /* Campos com 2 itens por linha */
+          .form-field-2 {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 300px;
+          }
+          
+          /* Campos com 3 itens por linha */
+          .form-field-3 {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 200px;
+          }
+          
           .form-label {
             font-weight: bold !important;
-            min-width: 90px;
+            min-width: 100px;
             margin-right: 0px;
             font-size: 11px;
             white-space: nowrap;
+          }
+          
+          /* Labels para 2 itens por linha */
+          .form-label-2 {
+            font-weight: bold !important;
+            min-width: 100px;
+            margin-right: 0px;
+            font-size: 11px;
+            white-space: nowrap;
+          }
+          
+          /* Labels para 3 itens por linha */
+          .form-label-3 {
+            font-weight: bold !important;
+            min-width: 80px;
+            margin-right: 0px;
+            font-size: 11px;
+            white-space: nowrap;
+          }
+          
+          /* Classe específica para LÍDER - aproximar da resposta */
+          .form-label-lider {
+            font-weight: bold !important;
+            min-width: 60px;
+            margin-right: 0px;
+            font-size: 11px;
+            white-space: nowrap;
+          }
+          
+          /* Classe específica para margin-bottom do SOLICITAÇÕES */
+          .solicitacoes-margin {
+            margin-bottom: 15px !important;
+          }
+          
+          /* Classe específica para margin-bottom da última linha do Parecer IBVA */
+          .parecer-ibva-margin {
+            margin-bottom: 15px !important;
+          }
+          
+          /* Classe mais específica para forçar o margin-bottom */
+          .signature-row.parecer-ibva-margin {
+            margin-bottom: 15px !important;
+            padding-bottom: 15px !important;
+          }
+          
+          /* Regra universal para qualquer elemento com essa classe */
+          *[class*="parecer-ibva-margin"] {
+            margin-bottom: 15px !important;
+            padding-bottom: 15px !important;
+          }
+          
+          /* Classes específicas para evitar quebra de texto e ajustar tamanhos */
+          .print-signature-title {
+            white-space: nowrap !important;
+            font-weight: bold !important;
+          }
+          
+          .data-solicitacao-field {
+            min-width: 80px !important;
+            max-width: 120px !important;
+          }
+          
+          /* Classe para data sem linha, bem próxima dos dois pontos */
+          .data-solicitacao-simples {
+            display: inline !important;
+            margin-left: 5px !important;
+            font-weight: normal !important;
+            border: none !important;
+            background: none !important;
+          }
+          
+          /* Classe para assinatura do solicitante na mesma linha */
+          .assinatura-solicitante-inline {
+            display: inline-block !important;
+            margin-left: 5px !important;
+            min-width: 200px !important;
+            border-bottom: 1px solid #000 !important;
+            height: 18px !important;
+          }
+          
+          /* Classe para margin-top do SOLICITADO */
+          .solicitado-margin-top {
+            margin-top: 50px !important;
+          }
+          
+          /* Ajustar espaçamentos entre textos */
+          .signature-row {
+            margin-bottom: 10px !important;
+          }
+          
+          .print-signature-title {
+            margin-bottom: 8px !important;
+          }
+          
+          /* Reduzir espaçamento específico entre DATA DA SOLICITAÇÃO e ASSINATURA DO SOLICITANTE */
+          .signature-row.parecer-ibva-margin {
+            margin-bottom: 0px !important;
+            padding-bottom: 0px !important;
+          }
+          
+          /* Classe específica para reduzir ainda mais o espaçamento */
+          .assinatura-solicitante-container {
+            margin-top: 0px !important;
+            padding-top: 0px !important;
+          }
+          
+          /* Ajustar alinhamento das opções de solicitação */
+          .solicitation-method {
+            display: inline !important;
+            margin-left: 5px !important;
+          }
+          
+          .method-option {
+            margin-right: 15px !important;
+          }
+          
+          /* Ajustar tamanho e espaçamento do logo IBVA */
+          .logo {
+            margin-top: 20px !important;
+            text-align: center !important;
+          }
+          
+          .logo h1, .logo > div:first-child {
+            font-size: 14px !important;
+            font-weight: bold !important;
+            color: #000 !important;
+            margin: 0 !important;
+          }
+          
+          .logo-full {
+            font-size: 18px !important;
+            font-weight: normal !important;
+            color: #000 !important;
+            margin-top: 100px !important;
+            text-transform: uppercase !important;
+          }
+          
+          .assinatura-lider-field {
+            min-width: 200px !important;
+            flex: 1 !important;
           }
           
           .form-value {
@@ -793,7 +949,7 @@ export default function RequestsAdmin() {
           
           .requests-title {
             font-weight: bold !important;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             text-decoration: underline;
             font-size: 12px;
           }
@@ -894,15 +1050,13 @@ export default function RequestsAdmin() {
         <div class="form-section">
           <!-- Solicitante e Líder na mesma linha -->
           <div class="form-row-inline">
-            <div class="form-field">
-              <span class="form-label">SOLICITANTE:</span>
+            <div class="form-field-2">
+              <span class="form-label-2">SOLICITANTE:</span>
               <span class="form-value">${requisicao.user?.name || 'N/A'}</span>
-              <span class="checkbox">☑</span>
             </div>
-            <div class="form-field">
-              <span class="form-label">LÍDER:</span>
+            <div class="form-field-2">
+              <span class="form-label-lider">LÍDER:</span>
               <span class="form-value">${requisicao.user?.name || 'N/A'}</span>
-              <span class="checkbox">☑</span>
             </div>
           </div>
           
@@ -910,35 +1064,30 @@ export default function RequestsAdmin() {
           <div class="form-row">
             <span class="form-label">DEPARTAMENTO:</span>
             <span class="form-value">${requisicao.department || 'N/A'}</span>
-            <span class="checkbox">☑</span>
           </div>
           
           <!-- Evento -->
           <div class="form-row">
             <span class="form-label">EVENTO:</span>
             <span class="form-value">${requisicao.event_name || 'N/A'}</span>
-            <span class="checkbox">☑</span>
           </div>
           
           <!-- Data, Horário e Público na mesma linha -->
           <div class="form-row-inline">
-            <div class="form-field">
-              <span class="form-label">DATA DO EVENTO:</span>
+            <div class="form-field-3">
+              <span class="form-label-3">DATA DO EVENTO:</span>
               <span class="form-value">${formatarData(requisicao.start_datetime || requisicao.date)}</span>
-              <span class="checkbox">☑</span>
             </div>
-            <div class="form-field">
-              <span class="form-label" style="min-width: auto; margin-right: 0;">HORÁRIO:</span>
-              <span class="form-value" style="display: flex; align-items: center; gap: 5px; margin-left: 0;">
+            <div class="form-field-3">
+              <span class="form-label-3">HORÁRIO:</span>
+              <span class="form-value">
                 <span>${formatarHorario(requisicao.start_datetime)}</span>
                 ${requisicao.end_datetime ? '<span>-</span><span>' + formatarHorario(requisicao.end_datetime) + '</span>' : ''}
               </span>
-              <span class="checkbox">☑</span>
             </div>
-            <div class="form-field">
-              <span class="form-label">PÚBLICO PREVISTO:</span>
+            <div class="form-field-3">
+              <span class="form-label-3">PÚBLICO PREVISTO:</span>
               <span class="form-value">${requisicao.expected_audience || 'N/A'}</span>
-              <span class="checkbox">☑</span>
             </div>
           </div>
           
@@ -946,12 +1095,11 @@ export default function RequestsAdmin() {
           <div class="form-row">
             <span class="form-label">LOCAL DO EVENTO:</span>
             <span class="form-value">${requisicao.location || 'N/A'}</span>
-            <span class="checkbox">☑</span>
           </div>
         </div>
         
         <div class="requests-section">
-          <div class="print-section-title">SOLICITAÇÕES:</div>
+          <div class="print-section-title solicitacoes-margin">SOLICITAÇÕES:</div>
           <div class="requests-container">
             ${requisicao.itens && requisicao.itens.length > 0 ? 
               requisicao.itens.map((item, index) => `
@@ -976,26 +1124,23 @@ export default function RequestsAdmin() {
           <div class="signature-line"></div>
           <div class="signature-line"></div>
           <div class="signature-line"></div>
+          <div class="signature-line"></div>
           
-          <div class="signature-row">
-            <div class="print-signature-title">SOLICITADO:</div>
-            <div class="solicitation-method">
+          <div class="signature-row solicitado-margin-top">
+            <div class="print-signature-title">SOLICITADO: <span class="solicitation-method">
               <span class="method-option">WHATS APP ( )</span>
               <span class="method-option">EMAIL ( )</span>
               <span class="method-option">PESSOALMENTE (☑)</span>
-            </div>
+            </span></div>
           </div>
           
-          <div class="signature-row">
-            <div class="print-signature-title">DATA DA SOLICITAÇÃO:</div>
-            <div class="signature-line print-date-line"></div>
-            <span class="print-date-value">${dataSolicitacao}</span>
+          <div class="signature-row parecer-ibva-margin">
+            <div class="print-signature-title">DATA DA SOLICITAÇÃO: <span class="data-solicitacao-simples">${dataSolicitacao}</span></div>
             <div class="print-signature-title print-signature-label-spaced">ASSINATURA DO LÍDER:</div>
-            <div class="signature-line print-signature-line-flex"></div>
+            <div class="signature-line print-signature-line-flex assinatura-lider-field"></div>
           </div>
           
-          <div class="print-signature-title">ASSINATURA DO SOLICITANTE:</div>
-          <div class="signature-line"></div>
+          <div class="print-signature-title assinatura-solicitante-container">ASSINATURA DO SOLICITANTE: <span class="assinatura-solicitante-inline"></span></div>
           
           <div class="signature-row">
             <div class="print-signature-title">AUTORIZADO POR:</div>
@@ -1007,7 +1152,7 @@ export default function RequestsAdmin() {
         
         <div class="logo">
           IBVA
-          <div class="logo-full">INSTITUTO BRASILEIRO DE VALORIZAÇÃO DO SER HUMANO</div>
+          <div class="logo-full">Igreja Batista Vilas do Atlantico</div>
         </div>
         </div>
       </body>
@@ -1019,9 +1164,9 @@ export default function RequestsAdmin() {
     
     // Aguardar o conteúdo carregar
     printWindow.onload = function() {
-      // Por enquanto, apenas abrir a janela para visualização e formatação
-      // Depois podemos adicionar o print() quando estiver pronto
-      console.log('Documento carregado para formatação');
+      // Abrir diretamente o diálogo de impressão
+      printWindow.print();
+      printWindow.close();
     };
   };
 
