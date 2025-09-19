@@ -13,6 +13,7 @@ import requestItemsRoutes from './routes/requestItemsRoutes.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
 import eventsRoutes from './routes/eventsRouts.js';
 import departmentsRoutes from './routes/departmentsRoutes.js';
+import favoritesRoutes from './routes/favorites.js';
 
 dotenv.config();
 
@@ -110,6 +111,9 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/events', eventsRoutes);
 // 🏢 Rotas de departamentos
 app.use('/api/departments', departmentsRoutes);
+
+// ⭐ Rotas de favoritos
+app.use('/api/favorites', favoritesRoutes);
 
 // Middleware para rotas não encontradas
 app.use('*', (req, res) => {
