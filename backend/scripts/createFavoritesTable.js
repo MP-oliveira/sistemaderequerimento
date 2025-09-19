@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../src/config/supabase.js';
+import { supabaseAdmin } from '../src/config/supabaseClient.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
