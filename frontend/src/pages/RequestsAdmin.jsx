@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FiEdit, FiTrash2, FiEye, FiArrowLeft, FiPlus, FiX, FiSearch, FiPrinter } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -8,6 +8,7 @@ import Input from '../components/Input';
 import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequisicao, atualizarRequisicao, aprovarRequisicao, rejeitarRequisicao, verificarDisponibilidadeMateriais } from '../services/requestsService';
 
 import { listarItensInventario } from '../services/inventoryService';
+import { addToFavorites, removeFromFavorites, checkFavorite, getFavorites } from '../services/favoritesService';
 import { salasOptions } from '../utils/salasConfig';
 import { departamentosOptions } from '../utils/departamentosConfig.js';
 import { PRIORIDADE_OPTIONS, PRIORIDADE_DEFAULT } from '../utils/prioridadeConfig';
@@ -30,7 +31,9 @@ export default function RequestsAdmin() {
     department: '',
     event_name: '',
     date: '',
+    end_date: '',
     location: '',
+    locations: [], // Array para múltiplos locais
     description: '',
     start_datetime: '',
     end_datetime: '',
@@ -47,6 +50,9 @@ export default function RequestsAdmin() {
   // Estados para serviços solicitados
   const [selectedServices, setSelectedServices] = useState([]);
   const [showServicesModal, setShowServicesModal] = useState(false);
+  
+  // Estados para locais
+  const [showLocationsModal, setShowLocationsModal] = useState(false);
   
   // Estados para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
@@ -82,12 +88,69 @@ export default function RequestsAdmin() {
   const [copyModalOpen, setCopyModalOpen] = useState(false);
   const [copyReq, setCopyReq] = useState(null);
 
+  // Estados para favoritos
+  const [favorites, setFavorites] = useState([]);
+  const [favoriteStatus, setFavoriteStatus] = useState({}); // { requestId: boolean }
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const buscarRequisicoes = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await listarRequisicoes();
+      setRequisicoes(Array.isArray(data) ? data : []);
+    } catch {
+      mostrarNotificacao('Erro ao buscar Requerimentos', 'erro');
+    }
+    setLoading(false);
+  }, []);
+
+  const checkFavoritesStatus = useCallback(async () => {
+    if (requisicoes.length === 0) return;
+    
+    try {
+      // Adicionar um pequeno delay para evitar chamadas muito rápidas
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const statusPromises = requisicoes.map(req => 
+        checkFavorite(req.id).then(response => ({ id: req.id, isFavorite: response.data.is_favorite }))
+      );
+      const results = await Promise.all(statusPromises);
+      
+      const statusMap = results.reduce((acc, { id, isFavorite }) => {
+        acc[id] = isFavorite;
+        return acc;
+      }, {});
+      
+      setFavoriteStatus(statusMap);
+    } catch (error) {
+      console.error('Erro ao verificar status dos favoritos:', error);
+      // Em caso de erro, definir todos como não favoritos
+      const statusMap = requisicoes.reduce((acc, req) => {
+        acc[req.id] = false;
+        return acc;
+      }, {});
+      setFavoriteStatus(statusMap);
+    }
+  }, [requisicoes]);
+
   useEffect(() => {
     buscarRequisicoes();
+  }, [buscarRequisicoes]);
+
+  // Carregar favoritos quando a página carregar
+  useEffect(() => {
+    loadFavorites();
   }, []);
+
+  // Verificar status dos favoritos quando as requisições carregarem
+  useEffect(() => {
+    if (requisicoes.length > 0) {
+      checkFavoritesStatus();
+    }
+  }, [requisicoes, checkFavoritesStatus]);
 
   // Carregar inventário quando abrir o modal
   useEffect(() => {
@@ -140,28 +203,17 @@ export default function RequestsAdmin() {
       const data = `${dia}/${mes}/${ano}`;
       const hora = formatTimeUTC(dataString);
       return `${data} ${hora}`;
-    } catch (error) {
+    } catch {
       return '';
     }
   };
-
-  async function buscarRequisicoes() {
-    setLoading(true);
-    try {
-      const data = await listarRequisicoes();
-      setRequisicoes(Array.isArray(data) ? data : []);
-    } catch (err) {
-      mostrarNotificacao('Erro ao buscar Requerimentos', 'erro');
-    }
-    setLoading(false);
-  }
 
   async function carregarInventario() {
     try {
       const data = await listarItensInventario();
       setInventory(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Erro ao carregar inventário:', error);
+    } catch (err) {
+      console.error('Erro ao carregar inventário:', err);
     }
   }
 
@@ -196,8 +248,8 @@ export default function RequestsAdmin() {
         materiaisIndisponiveis: resultado.materiaisIndisponiveis || [],
         materiaisBaixoEstoque: resultado.materiaisBaixoEstoque || []
       });
-    } catch (error) {
-      console.error('Erro ao verificar disponibilidade de materiais:', error);
+    } catch (err) {
+      console.error('Erro ao verificar disponibilidade de materiais:', err);
       setDisponibilidadeInfo({
         temConflito: false,
         temBaixoEstoque: false,
@@ -264,8 +316,8 @@ export default function RequestsAdmin() {
           horariosDisponiveis: []
         });
       }
-    } catch (error) {
-      console.error('Erro na verificação de conflitos:', error);
+    } catch (err) {
+      console.error('Erro na verificação de conflitos:', err);
       setConflitoInfo({
         temConflito: false,
         mensagem: '',
@@ -339,6 +391,82 @@ export default function RequestsAdmin() {
     
     // Verificar disponibilidade em tempo real
     verificarDisponibilidadeTempoReal(novosItens);
+  };
+
+  // Funções para gerenciar múltiplos locais
+  const toggleLocation = (locationValue) => {
+    setFormData(prev => {
+      const newLocations = prev.locations.includes(locationValue)
+        ? prev.locations.filter(loc => loc !== locationValue)
+        : [...prev.locations, locationValue];
+      
+      // Manter compatibilidade com location único
+      const newLocation = newLocations.length === 1 ? newLocations[0] : 
+                         newLocations.length > 1 ? newLocations.join(', ') : '';
+      
+      return {
+        ...prev,
+        locations: newLocations,
+        location: newLocation
+      };
+    });
+  };
+
+  // Função para remover um local específico
+  const removeLocation = (locationToRemove) => {
+    setFormData(prev => {
+      const newLocations = prev.locations.filter(loc => loc !== locationToRemove);
+      
+      // Manter compatibilidade com location único
+      const newLocation = newLocations.length === 1 ? newLocations[0] : 
+                         newLocations.length > 1 ? newLocations.join(', ') : '';
+      
+      return {
+        ...prev,
+        locations: newLocations,
+        location: newLocation
+      };
+    });
+  };
+
+  // Funções para gerenciar favoritos
+  const toggleFavorite = async (requestId) => {
+    try {
+      const isFavorite = favoriteStatus[requestId];
+      
+      if (isFavorite) {
+        await removeFromFavorites(requestId);
+        setFavoriteStatus(prev => ({ ...prev, [requestId]: false }));
+        mostrarNotificacao('Requerimento removido dos favoritos', 'sucesso');
+      } else {
+        await addToFavorites(requestId);
+        setFavoriteStatus(prev => ({ ...prev, [requestId]: true }));
+        mostrarNotificacao('Requerimento adicionado aos favoritos', 'sucesso');
+      }
+      
+      // Recarregar lista de favoritos com delay
+      setTimeout(() => {
+        loadFavorites();
+      }, 200);
+      
+    } catch (error) {
+      console.error('Erro ao alterar favorito:', error);
+      mostrarNotificacao('Erro ao alterar favorito', 'erro');
+    }
+  };
+
+  const loadFavorites = async () => {
+    try {
+      // Adicionar um pequeno delay para evitar chamadas muito rápidas
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const response = await getFavorites();
+      setFavorites(response.data || []);
+    } catch (error) {
+      console.error('Erro ao carregar favoritos:', error);
+      // Em caso de erro, definir lista vazia
+      setFavorites([]);
+    }
   };
 
   // Funções para gerenciar serviços
@@ -425,10 +553,10 @@ export default function RequestsAdmin() {
       
       buscarRequisicoes();
       setModalDetalhe(false);
-    } catch (error) {
+    } catch (err) {
       try {
         // Tentar parsear o erro como JSON para verificar se há conflitos
-        const errorData = JSON.parse(error.message);
+        const errorData = JSON.parse(err.message);
         if (errorData.tipoConflito) {
           if (errorData.tipoConflito === 'DIRETO') {
             mostrarNotificacao('Não é possível aprovar. Existe conflito direto de horário.', 'erro');
@@ -471,6 +599,17 @@ export default function RequestsAdmin() {
   const handleEdit = async (id) => {
     try {
       const detalhe = await getRequisicaoDetalhada(id);
+      
+      // Processar locais para múltipla seleção
+      if (detalhe.location) {
+        const locations = detalhe.location.includes(',') 
+          ? detalhe.location.split(',').map(loc => loc.trim())
+          : [detalhe.location];
+        detalhe.locations = locations;
+      } else {
+        detalhe.locations = [];
+      }
+      
       setEditReq(detalhe);
       setEditModalOpen(true);
     } catch {
@@ -484,8 +623,14 @@ export default function RequestsAdmin() {
     
     try {
       // Validar campos obrigatórios
-      const camposObrigatorios = ['department', 'event_name', 'location', 'date'];
+      const camposObrigatorios = ['department', 'event_name', 'date'];
       const camposVazios = camposObrigatorios.filter(campo => !editReq[campo]);
+      
+      // Validar se pelo menos um local foi selecionado
+      if (!editReq.locations || editReq.locations.length === 0) {
+        mostrarNotificacao('Selecione pelo menos um local para o evento', 'erro');
+        return;
+      }
       
       if (camposVazios.length > 0) {
         mostrarNotificacao(`Campos obrigatórios vazios: ${camposVazios.join(', ')}`, 'erro');
@@ -497,8 +642,10 @@ export default function RequestsAdmin() {
         department: editReq.department || '',
         event_name: editReq.event_name || '',
         location: editReq.location || '',
+        locations: editReq.locations || [],
         description: editReq.description || '',
         date: editReq.date || '',
+        end_date: editReq.end_date || '',
         expected_audience: editReq.expected_audience || 0,
         prioridade: editReq.prioridade || 'Média'
       };
@@ -529,8 +676,11 @@ export default function RequestsAdmin() {
           } else if (editReq.end_datetime.includes('T')) {
             // Se é um datetime válido, usar como está
             dataToSend.end_datetime = editReq.end_datetime;
+          } else if (editReq.end_date && editReq.end_datetime) {
+            // Se é apenas hora, combinar com a data final
+            dataToSend.end_datetime = `${editReq.end_date}T${editReq.end_datetime}`;
           } else if (editReq.date && editReq.end_datetime) {
-            // Se é apenas hora, combinar com a data
+            // Se é apenas hora, combinar com a data de início
             dataToSend.end_datetime = `${editReq.date}T${editReq.end_datetime}`;
           }
         }
@@ -565,9 +715,9 @@ export default function RequestsAdmin() {
       setEditModalOpen(false);
       setEditReq(null);
       buscarRequisicoes();
-    } catch (error) {
-      console.error('❌ Erro ao atualizar Requerimento:', error);
-      mostrarNotificacao(`Erro ao atualizar Requerimento: ${error.message}`, 'erro');
+    } catch (err) {
+      console.error('❌ Erro ao atualizar Requerimento:', err);
+      mostrarNotificacao(`Erro ao atualizar Requerimento: ${err.message}`, 'erro');
     }
   };
 
@@ -602,33 +752,39 @@ export default function RequestsAdmin() {
       const detalhe = await getRequisicaoDetalhada(id);
       setCopyReq(detalhe);
       setCopyModalOpen(true);
-    } catch (error) {
+    } catch {
       mostrarNotificacao('Erro ao buscar detalhes da Requerimento', 'erro');
     }
   };
 
   // Função para confirmar cópia
-  const handleCopyConfirm = () => {
-    if (!copyReq) return;
+  const handleCopyConfirm = (requestData = null) => {
+    const dataToCopy = requestData || copyReq;
+    if (!dataToCopy) return;
+    
+    // Se for um favorito, usar os dados do request
+    const sourceData = dataToCopy.request || dataToCopy;
     
     // Preencher o formulário com os dados copiados
     setFormData({
-      department: copyReq.department || '',
-      event_name: `${copyReq.event_name} (Cópia)` || '',
+      department: sourceData.department || '',
+      event_name: `${sourceData.event_name || ''} (Cópia)`,
       date: '',
-      location: copyReq.location || '',
-      description: copyReq.description || '',
+      end_date: '',
+      location: sourceData.location || '',
+      locations: sourceData.location ? [sourceData.location] : [],
+      description: sourceData.description || '',
       start_datetime: '',
       end_datetime: '',
-      expected_audience: copyReq.expected_audience || '',
-      prioridade: copyReq.prioridade || PRIORIDADE_DEFAULT
+      expected_audience: sourceData.expected_audience || '',
+      prioridade: sourceData.prioridade || PRIORIDADE_DEFAULT
     });
     
     // Copiar itens do inventário
-    setSelectedItems(copyReq.itens || []);
+    setSelectedItems(sourceData.itens || []);
     
     // Copiar serviços
-    setSelectedServices(copyReq.servicos || []);
+    setSelectedServices(sourceData.servicos || []);
     
     // Fechar modal de cópia e abrir modal de adicionar
     setCopyModalOpen(false);
@@ -643,7 +799,7 @@ export default function RequestsAdmin() {
     try {
       const detalhe = await getRequisicaoDetalhada(id);
       generatePDF(detalhe);
-    } catch (error) {
+    } catch {
       mostrarNotificacao('Erro ao buscar detalhes da Requerimento para impressão', 'erro');
     }
   };
@@ -1072,11 +1228,15 @@ export default function RequestsAdmin() {
             <span class="form-value">${requisicao.event_name || 'N/A'}</span>
           </div>
           
-          <!-- Data, Horário e Público na mesma linha -->
+          <!-- Data de Início, Data Final e Horário -->
           <div class="form-row-inline">
             <div class="form-field-3">
-              <span class="form-label-3">DATA DO EVENTO:</span>
+              <span class="form-label-3">DATA DE INÍCIO:</span>
               <span class="form-value">${formatarData(requisicao.start_datetime || requisicao.date)}</span>
+            </div>
+            <div class="form-field-3">
+              <span class="form-label-3">DATA FINAL:</span>
+              <span class="form-value">${requisicao.end_date ? formatarData(requisicao.end_date) : formatarData(requisicao.start_datetime || requisicao.date)}</span>
             </div>
             <div class="form-field-3">
               <span class="form-label-3">HORÁRIO:</span>
@@ -1085,6 +1245,10 @@ export default function RequestsAdmin() {
                 ${requisicao.end_datetime ? '<span>-</span><span>' + formatarHorario(requisicao.end_datetime) + '</span>' : ''}
               </span>
             </div>
+          </div>
+          
+          <!-- Público Previsto em linha separada -->
+          <div class="form-row-inline">
             <div class="form-field-3">
               <span class="form-label-3">PÚBLICO PREVISTO:</span>
               <span class="form-value">${requisicao.expected_audience || 'N/A'}</span>
@@ -1093,7 +1257,7 @@ export default function RequestsAdmin() {
           
           <!-- Local do Evento -->
           <div class="form-row">
-            <span class="form-label">LOCAL DO EVENTO:</span>
+            <span class="form-label">LOCAL${requisicao.location && requisicao.location.includes(',') ? 'IS' : ''} DO EVENTO:</span>
             <span class="form-value">${requisicao.location || 'N/A'}</span>
           </div>
         </div>
@@ -1181,6 +1345,13 @@ export default function RequestsAdmin() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Validar se pelo menos um local foi selecionado
+      if (formData.locations.length === 0) {
+        mostrarNotificacao('Selecione pelo menos um local para o evento', 'erro');
+        setLoading(false);
+        return;
+      }
+
       // Combinar data com horas para criar datetime completo
       const dataToSend = { ...formData };
       
@@ -1188,7 +1359,9 @@ export default function RequestsAdmin() {
         dataToSend.start_datetime = `${formData.date}T${formData.start_datetime}`;
       }
       
-      if (formData.date && formData.end_datetime) {
+      if (formData.end_date && formData.end_datetime) {
+        dataToSend.end_datetime = `${formData.end_date}T${formData.end_datetime}`;
+      } else if (formData.date && formData.end_datetime) {
         dataToSend.end_datetime = `${formData.date}T${formData.end_datetime}`;
       }
       
@@ -1213,7 +1386,9 @@ export default function RequestsAdmin() {
         department: '',
         event_name: '',
         date: '',
+        end_date: '',
         location: '',
+        locations: [],
         description: '',
         start_datetime: '',
         end_datetime: '',
@@ -1310,14 +1485,28 @@ export default function RequestsAdmin() {
       <div className="card requests-list-card">
         <div className="requests-header">
           <h2 className="requests-list-title">Gerenciar Requerimentos</h2>
-          <Button 
-            variant="primary" 
-            size="sm" 
-            onClick={() => setShowAddModal(true)}
-            className="add-request-btn"
-          >
-            + Adicionar Requerimento
-          </Button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button 
+              variant="primary" 
+              size="sm" 
+              onClick={() => setShowAddModal(true)}
+              className="add-request-btn"
+            >
+              + Adicionar Requerimento
+            </Button>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={() => {
+                loadFavorites();
+                setShowFavoritesModal(true);
+              }}
+              className="favorites-btn"
+              style={{ border: 'none', cursor: 'pointer' }}
+            >
+              ⭐ Favoritos ({favorites.length})
+            </Button>
+          </div>
         </div>
         <div className="filters-section">
           <h3 className="filters-title">Filtros</h3>
@@ -1393,7 +1582,43 @@ export default function RequestsAdmin() {
         ) : (
           <div className="requests-list-container">
             {filtrar(requisicoes).map((req) => (
-              <div key={req.id} className="request-item">
+              <div key={req.id} className="request-item" style={{ position: 'relative' }}>
+                {/* Coração de favorito no canto superior direito */}
+                <button 
+                  onClick={() => toggleFavorite(req.id)}
+                  className="favorite-heart"
+                  title={favoriteStatus[req.id] ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    color: favoriteStatus[req.id] ? '#ef4444' : '#d1d5db',
+                    transition: 'color 0.2s, transform 0.2s',
+                    zIndex: 10,
+                    padding: '4px',
+                    borderRadius: '50%',
+                    width: '28px',
+                    height: '28px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.1)';
+                    e.target.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  {favoriteStatus[req.id] ? '❤️' : '🤍'}
+                </button>
+                
                 <div className="request-item-content">
                   <div className="request-item-header">
                     <span className="request-item-title">
@@ -1415,6 +1640,9 @@ export default function RequestsAdmin() {
                         Local: {req.location}
                       </span>
                     )}
+                    <span className="request-item-requester">
+                      Solicitante: {req.requester_name || req.requester || req.user?.name || 'N/A'}
+                    </span>
                   </div>
                 </div>
                 
@@ -1545,12 +1773,18 @@ export default function RequestsAdmin() {
                   <strong>Data de Fim:</strong> {formatarDataHora(reqDetalhe.end_datetime)}
                 </div>
               )}
+              
+              {reqDetalhe.end_date && reqDetalhe.end_date !== reqDetalhe.date && (
+                <div className="detail-item-admin">
+                  <strong>Data Final:</strong> {formatarDataHora(reqDetalhe.end_date)}
+                </div>
+              )}
             </div>
             
             <div className="detail-row-admin">
               {reqDetalhe.location && (
                 <div className="detail-item-admin">
-                  <strong>Local:</strong> {reqDetalhe.location}
+                  <strong>Local{reqDetalhe.location.includes(',') ? 'is' : ''}:</strong> {reqDetalhe.location}
                 </div>
               )}
               
@@ -1779,7 +2013,7 @@ export default function RequestsAdmin() {
           <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <Input
-                label="Data"
+                label="Data de Início"
                 type="date"
                 value={formData.date}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
@@ -1791,26 +2025,19 @@ export default function RequestsAdmin() {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <div className="input-group">
-                <label className="input-label">Local</label>
-                <select
-                  className="input-field"
-                  value={formData.location}
-                  onChange={e => setFormData({ ...formData, location: e.target.value })}
-                  onBlur={e => {
-                    // Verificação imediata quando sair do campo
-                    verificarConflitoTempoReal(formData.date, e.target.value, formData.start_datetime, formData.end_datetime);
-                  }}
-                >
-                  {salasOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Input
+                label="Data Final"
+                type="date"
+                value={formData.end_date}
+                onChange={e => setFormData({ ...formData, end_date: e.target.value })}
+                onBlur={() => {
+                  // Verificação imediata quando sair do campo
+                  verificarConflitoTempoReal(formData.date, formData.location, formData.start_datetime, formData.end_datetime);
+                }}
+              />
             </div>
           </div>
+          
 
           {/* Terceira linha - Hora de Início e Fim */}
           <div style={{ display: 'flex', gap: 20 }}>
@@ -1875,15 +2102,26 @@ export default function RequestsAdmin() {
           <div style={{ marginTop: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <label style={{ fontWeight: '600', color: '#374151' }}>Itens do Inventário</label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => setShowInventoryModal(true)}
-              >
-                Adicionar Item
-              </Button>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setShowLocationsModal(true)}
+                >
+                  {formData.locations.length === 0 
+                    ? 'Selecionar Locais' 
+                    : `Locais (${formData.locations.length})`
+                  }
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setShowInventoryModal(true)}
+                >
+                  Adicionar Itens
+                </Button>
                 <Button
                   type="button"
                   variant="primary"
@@ -1894,6 +2132,75 @@ export default function RequestsAdmin() {
                 </Button>
               </div>
             </div>
+            
+            {/* Seção de Locais Selecionados */}
+            {formData.locations.length > 0 && (
+              <div style={{ 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '8px', 
+                padding: '0.75rem',
+                backgroundColor: '#f9fafb',
+                marginBottom: '1rem'
+              }}>
+                <h4 style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '600', 
+                  color: '#374151', 
+                  marginBottom: '8px',
+                  borderBottom: '1px solid #e5e7eb',
+                  paddingBottom: '4px'
+                }}>
+                  📍 Locais Selecionados ({formData.locations.length})
+                </h4>
+                <div style={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: '8px'
+                }}>
+                  {formData.locations.map((location, index) => (
+                    <div key={index} style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      padding: '6px 12px',
+                      backgroundColor: '#dbeafe',
+                      border: '1px solid #93c5fd',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      color: '#1e40af',
+                      fontWeight: '500',
+                      gap: '8px'
+                    }}>
+                      <span style={{ flex: 1 }}>{location}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeLocation(location)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#dc2626',
+                          cursor: 'pointer',
+                          padding: '6px',
+                          borderRadius: '6px',
+                          fontSize: '18px',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '30px',
+                          height: '30px',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#fecaca'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        title="Remover local"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {selectedItems.length > 0 ? (
               <div style={{ 
@@ -2315,7 +2622,7 @@ export default function RequestsAdmin() {
           {filteredInventory.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem' }}>
               {filteredInventory.map((item) => {
-                const quantidadeDisponivel = getQuantidadeDisponivelAtualizada(item);
+                // const quantidadeDisponivel = getQuantidadeDisponivelAtualizada(item);
                 const itemSelecionado = selectedItems.find(selected => selected.id === item.id);
                 const isSelecionado = !!itemSelecionado;
                 
@@ -2438,11 +2745,11 @@ export default function RequestsAdmin() {
               </div>
             </div>
 
-            {/* Segunda linha: Data e Local */}
+            {/* Segunda linha: Data de Início e Data Final */}
             <div style={{ display: 'flex', gap: 16 }}>
               <div style={{ flex: 1 }}>
                 <Input
-                  label="Data"
+                  label="Data de Início"
                   type="date"
                   value={editReq.date || ''}
                   onChange={(e) => handleEditField('date', e.target.value)}
@@ -2451,13 +2758,14 @@ export default function RequestsAdmin() {
               </div>
               <div style={{ flex: 1 }}>
                 <Input
-                  label="Local"
-                  value={editReq.location || ''}
-                  onChange={(e) => handleEditField('location', e.target.value)}
-                  required
+                  label="Data Final"
+                  type="date"
+                  value={editReq.end_date || ''}
+                  onChange={(e) => handleEditField('end_date', e.target.value)}
                 />
               </div>
             </div>
+            
 
             {/* Terceira linha: Hora de Início e Hora de Fim */}
             <div style={{ display: 'flex', gap: 16 }}>
@@ -2542,6 +2850,102 @@ export default function RequestsAdmin() {
 
             {/* Seção de Itens e Serviços */}
             <div style={{ marginTop: '16px' }}>
+              {/* Botões de Ação */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '8px', 
+                marginBottom: '16px',
+                flexWrap: 'wrap'
+              }}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setShowLocationsModal(true)}
+                >
+                  {(!editReq.locations || editReq.locations.length === 0)
+                    ? 'Selecionar Locais' 
+                    : `Locais (${editReq.locations.length})`
+                  }
+                </Button>
+              </div>
+              
+              {/* Seção de Locais Selecionados */}
+              {editReq.locations && editReq.locations.length > 0 && (
+                <div style={{ 
+                  border: '1px solid #e5e7eb', 
+                  borderRadius: '8px', 
+                  padding: '0.75rem',
+                  backgroundColor: '#f9fafb',
+                  marginBottom: '1rem'
+                }}>
+                  <h4 style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#374151', 
+                    marginBottom: '8px',
+                    borderBottom: '1px solid #e5e7eb',
+                    paddingBottom: '4px'
+                  }}>
+                    📍 Locais Selecionados ({editReq.locations.length})
+                  </h4>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    gap: '8px'
+                  }}>
+                    {editReq.locations.map((location, index) => (
+                      <div key={index} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        padding: '6px 12px',
+                        backgroundColor: '#dbeafe',
+                        border: '1px solid #93c5fd',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        color: '#1e40af',
+                        fontWeight: '500',
+                        gap: '8px'
+                      }}>
+                        <span style={{ flex: 1 }}>{location}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // Atualizar editReq.locations
+                            const newLocations = editReq.locations.filter(loc => loc !== location);
+                            setEditReq(prev => ({
+                              ...prev,
+                              locations: newLocations,
+                              location: newLocations.join(', ')
+                            }));
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#dc2626',
+                            cursor: 'pointer',
+                            padding: '6px',
+                            borderRadius: '6px',
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '30px',
+                            height: '30px',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = '#fecaca'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                          title="Remover local"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               {/* Itens do Inventário */}
               {editReq.itens && editReq.itens.length > 0 && (
                 <div style={{ marginBottom: '16px' }}>
@@ -2994,6 +3398,230 @@ export default function RequestsAdmin() {
             </p>
           </div>
         )}
+      </Modal>
+
+      {/* Modal de Seleção de Locais */}
+      <Modal
+        open={showLocationsModal}
+        title="Selecionar Locais do Evento"
+        onClose={() => setShowLocationsModal(false)}
+        actions={
+          <Button variant="secondary" size="sm" onClick={() => setShowLocationsModal(false)}>
+            Fechar
+          </Button>
+        }
+        style={{ width: '600px', maxWidth: '90vw' }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ 
+            fontSize: '14px', 
+            color: '#6b7280',
+            marginBottom: '8px'
+          }}>
+            Selecione os locais que serão utilizados no evento. Para eventos como congressos, 
+            você pode selecionar múltiplas salas para palestras simultâneas.
+          </div>
+          
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '12px',
+            maxHeight: '400px',
+            overflowY: 'auto',
+            padding: '8px'
+          }}>
+            {salasOptions.map(option => (
+              <label key={option.value} style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '10px',
+                cursor: 'pointer',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '2px solid #e5e7eb',
+                transition: 'all 0.2s',
+                backgroundColor: formData.locations.includes(option.value) ? '#dbeafe' : '#ffffff',
+                borderColor: formData.locations.includes(option.value) ? '#3b82f6' : '#e5e7eb'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={formData.locations.includes(option.value)}
+                  onChange={() => toggleLocation(option.value)}
+                  style={{ 
+                    width: '18px', 
+                    height: '18px',
+                    accentColor: '#3b82f6'
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: formData.locations.includes(option.value) ? '600' : '500',
+                    color: formData.locations.includes(option.value) ? '#1e40af' : '#374151',
+                    marginBottom: '2px'
+                  }}>
+                    {option.label}
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: '#6b7280'
+                  }}>
+                    Capacidade e recursos disponíveis
+                  </div>
+                </div>
+              </label>
+            ))}
+          </div>
+          
+          {formData.locations.length > 0 && (
+            <div style={{ 
+              padding: '12px',
+              backgroundColor: '#f0f9ff',
+              borderRadius: '8px',
+              border: '1px solid #bae6fd'
+            }}>
+              <div style={{ 
+                fontSize: '14px', 
+                fontWeight: '600',
+                color: '#0369a1',
+                marginBottom: '8px'
+              }}>
+                📍 Locais Selecionados ({formData.locations.length}):
+              </div>
+              <div style={{ 
+                fontSize: '13px', 
+                color: '#0c4a6e'
+              }}>
+                {formData.locations.join(' • ')}
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* Modal de Favoritos */}
+      <Modal
+        open={showFavoritesModal}
+        onClose={() => setShowFavoritesModal(false)}
+        title="⭐ Requerimentos Favoritos"
+        size="large"
+      >
+        <div className="favorites-modal-content">
+          {favorites.length === 0 ? (
+            <div className="no-favorites">
+              <p>Nenhum requerimento favoritado ainda.</p>
+              <p>Clique no coração ❤️ em qualquer requerimento para adicioná-lo aos favoritos.</p>
+            </div>
+          ) : (
+            <div className="requests-list">
+              {favorites.map((favorite) => {
+                const req = favorite.request || favorite;
+                return (
+                  <div key={favorite.id} className="request-item">
+                    <button 
+                      onClick={() => toggleFavorite(req.id)}
+                      className="favorite-heart"
+                      title="Remover dos Favoritos"
+                      style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '18px',
+                        color: '#ef4444',
+                        transition: 'color 0.2s, transform 0.2s',
+                        zIndex: 10,
+                        padding: '4px',
+                        borderRadius: '50%',
+                        width: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.1)';
+                        e.target.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)';
+                        e.target.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      ❤️
+                    </button>
+                    
+                    <div className="request-item-content">
+                      <div className="request-item-header">
+                        <span className="request-item-title">
+                          {req.department}
+                        </span>
+                        <span className="request-item-status">
+                          ({req.status})
+                        </span>
+                        <span className="request-item-event">
+                          {req.event_name || ''}
+                        </span>
+                      </div>
+                      <div className="request-item-details">
+                        <span className="request-item-date">
+                          Data: {formatarDataHora(req.date || req.start_datetime)}
+                        </span>
+                        {req.location && (
+                          <span className="request-item-location">
+                            Local: {req.location}
+                          </span>
+                        )}
+                        <span className="request-item-requester">
+                          Solicitante: {req.requester_name || 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="request-item-actions">
+                      <button 
+                        onClick={() => {
+                          handleCopyConfirm(favorite);
+                          setShowFavoritesModal(false);
+                        }}
+                        className="copy-request-button"
+                        title="Copiar Requisição"
+                        style={{
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          cursor: 'pointer',
+                          border: 'none',
+                          borderRadius: '4px',
+                          padding: '8px 12px',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          minWidth: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        C
+                      </button>
+                      <Button 
+                        onClick={() => toggleFavorite(req.id)}
+                        variant="icon-blue" 
+                        size="sm"
+                        className="delete-button"
+                        title="Remover dos Favoritos"
+                      >
+                        <FiTrash2 size={18} className="delete-icon" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   );
