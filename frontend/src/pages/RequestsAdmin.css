@@ -501,6 +501,41 @@
   justify-content: center !important;
 }
 
+/* Ajustes para mobile - altura de 18px */
+@media (max-width: 480px) {
+  .copy-request-button,
+  .print-request-button {
+    height: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
+    padding: 2px 4px !important;
+    font-size: 10px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    line-height: 1 !important;
+  }
+  
+  /* Regras mais específicas para garantir que funcionem */
+  .requests-admin-page .copy-request-button,
+  .requests-admin-page .print-request-button {
+    height: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
+  }
+  
+  /* Regras ainda mais específicas */
+  .request-item-actions .copy-request-button,
+  .request-item-actions .print-request-button {
+    height: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
+    padding: 2px 4px !important;
+    font-size: 10px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+  }
+}
+
 .copy-request-button:hover {
   background-color: #059669 !important;
   color: white !important;
