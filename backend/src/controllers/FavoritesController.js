@@ -120,22 +120,7 @@ export const getFavorites = async (req, res) => {
 
     const { data: favorites, error } = await supabase
       .from('favorites')
-      .select(`
-        *,
-        requests!inner(
-          id,
-          event_name,
-          department,
-          date,
-          location,
-          start_datetime,
-          end_datetime,
-          description,
-          status,
-          created_at,
-          users!requests_requester_id_fkey(full_name)
-        )
-      `)
+      .select('*')
       .eq('user_id', user_id)
       .order('created_at', { ascending: false });
 
@@ -147,30 +132,9 @@ export const getFavorites = async (req, res) => {
       });
     }
 
-    // Processar os dados para retornar informações úteis
-    const processedFavorites = (favorites || []).map(fav => ({
-      id: fav.id,
-      custom_name: fav.custom_name,
-      description: fav.description,
-      created_at: fav.created_at,
-      request: {
-        id: fav.requests.id,
-        event_name: fav.requests.event_name,
-        department: fav.requests.department,
-        date: fav.requests.date,
-        location: fav.requests.location,
-        start_datetime: fav.requests.start_datetime,
-        end_datetime: fav.requests.end_datetime,
-        description: fav.requests.description,
-        status: fav.requests.status,
-        created_at: fav.requests.created_at,
-        requester_name: fav.requests.users?.full_name || 'N/A'
-      }
-    }));
-
     res.json({ 
       success: true, 
-      data: processedFavorites
+      data: favorites || [] 
     });
 
   } catch (error) {
