@@ -1441,6 +1441,21 @@ export default function RequestsAdmin() {
                     onClick={() => handleCopyRequest(req.id)}
                     className="copy-request-button"
                     title="Copiar Requisição"
+                    style={{
+                      backgroundColor: '#10b981',
+                      color: 'white',
+                      cursor: 'pointer',
+                      border: 'none',
+                      borderRadius: '4px',
+                      padding: '8px 12px',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      minWidth: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
                   >
                     C
                   </button>
@@ -1448,6 +1463,21 @@ export default function RequestsAdmin() {
                     onClick={() => handlePrint(req.id)}
                     className="print-request-button"
                     title="Imprimir"
+                    style={{
+                      backgroundColor: '#374151',
+                      color: 'white',
+                      cursor: 'pointer',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '8px 12px',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      minWidth: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
                   >
                     <FiPrinter size={18} style={{ color: 'white' }} />
                   </button>

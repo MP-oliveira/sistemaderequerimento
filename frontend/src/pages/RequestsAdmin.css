@@ -473,51 +473,19 @@
   color: white !important;
   cursor: pointer !important;
   border: none !important;
-  border-radius: 8px !important;
-  padding: 6px 8px !important;
-  font-size: 12px !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
   font-weight: bold !important;
   min-width: 32px !important;
   height: 32px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-}
-
-/* Estilos para o botão de imprimir */
-.print-request-button {
-  background-color: #374151 !important;
-  color: white !important;
-  cursor: pointer !important;
-  border: none !important;
-  border-radius: 8px !important;
-  padding: 6px 8px !important;
-  font-size: 12px !important;
-  font-weight: bold !important;
-  min-width: 32px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Ajustes para mobile - apenas altura de 18px */
-@media (max-width: 480px) {
-  .copy-request-button,
-  .print-request-button {
-    height: 18px !important;
-    min-height: 18px !important;
-  }
 }
 
 .copy-request-button:hover {
   background-color: #059669 !important;
-  color: white !important;
-  box-shadow: none !important;
-}
-
-.print-request-button:hover {
-  background-color: #1f2937 !important;
   color: white !important;
   box-shadow: none !important;
 }
