@@ -41,7 +41,7 @@ export const addToFavorites = async (requestId, customName = null, description =
 // Remover requerimento dos favoritos
 export const removeFromFavorites = async (requestId) => {
   try {
-    const response = await fetch(`${API_URL}/api/favorites/${requestId}`, {
+    const response = await fetch(`${API_URL}/api/favorites?request_id=${requestId}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -81,7 +81,7 @@ export const getFavorites = async () => {
 // Verificar se um requerimento está nos favoritos
 export const checkFavorite = async (requestId) => {
   try {
-    const response = await fetch(`${API_URL}/api/favorites/check/${requestId}`, {
+    const response = await fetch(`${API_URL}/api/favorites/check?request_id=${requestId}`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
