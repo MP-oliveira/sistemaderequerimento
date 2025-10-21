@@ -1,6 +1,6 @@
 {
   "rewrites": [
-      { "source": "/api/(.*)", "destination": "https://backend-6rr39zole-mauricio-mp-oliveiras-projects.vercel.app/api/$1" },
+      { "source": "/api/(.*)", "destination": "https://backend-n4crbyrjd-mauricio-mp-oliveiras-projects.vercel.app/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

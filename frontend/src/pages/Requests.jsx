@@ -52,6 +52,7 @@ export default function Requests() {
     department: '',
     event_name: '',
     date: '',
+    end_date: '',
     location: '',
     description: '',
     start_datetime: '',
@@ -289,7 +290,10 @@ export default function Requests() {
         dataToSend.start_datetime = `${formData.date}T${formData.start_datetime}-03:00`;
       }
       
-      if (formData.date && formData.end_datetime) {
+      if (formData.end_date && formData.end_datetime) {
+        // Adicionar timezone explícito para evitar conversão automática
+        dataToSend.end_datetime = `${formData.end_date}T${formData.end_datetime}-03:00`;
+      } else if (formData.date && formData.end_datetime) {
         // Adicionar timezone explícito para evitar conversão automática
         dataToSend.end_datetime = `${formData.date}T${formData.end_datetime}-03:00`;
       }
@@ -348,6 +352,7 @@ export default function Requests() {
         department: '',
         event_name: '',
         date: '',
+        end_date: '',
         location: '',
         description: '',
         start_datetime: '',
@@ -779,15 +784,18 @@ export default function Requests() {
                   >
                     <FiEdit size={18} className="edit-icon" />
                   </Button>
-                  <Button 
-                    onClick={() => handleDelete(req.id)}
-                    variant="icon-blue" 
-                    size="sm"
-                    className="delete-button"
-                    title="Deletar"
-                  >
-                    <FiTrash2 size={18} className="delete-icon" />
-                  </Button>
+                  {/* Botão de deletar apenas para ADM e PASTOR */}
+                  {(user?.role === 'ADM' || user?.role === 'PASTOR') && (
+                    <Button 
+                      onClick={() => handleDelete(req.id)}
+                      variant="icon-blue" 
+                      size="sm"
+                      className="delete-button"
+                      title="Deletar"
+                    >
+                      <FiTrash2 size={18} className="delete-icon" />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -812,30 +820,491 @@ export default function Requests() {
         )}
 
         {reqDetalhe ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div><b>Departamento:</b> {reqDetalhe.department}</div>
-            <div><b>Líder:</b> {reqDetalhe.department_leader}</div>
-            <div><b>Prioridade:</b> {reqDetalhe.prioridade}</div>
-            <div><b>Data:</b> {reqDetalhe.date}</div>
-            <div><b>Evento:</b> {reqDetalhe.event_name}</div>
-            <div><b>Local:</b> {reqDetalhe.location}</div>
-            <div><b>Início:</b> {formatarDataHora(reqDetalhe.start_datetime)}</div>
-            <div><b>Fim:</b> {formatarDataHora(reqDetalhe.end_datetime)}</div>
-            <div style={{ display: 'flex', gap: 20 }}>
-              <div style={{ flex: 1 }}>
-                <div><b>Público Esperado:</b> {reqDetalhe.expected_audience}</div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div><b>Solicitante:</b> {reqDetalhe.requester_name || reqDetalhe.requester || 'Usuário não encontrado'}</div>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '24px',
+            fontFamily: 'system-ui, -apple-system, sans-serif'
+          }}>
+            {/* Header com informações principais */}
+            <div style={{
+              background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+              padding: '20px',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                marginBottom: '8px'
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '24px',
+                    fontWeight: '700',
+                    color: '#1e293b',
+                    lineHeight: '1.3',
+                    marginBottom: '4px'
+                  }}>
+                    {reqDetalhe.event_name}
+                  </div>
+                  <div style={{
+                    fontSize: '16px',
+                    color: '#64748b'
+                  }}>
+                    {reqDetalhe.department}
+                  </div>
+                </div>
+                
+                {/* Status badge */}
+                <div style={{
+                  display: 'inline-block',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  backgroundColor: reqDetalhe.status === 'PENDENTE' ? '#fef3c7' : 
+                                  reqDetalhe.status === 'APROVADO' ? '#d1fae5' : '#fee2e2',
+                  color: reqDetalhe.status === 'PENDENTE' ? '#92400e' : 
+                         reqDetalhe.status === 'APROVADO' ? '#065f46' : '#991b1b',
+                  marginLeft: '16px'
+                }}>
+                  {reqDetalhe.status}
+                </div>
               </div>
             </div>
-            <div><b>Descrição:</b> {reqDetalhe.description}</div>
-            <div><b>Status:</b> {reqDetalhe.status}</div>
-            {reqDetalhe.status === 'PENDENTE_CONFLITO' && (
-              <div className="requests-alert-conflito" style={{ fontWeight: 700, fontSize: 16, marginTop: 8 }}>
-                ⚠️ Conflito de agenda detectado! Esta Requerimento precisa de avaliação manual.
+
+            {/* Grid de informações */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '20px'
+            }}>
+              {/* Coluna esquerda */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{
+                  padding: '16px',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Data e Horário
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    fontWeight: '500'
+                  }}>
+                    {formatarDataHora(reqDetalhe.start_datetime)}
+                  </div>
+                  {reqDetalhe.end_datetime && (
+                    <div style={{
+                      fontSize: '14px',
+                      color: '#64748b',
+                      marginTop: '2px'
+                    }}>
+                      até {formatarDataHora(reqDetalhe.end_datetime)}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{
+                  padding: '16px',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Local
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    fontWeight: '500'
+                  }}>
+                    {reqDetalhe.location}
+                  </div>
+                </div>
+              </div>
+
+              {/* Coluna direita */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{
+                  padding: '16px',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Público Esperado
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    fontWeight: '500'
+                  }}>
+                    {reqDetalhe.expected_audience} pessoas
+                  </div>
+                </div>
+
+                <div style={{
+                  padding: '16px',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Solicitante
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#1e293b',
+                    fontWeight: '500'
+                  }}>
+                    {reqDetalhe.requester_name || reqDetalhe.requester || 'Usuário não encontrado'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Descrição */}
+            {reqDetalhe.description && (
+              <div style={{
+                padding: '20px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0'
+              }}>
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  marginBottom: '8px'
+                }}>
+                  Descrição
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#374151',
+                  lineHeight: '1.6'
+                }}>
+                  {reqDetalhe.description}
+                </div>
               </div>
             )}
+            {reqDetalhe.status === 'PENDENTE_CONFLITO' && (
+              <div style={{
+                padding: '16px 20px',
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                borderRadius: '8px',
+                marginTop: '8px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <div style={{
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    color: '#92400e'
+                  }}>
+                    ⚠️ Conflito de agenda detectado
+                  </div>
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#92400e',
+                  marginTop: '4px',
+                  lineHeight: '1.4'
+                }}>
+                  Esta requisição precisa de avaliação manual para resolver o conflito de horários.
+                </div>
+              </div>
+            )}
+            
+            {/* Itens solicitados */}
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                padding: '20px 24px 16px',
+                borderBottom: '1px solid #e2e8f0',
+                backgroundColor: '#f8fafc'
+              }}>
+                <h4 style={{
+                  margin: 0,
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: '#1e293b',
+                  letterSpacing: '-0.025em'
+                }}>
+                  Itens Solicitados
+                </h4>
+              </div>
+              
+              <div style={{ padding: '20px' }}>
+                {Array.isArray(reqDetalhe.itens) && reqDetalhe.itens.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {reqDetalhe.itens.map((item, idx) => (
+                      <div key={idx} style={{
+                        padding: '16px',
+                        backgroundColor: '#f8fafc',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        transition: 'all 0.2s ease'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          marginBottom: '8px'
+                        }}>
+                          <div style={{
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            color: '#1e293b',
+                            flex: 1
+                          }}>
+                            {item.inventory?.name || item.inventory_name || item.name || item.item_name || 'Item'}
+                          </div>
+                          <div style={{
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            color: '#64748b',
+                            backgroundColor: '#e2e8f0',
+                            padding: '4px 8px',
+                            borderRadius: '6px'
+                          }}>
+                            Qtd: {item.quantity_requested || item.quantity || 1}
+                          </div>
+                        </div>
+                        
+                        {item.inventory?.category && (
+                          <div style={{
+                            fontSize: '11px',
+                            fontWeight: '500',
+                            color: '#64748b',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            marginBottom: '4px'
+                          }}>
+                            {item.inventory.category}
+                          </div>
+                        )}
+                        
+                        {(item.inventory?.description || item.description) && (
+                          <div style={{
+                            fontSize: '13px',
+                            color: '#64748b',
+                            lineHeight: '1.4',
+                            marginTop: '4px'
+                          }}>
+                            {item.inventory?.description || item.description}
+                          </div>
+                        )}
+                        
+                        {item.status && (
+                          <div style={{ marginTop: '8px' }}>
+                            <span style={{
+                              fontSize: '10px',
+                              fontWeight: '600',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px',
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              backgroundColor: '#e2e8f0',
+                              color: '#64748b'
+                            }}>
+                              {item.status}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{
+                    padding: '32px',
+                    textAlign: 'center',
+                    color: '#64748b',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '8px',
+                    border: '1px dashed #cbd5e1'
+                  }}>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      marginBottom: '4px'
+                    }}>
+                      Nenhum item solicitado
+                    </div>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#94a3b8'
+                    }}>
+                      Esta requisição não possui itens do inventário
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Serviços solicitados */}
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                padding: '20px 24px 16px',
+                borderBottom: '1px solid #e2e8f0',
+                backgroundColor: '#f8fafc'
+              }}>
+                <h4 style={{
+                  margin: 0,
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: '#1e293b',
+                  letterSpacing: '-0.025em'
+                }}>
+                  Serviços Solicitados
+                </h4>
+              </div>
+              
+              <div style={{ padding: '20px' }}>
+                {Array.isArray(reqDetalhe.servicos) && reqDetalhe.servicos.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {reqDetalhe.servicos.map((servico, idx) => (
+                      <div key={idx} style={{
+                        padding: '16px',
+                        backgroundColor: '#f0f9ff',
+                        borderRadius: '8px',
+                        border: '1px solid #bae6fd'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          marginBottom: '8px'
+                        }}>
+                          <div style={{
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            color: '#0c4a6e',
+                            flex: 1
+                          }}>
+                            {(servico.nome || servico.service_name || servico.name || 'Serviço').toUpperCase()}
+                          </div>
+                          <div style={{
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            color: '#0369a1',
+                            backgroundColor: '#bae6fd',
+                            padding: '4px 8px',
+                            borderRadius: '6px'
+                          }}>
+                            {servico.quantidade || 1} pessoas
+                          </div>
+                        </div>
+                        
+                        {servico.notes && (
+                          <div style={{
+                            fontSize: '13px',
+                            color: '#0369a1',
+                            lineHeight: '1.4',
+                            marginTop: '4px',
+                            fontStyle: 'italic'
+                          }}>
+                            {servico.notes}
+                          </div>
+                        )}
+                        
+                        {servico.status && (
+                          <div style={{ marginTop: '8px' }}>
+                            <span style={{
+                              fontSize: '10px',
+                              fontWeight: '600',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px',
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              backgroundColor: '#bae6fd',
+                              color: '#0369a1'
+                            }}>
+                              {servico.status}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{
+                    padding: '32px',
+                    textAlign: 'center',
+                    color: '#64748b',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '8px',
+                    border: '1px dashed #cbd5e1'
+                  }}>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      marginBottom: '4px'
+                    }}>
+                      Nenhum serviço solicitado
+                    </div>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#94a3b8'
+                    }}>
+                      Esta requisição não possui serviços adicionais
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Histórico de status */}
             {Array.isArray(reqDetalhe.status_history) && reqDetalhe.status_history.length > 0 && (
               <div className="status-history-section">
@@ -1051,11 +1520,11 @@ export default function Requests() {
             </div>
           </div>
 
-          {/* Segunda linha - Data e Local */}
+          {/* Segunda linha - Data de Início e Data Final */}
           <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <Input
-                label="Data"
+                label="Data de Início"
                 type="date"
                 value={formData.date}
                 onChange={e => {
@@ -1065,6 +1534,21 @@ export default function Requests() {
                 required
               />
             </div>
+            <div style={{ flex: 1 }}>
+              <Input
+                label="Data Final"
+                type="date"
+                value={formData.end_date}
+                onChange={e => {
+                  setFormData({ ...formData, end_date: e.target.value });
+                  debouncedVerificarConflito(formData.date, formData.location, formData.start_datetime, formData.end_datetime);
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Terceira linha - Local */}
+          <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <div className="input-group">
                 <label className="input-label">Local</label>
@@ -1084,9 +1568,12 @@ export default function Requests() {
                 </select>
               </div>
             </div>
+            <div style={{ flex: 1 }}>
+              {/* Espaço vazio para manter layout */}
+            </div>
           </div>
 
-          {/* Terceira linha - Hora de Início e Fim */}
+          {/* Quarta linha - Hora de Início e Fim */}
           <div style={{ display: 'flex', gap: 20 }}>
             <div style={{ flex: 1 }}>
               <Input
