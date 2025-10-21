@@ -1,6 +1,6 @@
 {
   "rewrites": [
-      { "source": "/api/(.*)", "destination": "https://sistemaderequerimento-backend-kh51ikomr.vercel.app/api/$1" },
+      { "source": "/api/(.*)", "destination": "https://sistemaderequerimento-backend-i6fildohs.vercel.app/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
