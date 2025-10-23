@@ -47,6 +47,9 @@ export default function ServicoGeralDashboard() {
           status: req.status,
           type: 'requisicao',
         }));
+        
+        console.log('🔍 Requisições do calendário:', requisicoesCalendario);
+        console.log('🔍 Eventos de requisição criados:', eventosReqs);
         const eventosFormatados = (eventos || []).map(ev => ({
           id: ev.id,
           title: ev.name,
