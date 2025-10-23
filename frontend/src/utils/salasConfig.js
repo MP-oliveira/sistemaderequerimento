@@ -10,7 +10,7 @@ export const getSalasOptions = async () => {
         { value: '', label: 'Selecione um local' },
         ...response.data.map(local => ({
           value: local.name,
-          label: `${getEmojiForLocation(local.name)} ${local.name}`
+          label: `${getEmojiForLocation(local.name)} ${local.name}${getDescriptionForLocation(local.name)}`
         }))
       ];
       return options;
@@ -60,6 +60,41 @@ const getEmojiForLocation = (name) => {
   };
   
   return emojiMap[name] || '📍';
+};
+
+// Função para obter descrição baseada no nome do local
+const getDescriptionForLocation = (name) => {
+  const descriptionMap = {
+    'Anexo 1 - Salão': ' (Andar 0)',
+    'Anexo 1 - Sala 11': ' (Andar 1)',
+    'Anexo 1 - Sala 12': ' (Andar 1)',
+    'Anexo 1 - Biblioteca': ' - Sala 15 (Andar 1)',
+    'Anexo 1 - Sala 16': ' (Andar 1)',
+    'Anexo 1 - Sala 22': ' (Andar 2)',
+    'Anexo 1 - Sala 23': ' (Andar 2)',
+    'Anexo 1 - Sala 24': ' (Andar 2)',
+    'Anexo 1 - Sala 26': ' (Andar 2)',
+    'Anexo 1 - Sala 27': ' (Andar 2)',
+    'Anexo 2 - Salão': ' (Andar 0)',
+    'Anexo 2 - Sala 11': ' (Andar 1)',
+    'Anexo 2 - Sala 12': ' (Andar 1)',
+    'Anexo 2 - Sala 13': ' (Andar 1)',
+    'Anexo 2 - Sala 14': ' (Andar 1)',
+    'Anexo 2 - Sala 15': ' (Andar 1)',
+    'Anexo 2 - Sala 16': ' (Andar 1)',
+    'Anexo 2 - Sala 17': ' (Andar 1)',
+    'Anexo 2 - Sala 21': ' (Andar 2)',
+    'Anexo 2 - Sala 22': ' (Andar 2)',
+    'Anexo 2 - Sala 23': ' (Andar 2)',
+    'Anexo 2 - Sala 24': ' (Andar 2)',
+    'Anexo 2 - Sala 25': ' (Andar 2)',
+    'Anexo 2 - Sala 26': ' (Andar 2)',
+    'Anexo 2 - Sala 27': ' (Andar 2)',
+    'Anexo 2 - Sala 31': ' (Andar 3)',
+    'Anexo 2 - Sala 32': ' (Andar 3)'
+  };
+  
+  return descriptionMap[name] || '';
 };
 
 // Dados mocados como fallback
