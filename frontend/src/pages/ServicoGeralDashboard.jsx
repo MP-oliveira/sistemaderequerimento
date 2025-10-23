@@ -60,6 +60,7 @@ export default function ServicoGeralDashboard() {
           type: 'evento',
         }));
         setEvents([...eventosFormatados, ...eventosReqs]);
+        console.log('🔍 Eventos definidos no estado:', [...eventosFormatados, ...eventosReqs]);
       } catch (err) {
         console.error('❌ [ServicoGeralDashboard] Erro ao carregar eventos:', err);
         setEvents([]);

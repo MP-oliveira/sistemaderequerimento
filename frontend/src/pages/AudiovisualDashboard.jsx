@@ -50,6 +50,7 @@ export default function AudiovisualDashboard() {
         
         console.log('🔍 Requisições do calendário:', requisicoesCalendario);
         console.log('🔍 Eventos de requisição criados:', eventosReqs);
+        console.log('🔍 Total de eventos no calendário:', [...eventosReqs, ...eventosFormatados]);
         const eventosFormatados = (eventos || []).map(ev => ({
           id: ev.id,
           title: ev.name,
@@ -60,6 +61,7 @@ export default function AudiovisualDashboard() {
           type: 'evento',
         }));
         setEvents([...eventosFormatados, ...eventosReqs]);
+        console.log('🔍 Eventos definidos no estado:', [...eventosFormatados, ...eventosReqs]);
       } catch (err) {
         console.error('❌ [AudiovisualDashboard] Erro ao carregar eventos:', err);
         setEvents([]);
