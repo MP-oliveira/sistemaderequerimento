@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario } from '../services/requestsService';
+import { listarRequisicoes, listarEventos, buscarRequisicoesCalendario, getRequisicaoDetalhada } from '../services/requestsService';
 import Modal from '../components/Modal';
 import TodayMaterials from '../components/TodayMaterials';
 import ReturnMaterials from '../components/ReturnMaterials';
@@ -20,6 +20,8 @@ export default function AudiovisualDashboard() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [requisicoes, setRequisicoes] = useState([]);
   const [notificacao, setNotificacao] = useState(null);
+  const [modalDetalhe, setModalDetalhe] = useState(false);
+  const [reqDetalhe, setReqDetalhe] = useState(null);
 
   function mostrarNotificacao(mensagem, tipo) {
     setNotificacao({ mensagem, tipo });
@@ -65,9 +67,16 @@ export default function AudiovisualDashboard() {
 
   const handleDayClick = (day) => {
     if (day.events.length > 0) {
-      setSelectedDay(day.date);
-      setSelectedDayEvents(day.events);
-      setShowEventModal(true);
+      // Se for uma requisição, abrir modal de detalhes
+      const requisicao = day.events.find(event => event.type === 'requisicao');
+      if (requisicao) {
+        abrirDetalhe(requisicao.id);
+      } else {
+        // Se for evento normal, usar modal simples
+        setSelectedDay(day.date);
+        setSelectedDayEvents(day.events);
+        setShowEventModal(true);
+      }
     }
   };
 
@@ -80,6 +89,17 @@ export default function AudiovisualDashboard() {
   const formatEventTime = (dateString) => {
     return formatTimeUTC(dateString);
   };
+
+  async function abrirDetalhe(id) {
+    try {
+      const detalhe = await getRequisicaoDetalhada(id);
+      console.log('🔍 Dados recebidos do backend:', detalhe);
+      setReqDetalhe(detalhe);
+      setModalDetalhe(true);
+    } catch {
+      mostrarNotificacao('Erro ao buscar detalhes', 'erro');
+    }
+  }
 
   return (
     <div className="dashboard-container audiovisual-dashboard">
@@ -197,6 +217,46 @@ export default function AudiovisualDashboard() {
           )}
         </div>
       </Modal>
+
+      {/* Modal de Detalhes da Requisição */}
+      {modalDetalhe && reqDetalhe && (
+        <Modal
+          isOpen={modalDetalhe}
+          onClose={() => setModalDetalhe(false)}
+          title="Detalhes da Requisição"
+        >
+          <div className="requisicao-detalhes">
+            <div className="detalhe-item">
+              <strong>Solicitante:</strong> {reqDetalhe.requester_name}
+            </div>
+            <div className="detalhe-item">
+              <strong>Data:</strong> {new Date(reqDetalhe.start_datetime).toLocaleDateString('pt-BR')}
+            </div>
+            <div className="detalhe-item">
+              <strong>Horário:</strong> {new Date(reqDetalhe.start_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} - {new Date(reqDetalhe.end_datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+            <div className="detalhe-item">
+              <strong>Local:</strong> {reqDetalhe.location}
+            </div>
+            <div className="detalhe-item">
+              <strong>Descrição:</strong> {reqDetalhe.description}
+            </div>
+            <div className="detalhe-item">
+              <strong>Status:</strong> {reqDetalhe.status}
+            </div>
+            {reqDetalhe.items && reqDetalhe.items.length > 0 && (
+              <div className="detalhe-item">
+                <strong>Itens:</strong>
+                <ul>
+                  {reqDetalhe.items.map((item, index) => (
+                    <li key={index}>{item.name} - {item.quantity}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 } 
