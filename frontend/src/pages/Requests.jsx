@@ -113,10 +113,12 @@ export default function Requests() {
   // Carregar locais da API
   const carregarLocais = async () => {
     try {
+      console.log('🔍 Tentando carregar locais da API...');
       const options = await getSalasOptions();
+      console.log('✅ Locais carregados:', options);
       setSalasOptions(options);
     } catch (error) {
-      console.error('Erro ao carregar locais:', error);
+      console.error('❌ Erro ao carregar locais:', error);
       // Em caso de erro, usar dados mocados
       const fallbackOptions = [
         { value: '', label: 'Selecione um local' },
@@ -125,6 +127,7 @@ export default function Requests() {
         { value: 'Copa', label: '🍽️ Copa' },
         { value: 'Outro', label: '📍 Outro local' }
       ];
+      console.log('🔄 Usando dados mocados para locais');
       setSalasOptions(fallbackOptions);
     }
   };
@@ -132,10 +135,12 @@ export default function Requests() {
   // Carregar departamentos da API
   const carregarDepartamentos = async () => {
     try {
+      console.log('🔍 Tentando carregar departamentos da API...');
       const options = await getDepartamentosOptions();
+      console.log('✅ Departamentos carregados:', options);
       setDepartamentosOptions(options);
     } catch (error) {
-      console.error('Erro ao carregar departamentos:', error);
+      console.error('❌ Erro ao carregar departamentos:', error);
       // Em caso de erro, usar dados mocados
       const fallbackOptions = [
         { value: '', label: 'Selecione um departamento' },
@@ -143,6 +148,7 @@ export default function Requests() {
         { value: 'Audiovisual', label: '📹 Audiovisual' },
         { value: 'Jovens', label: '👥 Jovens' }
       ];
+      console.log('🔄 Usando dados mocados para departamentos');
       setDepartamentosOptions(fallbackOptions);
     }
   };
