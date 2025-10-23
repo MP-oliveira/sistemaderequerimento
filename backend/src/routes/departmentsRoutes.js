@@ -11,6 +11,8 @@ const router = express.Router();
 
 // Listar departamentos
 router.get('/', authenticateToken, listDepartments);
+// Rota temporária para teste (sem autenticação)
+router.get('/test', listDepartments);
 // Criar departamento
 router.post('/', authenticateToken, createDepartment);
 // Atualizar departamento

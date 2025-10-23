@@ -105,18 +105,51 @@ export default function Requests() {
   const [validandoDisponibilidade, setValidandoDisponibilidade] = useState(false);
 
   useEffect(() => {
+    console.log('🚀 [Requests] useEffect executando...');
+    console.log('🚀 [Requests] Componente montado!');
     buscarRequisicoes();
+    console.log('🚀 [Requests] Chamando carregarLocais...');
     carregarLocais();
+    console.log('🚀 [Requests] Chamando carregarDepartamentos...');
     carregarDepartamentos();
+    console.log('🚀 [Requests] useEffect finalizado!');
   }, []);
 
   // Carregar locais da API
   const carregarLocais = async () => {
+    console.log('🔍 [Requests] carregarLocais chamada!');
     try {
       console.log('🔍 Tentando carregar locais da API...');
-      const options = await getSalasOptions();
-      console.log('✅ Locais carregados:', options);
-      setSalasOptions(options);
+      
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/locations`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar locais: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Resposta da API de locais:', data);
+      
+      if (data.success && data.data) {
+        const options = [
+          { value: '', label: 'Selecione um local' },
+          ...data.data.map(local => ({
+            value: local.name,
+            label: `${getEmojiForLocation(local.name)} ${local.name}${getDescriptionForLocation(local.name)}`
+          }))
+        ];
+        console.log('✅ Locais formatados:', options);
+        setSalasOptions(options);
+      } else {
+        throw new Error('Dados inválidos da API');
+      }
     } catch (error) {
       console.error('❌ Erro ao carregar locais:', error);
       // Em caso de erro, usar dados mocados
@@ -132,13 +165,113 @@ export default function Requests() {
     }
   };
 
+  // Função para obter emoji baseado no nome do local
+  const getEmojiForLocation = (name) => {
+    const emojiMap = {
+      'Templo': '🏛️',
+      'Anexo 1 - Salão': '🏢',
+      'Anexo 1 - Sala 11': '🏢',
+      'Anexo 1 - Sala 12': '🏢',
+      'Anexo 1 - Biblioteca': '🏢',
+      'Anexo 1 - Sala 16': '🏢',
+      'Anexo 1 - Sala 22': '🏢',
+      'Anexo 1 - Sala 23': '🏢',
+      'Anexo 1 - Sala 24': '🏢',
+      'Anexo 1 - Sala 26': '🏢',
+      'Anexo 1 - Sala 27': '🏢',
+      'Anexo 2 - Salão': '🏢',
+      'Anexo 2 - Sala 11': '🏢',
+      'Anexo 2 - Sala 12': '🏢',
+      'Anexo 2 - Sala 13': '🏢',
+      'Anexo 2 - Sala 14': '🏢',
+      'Anexo 2 - Sala 15': '🏢',
+      'Anexo 2 - Sala 16': '🏢',
+      'Anexo 2 - Sala 17': '🏢',
+      'Anexo 2 - Sala 21': '🏢',
+      'Anexo 2 - Sala 22': '🏢',
+      'Anexo 2 - Sala 23': '🏢',
+      'Anexo 2 - Sala 24': '🏢',
+      'Anexo 2 - Sala 25': '🏢',
+      'Anexo 2 - Sala 26': '🏢',
+      'Anexo 2 - Sala 27': '🏢',
+      'Anexo 2 - Sala 31': '🏢',
+      'Anexo 2 - Sala 32': '🏢',
+      'Estúdio': '🎬',
+      'Copa': '🍽️',
+      'Outro': '📍'
+    };
+    return emojiMap[name] || '📍';
+  };
+
+  // Função para obter descrição baseada no nome do local
+  const getDescriptionForLocation = (name) => {
+    const descriptionMap = {
+      'Anexo 1 - Salão': ' (Andar 0)',
+      'Anexo 1 - Sala 11': ' (Andar 1)',
+      'Anexo 1 - Sala 12': ' (Andar 1)',
+      'Anexo 1 - Biblioteca': ' - Sala 15 (Andar 1)',
+      'Anexo 1 - Sala 16': ' (Andar 1)',
+      'Anexo 1 - Sala 22': ' (Andar 2)',
+      'Anexo 1 - Sala 23': ' (Andar 2)',
+      'Anexo 1 - Sala 24': ' (Andar 2)',
+      'Anexo 1 - Sala 26': ' (Andar 2)',
+      'Anexo 1 - Sala 27': ' (Andar 2)',
+      'Anexo 2 - Salão': ' (Andar 0)',
+      'Anexo 2 - Sala 11': ' (Andar 1)',
+      'Anexo 2 - Sala 12': ' (Andar 1)',
+      'Anexo 2 - Sala 13': ' (Andar 1)',
+      'Anexo 2 - Sala 14': ' (Andar 1)',
+      'Anexo 2 - Sala 15': ' (Andar 1)',
+      'Anexo 2 - Sala 16': ' (Andar 1)',
+      'Anexo 2 - Sala 17': ' (Andar 1)',
+      'Anexo 2 - Sala 21': ' (Andar 2)',
+      'Anexo 2 - Sala 22': ' (Andar 2)',
+      'Anexo 2 - Sala 23': ' (Andar 2)',
+      'Anexo 2 - Sala 24': ' (Andar 2)',
+      'Anexo 2 - Sala 25': ' (Andar 2)',
+      'Anexo 2 - Sala 26': ' (Andar 2)',
+      'Anexo 2 - Sala 27': ' (Andar 2)',
+      'Anexo 2 - Sala 31': ' (Andar 3)',
+      'Anexo 2 - Sala 32': ' (Andar 3)'
+    };
+    return descriptionMap[name] || '';
+  };
+
   // Carregar departamentos da API
   const carregarDepartamentos = async () => {
+    console.log('🔍 [Requests] carregarDepartamentos chamada!');
     try {
       console.log('🔍 Tentando carregar departamentos da API...');
-      const options = await getDepartamentosOptions();
-      console.log('✅ Departamentos carregados:', options);
-      setDepartamentosOptions(options);
+      
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/departments`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar departamentos: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Resposta da API de departamentos:', data);
+      
+      if (data.success && data.data) {
+        const options = [
+          { value: '', label: 'Selecione um departamento' },
+          ...data.data.map(dept => ({
+            value: dept.nome,
+            label: `${getEmojiForDepartment(dept.nome)} ${dept.nome}`
+          }))
+        ];
+        console.log('✅ Departamentos formatados:', options);
+        setDepartamentosOptions(options);
+      } else {
+        throw new Error('Dados inválidos da API');
+      }
     } catch (error) {
       console.error('❌ Erro ao carregar departamentos:', error);
       // Em caso de erro, usar dados mocados
@@ -151,6 +284,40 @@ export default function Requests() {
       console.log('🔄 Usando dados mocados para departamentos');
       setDepartamentosOptions(fallbackOptions);
     }
+  };
+
+  // Função para obter emoji baseado no nome do departamento
+  const getEmojiForDepartment = (name) => {
+    const emojiMap = {
+      'Diretoria': '🏛️',
+      'Conselho de Pastores': '👨‍💼',
+      'Conselho Fiscal': '📊',
+      'Conselho Administrativo': '⚙️',
+      'Diaconia': '🤝',
+      'Homens': '👨',
+      'Mulheres': '👩',
+      'Jovens': '👥',
+      'Adolescentes': '🧑‍🎓',
+      'Maturidade': '👴👵',
+      'Conselho Missionário': '🌍',
+      'Adoração': '🎵',
+      'Ginc': '🎸',
+      'Dança': '💃',
+      'Presídio': '🔒',
+      '2 Toques': '🥁',
+      'Intercessão': '🙏',
+      'Ministério Com Surdos': '🤟',
+      'Educação Religiosa': '📚',
+      'Cursos Missionários': '🎓',
+      'GCs': '🏠',
+      'Saúde': '🏥',
+      'Audiovisual': '📹',
+      'AOC': '👶',
+      'Obras': '🔨',
+      'Somos Um': '🤝',
+      'Kids': '👶'
+    };
+    return emojiMap[name] || '🏢';
   };
 
   // Carregar inventário quando abrir o modal

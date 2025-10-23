@@ -11,6 +11,8 @@ const router = express.Router();
 
 // Listar locais
 router.get('/', authenticateToken, listLocations);
+// Rota temporária para teste (sem autenticação)
+router.get('/test', listLocations);
 // Criar local
 router.post('/', authenticateToken, createLocation);
 // Atualizar local
