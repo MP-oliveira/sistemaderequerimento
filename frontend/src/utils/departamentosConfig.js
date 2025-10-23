@@ -1,5 +1,65 @@
-// Configuração dos departamentos da igreja
-export const departamentosOptions = [
+import { listarDepartamentos } from '../services/departmentsService';
+
+// Função para buscar departamentos da API
+export const getDepartamentosOptions = async () => {
+  try {
+    const response = await listarDepartamentos();
+    if (response.success && response.data) {
+      // Converter dados da API para o formato esperado pelo frontend
+      const options = [
+        { value: '', label: 'Selecione um departamento' },
+        ...response.data.map(dept => ({
+          value: dept.nome,
+          label: `${getEmojiForDepartment(dept.nome)} ${dept.nome}`
+        }))
+      ];
+      return options;
+    }
+  } catch (error) {
+    console.error('Erro ao buscar departamentos da API:', error);
+  }
+  
+  // Fallback: retornar dados mocados em caso de erro
+  return getDepartamentosOptionsFallback();
+};
+
+// Função para obter emoji baseado no nome do departamento
+const getEmojiForDepartment = (name) => {
+  const emojiMap = {
+    'Diretoria': '🏛️',
+    'Conselho de Pastores': '👨‍💼',
+    'Conselho Fiscal': '📊',
+    'Conselho Administrativo': '⚙️',
+    'Diaconia': '🤝',
+    'Homens': '👨',
+    'Mulheres': '👩',
+    'Jovens': '👥',
+    'Adolescentes': '🧑‍🎓',
+    'Maturidade': '👴👵',
+    'Conselho Missionário': '🌍',
+    'Adoração': '🎵',
+    'Ginc': '🎸',
+    'Dança': '💃',
+    'Presídio': '🔒',
+    '2 Toques': '🥁',
+    'Intercessão': '🙏',
+    'Ministério Com Surdos': '🤟',
+    'Educação Religiosa': '📚',
+    'Cursos Missionários': '🎓',
+    'GCs': '🏠',
+    'Saúde': '🏥',
+    'Audiovisual': '📹',
+    'AOC': '👶',
+    'Obras': '🔨',
+    'Somos Um': '🤝',
+    'Kids': '👶'
+  };
+  
+  return emojiMap[name] || '🏢';
+};
+
+// Dados mocados como fallback
+const getDepartamentosOptionsFallback = () => [
   { value: '', label: 'Selecione um departamento' },
   { value: 'Diretoria', label: '🏛️ Diretoria - Líder Pr Marcos Lopes' },
   { value: 'Conselho de Pastores', label: '👨‍💼 Conselho de Pastores - Líder Pr Marcos Lopes' },
@@ -28,4 +88,7 @@ export const departamentosOptions = [
   { value: 'Obras', label: '🔨 Obras - Jaime Abreu/ João Oliva' },
   { value: 'Somos Um', label: '🤝 Somos Um - Líder Ricardo/ Nathalia Cayres' },
   { value: 'Kids', label: '👶 Kids - Líder Nikson/ Rosana Carvalho e Eduardo/ Marcela Rebouças' }
-]; 
+];
+
+// Exportar dados mocados para compatibilidade (será removido depois)
+export const departamentosOptions = getDepartamentosOptionsFallback(); 

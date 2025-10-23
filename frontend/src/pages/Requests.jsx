@@ -18,7 +18,7 @@ import {
 } from '../services/requestsService.js';
 import { listarItensInventario } from '../services/inventoryService';
 import { getSalasOptions } from '../utils/salasConfig';
-import { departamentosOptions } from '../utils/departamentosConfig.js';
+import { getDepartamentosOptions } from '../utils/departamentosConfig.js';
 import { PRIORIDADE_OPTIONS, PRIORIDADE_DEFAULT } from '../utils/prioridadeConfig';
 import { formatTimeUTC } from '../utils/dateUtils';
 import './Requests.css';
@@ -46,6 +46,7 @@ export default function Requests() {
   const [filtroData, setFiltroData] = useState('');
   const [loading, setLoading] = useState(false);
   const [salasOptions, setSalasOptions] = useState([]);
+  const [departamentosOptions, setDepartamentosOptions] = useState([]);
   const [modalDetalhe, setModalDetalhe] = useState(false);
   const [reqDetalhe, setReqDetalhe] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -106,6 +107,7 @@ export default function Requests() {
   useEffect(() => {
     buscarRequisicoes();
     carregarLocais();
+    carregarDepartamentos();
   }, []);
 
   // Carregar locais da API
@@ -124,6 +126,24 @@ export default function Requests() {
         { value: 'Outro', label: '📍 Outro local' }
       ];
       setSalasOptions(fallbackOptions);
+    }
+  };
+
+  // Carregar departamentos da API
+  const carregarDepartamentos = async () => {
+    try {
+      const options = await getDepartamentosOptions();
+      setDepartamentosOptions(options);
+    } catch (error) {
+      console.error('Erro ao carregar departamentos:', error);
+      // Em caso de erro, usar dados mocados
+      const fallbackOptions = [
+        { value: '', label: 'Selecione um departamento' },
+        { value: 'Diaconia', label: '🤝 Diaconia' },
+        { value: 'Audiovisual', label: '📹 Audiovisual' },
+        { value: 'Jovens', label: '👥 Jovens' }
+      ];
+      setDepartamentosOptions(fallbackOptions);
     }
   };
 

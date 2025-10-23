@@ -9,8 +9,8 @@ import { listarRequisicoes, getRequisicaoDetalhada, criarRequisicao, deletarRequ
 
 import { listarItensInventario } from '../services/inventoryService';
 import { addToFavorites, removeFromFavorites, checkFavorite, getFavorites } from '../services/favoritesService';
-import { salasOptions } from '../utils/salasConfig';
-import { departamentosOptions } from '../utils/departamentosConfig.js';
+import { getSalasOptions } from '../utils/salasConfig';
+import { getDepartamentosOptions } from '../utils/departamentosConfig.js';
 import { PRIORIDADE_OPTIONS, PRIORIDADE_DEFAULT } from '../utils/prioridadeConfig';
 import { formatTimeUTC } from '../utils/dateUtils';
 import './Requests.css';
@@ -53,6 +53,8 @@ export default function RequestsAdmin() {
   
   // Estados para locais
   const [showLocationsModal, setShowLocationsModal] = useState(false);
+  const [salasOptions, setSalasOptions] = useState([]);
+  const [departamentosOptions, setDepartamentosOptions] = useState([]);
   
   // Estados para notificações
   const [notificacao, setNotificacao] = useState({ mensagem: '', tipo: '', mostrar: false });
@@ -107,6 +109,43 @@ export default function RequestsAdmin() {
     setLoading(false);
   }, []);
 
+  // Carregar locais da API
+  const carregarLocais = async () => {
+    try {
+      const options = await getSalasOptions();
+      setSalasOptions(options);
+    } catch (error) {
+      console.error('Erro ao carregar locais:', error);
+      // Em caso de erro, usar dados mocados
+      const fallbackOptions = [
+        { value: '', label: 'Selecione um local' },
+        { value: 'Templo', label: '🏛️ Templo' },
+        { value: 'Estúdio', label: '🎬 Estúdio' },
+        { value: 'Copa', label: '🍽️ Copa' },
+        { value: 'Outro', label: '📍 Outro local' }
+      ];
+      setSalasOptions(fallbackOptions);
+    }
+  };
+
+  // Carregar departamentos da API
+  const carregarDepartamentos = async () => {
+    try {
+      const options = await getDepartamentosOptions();
+      setDepartamentosOptions(options);
+    } catch (error) {
+      console.error('Erro ao carregar departamentos:', error);
+      // Em caso de erro, usar dados mocados
+      const fallbackOptions = [
+        { value: '', label: 'Selecione um departamento' },
+        { value: 'Diaconia', label: '🤝 Diaconia' },
+        { value: 'Audiovisual', label: '📹 Audiovisual' },
+        { value: 'Jovens', label: '👥 Jovens' }
+      ];
+      setDepartamentosOptions(fallbackOptions);
+    }
+  };
+
   const checkFavoritesStatus = useCallback(async () => {
     if (requisicoes.length === 0) return;
     
@@ -138,6 +177,8 @@ export default function RequestsAdmin() {
 
   useEffect(() => {
     buscarRequisicoes();
+    carregarLocais();
+    carregarDepartamentos();
   }, [buscarRequisicoes]);
 
   // Carregar favoritos quando a página carregar
