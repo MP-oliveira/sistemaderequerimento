@@ -1,95 +1,166 @@
 import { supabase } from '../config/supabaseClient.js';
 
-// Verifica permissão de ADM ou PASTOR
-function checkAdminOrPastor(req, res) {
-  if (!req.user || !['ADM', 'PASTOR'].includes(req.user.role)) {
-    res.status(403).json({ success: false, message: 'Acesso negado. Apenas ADM ou PASTOR.' });
-    return false;
-  }
-  return true;
-}
-
-// Listar departamentos
+// Listar todos os departamentos ativos
 export const listDepartments = async (req, res) => {
-  if (!checkAdminOrPastor(req, res)) return;
   try {
-    const { data, error } = await supabase
+    const { data: departments, error } = await supabase
       .from('departments')
-      .select('id, nome, prioridade');
+      .select('*')
+      .order('nome');
+
     if (error) {
-      return res.status(400).json({ success: false, message: 'Erro ao buscar departamentos.', error: error.message });
+      console.error('Erro ao buscar departamentos:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro ao buscar departamentos',
+        error: error.message 
+      });
     }
-    res.json({ success: true, data });
+
+    res.json({ 
+      success: true, 
+      data: departments || [] 
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+    console.error('Erro interno ao buscar departamentos:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor',
+      error: error.message 
+    });
   }
 };
 
-// Criar departamento
+// Criar novo departamento
 export const createDepartment = async (req, res) => {
-  if (!checkAdminOrPastor(req, res)) return;
   try {
     const { nome, prioridade } = req.body;
-    if (!nome || !prioridade) {
-      return res.status(400).json({ success: false, message: 'Nome e prioridade são obrigatórios.' });
+
+    if (!nome) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Nome do departamento é obrigatório' 
+      });
     }
-    const { data, error } = await supabase
+
+    const { data: department, error } = await supabase
       .from('departments')
-      .insert([{ nome, prioridade }])
+      .insert([{
+        nome,
+        prioridade: prioridade || 'Média'
+      }])
       .select()
       .single();
+
     if (error) {
-      return res.status(400).json({ success: false, message: 'Erro ao criar departamento.', error: error.message });
+      console.error('Erro ao criar departamento:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro ao criar departamento',
+        error: error.message 
+      });
     }
-    res.status(201).json({ success: true, data });
+
+    res.status(201).json({ 
+      success: true, 
+      data: department,
+      message: 'Departamento criado com sucesso' 
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+    console.error('Erro interno ao criar departamento:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor',
+      error: error.message 
+    });
   }
 };
 
-// Editar departamento
+// Atualizar departamento
 export const updateDepartment = async (req, res) => {
-  if (!checkAdminOrPastor(req, res)) return;
   try {
     const { id } = req.params;
     const { nome, prioridade } = req.body;
-    if (!nome && !prioridade) {
-      return res.status(400).json({ success: false, message: 'Informe nome ou prioridade para atualizar.' });
-    }
-    const updateData = {};
-    if (nome) updateData.nome = nome;
-    if (prioridade) updateData.prioridade = prioridade;
-    const { data, error } = await supabase
+
+    const { data: department, error } = await supabase
       .from('departments')
-      .update(updateData)
+      .update({
+        nome,
+        prioridade
+      })
       .eq('id', id)
       .select()
       .single();
-    if (error || !data) {
-      return res.status(400).json({ success: false, message: 'Erro ao atualizar departamento.', error: error?.message });
+
+    if (error) {
+      console.error('Erro ao atualizar departamento:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro ao atualizar departamento',
+        error: error.message 
+      });
     }
-    res.json({ success: true, data });
+
+    if (!department) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Departamento não encontrado' 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      data: department,
+      message: 'Departamento atualizado com sucesso' 
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+    console.error('Erro interno ao atualizar departamento:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor',
+      error: error.message 
+    });
   }
 };
 
-// Remover departamento
+// Deletar departamento (soft delete)
 export const deleteDepartment = async (req, res) => {
-  if (!checkAdminOrPastor(req, res)) return;
   try {
     const { id } = req.params;
-    const { data, error } = await supabase
+
+    const { data: department, error } = await supabase
       .from('departments')
       .delete()
       .eq('id', id)
       .select()
       .single();
-    if (error || !data) {
-      return res.status(400).json({ success: false, message: 'Erro ao remover departamento.', error: error?.message });
+
+    if (error) {
+      console.error('Erro ao deletar departamento:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Erro ao deletar departamento',
+        error: error.message 
+      });
     }
-    res.json({ success: true, message: 'Departamento removido com sucesso.' });
+
+    if (!department) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Departamento não encontrado' 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Departamento deletado com sucesso' 
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Erro interno do servidor', error: error.message });
+    console.error('Erro interno ao deletar departamento:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor',
+      error: error.message 
+    });
   }
-}; 
+};

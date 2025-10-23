@@ -1,18 +1,21 @@
 import express from 'express';
-import { listDepartments, createDepartment, updateDepartment, deleteDepartment } from '../controllers/DepartmentsController.js';
+import {
+  listDepartments,
+  createDepartment,
+  updateDepartment,
+  deleteDepartment
+} from '../controllers/DepartmentsController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.use(authenticateToken);
-
 // Listar departamentos
-router.get('/', listDepartments);
+router.get('/', authenticateToken, listDepartments);
 // Criar departamento
-router.post('/', createDepartment);
-// Editar departamento
-router.put('/:id', updateDepartment);
-// Remover departamento
-router.delete('/:id', deleteDepartment);
+router.post('/', authenticateToken, createDepartment);
+// Atualizar departamento
+router.put('/:id', authenticateToken, updateDepartment);
+// Deletar departamento
+router.delete('/:id', authenticateToken, deleteDepartment);
 
-export default router; 
+export default router;
