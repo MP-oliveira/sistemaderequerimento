@@ -29,5 +29,6 @@ export const salasOptions = [
   { value: 'Anexo 2 - Sala 27', label: '🏢 Anexo 2 - Sala 27 (Andar 2)' },
   { value: 'Anexo 2 - Sala 31', label: '🏢 Anexo 2 - Sala 31 (Andar 3)' },
   { value: 'Anexo 2 - Sala 32', label: '🏢 Anexo 2 - Sala 32 (Andar 3)' },
+  { value: 'Estúdio', label: '🎬 Estúdio' },
   { value: 'Outro', label: '📍 Outro local' }
 ]; 
