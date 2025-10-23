@@ -66,12 +66,17 @@ export default function ServicoGeralDashboard() {
   }, []);
 
   const handleDayClick = (day) => {
+    console.log('🔍 handleDayClick chamado:', day);
     if (day.events.length > 0) {
+      console.log('🔍 Eventos encontrados:', day.events);
       // Se for uma requisição, abrir modal de detalhes
       const requisicao = day.events.find(event => event.type === 'requisicao');
+      console.log('🔍 Requisição encontrada:', requisicao);
       if (requisicao) {
+        console.log('🔍 Abrindo modal de detalhes para:', requisicao.id);
         abrirDetalhe(requisicao.id);
       } else {
+        console.log('🔍 Usando modal simples');
         // Se for evento normal, usar modal simples
         setSelectedDay(day.date);
         setSelectedDayEvents(day.events);
